@@ -1,0 +1,65 @@
+plugins {
+    id 'org.ajoberstar.grgit' version '2.1.0'
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.bouncycastle:bcprov-jdk15on:1.59+'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.59+'
+    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.59+'
+    compile 'org.bouncycastle:bcpg-jdk15on:1.59+'
+    compile 'commons-cli:commons-cli:1.4'
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'org.slf4j:slf4j-log4j12:1.7.25'
+}
+
+// Define the main class for the application
+mainClassName = 'gov.gsa.pivconformance.tools.PrintEnvironmentInfo'
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+    doLast {
+     configurations.runtime.each { println it }
+    println "Packaged version $version"
+    }
+}
+
+run {
+    if (project.hasProperty("appArgs")) {
+        args Eval.me(appArgs)
+    }
+}
+
+compileJava.doFirst {
+        def git = org.ajoberstar.grgit.Grgit.open(dir: '.')
+        def commit = git.head()
+
+        def commitId = commit.abbreviatedId
+        def commitDate = commit.getDate()
+        def buildDate = new Date()
+
+        File resourcesDir = new File(project.getBuildDir(), 'resources/main')
+        File propertiesFile = new File(resourcesDir, 'version.properties')
+
+        // The project may not have any resources, so create the directories and file
+        if(!propertiesFile.exists()) {
+            resourcesDir.mkdirs()
+            propertiesFile.createNewFile()
+        }
+
+        propertiesFile.text = """git.commit.id=${commitId}
+git.commit.time=${commitDate.format('dd.MM.yyyy HH:mm:ss')}
+build.time=${buildDate.format('dd.MM.yyyy HH:mm:ss')}
+build.version=${version}
+"""
+}
+
