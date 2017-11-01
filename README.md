@@ -22,6 +22,16 @@ Cryptographic Modules](https://doi.org/10.6028/NIST.FIPS.140-2)
 - [SP800-96 PIV Card to Reader Interoperability Guidelines](https://doi.org/10.6028/NIST.SP.800-96)
 - [SP800-116 A Recommendation for the Use of PIV Credentials in Physical Access Control Systems (PACS)](https://doi.org/10.6028/NIST.SP.800-116)
 
+### RFCs ###
+- [RFC 3370 Cryptographic Message Syntax (CMS) Algorithms](https://tools.ietf.org/html/rfc3370)
+- [RFC 3447 Public-Key Cryptography Standards (PKCS) #1: RSA 1233 Cryptography Specifications Version 2.1](https://tools.ietf.org/html/rfc3447)
+- [RFC 4122 A Universally Unique IDentifier (UUID) URN Namespace](https://tools.ietf.org/html/rfc4122)
+- [RFC 5280 Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile](https://www.ietf.org/rfc/rfc5280.txt)
+- [RFC 5480 Elliptic Curve Cryptography Subject Public Key Information](https://tools.ietf.org/html/rfc5480)
+- [RFC 5652 Cryptographic Message Syntax (CMS)](https://tools.ietf.org/html/rfc5652)
+- [RFC 5754 Using SHA2 Algorithms with Cryptographic Message Syntax](https://tools.ietf.org/html/rfc5754)
+- [RFC 6960 X.509 Internet Public Key Infrastructure Online Certificate Status Protocol - OCSP](https://tools.ietf.org/html/rfc6960)
+
 ### Other Publications, Memoranda, or Documents ###
 - [HDPD-12 Policy for a Common Identification Standard for Federal Employees and Contractors, August 2004](http://www.dhs.gov/homeland-security-presidential-directive-12)
 - [OMB 11-11 Mandatory Use of Personal Identity Verification (PIV) Credentials](www.cac.mil/Portals/53/Documents/m-11-11.pdf)
