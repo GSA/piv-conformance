@@ -33,7 +33,7 @@ Cryptographic Modules](https://doi.org/10.6028/NIST.FIPS.140-2)
 - [RFC 6960 X.509 Internet Public Key Infrastructure Online Certificate Status Protocol - OCSP](https://tools.ietf.org/html/rfc6960)
 
 ### Other Publications, Memoranda, or Documents ###
-- [HDPD-12 Policy for a Common Identification Standard for Federal Employees and Contractors, August 2004](http://www.dhs.gov/homeland-security-presidential-directive-12)
+- [HSPD-12 Policy for a Common Identification Standard for Federal Employees and Contractors, August 2004](http://www.dhs.gov/homeland-security-presidential-directive-12)
 - [OMB 11-11 Mandatory Use of Personal Identity Verification \(PIV\) Credentials](https://www.whitehouse.gov/sites/whitehouse.gov/files/omb/memoranda/2011/m11-11.pdf)
 - [X.509 Certificate Policy For The U.S. Federal PKI Common Policy Framework](https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/fpki-x509-cert-common-policy.pdf)
 - [X.509 Certificate and Certificate Revocation List \(CRL\) Extensions Profile for the Shared Service Providers \(SSP\) Program](https://www.idmanagement.gov/wp-content/uploads/sites/1171/uploads/fpki-cert-profile-ssp.pdf)
