@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.Properties;
 
 public class VersionUtils {
@@ -21,14 +23,15 @@ public class VersionUtils {
         s_properties = new Properties();
         InputStream pis = null;
         try {
-            pis = VersionUtils.class.getClassLoader().getResourceAsStream("version.properties");
+            ClassLoader cl = VersionUtils.class.getClassLoader();
+            pis = VersionUtils.class.getResourceAsStream("version.properties");
             s_properties.load(pis);
         } catch(Exception e) {
-            s_logger.error("Unable to read version.properties file from classpath", e);
-            s_properties.setProperty(PACKAGE_VERSION, "ERROR");
-            s_properties.setProperty(PACKAGE_REVISION, "ERROR");
-            s_properties.setProperty(PACKAGE_BUILD_TIME, "ERROR");
-            s_properties.setProperty(PACKAGE_REVISION_TIME, "ERROR");
+            s_logger.debug("Unable to read version.properties file from classpath. This may only be available from jar packaged builds.", e);
+            s_properties.setProperty(PACKAGE_VERSION, "UNAVAILABLE");
+            s_properties.setProperty(PACKAGE_REVISION, "UNAVAILABLE");
+            s_properties.setProperty(PACKAGE_BUILD_TIME, "UNAVAILABLE");
+            s_properties.setProperty(PACKAGE_REVISION_TIME, "UNAVAILABLE");
 
         }
         if(!s_properties.containsKey(PACKAGE_VERSION)) {
