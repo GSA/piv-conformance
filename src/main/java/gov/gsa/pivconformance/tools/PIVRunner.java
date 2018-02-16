@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.tools;
 
 import gov.gsa.pivconformance.card.client.*;
+import gov.gsa.pivconformance.utils.PCSCUtils;
 import gov.gsa.pivconformance.utils.VersionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,32 @@ public class PIVRunner {
         MiddlewareStatus result = PIVMiddleware.pivConnect(true, cd, ch);
 
         s_logger.info("pivConnect returned {} for reader {}", result, firstTerminal.getName());
+
+//        PCSCUtils.ConfigureUserProperties();
+//        try {
+//
+//            TerminalFactory tf2 = TerminalFactory.getDefault();
+//            s_logger.info("Attempting to list card terminals");
+//            try {
+//                for (CardTerminal t : tf2.terminals().list()) {
+//                    s_logger.info("Reader: {}: {}", t.getName(), t.isCardPresent() ? "Card present":"Card not present");
+//
+//                    ConnectionDescription connectionDescription = ConnectionDescription.createFromTerminal(t);
+//
+//                    byte [] connectionDescriptionBuffer = connectionDescription.getBytes();
+//
+//                    s_logger.info("ConnectionDescription: {}", org.apache.commons.codec.binary.Hex.encodeHexString(connectionDescriptionBuffer));
+//                }
+//            } catch (CardException e) {
+//                s_logger.error("Unable to enumerate card terminals", e);
+//            }
+//
+//
+//
+//        }catch (Exception ex) {
+//
+//            s_logger.info("Exception : {}", ex.getMessage());
+//        }
 
     }
 }
