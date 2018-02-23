@@ -29,8 +29,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             // Establishing channel
             CardChannel channel = card.getBasicChannel();
 
-            // Select applet
-            CommandAPDU cmd = new CommandAPDU(applicationAID.getBytes());
+            // Select applet, I looks like aways be the same not sure what ApplicationAID will be used for.
+            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU());
+            //CommandAPDU cmd = new CommandAPDU(applicationAID.getBytes());
 
             // Transmit command and get response
             ResponseAPDU response = channel.transmit(cmd);
