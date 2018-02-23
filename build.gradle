@@ -20,6 +20,7 @@ dependencies {
     compile 'org.bouncycastle:bcpkix-jdk15on:1.59+'
     compile 'commons-cli:commons-cli:1.4'
     compile 'commons-codec:commons-codec:1.11'
+    compile 'com.payneteasy:ber-tlv:1.0-8'
     compile 'org.slf4j:slf4j-api:1.8+'
     //compile 'org.slf4j:slf4j-jdk14:1.8+'
     compile 'ch.qos.logback:logback-classic:1.3+'

@@ -54,6 +54,7 @@ public class PIVRunner {
 //
 //                    byte [] connectionDescriptionBuffer = connectionDescription.getBytes();
 //
+//                    connectionDescription.createFromBuffer(connectionDescriptionBuffer);
 //                    s_logger.info("ConnectionDescription: {}", org.apache.commons.codec.binary.Hex.encodeHexString(connectionDescriptionBuffer));
 //                }
 //            } catch (CardException e) {

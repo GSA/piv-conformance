@@ -2,6 +2,7 @@ package gov.gsa.pivconformance.card.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.smartcardio.Card;
 
 /**
  * A class that serves the function of the handle objects passed around that encapsulate a connection to a card
@@ -28,10 +29,27 @@ public class CardHandle {
     }
 
     /**
+     * set the Card object that will be used by the card handle
+     * @param card
+     */
+    public void setCard(Card card) {
+        m_card = card;
+    }
+
+    /**
+     * get the Card object associated with this card handle
+     * @return Card object
+     */
+    public Card getCard() {
+        return m_card;
+    }
+
+    /**
      * Initialize an invalid card handle object
      */
     public CardHandle() {
         m_connectionDescription = null;
+        m_card = null;
         m_valid = false;
     }
 
@@ -45,5 +63,6 @@ public class CardHandle {
 
     private ConnectionDescription m_connectionDescription;
     private boolean m_valid = false;
+    private Card m_card;
 
 }
