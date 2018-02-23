@@ -10,5 +10,12 @@ public class ApplicationProperties {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(ApplicationProperties.class);
 
+    private byte[] m_appPropertiesBytes;
+
+
+    public void setBytes(byte[] appPropertiesBytes) {
+        m_appPropertiesBytes = appPropertiesBytes;
+    }
+
     public byte[] getBytes() { return null; }
 }
