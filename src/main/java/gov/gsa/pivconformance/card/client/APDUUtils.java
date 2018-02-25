@@ -29,4 +29,24 @@ public class APDUUtils {
         }
         return s_pivSelect;
     }
+
+    public static byte[] PIVSelectAPDU(byte[] appid) {
+        if(s_pivSelect == null) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                baos.write(APDUConstants.COMMAND);
+                baos.write(APDUConstants.SELECT);
+                byte[] p1p2 = {0x04, 0x00};
+                baos.write(p1p2);
+                baos.write((byte) appid.length);
+                baos.write(appid);
+                s_pivSelect = baos.toByteArray();
+            } catch(IOException ioe) {
+                // if we ever hit this, OOM is coming soon
+                s_logger.error("Unable to populate static PIV select APDU field.", ioe);
+                s_pivSelect = new byte[0];
+            }
+        }
+        return s_pivSelect;
+    }
 }

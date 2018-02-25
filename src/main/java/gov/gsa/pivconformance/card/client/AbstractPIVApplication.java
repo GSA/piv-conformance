@@ -29,20 +29,30 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             // Establishing channel
             CardChannel channel = card.getBasicChannel();
 
-            // Select applet, I looks like aways be the same not sure what ApplicationAID will be used for.
-            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU());
-            //CommandAPDU cmd = new CommandAPDU(applicationAID.getBytes());
+            //Construct APDU command using APDUUtils and applicationAID that was passed in.
+            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU(applicationAID.getBytes()));
 
             // Transmit command and get response
             ResponseAPDU response = channel.transmit(cmd);
 
+            if(response.getSW() != 0x9000) {
+
+                if(response.getSW() != 0x6A82){
+                    s_logger.info("Card application not found");
+                    return MiddlewareStatus.PIV_CARD_APPLICATION_NOT_FOUND;
+                }
+
+                s_logger.error("Error selecting card application, failed with error: {}", Integer.toHexString(response.getSW()));
+                return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+            }
+
             // Populated thr response in ApplicationProperties
-            applicationProperties.setBytes(response.getBytes());
+            applicationProperties.setBytes(response.getData());
 
         }
         catch (Exception ex) {
 
-            s_logger.info("Error selecting card application: {}", ex.getMessage());
+            s_logger.error("Error selecting card application: {}", ex.getMessage());
             return MiddlewareStatus.PIV_CONNECTION_FAILURE;
         }
 
@@ -56,7 +66,28 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
     @Override
     public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
-        return null;
+
+        try {
+            // Establishing channel
+            Card card = cardHandle.getCard();
+            if (card == null)
+                return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+
+            // Establishing channel
+            CardChannel channel = card.getBasicChannel();
+
+        }catch (SecurityException ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+        }
+        catch (Exception ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+        }
+
+        return MiddlewareStatus.PIV_OK;
     }
 
     @Override
