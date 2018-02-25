@@ -35,9 +35,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             // Transmit command and get response
             ResponseAPDU response = channel.transmit(cmd);
 
-            if(response.getSW() != 0x9000) {
+            //Check for Successful execution status word
+            if(response.getSW() != APDUConstants.SUCCESSFUL_EXEC) {
 
-                if(response.getSW() != 0x6A82){
+                if(response.getSW() != APDUConstants.APP_NOT_FOUND){
                     s_logger.info("Card application not found");
                     return MiddlewareStatus.PIV_CARD_APPLICATION_NOT_FOUND;
                 }
@@ -46,7 +47,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                 return MiddlewareStatus.PIV_CONNECTION_FAILURE;
             }
 
-            // Populated thr response in ApplicationProperties
+            // Populated the response in ApplicationProperties
             applicationProperties.setBytes(response.getData());
 
         }
