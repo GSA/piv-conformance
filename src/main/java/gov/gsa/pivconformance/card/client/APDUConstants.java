@@ -1,15 +1,20 @@
 package gov.gsa.pivconformance.card.client;
 
+
+import java.util.HashMap;
+
 public class APDUConstants {
     public static final byte COMMAND = 0x00;
     public static final byte COMMAND_CC = 0x10;
     public static final byte SELECT = (byte)0xa4;
+    public static final byte GET = (byte)0xcb;
+    public static final byte DATA_FIELD_TAG = 0x5c;
     public static final byte[] PIV_APPID = { (byte)0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
     public static final int SUCCESSFUL_EXEC = 0x9000;
 
     public static final int APP_NOT_FOUND = 0x6A82;
-
+    public static final int SECURITY_STATUS_NOT_SATISFIED = 0x6982;
 
     public static final String CARD_CAPABILITY_CONTAINER_OID = "2.16.840.1.101.3.7.1.219.0";
     public static final byte[] CARD_CAPABILITY_CONTAINER_TAG =  {0x5F, (byte)0xC1, 0x07};
@@ -67,5 +72,26 @@ public class APDUConstants {
 
     public static final String PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID = "2.16.840.1.101.3.7.2.16.24";
     public static final byte[] PAIRING_CODE_REFERENCE_DATA_CONTAINER_TAG = {0x5F, (byte)0xC1, 0x23};
+
+    public static final HashMap<String, byte[]> oidMAP = new HashMap<String, byte[]>(){
+        {
+            put(CARD_CAPABILITY_CONTAINER_OID, CARD_CAPABILITY_CONTAINER_TAG);
+            put(CARD_HOLDER_UNIQUE_IDENTIFIER_OID, CARD_HOLDER_UNIQUE_IDENTIFIER_TAG);
+            put(X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_TAG);
+            put(CARDHOLDER_FINGERPRINTS_OID, CARDHOLDER_FINGERPRINTS_TAG);
+            put(SECURITY_OBJECT_OID, SECURITY_OBJECT_TAG);
+            put(CARDHOLDER_FACIAL_IMAGE_OID, CARDHOLDER_FACIAL_IMAGE_TAG);
+            put(X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_TAG);
+            put(X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_TAG);
+            put(X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, X509_CERTIFICATE_FOR_KEY_MANAGEMENT_TAG);
+            put(PRINTED_INFORMATION_OID, PRINTED_INFORMATION_TAG);
+            put(DISCOVERY_OBJECT_OID, DISCOVERY_OBJECT_TAG);
+            put(KEY_HISTORY_OBJECT_OID, KEY_HISTORY_OBJECT_TAG);
+            put(CARDHOLDER_IRIS_IMAGES_OID, CARDHOLDER_IRIS_IMAGES_TAG);
+            put(BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_TAG);
+            put(SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, SECURE_MESSAGING_CERTIFICATE_SIGNER_TAG);
+            put(PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, PAIRING_CODE_REFERENCE_DATA_CONTAINER_TAG);
+        }
+    };
 
 }

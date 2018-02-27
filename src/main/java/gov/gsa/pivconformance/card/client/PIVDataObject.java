@@ -11,6 +11,8 @@ public class PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(PIVDataObject.class);
 
+    private byte[] m_dataBytes;
+
     public PIVDataObject() {
         m_OID = null;
     }
@@ -18,6 +20,10 @@ public class PIVDataObject {
     public PIVDataObject(String OID) {
 
         m_OID = OID;
+    }
+
+    public void setBytes(byte[] dataBytes) {
+        m_dataBytes = dataBytes;
     }
 
     public byte[] getBytes() { return null; }

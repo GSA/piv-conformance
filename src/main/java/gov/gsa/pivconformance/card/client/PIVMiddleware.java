@@ -37,7 +37,8 @@ public class PIVMiddleware {
 
         // Need to figure out what to do with sharedConnection in context of JAVA
         CardTerminal t = connectionDescription.getTerminal();
-        CardHandle ch = new CardHandle();
+        if(cardHandle == null)
+            cardHandle = new CardHandle();
 
         if(connectionDescription.getTerminal() == null )
             return MiddlewareStatus.PIV_CONNECTION_DESCRIPTION_MALFORMED;
@@ -47,8 +48,8 @@ public class PIVMiddleware {
             Card card = card = t.connect("*");
 
             if(card != null) {
-                ch.setConnectionDescription(connectionDescription);
-                ch.setCard(card);
+                cardHandle.setConnectionDescription(connectionDescription);
+                cardHandle.setCard(card);
             }
 
         }catch (Exception ex) {

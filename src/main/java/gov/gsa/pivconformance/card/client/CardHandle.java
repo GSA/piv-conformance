@@ -25,7 +25,7 @@ public class CardHandle {
      * @param connectionDescription
      */
     public void setConnectionDescription(ConnectionDescription connectionDescription) {
-        m_connectionDescription = connectionDescription;
+        this.m_connectionDescription = connectionDescription;
     }
 
     /**
@@ -33,7 +33,7 @@ public class CardHandle {
      * @param card
      */
     public void setCard(Card card) {
-        m_card = card;
+        this.m_card = card;
     }
 
     /**

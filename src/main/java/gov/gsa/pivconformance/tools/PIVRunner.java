@@ -56,6 +56,32 @@ public class PIVRunner {
 //
 //                    connectionDescription.createFromBuffer(connectionDescriptionBuffer);
 //                    s_logger.info("ConnectionDescription: {}", org.apache.commons.codec.binary.Hex.encodeHexString(connectionDescriptionBuffer));
+//
+//                    CardHandle cardHandle = new CardHandle();
+//                    MiddlewareStatus status = PIVMiddleware.pivConnect(false, connectionDescription, cardHandle);
+//
+//                    if(status == MiddlewareStatus.PIV_OK) {
+//                        DefaultPIVApplication defApp = new DefaultPIVApplication();
+//
+//
+//                        byte[] appIDBytes = {(byte) 0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01};
+//                        ApplicationAID applicationAID = new ApplicationAID(appIDBytes);
+//
+//                        ApplicationProperties applicationProperties = new ApplicationProperties();
+//
+//                        status = defApp.pivSelectCardApplication(cardHandle, applicationAID, applicationProperties);
+//
+//                        if(status == MiddlewareStatus.PIV_OK) {
+//
+//                            PIVDataObject pivDataObject = new PIVDataObject();
+//
+//                            status = defApp.pivGetData(cardHandle, APDUConstants.CARD_CAPABILITY_CONTAINER_OID, pivDataObject);
+//
+//                        }
+//                    }
+//
+//
+//
 //                }
 //            } catch (CardException e) {
 //                s_logger.error("Unable to enumerate card terminals", e);

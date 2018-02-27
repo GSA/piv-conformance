@@ -11,15 +11,10 @@ import javax.smartcardio.CardTerminal;
 import javax.smartcardio.TerminalFactory;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
 
 
 import gov.gsa.pivconformance.tlv.BerTlvParser;
 import gov.gsa.pivconformance.tlv.BerTlvs;
-import gov.gsa.pivconformance.tlv.HexUtil;
 
 
 /**

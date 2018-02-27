@@ -10,5 +10,19 @@ public class ApplicationAID {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(ApplicationAID.class);
 
-    public byte[] getBytes() { return null; }
+    public ApplicationAID() {
+        m_appIDBytes = null;
+    }
+
+    public ApplicationAID(byte[] appIDBytes) {
+        m_appIDBytes = appIDBytes;
+    }
+
+    private byte[] m_appIDBytes;
+
+    public void setBytes(byte[] appIDBytes) {
+        m_appIDBytes = appIDBytes;
+    }
+
+    public byte[] getBytes() { return m_appIDBytes; }
 }
