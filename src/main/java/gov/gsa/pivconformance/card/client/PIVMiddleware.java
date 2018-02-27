@@ -50,6 +50,7 @@ public class PIVMiddleware {
             if(card != null) {
                 cardHandle.setConnectionDescription(connectionDescription);
                 cardHandle.setCard(card);
+                cardHandle.setValid(true);
             }
 
         }catch (Exception ex) {
@@ -73,12 +74,14 @@ public class PIVMiddleware {
 
             Card card = cardHandle.getCard();
 
-            if(card == null) {
+            if(card == null || !cardHandle.isValid()) {
                 return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
             }
 
             //XXX Need to figure out if connections needs to be reset or not
             card.disconnect(false);
+            //Invalidate cardHandle object
+            cardHandle = new CardHandle();
 
         }catch (Exception ex) {
 

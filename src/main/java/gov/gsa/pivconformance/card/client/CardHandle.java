@@ -25,7 +25,7 @@ public class CardHandle {
      * @param connectionDescription
      */
     public void setConnectionDescription(ConnectionDescription connectionDescription) {
-        this.m_connectionDescription = connectionDescription;
+        m_connectionDescription = connectionDescription;
     }
 
     /**
@@ -33,7 +33,7 @@ public class CardHandle {
      * @param card
      */
     public void setCard(Card card) {
-        this.m_card = card;
+        m_card = card;
     }
 
     /**
@@ -59,6 +59,14 @@ public class CardHandle {
      */
     public boolean isValid() {
         return m_valid;
+    }
+
+    /**
+     * sets the boolen value that indicates the status of card handle object
+     * @param valid
+     */
+    public void setValid(boolean valid) {
+        m_valid = valid;
     }
 
     private ConnectionDescription m_connectionDescription;
