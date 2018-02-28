@@ -54,6 +54,29 @@ public class PIVRunner {
             s_logger.info("pivSelectCardApplication() returned {}", result);
             if(result == MiddlewareStatus.PIV_OK) {
                 byte[] pcap = cardAppProperties.getBytes();
+
+                byte [] appID = cardAppProperties.getAppID();
+                String appLabel = cardAppProperties.getAppLabel();
+                String url = cardAppProperties.getURL();
+                byte [] cryptoAlgs = cardAppProperties.getCryptoAlgs();
+                byte [] coexistentTagAllocationAuthority = cardAppProperties.getCoexistentTagAllocationAuthority();
+
+                if(appID != null)
+                    s_logger.info("Application identifier of application: {}", Hex.encodeHexString(appID));
+
+                if(coexistentTagAllocationAuthority != null)
+                    s_logger.info("Coexistent tag allocation authority: {}", Hex.encodeHexString(coexistentTagAllocationAuthority));
+
+                if(appLabel != "")
+                    s_logger.info("Application label: {}", appLabel);
+
+                if(url != "")
+                    s_logger.info("Uniform resource locator: {}", url);
+
+                if(cryptoAlgs != null)
+                    s_logger.info("Cryptographic algorithms supported: {}", Hex.encodeHexString(cryptoAlgs));
+
+
                 s_logger.info("PCAP: {}", Hex.encodeHexString(pcap));
                 BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(PIVRunner.class));
                 BerTlv outer = tp.parseConstructed(pcap);
@@ -101,6 +124,7 @@ public class PIVRunner {
             PrintHelpAndExit(0);
         }
 
+        PCSCUtils.ConfigureUserProperties();
         PIVMiddlewareVersion mwv = new PIVMiddlewareVersion();
         MiddlewareStatus middlewareStatus = PIVMiddleware.pivMiddlewareVersion(mwv);
         s_logger.info("pivMiddlewareVersion returned status {} and version {}", middlewareStatus, mwv);

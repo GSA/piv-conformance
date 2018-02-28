@@ -8,5 +8,6 @@ public class TagConstants {
     public static final byte[] CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER = { (byte) 0x80 };
     public static final byte[] OBJECT_IDENTIFIER = { (byte) 0x06 };
     public static final byte[] TAG_LIST = { 0x5c };
+    public static final byte[] COEXISTENT_TAG_ALLOCATION_AUTHORITY = { 0x79 };
 
 }

@@ -146,7 +146,6 @@ public class ConnectionDescription {
             return null;
         }
 
-        PCSCUtils.ConfigureUserProperties();
         try {
 
             TerminalFactory tf2 = TerminalFactory.getDefault();
