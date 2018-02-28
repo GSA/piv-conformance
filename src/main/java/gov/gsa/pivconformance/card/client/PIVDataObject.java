@@ -26,7 +26,7 @@ public class PIVDataObject {
         m_dataBytes = dataBytes;
     }
 
-    public byte[] getBytes() { return null; }
+    public byte[] getBytes() { return m_dataBytes; }
 
     public String getOID() {
         return m_OID;
