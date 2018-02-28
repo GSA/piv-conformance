@@ -73,6 +73,19 @@ public class APDUConstants {
     public static final String PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID = "2.16.840.1.101.3.7.2.16.24";
     public static final byte[] PAIRING_CODE_REFERENCE_DATA_CONTAINER_TAG = {0x5F, (byte)0xC1, 0x23};
 
+    public static final String[] MandatoryContainers() {
+        final String[] rv = {
+                CARD_CAPABILITY_CONTAINER_OID,
+                CARD_HOLDER_UNIQUE_IDENTIFIER_OID,
+                X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID,
+                CARDHOLDER_FINGERPRINTS_OID,
+                SECURITY_OBJECT_OID,
+                CARDHOLDER_FACIAL_IMAGE_OID,
+                X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID
+        };
+        return rv;
+    }
+
     public static final HashMap<String, byte[]> oidMAP = new HashMap<String, byte[]>(){
         {
             put(CARD_CAPABILITY_CONTAINER_OID, CARD_CAPABILITY_CONTAINER_TAG);
