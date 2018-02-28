@@ -17,5 +17,7 @@ public class ApplicationProperties {
         m_appPropertiesBytes = appPropertiesBytes;
     }
 
-    public byte[] getBytes() { return null; }
+    public byte[] getBytes() {
+        return m_appPropertiesBytes;
+    }
 }

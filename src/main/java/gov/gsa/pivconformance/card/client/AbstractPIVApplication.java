@@ -21,7 +21,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
     @Override
     public MiddlewareStatus pivSelectCardApplication(CardHandle cardHandle, ApplicationAID applicationAID, ApplicationProperties applicationProperties) {
-
+        s_logger.debug("pivSelectCardApplication()");
         try {
             // Establishing channel
             Card card = cardHandle.getCard();
@@ -33,10 +33,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU(applicationAID.getBytes()));
-            //CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU());
 
             // Transmit command and get response
             ResponseAPDU response = channel.transmit(cmd);
+            s_logger.debug("Response to SELECT command: {} {}", String.format("0x%02X", response.getSW1()), String.format("0x%02X", response.getSW2()));
 
             //Check for Successful execution status word
             if(response.getSW() != APDUConstants.SUCCESSFUL_EXEC) {
@@ -59,7 +59,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             s_logger.error("Error selecting card application: {}", ex.getMessage());
             return MiddlewareStatus.PIV_CONNECTION_FAILURE;
         }
-
+        s_logger.debug("pivSelectCardApplication returning {}", MiddlewareStatus.PIV_OK);
         return MiddlewareStatus.PIV_OK;
     }
 
