@@ -1,10 +1,7 @@
 package gov.gsa.pivconformance.tools;
 
 import gov.gsa.pivconformance.card.client.*;
-import gov.gsa.pivconformance.tlv.BerTlv;
-import gov.gsa.pivconformance.tlv.BerTlvParser;
-import gov.gsa.pivconformance.tlv.BerTlvs;
-import gov.gsa.pivconformance.tlv.CCTTlvLogger;
+import gov.gsa.pivconformance.tlv.*;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 import gov.gsa.pivconformance.utils.VersionUtils;
 import org.apache.commons.cli.*;
@@ -14,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.smartcardio.*;
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.List;
 
 public class PIVRunner {
@@ -66,6 +64,14 @@ public class PIVRunner {
                     } else {
                         s_logger.info("PCAP object: {}", Hex.encodeHexString(tlv.getTag().bytes));
                     }
+                }
+                for(String containerOID : APDUConstants.MandatoryContainers()) {
+                    PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
+                    s_logger.info("Attempting to read data object for OID {}", containerOID);
+                    result = piv.pivGetData(c, containerOID, dataObject);
+                    s_logger.info("pivGetData returned {}", result);
+                    if(result != MiddlewareStatus.PIV_OK) break;
+                    s_logger.info("Data object bytes: {}", Hex.encodeHexString(dataObject.getBytes()));
                 }
 
             }
