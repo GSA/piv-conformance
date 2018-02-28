@@ -1,10 +1,10 @@
 package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +17,7 @@ public class ApplicationProperties {
     private byte[] m_appPropertiesBytes;
     private String m_url;
     private String m_appLabel;
-    private byte[] m_cryptoAlgs;
+    private List<byte[]> m_cryptoAlgs;
     private byte[] m_coexistentTagAllocationAuthority;
     private byte[] m_appID;
 
@@ -26,6 +26,7 @@ public class ApplicationProperties {
         m_appPropertiesBytes = null;
         m_url = "";
         m_appLabel = "";
+        m_cryptoAlgs = null;
         m_cryptoAlgs = null;
         m_coexistentTagAllocationAuthority = null;
         m_appID = null;
@@ -67,7 +68,13 @@ public class ApplicationProperties {
             }
 
             if(CryptAlgsTlv != null){
-                m_cryptoAlgs = CryptAlgsTlv.getBytesValue();
+
+                m_cryptoAlgs = new ArrayList<>();
+                List<BerTlv> berTlvsList = CryptAlgsTlv.getValues();
+                for(BerTlv tlv : berTlvsList) {
+                        BerTag tag = tlv.getTag();
+                        m_cryptoAlgs.add(tag.bytes);
+                }
             }
 
             if(CoexistentTagAllocationAuthorityTlv != null){
@@ -97,7 +104,7 @@ public class ApplicationProperties {
         return m_appLabel;
     }
 
-    public byte[] getCryptoAlgs() {
+    public List<byte[]> getCryptoAlgs() {
         return m_cryptoAlgs;
     }
 
