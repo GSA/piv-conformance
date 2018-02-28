@@ -4,6 +4,7 @@ import gov.gsa.pivconformance.card.client.*;
 import gov.gsa.pivconformance.tlv.BerTlv;
 import gov.gsa.pivconformance.tlv.BerTlvParser;
 import gov.gsa.pivconformance.tlv.BerTlvs;
+import gov.gsa.pivconformance.tlv.CCTTlvLogger;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 import gov.gsa.pivconformance.utils.VersionUtils;
 import org.apache.commons.cli.*;
@@ -56,7 +57,7 @@ public class PIVRunner {
             if(result == MiddlewareStatus.PIV_OK) {
                 byte[] pcap = cardAppProperties.getBytes();
                 s_logger.info("PCAP: {}", Hex.encodeHexString(pcap));
-                BerTlvParser tp = new BerTlvParser();
+                BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(PIVRunner.class));
                 BerTlv outer = tp.parseConstructed(pcap);
                 List<BerTlv> values = outer.getValues();
                 for(BerTlv tlv : values) {
