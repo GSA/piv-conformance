@@ -58,7 +58,7 @@ public class PIVRunner {
                 byte [] appID = cardAppProperties.getAppID();
                 String appLabel = cardAppProperties.getAppLabel();
                 String url = cardAppProperties.getURL();
-                byte [] cryptoAlgs = cardAppProperties.getCryptoAlgs();
+                List<byte[]> cryptoAlgs = cardAppProperties.getCryptoAlgs();
                 byte [] coexistentTagAllocationAuthority = cardAppProperties.getCoexistentTagAllocationAuthority();
 
                 if(appID != null)
@@ -73,8 +73,13 @@ public class PIVRunner {
                 if(url != "")
                     s_logger.info("Uniform resource locator: {}", url);
 
-                if(cryptoAlgs != null)
-                    s_logger.info("Cryptographic algorithms supported: {}", Hex.encodeHexString(cryptoAlgs));
+                if(cryptoAlgs != null) {
+                    for(byte[] b : cryptoAlgs) {
+
+                        s_logger.info("Cryptographic algorithms supported:");
+                        s_logger.info("Algorithm ID: {} Algorithm Description: {}", Hex.encodeHexString(b), TagConstants.algMAP.get(b));
+                    }
+                }
 
 
                 s_logger.info("PCAP: {}", Hex.encodeHexString(pcap));
