@@ -13,7 +13,7 @@ public class BerTlvBuilder {
 
     private static final Charset ASCII = Charset.forName("US-ASCII");
     private static final BigDecimal HUNDRED = new BigDecimal(100);
-    private static final int DEFAULT_SIZE = 5 * 1024;
+    private static final int DEFAULT_SIZE = 24 * 1024;
 
     public BerTlvBuilder() {
         this((BerTag)null);
