@@ -24,7 +24,7 @@ public class BerTlvParser {
     }
 
     public BerTlv parseConstructed(byte[] aBuf, int aOffset, int aLen) {
-        ParseResult result =  parseWithResult(0, aBuf, aOffset, aLen);
+        ParseResult result =  parseWithResult(0, aBuf, aOffset, aLen, true);
         return result.tlv;
     }
 
@@ -38,7 +38,7 @@ public class BerTlvParser {
 
         int offset = aOffset;
         for(int i=0; i<100; i++) {
-            ParseResult result =  parseWithResult(0, aBuf, offset, aLen-offset);
+            ParseResult result =  parseWithResult(0, aBuf, offset, aLen-offset, false);
             tlvs.add(result.tlv);
 
             if(result.offset>=aOffset+aLen) {
@@ -53,6 +53,9 @@ public class BerTlvParser {
     }
 
     private ParseResult parseWithResult(int aLevel, byte[] aBuf, int aOffset, int aLen) {
+        return parseWithResult(aLevel, aBuf, aOffset, aLen, true);
+    }
+    private ParseResult parseWithResult(int aLevel, byte[] aBuf, int aOffset, int aLen, boolean recurse) {
         String levelPadding = createLevelPadding(aLevel);
         if(aOffset+aLen > aBuf.length) {
             throw new IllegalStateException("Length is out of the range [offset="+aOffset+",  len="+aLen+", array.length="+aBuf.length+", level="+aLevel+"]");
@@ -78,7 +81,7 @@ public class BerTlvParser {
         }
 
         // value
-        if(tag.isConstructed()) {
+        if(tag.isConstructed() && recurse) {
 
             ArrayList<BerTlv> list = new ArrayList<BerTlv>();
             addChildren(aLevel, aBuf, aOffset, levelPadding, tagBytesCount, lengthBytesCount, valueLength, list);
