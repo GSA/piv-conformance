@@ -103,7 +103,7 @@ public class PIVRunner {
                     s_logger.info("Data object bytes: {}", Hex.encodeHexString(dataObject.getBytes()));
 
                     if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)){
-                        X509Certificate pibAuthCert = ((X509CertificateForPIVAuthentication) dataObject).getCertificate();
+                        X509Certificate pibAuthCert = ((X509CertificateDataObject) dataObject).getCertificate();
 
                         s_logger.info("PIV Auth Cert SubjectName {}", pibAuthCert.getSubjectDN().getName());
                         s_logger.info("PIV Auth Cert SerialNumber {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));

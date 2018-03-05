@@ -13,13 +13,13 @@ import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.util.zip.GZIPInputStream;
 
-public class X509CertificateForPIVAuthentication extends PIVDataObject {
+public class X509CertificateDataObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
-    private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateForPIVAuthentication.class);
+    private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateDataObject.class);
 
     private X509Certificate m_pivAuthCert;
 
-    public X509CertificateForPIVAuthentication() {
+    public X509CertificateDataObject() {
 
         m_pivAuthCert = null;
     }
@@ -31,17 +31,16 @@ public class X509CertificateForPIVAuthentication extends PIVDataObject {
             try{
                 byte [] raw = super.getBytes();
 
-                s_logger.info("RAW CERT INFO: {}", Hex.encodeHexString(raw));
-
                 BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(PIVRunner.class));
                 BerTlvs outer = tp.parse(raw);
+
                 List<BerTlv> values = outer.getList();
                 for(BerTlv tlv : values) {
                     if(tlv.isPrimitive()) {
                         s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
-                        //BerTlvs values3 = tp.parse(tlv.getBytesValue());
                         BerTlvs outer2 = tp.parse(tlv.getBytesValue());
+
                         List<BerTlv> values2 = outer2.getList();
                         byte[] rawCertBuf = null;
                         byte[] certInfoBuf = null;
@@ -49,13 +48,13 @@ public class X509CertificateForPIVAuthentication extends PIVDataObject {
                             if(tlv2.isPrimitive()) {
                                 s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             } else {
-                                if(tlv2.getTag().bytes[0] == 0x70) {
+                                if(tlv2.getTag().bytes == TagConstants.CERTIFICATE_TAG) {
                                     if (tlv2.hasRawValue()) {
                                         rawCertBuf = tlv2.getBytesValue();
                                         s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(rawCertBuf));
                                     }
                                 }
-                                if(tlv2.getTag().bytes[0] == 0x71) {
+                                if(tlv2.getTag().bytes == TagConstants.CERTINFO_TAG) {
                                     certInfoBuf = tlv2.getBytesValue();
                                     s_logger.info("Got cert info buffer: {}", Hex.encodeHexString(certInfoBuf));
                                 }
@@ -63,7 +62,8 @@ public class X509CertificateForPIVAuthentication extends PIVDataObject {
                         }
 
                         InputStream certIS = null;
-                        if(certInfoBuf != null && certInfoBuf[0] == 0x01) {
+                        //Check if the certificate buffer is compressed
+                        if(certInfoBuf != null && certInfoBuf == TagConstants.COMPRESSED_TAG) {
                             certIS = new GZIPInputStream(new ByteArrayInputStream(rawCertBuf));
                         } else {
                             certIS = new ByteArrayInputStream(rawCertBuf);
@@ -77,7 +77,7 @@ public class X509CertificateForPIVAuthentication extends PIVDataObject {
                 }
             }catch (Exception ex) {
 
-                s_logger.error("Error parsing X.509 Certificate for PIV Authentication object: {}", ex.getMessage());
+                s_logger.error("Error parsing X.509 Certificate: {}", ex.getMessage());
             }
         }
 

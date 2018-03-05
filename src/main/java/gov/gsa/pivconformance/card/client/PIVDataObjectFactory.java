@@ -26,9 +26,9 @@ public class PIVDataObjectFactory {
         else if(OID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID))
             return new CardholderFingerprints();
         else if(OID.equals(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID))
-            return new X509CertificateForCardAuthentication();
+            return new X509CertificateDataObject();
         else if(OID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID))
-            return new X509CertificateForPIVAuthentication();
+            return new X509CertificateDataObject();
         else if(OID.equals(APDUConstants.DISCOVERY_OBJECT_OID))
             return new PIVDataObject();
         else if(OID.equals(APDUConstants.KEY_HISTORY_OBJECT_OID))
@@ -42,9 +42,9 @@ public class PIVDataObjectFactory {
         else if(OID.equals(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID))
             return new SecureMessagingCertificateSigner();
         else if(OID.equals(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID))
-            return new X509CertificateForDigitalSignature();
+            return new X509CertificateDataObject();
         else if(OID.equals(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID))
-            return new X509CertificateForKeyManagment();
+            return new X509CertificateDataObject();
         else if(OID.equals(APDUConstants.PRINTED_INFORMATION_OID))
             return new PrintedInformation();
 

@@ -12,6 +12,11 @@ public class TagConstants {
     public static final byte[] TAG_LIST = { 0x5c };
     public static final byte[] COEXISTENT_TAG_ALLOCATION_AUTHORITY = { 0x79 };
 
+    public static final byte[] CERTIFICATE_TAG = { 0x70 };
+    public static final byte[] CERTINFO_TAG = { 0x71 };
+    public static final byte[] COMPRESSED_TAG = { 0x01 };
+
+
     public static final byte[] Three_Key_Triple_DES_ECB_ID =  { 0x00 };
     public static final String Three_Key_Triple_DES_ECB = "3 Key Triple DES – ECB";
 
