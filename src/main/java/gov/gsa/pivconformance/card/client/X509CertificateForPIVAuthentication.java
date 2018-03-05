@@ -69,7 +69,7 @@ public class X509CertificateForPIVAuthentication extends PIVDataObject {
                             certIS = new ByteArrayInputStream(rawCertBuf);
                         }
                         CertificateFactory cf = CertificateFactory.getInstance("X509");
-                        X509Certificate m_pivAuthCert = (X509Certificate)cf.generateCertificate(certIS);
+                        m_pivAuthCert = (X509Certificate)cf.generateCertificate(certIS);
                         s_logger.info(m_pivAuthCert.getSubjectDN().toString());
                     } else {
                         s_logger.info("Object: {}", Hex.encodeHexString(tlv.getTag().bytes));
