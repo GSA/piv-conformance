@@ -28,6 +28,12 @@ public class BerTlv {
         theValue = null;
     }
 
+    public BerTlv(BerTag aTag, List<BerTlv> aList, byte[] aValue) {
+        theTag = aTag;
+        theList = aList;
+        theValue = aValue;
+    }
+
     /**
      * Creates primitive TLV
      *
@@ -50,6 +56,10 @@ public class BerTlv {
 
     public boolean isPrimitive() {
         return !theTag.isConstructed();
+    }
+
+    public boolean hasRawValue() {
+        return theValue != null;
     }
 
     public boolean isConstructed() {
@@ -99,7 +109,7 @@ public class BerTlv {
     //
 
     public String getHexValue() {
-        if(isConstructed()) throw new IllegalStateException("Tag is CONSTRUCTED "+ HexUtil.toHexString(theTag.bytes));
+        if(isConstructed() && theValue == null) throw new IllegalStateException("Tag is CONSTRUCTED "+ HexUtil.toHexString(theTag.bytes));
         return HexUtil.toHexString(theValue);
     }
 
@@ -119,7 +129,7 @@ public class BerTlv {
     }
 
     public byte[] getBytesValue() {
-        if(isConstructed()) {
+        if(isConstructed() && theValue == null) {
             throw new IllegalStateException("TLV ["+theTag+"]is constructed");
         }
         return theValue;

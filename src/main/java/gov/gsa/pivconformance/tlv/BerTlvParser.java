@@ -87,10 +87,14 @@ public class BerTlvParser {
             if(log.isDebugEnabled()) {
                 log.debug("{}returning constructed offset = {}", levelPadding, resultOffset);
             }
-            return new ParseResult(new BerTlv(tag, list), resultOffset);
+            byte[] value = new byte[valueLength];
+            System.arraycopy(aBuf, aOffset+tagBytesCount+lengthBytesCount, value, 0, valueLength);
+            return new ParseResult(new BerTlv(tag, list, value), resultOffset);
         } else {
             // value
             byte[] value = new byte[valueLength];
+            log.debug("src.length={}, srcPos={}, value.length={}, valueLength={}",
+                    aBuf.length, aOffset+tagBytesCount+lengthBytesCount, value.length, valueLength);
             System.arraycopy(aBuf, aOffset+tagBytesCount+lengthBytesCount, value, 0, valueLength);
             int resultOffset = aOffset + tagBytesCount + lengthBytesCount + valueLength;
             if(log.isDebugEnabled()) {
