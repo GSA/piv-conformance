@@ -97,7 +97,7 @@ public class ConnectionDescription {
 
         }catch (Exception ex) {
 
-            s_logger.info("Exception in getBytes of ConnectionDescription class: {}", ex.getMessage());
+            s_logger.error("Exception in getBytes of ConnectionDescription class: {}", ex.getMessage());
         }
 
         return buffer;

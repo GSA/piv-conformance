@@ -7,5 +7,6 @@ public class X509CertificateForCardAuthentication extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateForCardAuthentication.class);
 
-
+    public X509CertificateForCardAuthentication() {
+    }
 }
