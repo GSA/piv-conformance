@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.smartcardio.*;
 import java.lang.invoke.MethodHandles;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -100,6 +101,14 @@ public class PIVRunner {
                     s_logger.info("pivGetData returned {}", result);
                     if(result != MiddlewareStatus.PIV_OK) break;
                     s_logger.info("Data object bytes: {}", Hex.encodeHexString(dataObject.getBytes()));
+
+                    if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)){
+                        X509Certificate pibAuthCert = ((X509CertificateForPIVAuthentication) dataObject).getCertificate();
+
+                        s_logger.info("PIV Auth Cert SubjectName {}", pibAuthCert.getSubjectDN().getName());
+                        s_logger.info("PIV Auth Cert SerialNumber {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));
+                        s_logger.info("PIV Auth Cert IssuerName {}", pibAuthCert.getSubjectDN().getName());
+                    }
                 }
 
             }

@@ -86,8 +86,6 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             baos.write(APDUConstants.oidMAP.get(OID).length);
             baos.write(APDUConstants.oidMAP.get(OID));
 
-
-            s_logger.info("ConnectionDescription: {}", org.apache.commons.codec.binary.Hex.encodeHexString(APDUUtils.PIVGetDataAPDU(baos.toByteArray())));
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU(baos.toByteArray()));
 

@@ -12,6 +12,7 @@ public class PIVDataObject {
     private static final Logger s_logger = LoggerFactory.getLogger(PIVDataObject.class);
 
     private byte[] m_dataBytes;
+    private String m_OID;
 
     public PIVDataObject() {
         m_OID = null;
@@ -35,6 +36,4 @@ public class PIVDataObject {
     public void setOID(String OID) {
         m_OID = OID;
     }
-
-    private String m_OID;
 }
