@@ -68,6 +68,11 @@ public class TagConstants {
     public static final byte[] PIV_CARD_APPLICATION_AID_TAG = { 0x4F };
     public static final byte[] PIN_USAGE_POLICY_TAG = { 0x5F, 0x2F };
 
+    //SP800-73-4 Part 1, Table 19. Key history Object Tags
+    public static final byte[] KEYS_WITH_ON_CARD_CERTS = { (byte) 0xC1 };
+    public static final byte[] KEYS_WITH_OFF_CARD_CERTS = { (byte) 0xC2 };
+    public static final byte[] OFF_CARD_CERT_URL = { (byte) 0xF3 };
+
     //SP800-73-4 Part 1, Table 40. Cardholder Iris Images
     public static final byte[] IMAGES_FOR_IRIS_TAG = { (byte) 0xBC };
 

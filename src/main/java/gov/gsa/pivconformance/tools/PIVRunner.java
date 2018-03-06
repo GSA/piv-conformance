@@ -244,6 +244,13 @@ public class PIVRunner {
                     s_logger.info("Error Detection Code Tag Preset: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
 
                 }
+                PIVDataObject keyHistoryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.KEY_HISTORY_OBJECT_OID);
+                result = piv.pivGetData(c, APDUConstants.KEY_HISTORY_OBJECT_OID, keyHistoryObject);
+                s_logger.info("Attempted to read key history object: {}", result);
+                decoded = keyHistoryObject.decode();
+                if(decoded) {
+                    s_logger.info("Decoded successfully {}", keyHistoryObject.toString());
+                }
 
             }
             ResponseAPDU rsp = null;
