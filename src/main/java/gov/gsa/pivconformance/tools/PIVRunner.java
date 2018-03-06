@@ -223,10 +223,31 @@ public class PIVRunner {
 
                 }
 
+                PIVDataObject printedInformation = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.PRINTED_INFORMATION_OID);
+                result = piv.pivGetData(c, APDUConstants.PRINTED_INFORMATION_OID, printedInformation);
+                s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.PRINTED_INFORMATION_OID), result);
+                boolean decoded = printedInformation.decode();
+                s_logger.info("{} {}", printedInformation.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+
+                if(decoded){
+                    s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getName());
+                    s_logger.info("Employee Affiliation: {}", ((PrintedInformation) printedInformation).getEmployeeAffiliation());
+                    s_logger.info("Expiration date: {}", ((PrintedInformation) printedInformation).getExpirationDate());
+                    s_logger.info("Agency Card Serial Number: {}", ((PrintedInformation) printedInformation).getAgencyCardSerialNumber());
+                    s_logger.info("Issuer Identification: {}", ((PrintedInformation) printedInformation).getIssuerIdentification());
+                    if(((PrintedInformation) printedInformation).getOrganizationAffiliation1() != "")
+                        s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation1());
+                    if(((PrintedInformation) printedInformation).getOrganizationAffiliation2() != "")
+                        s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation2());
+                    s_logger.info("Error Detection Code Tag Preset: {}", ((PrintedInformation) printedInformation).getErrorDetectionCode());
+
+                }
+
+
                 PIVDataObject discoveryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.DISCOVERY_OBJECT_OID);
                 result = piv.pivGetData(c, APDUConstants.DISCOVERY_OBJECT_OID, discoveryObject);
                 s_logger.info("Attempted to read discovery object: {}", result);
-                boolean decoded = discoveryObject.decode();
+                decoded = discoveryObject.decode();
                 s_logger.info("{} {}", discoveryObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
 
