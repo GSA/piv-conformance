@@ -95,9 +95,6 @@ public class PIVRunner {
                         s_logger.info("PCAP object: {}", Hex.encodeHexString(tlv.getTag().bytes));
                     }
                 }
-                PIVAuthenticators authenticators = new PIVAuthenticators();
-                authenticators.addApplicationPin("123456");
-                result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 
                 if(result != MiddlewareStatus.PIV_OK)
                     s_logger.error("Error authenticating to the smartcard: {}");
