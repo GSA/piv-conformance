@@ -75,6 +75,10 @@ public class DiscoveryObject extends PIVDataObject {
 
     public boolean decode() {
         byte[] rawBytes = this.getBytes();
+        if(rawBytes.length == 0) {
+            s_logger.info("DiscoveryObject.decode() called for empty discovery object.");
+            return false;
+        }
         BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
         BerTlv outer = tlvp.parseConstructed(rawBytes);
         for(BerTlv tlv : outer.getValues()) {
