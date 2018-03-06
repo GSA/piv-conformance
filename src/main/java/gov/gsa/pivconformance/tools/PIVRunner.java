@@ -132,11 +132,11 @@ public class PIVRunner {
                         s_logger.info("Access Control Rule Table: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getAccessControlRuleTable()));
 
 
-                        s_logger.info("Card APDUs Tag Preset: {}", ((CardCapabilityContainer) dataObject).getCardAPDUs());
-                        s_logger.info("RedirectionTag Tag Preset: {}", ((CardCapabilityContainer) dataObject).getRedirectionTag());
-                        s_logger.info("Capability Tuples Tag Preset: {}", ((CardCapabilityContainer) dataObject).getCapabilityTuples());
-                        s_logger.info("Status Tuples Tag Preset: {}", ((CardCapabilityContainer) dataObject).getStatusTuples());
-                        s_logger.info("Next CCC Tag Preset: {}", ((CardCapabilityContainer) dataObject).getNextCCC());
+                        s_logger.info("Card APDUs Tag Present: {}", ((CardCapabilityContainer) dataObject).getCardAPDUs());
+                        s_logger.info("RedirectionTag Tag Present: {}", ((CardCapabilityContainer) dataObject).getRedirectionTag());
+                        s_logger.info("Capability Tuples Tag Present: {}", ((CardCapabilityContainer) dataObject).getCapabilityTuples());
+                        s_logger.info("Status Tuples Tag Present: {}", ((CardCapabilityContainer) dataObject).getStatusTuples());
+                        s_logger.info("Next CCC Tag Present: {}", ((CardCapabilityContainer) dataObject).getNextCCC());
 
                         if(((CardCapabilityContainer) dataObject).getExtendedApplicationCardURL() != null) {
 
@@ -154,7 +154,7 @@ public class PIVRunner {
                             s_logger.info("Security Object Buffer: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getSecurityObjectBuffer()));
 
 
-                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
                     }
                     if(containerOID.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)){
                         if(((CardHolderUniqueIdentifier) dataObject).getBufferLength() != null) {
@@ -174,7 +174,7 @@ public class PIVRunner {
 
                         s_logger.info("Cardholder UUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getCardholderUUID()));
                         s_logger.info("Issuer Asymmetric Signature: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature()));
-                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
                     }
 
                     if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)){
@@ -188,12 +188,12 @@ public class PIVRunner {
                     if(containerOID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)){
 
                         s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
-                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
                     }
 
                     if(containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)){
                         s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
-                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
                     }
 
@@ -239,7 +239,7 @@ public class PIVRunner {
                         s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation1());
                     if(((PrintedInformation) printedInformation).getOrganizationAffiliation2() != "")
                         s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation2());
-                    s_logger.info("Error Detection Code Tag Preset: {}", ((PrintedInformation) printedInformation).getErrorDetectionCode());
+                    s_logger.info("Error Detection Code Tag Present: {}", ((PrintedInformation) printedInformation).getErrorDetectionCode());
 
                 }
 
@@ -262,7 +262,7 @@ public class PIVRunner {
                 if(decoded){
                     if(((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null)
                         s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
-                    s_logger.info("Error Detection Code Tag Preset: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
+                    s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
 
                 }
                 PIVDataObject keyHistoryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.KEY_HISTORY_OBJECT_OID);
