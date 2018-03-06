@@ -8,6 +8,7 @@ import org.apache.commons.cli.*;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.text.SimpleDateFormat;
 
 import javax.smartcardio.*;
 import java.lang.invoke.MethodHandles;
@@ -103,6 +104,8 @@ public class PIVRunner {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
                     s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
                     result = piv.pivGetData(c, containerOID, dataObject);
+                    decoded = dataObject.decode();
+                    s_logger.info("{} {}", dataObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
                     s_logger.info("pivGetData returned {}", result);
                     if(result != MiddlewareStatus.PIV_OK) continue;
                     s_logger.info(dataObject.toString());
@@ -150,6 +153,26 @@ public class PIVRunner {
 
 
                         s_logger.info("Error Detection Code Tag Preset: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
+                    }
+                    if(containerOID.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)){
+                        if(((CardHolderUniqueIdentifier) dataObject).getBufferLength() != null) {
+                            s_logger.info("Buffer Length: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getBufferLength()));
+                        }
+                        s_logger.info("FASC-N: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getfASCN()));
+                        if(((CardHolderUniqueIdentifier) dataObject).getOrganizationalIdentifier() != null) {
+                            s_logger.info("Organizational Identifier: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getOrganizationalIdentifier()));
+                        }
+                        if(((CardHolderUniqueIdentifier) dataObject).getdUNS() != null) {
+                            s_logger.info("DUNS: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getdUNS()));
+                        }
+                        s_logger.info("GUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getgUID()));
+
+                        SimpleDateFormat sdfmt = new SimpleDateFormat("dd/MM/yyyy");
+                        s_logger.info("Expiration Date: {}", sdfmt.format(((CardHolderUniqueIdentifier) dataObject).getExpirationDate()));
+
+                        s_logger.info("Cardholder UUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getCardholderUUID()));
+                        s_logger.info("Issuer Asymmetric Signature: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature()));
+                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
                     }
 
                     if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)){

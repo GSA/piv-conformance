@@ -33,6 +33,10 @@ public class X509CertificateDataObject extends PIVDataObject {
     }
 
     public X509Certificate getCertificate() {
+        return m_pivAuthCert;
+    }
+
+    public boolean decode() {
 
         if(m_pivAuthCert == null){
 
@@ -44,7 +48,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 
                 if(outer == null){
                     s_logger.error("Error parsing X.509 Certificate, unable to parse TLV value.");
-                    return m_pivAuthCert;
+                    return false;
                 }
 
                 List<BerTlv> values = outer.getList();
@@ -56,7 +60,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 
                         if(outer2 == null){
                             s_logger.error("Error parsing X.509 Certificate, unable to parse TLV value.");
-                            return m_pivAuthCert;
+                            return false;
                         }
 
                         List<BerTlv> values2 = outer2.getList();
@@ -95,7 +99,7 @@ public class X509CertificateDataObject extends PIVDataObject {
                         //Check to make sure certificate buffer is not null
                         if(certIS == null){
                             s_logger.error("Error parsing X.509 Certificate, unable to get certificate buffer.");
-                            return m_pivAuthCert;
+                            return false;
                         }
 
                         CertificateFactory cf = CertificateFactory.getInstance("X509");
@@ -110,8 +114,6 @@ public class X509CertificateDataObject extends PIVDataObject {
                 s_logger.error("Error parsing X.509 Certificate: {}", ex.getMessage());
             }
         }
-
-
-        return m_pivAuthCert;
+        return true;
     }
 }
