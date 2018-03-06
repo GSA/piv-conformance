@@ -137,6 +137,11 @@ public class CardCapabilityContainer extends PIVDataObject {
         try{
             byte [] raw = super.getBytes();
 
+            if(raw == null){
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                return false;
+            }
+
             BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(CardCapabilityContainer.class));
             BerTlvs outer = tp.parse(raw);
 

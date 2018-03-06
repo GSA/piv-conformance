@@ -103,11 +103,17 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
         try{
             byte[] rawBytes = this.getBytes();
+
+            if(rawBytes == null){
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                return false;
+            }
+
             BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
             BerTlvs outer = tlvp.parse(rawBytes);
 
             if(outer == null){
-                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
+                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
                 return false;
             }
 
@@ -119,7 +125,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                     BerTlvs outer2 = tlvp.parse(tlv.getBytesValue());
 
                     if (outer2 == null) {
-                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
+                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
                         return false;
                     }
 
@@ -175,7 +181,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
             }
         }catch (Exception ex) {
 
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID), ex.getMessage());
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
         return true;
     }

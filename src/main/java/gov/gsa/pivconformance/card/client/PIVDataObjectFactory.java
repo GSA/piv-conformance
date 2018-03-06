@@ -23,9 +23,9 @@ public class PIVDataObjectFactory {
         else if(OID.equals(APDUConstants.SECURITY_OBJECT_OID))
             rv = new SecurityObject();
         else if(OID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID))
-            rv = new CardholderFacialImage();
+            rv = new CardholderBiometricData();
         else if(OID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID))
-            rv = new CardholderFingerprints();
+            rv = new CardholderBiometricData();
         else if(OID.equals(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID))
             rv = new X509CertificateDataObject();
         else if(OID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID))
@@ -37,7 +37,7 @@ public class PIVDataObjectFactory {
         else if(OID.equals(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID))
             rv = new BiometricInformationTemplatesGroupTemplate();
         else if(OID.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID))
-            rv = new CardholderIrisImages();
+            rv = new CardholderBiometricData();
         else if(OID.equals(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID))
             rv = new PairingCodeReferenceDataContainer();
         else if(OID.equals(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID))

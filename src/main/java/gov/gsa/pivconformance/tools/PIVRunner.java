@@ -95,19 +95,21 @@ public class PIVRunner {
                         s_logger.info("PCAP object: {}", Hex.encodeHexString(tlv.getTag().bytes));
                     }
                 }
-                PIVDataObject discoveryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.DISCOVERY_OBJECT_OID);
-                result = piv.pivGetData(c, APDUConstants.DISCOVERY_OBJECT_OID, discoveryObject);
-                s_logger.info("Attempted to read discovery object: {}", result);
-                boolean decoded = discoveryObject.decode();
-                s_logger.info("{} {}", discoveryObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+                PIVAuthenticators authenticators = new PIVAuthenticators();
+                authenticators.addApplicationPin("123456");
+                result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
+
+                if(result != MiddlewareStatus.PIV_OK)
+                    s_logger.error("Error authenticating to the smartcard: {}");
+
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
                     s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
                     result = piv.pivGetData(c, containerOID, dataObject);
-                    decoded = dataObject.decode();
+                    if(result != MiddlewareStatus.PIV_OK) continue;
+                    boolean decoded = dataObject.decode();
                     s_logger.info("{} {}", dataObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
                     s_logger.info("pivGetData returned {}", result);
-                    if(result != MiddlewareStatus.PIV_OK) continue;
                     s_logger.info(dataObject.toString());
 
                     if(containerOID.equals(APDUConstants.CARD_CAPABILITY_CONTAINER_OID)){
@@ -183,6 +185,18 @@ public class PIVRunner {
                         s_logger.info("PIV Auth Cert IssuerName: {}", pibAuthCert.getSubjectDN().getName());
                     }
 
+                    if(containerOID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)){
+
+                        s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+                    }
+
+                    if(containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)){
+                        s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+
+                    }
+
                     if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID)){
                         X509Certificate pibAuthCert = ((X509CertificateDataObject) dataObject).getCertificate();
 
@@ -206,6 +220,29 @@ public class PIVRunner {
                         s_logger.info("Card Auth Cert SerialNumber: {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));
                         s_logger.info("Card Auth Cert IssuerName: {}", pibAuthCert.getSubjectDN().getName());
                     }
+
+                }
+
+                PIVDataObject discoveryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.DISCOVERY_OBJECT_OID);
+                result = piv.pivGetData(c, APDUConstants.DISCOVERY_OBJECT_OID, discoveryObject);
+                s_logger.info("Attempted to read discovery object: {}", result);
+                boolean decoded = discoveryObject.decode();
+                s_logger.info("{} {}", discoveryObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+
+
+
+
+                PIVDataObject cardholderIrisImages = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+                result = piv.pivGetData(c, APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, cardholderIrisImages);
+                s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID), result);
+                decoded = cardholderIrisImages.decode();
+                s_logger.info("{} {}", cardholderIrisImages.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+
+                if(decoded){
+                    if(((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null)
+                        s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
+                    s_logger.info("Error Detection Code Tag Preset: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
+
                 }
 
             }
