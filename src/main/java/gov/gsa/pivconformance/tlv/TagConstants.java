@@ -76,6 +76,12 @@ public class TagConstants {
     //SP800-73-4 Part 1, Table 40. Cardholder Iris Images
     public static final byte[] IMAGES_FOR_IRIS_TAG = { (byte) 0xBC };
 
+    //SP800-73-4 Part 1, Table 41. Biometric Information Templates Group Template
+    public static final byte[] NUMBER_OF_FINGERS_TAG = { 0x02 };
+    public static final byte[] BIT_FOR_FIRST_FINGER_TAG = { 0x7f, 0x60 };
+    public static final byte[] BIT_FOR_SECOND_FINGER_TAG = { 0x7f, 0x60 };
+
+
     //SP800-73-4 part 3, table 4 - authenticator template
     public static final byte[] REFERENCE_DATA_TAG = { (byte) 0x81 };
     public static final byte[] KEY_REFERENCE_TAG = { (byte) 0x83 };

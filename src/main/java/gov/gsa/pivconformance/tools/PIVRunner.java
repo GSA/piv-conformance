@@ -262,12 +262,30 @@ public class PIVRunner {
                     s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
 
                 }
+
                 PIVDataObject keyHistoryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.KEY_HISTORY_OBJECT_OID);
                 result = piv.pivGetData(c, APDUConstants.KEY_HISTORY_OBJECT_OID, keyHistoryObject);
                 s_logger.info("Attempted to read key history object: {}", result);
                 decoded = keyHistoryObject.decode();
                 if(decoded) {
                     s_logger.info("Decoded successfully {}", keyHistoryObject.toString());
+                }
+
+
+                PIVDataObject biometricInformationTemplatesGroupTemplate = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID);
+                result = piv.pivGetData(c, APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, biometricInformationTemplatesGroupTemplate);
+                s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID), result);
+                decoded = biometricInformationTemplatesGroupTemplate.decode();
+                s_logger.info("{} {}", biometricInformationTemplatesGroupTemplate.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+
+                if(decoded){
+
+                    s_logger.info("Number of fingers: {}", ((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getNumberOfFingers());
+                    if(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForFirstFinger() != null)
+                        s_logger.info("BIT for first Finger: {}", Hex.encodeHexString(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForFirstFinger()));
+                    if(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForSecondFinger() != null)
+                        s_logger.info("BIT for second Finger: {}", Hex.encodeHexString(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForSecondFinger()));
+
                 }
 
             }
