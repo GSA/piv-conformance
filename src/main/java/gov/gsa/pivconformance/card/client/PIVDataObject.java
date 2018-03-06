@@ -1,5 +1,6 @@
 package gov.gsa.pivconformance.card.client;
 
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,6 @@ public class PIVDataObject {
     }
 
     public PIVDataObject(String OID) {
-
         m_OID = OID;
     }
 
@@ -35,5 +35,32 @@ public class PIVDataObject {
 
     public void setOID(String OID) {
         m_OID = OID;
+    }
+
+    public String getFriendlyName() {
+        return APDUConstants.oidNameMAP.getOrDefault(m_OID, "Undefined");
+    }
+
+    public byte[] getTag() {
+        byte[] rv = APDUConstants.oidMAP.getOrDefault(m_OID, new byte[]{});
+        return rv;
+    }
+
+    public boolean decode() {
+        // XXX *** make this throw a RuntimeError once implementations are notionally in place
+        s_logger.error("decode() called without a concrete implementation.");
+        return false;
+    }
+
+    public String toRawHexString() {
+        return Hex.encodeHexString(m_dataBytes);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PIV Data Object with OID " + m_OID + " (" + getFriendlyName() + "):");
+        sb.append(toRawHexString());
+        return sb.toString();
     }
 }
