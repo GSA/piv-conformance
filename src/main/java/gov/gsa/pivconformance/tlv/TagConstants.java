@@ -17,6 +17,25 @@ public class TagConstants {
     public static final byte[] COMPRESSED_TAG = { 0x01 };
 
 
+    public static final byte[] ERROR_DETECTION_CODE_TAG = { (byte) 0xFE };
+
+    //Card Capability Container tags 800-73-4 Part 1 Table 8
+    public static final byte[] CARD_IDENTIFIER_TAG = { (byte) 0xF0 };
+    public static final byte[] CAPABILITY_CONTAINER_VERSION_NUMBER_TAG = { (byte) 0xF1 };
+    public static final byte[] CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG = { (byte) 0xF2 };
+    public static final byte[] APPLICATIONS_CARDURL_TAG = { (byte) 0xF3 };
+    public static final byte[] PKCS15_TAG = { (byte) 0xF4 };
+    public static final byte[] REGISTERED_DATA_MODEL_NUMBER_TAG = { (byte) 0xF5 };
+    public static final byte[] ACCESS_CONTROL_RULE_TABLE_TAG = { (byte) 0xF6 };
+    public static final byte[] CARD_APDUS_TAG = { (byte) 0xF7 };
+    public static final byte[] REDIRECTION_TAG_TAG = { (byte) 0xFA };
+    public static final byte[] CAPABILITY_TUPLES_TAG = { (byte) 0xFB };
+    public static final byte[] STATUS_TUPLES_TAG = { (byte) 0xFC };
+    public static final byte[] NEXT_CCC_TAG = { (byte) 0xFD };
+    public static final byte[] EXTENDED_APPLICATION_CARDURL_TAG = { (byte) 0xE3 };
+    public static final byte[] SECURITY_OBJECT_BUFFER_TAG = { (byte) 0xB4 };
+
+
     public static final byte[] Three_Key_Triple_DES_ECB_ID =  { 0x00 };
     public static final String Three_Key_Triple_DES_ECB = "3 Key Triple DES – ECB";
 

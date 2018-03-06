@@ -102,12 +102,81 @@ public class PIVRunner {
                     if(result != MiddlewareStatus.PIV_OK) break;
                     s_logger.info("Data object bytes: {}", Hex.encodeHexString(dataObject.getBytes()));
 
+                    if(containerOID.equals(APDUConstants.CARD_CAPABILITY_CONTAINER_OID)){
+
+                        s_logger.info("Card Identifier: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getCardIdentifier()));
+                        s_logger.info("Capability Container Version Number: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getCapabilityContainerVersionNumber()));
+                        s_logger.info("Capability Grammar Version Number: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getCapabilityGrammarVersionNumber()));
+
+                        List<byte[]> appCardURLList = ((CardCapabilityContainer) dataObject).getAppCardURL();
+
+                        if(appCardURLList.size() > 0) {
+                            s_logger.info("Applications CardURL List");
+                            for(byte[] u : appCardURLList) {
+                                s_logger.info("{}", Hex.encodeHexString(u));
+                            }
+                        }
+
+
+                        s_logger.info("Registered Data Model number: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getRegisteredDataModelNumber()));
+                        s_logger.info("Access Control Rule Table: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getAccessControlRuleTable()));
+
+
+                        s_logger.info("Card APDUs Tag Preset: {}", ((CardCapabilityContainer) dataObject).getCardAPDUs());
+                        s_logger.info("RedirectionTag Tag Preset: {}", ((CardCapabilityContainer) dataObject).getRedirectionTag());
+                        s_logger.info("Capability Tuples Tag Preset: {}", ((CardCapabilityContainer) dataObject).getCapabilityTuples());
+                        s_logger.info("Status Tuples Tag Preset: {}", ((CardCapabilityContainer) dataObject).getStatusTuples());
+                        s_logger.info("Next CCC Tag Preset: {}", ((CardCapabilityContainer) dataObject).getNextCCC());
+
+                        if(((CardCapabilityContainer) dataObject).getExtendedApplicationCardURL() != null) {
+
+                            List<byte[]> extendedAppCardURLList = ((CardCapabilityContainer) dataObject).getExtendedApplicationCardURL();
+
+                            if(extendedAppCardURLList.size() > 0) {
+                                s_logger.info("Extended Application CardURL List:");
+                                for(byte[] u2 : extendedAppCardURLList) {
+                                    s_logger.info("     {}", Hex.encodeHexString(u2));
+                                }
+                            }
+                        }
+
+                        if(((CardCapabilityContainer) dataObject).getSecurityObjectBuffer() != null)
+                            s_logger.info("Security Object Buffer: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getSecurityObjectBuffer()));
+
+
+                        s_logger.info("Error Detection Code Tag Preset: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
+                    }
+
                     if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)){
                         X509Certificate pibAuthCert = ((X509CertificateDataObject) dataObject).getCertificate();
 
-                        s_logger.info("PIV Auth Cert SubjectName {}", pibAuthCert.getSubjectDN().getName());
-                        s_logger.info("PIV Auth Cert SerialNumber {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));
-                        s_logger.info("PIV Auth Cert IssuerName {}", pibAuthCert.getSubjectDN().getName());
+                        s_logger.info("PIV Auth Cert SubjectName: {}", pibAuthCert.getSubjectDN().getName());
+                        s_logger.info("PIV Auth Cert SerialNumber: {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));
+                        s_logger.info("PIV Auth Cert IssuerName: {}", pibAuthCert.getSubjectDN().getName());
+                    }
+
+                    if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID)){
+                        X509Certificate pibAuthCert = ((X509CertificateDataObject) dataObject).getCertificate();
+
+                        s_logger.info("Key Managment Cert SubjectName: {}", pibAuthCert.getSubjectDN().getName());
+                        s_logger.info("Key Managment Cert SerialNumber: {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));
+                        s_logger.info("Key Managment Cert IssuerName: {}", pibAuthCert.getSubjectDN().getName());
+                    }
+
+                    if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID)){
+                        X509Certificate pibAuthCert = ((X509CertificateDataObject) dataObject).getCertificate();
+
+                        s_logger.info("Digital Signature Cert SubjectName: {}", pibAuthCert.getSubjectDN().getName());
+                        s_logger.info("Digital Signature SerialNumber: {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));
+                        s_logger.info("Digital Signature IssuerName: {}", pibAuthCert.getSubjectDN().getName());
+                    }
+
+                    if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID)){
+                        X509Certificate pibAuthCert = ((X509CertificateDataObject) dataObject).getCertificate();
+
+                        s_logger.info("Card Auth Cert SubjectName: {}", pibAuthCert.getSubjectDN().getName());
+                        s_logger.info("Card Auth Cert SerialNumber: {}", Hex.encodeHexString(pibAuthCert.getSerialNumber().toByteArray()));
+                        s_logger.info("Card Auth Cert IssuerName: {}", pibAuthCert.getSubjectDN().getName());
                     }
                 }
 
