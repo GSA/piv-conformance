@@ -85,6 +85,9 @@ public class TagConstants {
     public static final byte[] BIT_FOR_FIRST_FINGER_TAG = { 0x7f, 0x60 };
     public static final byte[] BIT_FOR_SECOND_FINGER_TAG = { 0x7f, 0x60 };
 
+    //SP800-73-4 Part 1, Table 43. Pairing Code Reference Data Container
+    public static final byte[] PAIRING_CODE_TAG = { (byte) 0x99 };
+
 
     //SP800-73-4 part 3, table 4 - authenticator template
     public static final byte[] REFERENCE_DATA_TAG = { (byte) 0x81 };

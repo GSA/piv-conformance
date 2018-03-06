@@ -71,7 +71,7 @@ public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
                 byte[] tag = tlv.getTag().bytes;
                 if(Arrays.equals(tag, TagConstants.NUMBER_OF_FINGERS_TAG)) {
                     m_numberOfFingers = tlv.getBytesValue();
-                } else if(Arrays.equals(tag, TagConstants.PIN_USAGE_POLICY_TAG)) {
+                } else if(Arrays.equals(tag, TagConstants.BIT_FOR_FIRST_FINGER_TAG)) {
 
                     if(m_bITForFirstFinger == null)
                         m_bITForFirstFinger = tlv.getBytesValue();

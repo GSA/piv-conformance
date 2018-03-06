@@ -326,6 +326,21 @@ public class PIVRunner {
                     }
                 }
 
+                PIVDataObject pairingCodeReferenceDataContainer = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID);
+                result = piv.pivGetData(c, APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, pairingCodeReferenceDataContainer);
+
+                if(result == MiddlewareStatus.PIV_OK) {
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID), result);
+                    decoded = pairingCodeReferenceDataContainer.decode();
+                    s_logger.info("{} {}", pairingCodeReferenceDataContainer.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+
+                    if (decoded) {
+                        s_logger.info("Name: {}", ((PairingCodeReferenceDataContainer) pairingCodeReferenceDataContainer).getName());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((PairingCodeReferenceDataContainer) pairingCodeReferenceDataContainer).getErrorDetectionCode());
+
+                    }
+                }
+
             }
             ResponseAPDU rsp = null;
             return true;
