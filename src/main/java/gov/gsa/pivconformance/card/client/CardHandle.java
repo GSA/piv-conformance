@@ -3,6 +3,7 @@ package gov.gsa.pivconformance.card.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.smartcardio.Card;
+import javax.smartcardio.CardChannel;
 
 /**
  * A class that serves the function of the handle objects passed around that encapsulate a connection to a card
@@ -50,7 +51,16 @@ public class CardHandle {
     public CardHandle() {
         m_connectionDescription = null;
         m_card = null;
+        m_currentChannel = null;
         m_valid = false;
+    }
+
+    public CardChannel getCurrentChannel() {
+        return m_currentChannel;
+    }
+
+    public void setCurrentChannel(CardChannel currentChannel) {
+        m_currentChannel = currentChannel;
     }
 
     /**
@@ -72,5 +82,8 @@ public class CardHandle {
     private ConnectionDescription m_connectionDescription;
     private boolean m_valid = false;
     private Card m_card;
+
+
+    private CardChannel m_currentChannel;
 
 }

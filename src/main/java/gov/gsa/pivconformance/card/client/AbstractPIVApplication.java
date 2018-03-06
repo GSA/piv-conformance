@@ -1,15 +1,19 @@
 package gov.gsa.pivconformance.card.client;
 
 
+import gov.gsa.pivconformance.tlv.BerTlvParser;
+import gov.gsa.pivconformance.tlv.BerTlvs;
+import gov.gsa.pivconformance.tlv.CCTTlvLogger;
+import gov.gsa.pivconformance.tlv.TagConstants;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.smartcardio.Card;
-import javax.smartcardio.CardChannel;
-import javax.smartcardio.CommandAPDU;
-import javax.smartcardio.ResponseAPDU;
+import javax.smartcardio.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 /**
  * A base class for items that will implement the IPIVApplication interface, to allow those methods that can be
  * common across implementations to be shared
@@ -52,6 +56,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
             // Populated the response in ApplicationProperties
             applicationProperties.setBytes(response.getData());
+            cardHandle.setCurrentChannel(channel);
 
         }
         catch (Exception ex) {
@@ -65,7 +70,46 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
     @Override
     public MiddlewareStatus pivLogIntoCardApplication(CardHandle cardHandle, byte[] authenticators) {
-        return null;
+        PIVAuthenticators pas = new PIVAuthenticators();
+        pas.decode(authenticators);
+        for(PIVAuthenticator authenticator : pas.getAuthenticators()) {
+            if(authenticator.getType() != TagConstants.KEY_REFERENCE_APPLICATION_PIN_TAG &&
+                    authenticator.getType() != TagConstants.KEY_REFERENCE_GLOBAL_PIN_TAG ) {
+                s_logger.warn("Skipping authenticator of type {}. Currently unsupported.", authenticator.getType());
+                continue;
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                baos.write(APDUConstants.COMMAND);
+                baos.write(APDUConstants.VERIFY);
+                baos.write((byte) 0x00); // logging in
+                baos.write(authenticator.getType());
+                baos.write((byte) 0x08); // PIN
+                baos.write(authenticator.getData());
+            } catch(IOException ioe) {
+                s_logger.error("Failed to populate VERIFY APDU buffer");
+            }
+            byte[] rawAPDU = baos.toByteArray();
+            s_logger.info("VERIFY APDU: {}", Hex.encodeHexString(rawAPDU));
+            CardChannel channel = cardHandle.getCurrentChannel();
+            CommandAPDU verifyApdu = new CommandAPDU(rawAPDU);
+            ResponseAPDU resp = null;
+            try {
+                resp = channel.transmit(verifyApdu);
+            } catch (CardException e) {
+                s_logger.error("Failed to transmit VERIFY APDU to card", e);
+                return MiddlewareStatus.PIV_CARD_READER_ERROR;
+            }
+            if(resp.getSW() == 0x9000) {
+                cardHandle.setCurrentChannel(channel);
+                s_logger.info("Successfully logged into card application");
+            } else {
+                s_logger.error("Login failed: {}", Hex.encodeHexString(resp.getBytes()));
+                return MiddlewareStatus.PIV_AUTHENTICATION_FAILURE;
+            }
+
+        }
+        return MiddlewareStatus.PIV_OK;
     }
 
     @Override
@@ -77,8 +121,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             if (card == null)
                 return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
 
-            // Establishing channel
-            CardChannel channel = card.getBasicChannel();
+            CardChannel channel = cardHandle.getCurrentChannel();
+            if(channel == null) {
+                throw new IllegalStateException("Must select PIV application before calling pivGetData");
+            }
 
             //Construct data field based on the data field oid and the tag for the specific oid
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -104,11 +150,11 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                     return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
                 }
 
-                s_logger.error("Error selecting card application, failed with error: {}", Integer.toHexString(response.getSW()));
+                s_logger.error("Error getting object {}, failed with error: {}", OID, Integer.toHexString(response.getSW()));
                 return MiddlewareStatus.PIV_CONNECTION_FAILURE;
             }
 
-            // Populated the response in PIVDataObject
+            // Populate the response in PIVDataObject
             data.setOID(OID);
             data.setBytes(response.getData());
 

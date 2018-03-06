@@ -68,6 +68,19 @@ public class TagConstants {
     public static final byte[] PIV_CARD_APPLICATION_AID_TAG = { 0x4F };
     public static final byte[] PIN_USAGE_POLICY_TAG = { 0x5F, 0x2F };
 
+    //SP800-73-4 part 3, table 4 - authenticator template
+    public static final byte[] REFERENCE_DATA_TAG = { (byte) 0x81 };
+    public static final byte[] KEY_REFERENCE_TAG = { (byte) 0x83 };
+
+    //SP800-73-4 part 1, table 4a PIV Card Application Authentication Data References
+    public static final byte KEY_REFERENCE_GLOBAL_PIN_TAG = 0x00;
+    public static final byte KEY_REFERENCE_APPLICATION_PIN_TAG = (byte) 0x80;
+    public static final byte KEY_REFERENCE_PIN_UNBLOCK_KEY_TAG = (byte) 0x81;
+    public static final byte KEY_REFERENCE_PRIMARY_FINGER_OCC_TAG = (byte) 0x96;
+    public static final byte KEY_REFERENCE_SECONDARY_FINGER_OCC_TAG = (byte) 0x97;
+    public static final byte KEY_REFERENCE_PAIRING_CODE_TAG = (byte) 0x98;
+
+
     public static final byte[] Three_Key_Triple_DES_ECB_ID =  { 0x00 };
     public static final String Three_Key_Triple_DES_ECB = "3 Key Triple DES – ECB";
 
