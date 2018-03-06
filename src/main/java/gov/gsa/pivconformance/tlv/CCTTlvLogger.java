@@ -7,7 +7,7 @@ public class CCTTlvLogger implements IBerTlvLogger {
 
     private Logger m_logger = null;
     public CCTTlvLogger(Class clazz) {
-       m_logger = LoggerFactory.getLogger(clazz);
+       m_logger = LoggerFactory.getLogger(clazz.toString() + ".TLVParser");
     }
 
     @Override
