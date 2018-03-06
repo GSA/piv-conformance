@@ -85,3 +85,4 @@ gradle-app.setting
 version.properties
 
 # End of https://www.gitignore.io/api/gradle,intellij
+*.log
