@@ -63,7 +63,7 @@ public class APDUUtils {
             baos.write(APDUConstants.GET);
             byte[] p1p2 = {0x3f, (byte) 0xff};
             baos.write(p1p2);
-            byte[] Lc = {0x05};
+            byte[] Lc = {(byte)(data.length & 0xff)};
             baos.write(Lc);
             baos.write(data);
             byte[] Le = {0x00};
