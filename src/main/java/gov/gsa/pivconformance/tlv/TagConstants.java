@@ -35,6 +35,38 @@ public class TagConstants {
     public static final byte[] EXTENDED_APPLICATION_CARDURL_TAG = { (byte) 0xE3 };
     public static final byte[] SECURITY_OBJECT_BUFFER_TAG = { (byte) 0xB4 };
 
+    //SP800-73-4 Part 1, Table 9. Card Holder Unique Identifier tags
+    public static final byte[] BUFFER_LENGTH_TAG = { (byte) 0xEE };
+    public static final byte[] FASC_N_TAG = { 0x30 };
+    public static final byte[] ORGANIZATIONAL_IDENTIFIER_TAG = { 0x32 };
+    public static final byte[] DUNS_TAG = { 0x33 };
+    public static final byte[] GUID_TAG = { 0x34 };
+    public static final byte[] CHUID_EXPIRATION_DATE_TAG = { 0x35 }; // differs from naming convention due to collision
+    public static final byte[] CARDHOLDER_UUID_TAG = { 0x36 };
+    public static final byte[] ISSUER_ASYMMETRIC_SIGNATURE_TAG = { 0x3E };
+
+    //SP800-73-4 Part 1, Table 11. Card Holder Fingerprints Tags
+    public static final byte[] FINGERPRINT_I_AND_II_TAG = { (byte) 0xBC };
+
+    //SP800-73-4 Part 1, Table 12. Security Object Tags
+    public static final byte[] MAPPING_OF_DG_TO_CONTAINER_ID_TAG = { (byte) 0xBA };
+    public static final byte[] SECURITY_OBJECT_TAG = { (byte) 0xBB };
+
+    //SP800-73-4 Part 1, Table 13. Card Holder Facial Image Tags
+    public static final byte[] IMAGE_FOR_VISUAL_VERIFICATION_TAG = { (byte) 0xBC };
+
+    //SP800-73-4 Part 1, Table 14. Printed Information Tags
+    public static final byte[] NAME_TAG = { 0x01 };
+    public static final byte[] EMPLOYEE_AFFILIATION_TAG = { 0x02 };
+    public static final byte[] PRINTED_INFORMATION_EXPIRATION_DATE_TAG = { 0x04 }; // differs from naming convention due to collision
+    public static final byte[] AGENCY_CARD_SERIAL_NUMBER_TAG = { 0x05 };
+    public static final byte[] ISSUER_IDENTIFICATION_TAG = { 0x06 };
+    public static final byte[] ORGANIZATIONAL_AFFILIATION_L1_TAG = { 0x07 };
+    public static final byte[] ORGANIZATIONAL_AFFILIATION_L2_TAG = { 0x08 };
+
+    //SP800-73-4 Part 1, Table 18. Discovery Object Tags
+    public static final byte[] PIV_CARD_APPLICATION_AID_TAG = { 0x4F };
+    public static final byte[] PIN_USAGE_POLICY_TAG = { 0x5F, 0x2F };
 
     public static final byte[] Three_Key_Triple_DES_ECB_ID =  { 0x00 };
     public static final String Three_Key_Triple_DES_ECB = "3 Key Triple DES – ECB";
