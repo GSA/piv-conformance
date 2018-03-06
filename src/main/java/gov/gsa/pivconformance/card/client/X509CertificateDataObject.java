@@ -39,7 +39,7 @@ public class X509CertificateDataObject extends PIVDataObject {
             try{
                 byte [] raw = super.getBytes();
 
-                BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(PIVRunner.class));
+                BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(X509CertificateDataObject.class));
                 BerTlvs outer = tp.parse(raw);
 
                 if(outer == null){
