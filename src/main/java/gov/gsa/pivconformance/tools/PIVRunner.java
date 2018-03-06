@@ -222,70 +222,108 @@ public class PIVRunner {
 
                 PIVDataObject printedInformation = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.PRINTED_INFORMATION_OID);
                 result = piv.pivGetData(c, APDUConstants.PRINTED_INFORMATION_OID, printedInformation);
-                s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.PRINTED_INFORMATION_OID), result);
-                boolean decoded = printedInformation.decode();
-                s_logger.info("{} {}", printedInformation.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
-                if(decoded){
-                    s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getName());
-                    s_logger.info("Employee Affiliation: {}", ((PrintedInformation) printedInformation).getEmployeeAffiliation());
-                    s_logger.info("Expiration date: {}", ((PrintedInformation) printedInformation).getExpirationDate());
-                    s_logger.info("Agency Card Serial Number: {}", ((PrintedInformation) printedInformation).getAgencyCardSerialNumber());
-                    s_logger.info("Issuer Identification: {}", ((PrintedInformation) printedInformation).getIssuerIdentification());
-                    if(((PrintedInformation) printedInformation).getOrganizationAffiliation1() != "")
-                        s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation1());
-                    if(((PrintedInformation) printedInformation).getOrganizationAffiliation2() != "")
-                        s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation2());
-                    s_logger.info("Error Detection Code Tag Present: {}", ((PrintedInformation) printedInformation).getErrorDetectionCode());
+                if(result == MiddlewareStatus.PIV_OK) {
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.PRINTED_INFORMATION_OID), result);
+                    boolean decoded = printedInformation.decode();
+                    s_logger.info("{} {}", printedInformation.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
+                    if (decoded) {
+                        s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getName());
+                        s_logger.info("Employee Affiliation: {}", ((PrintedInformation) printedInformation).getEmployeeAffiliation());
+                        s_logger.info("Expiration date: {}", ((PrintedInformation) printedInformation).getExpirationDate());
+                        s_logger.info("Agency Card Serial Number: {}", ((PrintedInformation) printedInformation).getAgencyCardSerialNumber());
+                        s_logger.info("Issuer Identification: {}", ((PrintedInformation) printedInformation).getIssuerIdentification());
+                        if (((PrintedInformation) printedInformation).getOrganizationAffiliation1() != "")
+                            s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation1());
+                        if (((PrintedInformation) printedInformation).getOrganizationAffiliation2() != "")
+                            s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation2());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((PrintedInformation) printedInformation).getErrorDetectionCode());
+
+                    }
                 }
 
-
+                boolean decoded = false;
                 PIVDataObject discoveryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.DISCOVERY_OBJECT_OID);
                 result = piv.pivGetData(c, APDUConstants.DISCOVERY_OBJECT_OID, discoveryObject);
-                s_logger.info("Attempted to read discovery object: {}", result);
-                decoded = discoveryObject.decode();
-                s_logger.info("{} {}", discoveryObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+
+                if(result == MiddlewareStatus.PIV_OK) {
+                    s_logger.info("Attempted to read discovery object: {}", result);
+                    decoded = discoveryObject.decode();
+                    s_logger.info("{} {}", discoveryObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+                }
 
 
 
 
                 PIVDataObject cardholderIrisImages = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
                 result = piv.pivGetData(c, APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, cardholderIrisImages);
-                s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID), result);
-                decoded = cardholderIrisImages.decode();
-                s_logger.info("{} {}", cardholderIrisImages.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
-                if(decoded){
-                    if(((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null)
-                        s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
-                    s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
+                if(result == MiddlewareStatus.PIV_OK) {
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID), result);
+                    decoded = cardholderIrisImages.decode();
+                    s_logger.info("{} {}", cardholderIrisImages.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
+                    if (decoded) {
+                        if (((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null)
+                            s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
+
+                    }
                 }
 
                 PIVDataObject keyHistoryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.KEY_HISTORY_OBJECT_OID);
                 result = piv.pivGetData(c, APDUConstants.KEY_HISTORY_OBJECT_OID, keyHistoryObject);
-                s_logger.info("Attempted to read key history object: {}", result);
-                decoded = keyHistoryObject.decode();
-                if(decoded) {
-                    s_logger.info("Decoded successfully {}", keyHistoryObject.toString());
+
+                if(result == MiddlewareStatus.PIV_OK) {
+                    s_logger.info("Attempted to read key history object: {}", result);
+                    decoded = keyHistoryObject.decode();
+                    if (decoded) {
+                        s_logger.info("Decoded successfully {}", keyHistoryObject.toString());
+                    }
                 }
 
 
                 PIVDataObject biometricInformationTemplatesGroupTemplate = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID);
                 result = piv.pivGetData(c, APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, biometricInformationTemplatesGroupTemplate);
-                s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID), result);
-                decoded = biometricInformationTemplatesGroupTemplate.decode();
-                s_logger.info("{} {}", biometricInformationTemplatesGroupTemplate.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
-                if(decoded){
+                if(result == MiddlewareStatus.PIV_OK) {
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID), result);
+                    decoded = biometricInformationTemplatesGroupTemplate.decode();
+                    s_logger.info("{} {}", biometricInformationTemplatesGroupTemplate.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
-                    s_logger.info("Number of fingers: {}", ((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getNumberOfFingers());
-                    if(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForFirstFinger() != null)
-                        s_logger.info("BIT for first Finger: {}", Hex.encodeHexString(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForFirstFinger()));
-                    if(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForSecondFinger() != null)
-                        s_logger.info("BIT for second Finger: {}", Hex.encodeHexString(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForSecondFinger()));
+                    if (decoded) {
 
+                        s_logger.info("Number of fingers: {}", ((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getNumberOfFingers());
+                        if (((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForFirstFinger() != null)
+                            s_logger.info("BIT for first Finger: {}", Hex.encodeHexString(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForFirstFinger()));
+                        if (((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForSecondFinger() != null)
+                            s_logger.info("BIT for second Finger: {}", Hex.encodeHexString(((BiometricInformationTemplatesGroupTemplate) biometricInformationTemplatesGroupTemplate).getbITForSecondFinger()));
+
+                    }
+                }
+
+
+                PIVDataObject secureMessagingCertificateSigner = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID);
+                result = piv.pivGetData(c, APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, secureMessagingCertificateSigner);
+
+                if(result == MiddlewareStatus.PIV_OK) {
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID), result);
+                    decoded = secureMessagingCertificateSigner.decode();
+                    s_logger.info("{} {}", secureMessagingCertificateSigner.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
+
+                    if (decoded) {
+
+                        X509Certificate contentSigningCert = ((SecureMessagingCertificateSigner) secureMessagingCertificateSigner).getCertificate();
+
+                        s_logger.info("Content Signing Cert SubjectName: {}", contentSigningCert.getSubjectDN().getName());
+                        s_logger.info("Content Signing Cert SerialNumber: {}", Hex.encodeHexString(contentSigningCert.getSerialNumber().toByteArray()));
+                        s_logger.info("Content Signing Cert IssuerName: {}", contentSigningCert.getSubjectDN().getName());
+
+                        if (((SecureMessagingCertificateSigner) secureMessagingCertificateSigner).getIntermediateCVC() != null)
+                            s_logger.info("Intermediate CVC: {}", Hex.encodeHexString(((SecureMessagingCertificateSigner) secureMessagingCertificateSigner).getIntermediateCVC()));
+
+                    }
                 }
 
             }

@@ -17,6 +17,10 @@ public class TagConstants {
     public static final byte[] COMPRESSED_TAG = { 0x01 };
 
 
+    public static final byte[] INTERMEDIATE_CVC_TAG = { 0x7F, 0x21 };
+
+
+
     public static final byte[] ERROR_DETECTION_CODE_TAG = { (byte) 0xFE };
 
     //Card Capability Container tags 800-73-4 Part 1 Table 8
