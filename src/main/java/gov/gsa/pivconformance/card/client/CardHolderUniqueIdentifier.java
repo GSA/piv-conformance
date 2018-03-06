@@ -151,7 +151,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG)) {
 
                                 String s = new String(tlv2.getBytesValue());
-
                                 Date date = new SimpleDateFormat("yyyyMMdd").parse(s);
                                 m_expirationDate = date;
 

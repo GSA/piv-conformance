@@ -167,7 +167,7 @@ public class PIVRunner {
                         }
                         s_logger.info("GUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getgUID()));
 
-                        SimpleDateFormat sdfmt = new SimpleDateFormat("dd/MM/yyyy");
+                        SimpleDateFormat sdfmt = new SimpleDateFormat("MM/dd/yyyy");
                         s_logger.info("Expiration Date: {}", sdfmt.format(((CardHolderUniqueIdentifier) dataObject).getExpirationDate()));
 
                         s_logger.info("Cardholder UUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getCardholderUUID()));
