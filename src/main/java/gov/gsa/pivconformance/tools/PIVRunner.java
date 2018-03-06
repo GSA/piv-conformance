@@ -94,13 +94,18 @@ public class PIVRunner {
                         s_logger.info("PCAP object: {}", Hex.encodeHexString(tlv.getTag().bytes));
                     }
                 }
+                PIVDataObject discoveryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.DISCOVERY_OBJECT_OID);
+                result = piv.pivGetData(c, APDUConstants.DISCOVERY_OBJECT_OID, discoveryObject);
+                s_logger.info("Attempted to read discovery object: {}", result);
+                boolean decoded = discoveryObject.decode();
+                s_logger.info("{} {}", discoveryObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
-                    s_logger.info("Attempting to read data object for OID {}", containerOID);
+                    s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
                     result = piv.pivGetData(c, containerOID, dataObject);
                     s_logger.info("pivGetData returned {}", result);
-                    if(result != MiddlewareStatus.PIV_OK) break;
-                    s_logger.info("Data object bytes: {}", Hex.encodeHexString(dataObject.getBytes()));
+                    if(result != MiddlewareStatus.PIV_OK) continue;
+                    s_logger.info(dataObject.toString());
 
                     if(containerOID.equals(APDUConstants.CARD_CAPABILITY_CONTAINER_OID)){
 
