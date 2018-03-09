@@ -32,6 +32,7 @@ public class PIVRunner {
     }
 
     public static boolean TestCard(CardHandle c) {
+
         if(c.isValid()) {
             CardTerminal t = c.getConnectionDescription().getTerminal();
             try {
@@ -96,8 +97,9 @@ public class PIVRunner {
                     }
                 }
 
+
                 if(result != MiddlewareStatus.PIV_OK)
-                    s_logger.error("Error authenticating to the smartcard: {}");
+                    s_logger.error("Error authenticating to the smartcard: {}", result.toString());
 
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);

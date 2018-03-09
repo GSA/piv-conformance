@@ -1,6 +1,8 @@
 package gov.gsa.pivconformance.tlv;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.nio.ByteBuffer;
 
 public class TagConstants {
     public static final byte[] AID_TAG = { 0x4F };
@@ -150,4 +152,30 @@ public class TagConstants {
             put(Cipher_Suite_7_ID, Cipher_Suite_7);
         }
     };
+
+    public static final String getKeyManagmentCertOID(int number){
+
+        String firstPart = "2.16.840.1.101.3.7.2.16.";
+        String oid = firstPart + Integer.toString(number);
+
+        return oid;
+    }
+
+    public static final String getKeyManagmentCertName(int number){
+
+        String firstPart = "Retired X.509 Certificate for Key Management ";
+        String name = firstPart + Integer.toString(number);
+
+        return name;
+    }
+
+    public static final byte[] getKeyManagmentCertTag(int number){
+
+        int firstPart = 0x5FC10C;
+        int tag = firstPart + number;
+
+        byte[] arr = Arrays.copyOfRange(ByteBuffer.allocate(4).putInt(tag).array(), 1, 4);
+
+        return arr;
+    }
 }

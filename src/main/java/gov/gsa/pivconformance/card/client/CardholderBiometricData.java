@@ -7,6 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+
+import org.jmrtd.cbeff.*;
+import org.jmrtd.lds.iso19794.*;
+
+import java.io.IOException;
 
 public class CardholderBiometricData extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -100,6 +107,48 @@ public class CardholderBiometricData extends PIVDataObject {
 
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
+        return true;
+    }
+
+    public boolean decodeFacialImage() {
+
+        try
+        {
+
+
+            ISO781611Decoder DECODER = new ISO781611Decoder(new BiometricDataBlockDecoder<FaceInfo>() {
+                public FaceInfo decode(InputStream inputStream, StandardBiometricHeader sbh, int index, int length) throws IOException {
+                    return new FaceInfo(sbh, inputStream);
+                }
+            });
+
+            s_logger.warn("Facial Image Data: {}", Hex.encodeHexString(m_biometricData));
+
+            InputStream inputstream = new ByteArrayInputStream(m_biometricData);
+
+            //Attempt to create FaceInfo object directly.
+            //FaceInfo faceInfo2 = new FaceInfo(inputstream);
+            //List<FaceImageInfo> faceImageInfoList = faceInfo2.getFaceImageInfos();
+
+            ComplexCBEFFInfo complexCBEFFInfo = DECODER.decode(inputstream);
+            List<CBEFFInfo> records = complexCBEFFInfo.getSubRecords();
+            for (CBEFFInfo cbeffInfo: records) {
+                if (!(cbeffInfo instanceof SimpleCBEFFInfo<?>)) {
+                    throw new IOException("Was expecting a SimpleCBEFFInfo, found " + cbeffInfo.getClass().getSimpleName());
+                }
+                SimpleCBEFFInfo<?> simpleCBEFFInfo = (SimpleCBEFFInfo<?>)cbeffInfo;
+                BiometricDataBlock bdb = simpleCBEFFInfo.getBiometricDataBlock();
+                if (!(bdb instanceof FaceInfo)) {
+                    throw new IOException("Was expecting a FaceInfo, found " + bdb.getClass().getSimpleName());
+                }
+                FaceInfo faceInfo = (FaceInfo)bdb;
+            }
+
+        }catch (Exception ex) {
+
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+        }
+
         return true;
     }
 }
