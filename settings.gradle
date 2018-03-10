@@ -1,5 +1,0 @@
-rootProject.name = 'piv-conformance'
-include 'cardlib', 'pivconformancegui'
-
-project(':pivconformancegui').projectDir = file('tools/85b-swing-gui')
-

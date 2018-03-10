@@ -10,7 +10,7 @@ buildscript {
 
 plugins {
     id 'org.ajoberstar.grgit' version '2.1.0'
-    id 'com.zyxist.chainsaw' version '0.1.3'
+    //id 'com.zyxist.chainsaw' version '0.1.3'
     //id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
@@ -20,7 +20,23 @@ apply plugin: 'eclipse'
 //apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
 
-javaModule.name = 'gov.gsa.pivconformance'
+targetCompatibility = targetJavaVersion
+
+logger.warn("target java version: " + targetCompatibility)
+logger.warn("source java version: " + sourceCompatibility)
+
+sourceSets {
+    main {
+        java {
+            if(targetCompatibility != JavaVersion.VERSION_11)
+                exclude '**/module-info.java'
+        }
+    }
+}
+    
+
+//if(targetCompatibility != JavaVersion.VERSION_1_8)
+//    javaModule.name = 'gov.gsa.pivconformance'
 
 repositories {
     jcenter()
@@ -84,7 +100,7 @@ run {
 // because the tests are also modular and we don't muck with the package exported by the library.
 // An alternate approach may be preferable here, but this makes both gradle and the IDEs happy.
 compileTestJava {
-    javaModule.name = 'gov.gsa.pivconformancetest'
+    //javaModule.name = 'gov.gsa.pivconformancetest'
 }
 
 // use junit platform for tests
@@ -131,7 +147,7 @@ afterEvaluate {
 // this will enbed a version properties file.
 compileJava.doFirst {
         //options.compilerArgs = ['--add-modules', 'java.smartcardio']
-        def git = org.ajoberstar.grgit.Grgit.open(dir: project.rootDir)
+        def git = org.ajoberstar.grgit.Grgit.open(dir: "${project.rootDir}/..")
         def commit = git.head()
 
         def commitId = commit.abbreviatedId
@@ -155,7 +171,7 @@ compileJava.doFirst {
 }
 
 compileJava {
-    //sourceCompatibility = '1.8'
+//    sourceCompatibility = '1.8'
     //targetCompatibility = '1.8'
 }
 
