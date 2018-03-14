@@ -50,6 +50,8 @@ public class CardholderBiometricData extends PIVDataObject {
         try{
             byte[] rawBytes = this.getBytes();
 
+            s_logger.warn("rawBytes: {}", Hex.encodeHexString(rawBytes));
+
             if(rawBytes == null){
                 s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
                 return false;
