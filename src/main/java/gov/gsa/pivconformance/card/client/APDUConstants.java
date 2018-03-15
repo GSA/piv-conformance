@@ -220,4 +220,12 @@ public class APDUConstants {
         return arr;
     }
 
+
+    public static final int unsignedIntToInt(byte[] b) {
+        int l = 0;
+        l |= b[0] & 0xFF;
+        l <<= 8;
+        l |= b[1] & 0xFF;
+        return l;
+    }
 }

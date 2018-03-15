@@ -110,7 +110,7 @@ public class SecurityObject extends PIVDataObject {
                             m_containerIDList = new ArrayList<String>();
 
                         byte[] tg = Arrays.copyOfRange(b, 1, 3);
-                        Integer i = (int)ByteBuffer.wrap(tg).getShort();
+                        int i = (int) APDUConstants.unsignedIntToInt(tg);
                         String cc = APDUConstants.idMAP.get(i);
 
                         //Add the container oid to the list will be easier to look up.

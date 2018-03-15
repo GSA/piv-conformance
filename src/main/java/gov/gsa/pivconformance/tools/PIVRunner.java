@@ -104,6 +104,7 @@ public class PIVRunner {
                     }
                 }
 
+
                 if(result != MiddlewareStatus.PIV_OK)
                     s_logger.error("Error authenticating to the smartcard: {}", result.toString());
 
