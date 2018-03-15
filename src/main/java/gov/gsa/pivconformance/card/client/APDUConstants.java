@@ -221,7 +221,7 @@ public class APDUConstants {
     }
 
 
-    public static final int unsignedIntToInt(byte[] b) {
+    public static final int bytesToInt(byte[] b) {
         int l = 0;
         l |= b[0] & 0xFF;
         l <<= 8;
