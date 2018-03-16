@@ -103,7 +103,6 @@ public class PIVRunner {
                     }
                 }
 
-
                 if(result != MiddlewareStatus.PIV_OK)
                     s_logger.error("Error authenticating to the smartcard: {}", result.toString());
 
@@ -221,9 +220,9 @@ public class PIVRunner {
                         s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
 
 
-                        s_logger.info("Biometric Creation Date: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricCreationDate()));
-                        s_logger.info("Validity Period From: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodFrom()));
-                        s_logger.info("Validity Period To: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodTo()));
+                        s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) dataObject).getBiometricCreationDate());
+                        s_logger.info("Validity Period From: {}", ((CardholderBiometricData) dataObject).getValidityPeriodFrom());
+                        s_logger.info("Validity Period To: {}",((CardholderBiometricData) dataObject).getValidityPeriodTo());
 
 
                         CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
@@ -292,9 +291,9 @@ public class PIVRunner {
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
                         s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
 
-                        s_logger.info("Biometric Creation Date: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricCreationDate()));
-                        s_logger.info("Validity Period From: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodFrom()));
-                        s_logger.info("Validity Period To: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodTo()));
+                        s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) dataObject).getBiometricCreationDate());
+                        s_logger.info("Validity Period From: {}", ((CardholderBiometricData) dataObject).getValidityPeriodFrom());
+                        s_logger.info("Validity Period To: {}", ((CardholderBiometricData) dataObject).getValidityPeriodTo());
 
 
                         CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
@@ -397,9 +396,9 @@ public class PIVRunner {
                         if (((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null) {
                             s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
 
-                            s_logger.info("Biometric Creation Date: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricCreationDate()));
-                            s_logger.info("Validity Period From: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getValidityPeriodFrom()));
-                            s_logger.info("Validity Period To: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getValidityPeriodTo()));
+                            s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) cardholderIrisImages).getBiometricCreationDate());
+                            s_logger.info("Validity Period From: {}", ((CardholderBiometricData) cardholderIrisImages).getValidityPeriodFrom());
+                            s_logger.info("Validity Period To: {}", ((CardholderBiometricData) cardholderIrisImages).getValidityPeriodTo());
 
 
                             CMSSignedData sd = ((CardholderBiometricData) cardholderIrisImages).getSignedData();

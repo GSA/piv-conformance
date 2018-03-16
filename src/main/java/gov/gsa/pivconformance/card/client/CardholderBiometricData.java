@@ -21,10 +21,10 @@ public class CardholderBiometricData extends PIVDataObject {
 
 
     private byte[] m_biometricData;
-    private byte[] m_biometricCreationDate;
+    private String m_biometricCreationDate;
     private boolean m_errorDetectionCode;
-    private byte[] m_validityPeriodFrom;
-    private byte[] m_validityPeriodTo;
+    private String m_validityPeriodFrom;
+    private String m_validityPeriodTo;
     private byte[] m_biometricDataBlock;
     private CMSSignedData m_signedData;;
 
@@ -57,11 +57,11 @@ public class CardholderBiometricData extends PIVDataObject {
     }
 
 
-    public byte[] getBiometricCreationDate() {
+    public String getBiometricCreationDate() {
         return m_biometricCreationDate;
     }
 
-    public void setBiometricCreationDate(byte[] biometricCreationDate) {
+    public void setBiometricCreationDate(String biometricCreationDate) {
         m_biometricCreationDate = biometricCreationDate;
     }
 
@@ -73,19 +73,19 @@ public class CardholderBiometricData extends PIVDataObject {
         m_biometricDataBlock = biometricDataBlock;
     }
 
-    public byte[] getValidityPeriodFrom() {
+    public String getValidityPeriodFrom() {
         return m_validityPeriodFrom;
     }
 
-    public void setValidityPeriodFrom(byte[] validityPeriodFrom) {
+    public void setValidityPeriodFrom(String validityPeriodFrom) {
         m_validityPeriodFrom = validityPeriodFrom;
     }
 
-    public byte[] getValidityPeriodTo() {
+    public String getValidityPeriodTo() {
         return m_validityPeriodTo;
     }
 
-    public void setValidityPeriodTo(byte[] validityPeriodTo) {
+    public void setValidityPeriodTo(String validityPeriodTo) {
         m_validityPeriodTo = validityPeriodTo;
     }
 
@@ -165,11 +165,11 @@ public class CardholderBiometricData extends PIVDataObject {
                         byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 6, 8);
 
                         //Get Biometric Creation Date
-                        m_biometricCreationDate = Arrays.copyOfRange(m_biometricData, 12, 20);
+                        m_biometricCreationDate = BytesToDateString(Arrays.copyOfRange(m_biometricData, 12, 20));
                         //Get Validity Period From value
-                        m_validityPeriodFrom = Arrays.copyOfRange(m_biometricData, 20, 28);
+                        m_validityPeriodFrom = BytesToDateString(Arrays.copyOfRange(m_biometricData, 20, 28));
                         //Get Validity Period To value
-                        m_validityPeriodTo = Arrays.copyOfRange(m_biometricData, 28, 36);
+                        m_validityPeriodTo = BytesToDateString(Arrays.copyOfRange(m_biometricData, 28, 36));
 
                         //Convert Biometric data block (BDB) Length byte[] value to int
                         ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -198,59 +198,16 @@ public class CardholderBiometricData extends PIVDataObject {
         return true;
     }
 
-    public boolean decodeFacialImage() {
-
-        try
-        {
-
-            s_logger.debug("Facial Image Data: {}", Hex.encodeHexString(m_biometricData));
-
-            byte[] cbeffHeader = Arrays.copyOfRange(m_biometricData, 0, 88);
-
-            s_logger.debug("cbeffHeader: {}", Hex.encodeHexString(cbeffHeader));
-
-            byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 2, 6);
-            byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 6, 8);
-
-
-            byte[] biometricCreationDate = Arrays.copyOfRange(m_biometricData, 12, 20);
-            byte[] validityPeriodFrom = Arrays.copyOfRange(m_biometricData, 20, 28);
-            byte[] validityPeriodTo = Arrays.copyOfRange(m_biometricData, 28, 36);
-
-
-
-            s_logger.debug("biometricCreationDate: {}", new String(biometricCreationDate));
-            s_logger.debug("biometricCreationDateHEX: {}", Hex.encodeHexString(biometricCreationDate));
-            s_logger.debug("validityPeriodFrom: {}", new String(biometricCreationDate));
-            s_logger.debug("validityPeriodFromHEX: {}", Hex.encodeHexString(biometricCreationDate));
-            s_logger.debug("validityPeriodTo: {}", new String(biometricCreationDate));
-            s_logger.debug("validityPeriodToHEX: {}", Hex.encodeHexString(biometricCreationDate));
-
-            s_logger.debug("biometricDataBlockLengthBytes: {}", Hex.encodeHexString(biometricDataBlockLengthBytes));
-
-            s_logger.debug("signatureDataBlockLengthBytes: {}", Hex.encodeHexString(signatureDataBlockLengthBytes));
-
-            ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
-            int biometricDataBlockLength = wrapped.getInt();
-
-            wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-            int signatureDataBlockLength = (int) wrapped.getShort();
-
-            byte[] biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88+biometricDataBlockLength);
-
-            s_logger.debug("biometricDataBlock: {}", Hex.encodeHexString(biometricDataBlock));
-
-            byte[] signatureDataBlock = Arrays.copyOfRange(m_biometricData, 88+biometricDataBlockLength, 88+biometricDataBlockLength+signatureDataBlockLength);
-
-            s_logger.debug("signatureDataBlock: {}", Hex.encodeHexString(signatureDataBlock));
-
-
-
-        }catch (Exception ex) {
-
-            s_logger.error("Error extracting signature from {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+    private String BytesToDateString(byte[] buf) {
+        if((char)buf[buf.length-1] != 'Z') {
+            throw new IllegalArgumentException("bcd byte array doesn't end with Z");
         }
-
-        return true;
+        StringBuilder outsb = new StringBuilder();
+        for( int i = 0; i < buf.length-1; ++i ) {
+            int digits = buf[i] & 0xFF;
+            outsb.append(String.format("%02d", digits));
+        }
+        outsb.append('Z');
+        return outsb.toString();
     }
 }
