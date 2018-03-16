@@ -24,7 +24,7 @@ public class SecurityObject extends PIVDataObject {
     private byte[] m_mapping;
     private byte[] m_so;
     private List<String> m_containerIDList;
-    private CMSSignedData m_signedData;;
+    private CMSSignedData m_signedData;
 
     public SecurityObject() {
         m_mapping = null;

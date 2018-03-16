@@ -4,6 +4,7 @@ package gov.gsa.pivconformance.card.client;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.lang.IllegalArgumentException;
 
 public class APDUConstants {
     public static final byte COMMAND = 0x00;
@@ -222,6 +223,12 @@ public class APDUConstants {
 
 
     public static final int bytesToInt(byte[] b) {
+
+        if(b.length != 2){
+            throw new IllegalArgumentException("Invalid buffer length passed in.");
+        }
+
+
         int l = 0;
         l |= b[0] & 0xFF;
         l <<= 8;

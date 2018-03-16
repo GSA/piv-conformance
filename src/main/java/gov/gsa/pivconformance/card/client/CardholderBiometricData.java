@@ -2,18 +2,18 @@ package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.cms.CMSSignedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.io.InputStream;
 import java.io.ByteArrayInputStream;
-
-import org.jmrtd.cbeff.*;
-import org.jmrtd.lds.iso19794.*;
-
-import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.nio.ByteBuffer;
 
 public class CardholderBiometricData extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -21,11 +21,23 @@ public class CardholderBiometricData extends PIVDataObject {
 
 
     private byte[] m_biometricData;
+    private byte[] m_biometricCreationDate;
     private boolean m_errorDetectionCode;
+    private byte[] m_validityPeriodFrom;
+    private byte[] m_validityPeriodTo;
+    private byte[] m_biometricDataBlock;
+    private CMSSignedData m_signedData;;
+
+
 
     public CardholderBiometricData() {
         m_biometricData = null;
         m_errorDetectionCode = false;
+        m_biometricCreationDate = null;
+        m_validityPeriodFrom = null;
+        m_validityPeriodTo = null;
+        m_signedData = null;
+        m_biometricDataBlock = null;
     }
 
     public byte[] getBiometricData() {
@@ -45,12 +57,53 @@ public class CardholderBiometricData extends PIVDataObject {
     }
 
 
+    public byte[] getBiometricCreationDate() {
+        return m_biometricCreationDate;
+    }
+
+    public void setBiometricCreationDate(byte[] biometricCreationDate) {
+        m_biometricCreationDate = biometricCreationDate;
+    }
+
+    public byte[] getBiometricDataBlock() {
+        return m_biometricDataBlock;
+    }
+
+    public void setBiometricDataBlock(byte[] biometricDataBlock) {
+        m_biometricDataBlock = biometricDataBlock;
+    }
+
+    public byte[] getValidityPeriodFrom() {
+        return m_validityPeriodFrom;
+    }
+
+    public void setValidityPeriodFrom(byte[] validityPeriodFrom) {
+        m_validityPeriodFrom = validityPeriodFrom;
+    }
+
+    public byte[] getValidityPeriodTo() {
+        return m_validityPeriodTo;
+    }
+
+    public void setValidityPeriodTo(byte[] validityPeriodTo) {
+        m_validityPeriodTo = validityPeriodTo;
+    }
+
+    public CMSSignedData getSignedData() {
+        return m_signedData;
+    }
+
+    public void setSignedData(CMSSignedData signedData) {
+        m_signedData = signedData;
+    }
+
+
     public boolean decode() {
 
         try{
             byte[] rawBytes = this.getBytes();
 
-            s_logger.warn("rawBytes: {}", Hex.encodeHexString(rawBytes));
+            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
 
             if(rawBytes == null){
                 s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
@@ -103,6 +156,39 @@ public class CardholderBiometricData extends PIVDataObject {
                             }
                         }
                     }
+
+                    if (m_biometricData != null) {
+
+                        //Get Biometric data block (BDB) Length
+                        byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 2, 6);
+                        //Get Signature block (SB) Length
+                        byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 6, 8);
+
+                        //Get Biometric Creation Date
+                        m_biometricCreationDate = Arrays.copyOfRange(m_biometricData, 12, 20);
+                        //Get Validity Period From value
+                        m_validityPeriodFrom = Arrays.copyOfRange(m_biometricData, 20, 28);
+                        //Get Validity Period To value
+                        m_validityPeriodTo = Arrays.copyOfRange(m_biometricData, 28, 36);
+
+                        //Convert Biometric data block (BDB) Length byte[] value to int
+                        ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
+                        int biometricDataBlockLength = wrapped.getInt();
+
+                        //Convert Signature block (SB) Length byte[] value to int
+                        wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
+                        int signatureDataBlockLength = (int) wrapped.getShort();
+
+                        m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);
+
+                        byte[] signatureDataBlock = Arrays.copyOfRange(m_biometricData, 88 + biometricDataBlockLength, 88 + biometricDataBlockLength + signatureDataBlockLength);
+
+                        //Decode the ContentInfo and get SignedData object from the signature block.
+                        ByteArrayInputStream bIn = new ByteArrayInputStream(signatureDataBlock);
+                        ASN1InputStream aIn = new ASN1InputStream(bIn);
+                        ContentInfo ci = ContentInfo.getInstance(aIn.readObject());
+                        m_signedData = new CMSSignedData(ci);
+                    }
                 }
             }
         }catch (Exception ex) {
@@ -117,38 +203,52 @@ public class CardholderBiometricData extends PIVDataObject {
         try
         {
 
+            s_logger.debug("Facial Image Data: {}", Hex.encodeHexString(m_biometricData));
 
-            ISO781611Decoder DECODER = new ISO781611Decoder(new BiometricDataBlockDecoder<FaceInfo>() {
-                public FaceInfo decode(InputStream inputStream, StandardBiometricHeader sbh, int index, int length) throws IOException {
-                    return new FaceInfo(sbh, inputStream);
-                }
-            });
+            byte[] cbeffHeader = Arrays.copyOfRange(m_biometricData, 0, 88);
 
-            s_logger.warn("Facial Image Data: {}", Hex.encodeHexString(m_biometricData));
+            s_logger.debug("cbeffHeader: {}", Hex.encodeHexString(cbeffHeader));
 
-            InputStream inputstream = new ByteArrayInputStream(m_biometricData);
+            byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 2, 6);
+            byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 6, 8);
 
-            //Attempt to create FaceInfo object directly.
-            //FaceInfo faceInfo2 = new FaceInfo(inputstream);
-            //List<FaceImageInfo> faceImageInfoList = faceInfo2.getFaceImageInfos();
 
-            ComplexCBEFFInfo complexCBEFFInfo = DECODER.decode(inputstream);
-            List<CBEFFInfo> records = complexCBEFFInfo.getSubRecords();
-            for (CBEFFInfo cbeffInfo: records) {
-                if (!(cbeffInfo instanceof SimpleCBEFFInfo<?>)) {
-                    throw new IOException("Was expecting a SimpleCBEFFInfo, found " + cbeffInfo.getClass().getSimpleName());
-                }
-                SimpleCBEFFInfo<?> simpleCBEFFInfo = (SimpleCBEFFInfo<?>)cbeffInfo;
-                BiometricDataBlock bdb = simpleCBEFFInfo.getBiometricDataBlock();
-                if (!(bdb instanceof FaceInfo)) {
-                    throw new IOException("Was expecting a FaceInfo, found " + bdb.getClass().getSimpleName());
-                }
-                FaceInfo faceInfo = (FaceInfo)bdb;
-            }
+            byte[] biometricCreationDate = Arrays.copyOfRange(m_biometricData, 12, 20);
+            byte[] validityPeriodFrom = Arrays.copyOfRange(m_biometricData, 20, 28);
+            byte[] validityPeriodTo = Arrays.copyOfRange(m_biometricData, 28, 36);
+
+
+
+            s_logger.debug("biometricCreationDate: {}", new String(biometricCreationDate));
+            s_logger.debug("biometricCreationDateHEX: {}", Hex.encodeHexString(biometricCreationDate));
+            s_logger.debug("validityPeriodFrom: {}", new String(biometricCreationDate));
+            s_logger.debug("validityPeriodFromHEX: {}", Hex.encodeHexString(biometricCreationDate));
+            s_logger.debug("validityPeriodTo: {}", new String(biometricCreationDate));
+            s_logger.debug("validityPeriodToHEX: {}", Hex.encodeHexString(biometricCreationDate));
+
+            s_logger.debug("biometricDataBlockLengthBytes: {}", Hex.encodeHexString(biometricDataBlockLengthBytes));
+
+            s_logger.debug("signatureDataBlockLengthBytes: {}", Hex.encodeHexString(signatureDataBlockLengthBytes));
+
+            ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
+            int biometricDataBlockLength = wrapped.getInt();
+
+            wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
+            int signatureDataBlockLength = (int) wrapped.getShort();
+
+            byte[] biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88+biometricDataBlockLength);
+
+            s_logger.debug("biometricDataBlock: {}", Hex.encodeHexString(biometricDataBlock));
+
+            byte[] signatureDataBlock = Arrays.copyOfRange(m_biometricData, 88+biometricDataBlockLength, 88+biometricDataBlockLength+signatureDataBlockLength);
+
+            s_logger.debug("signatureDataBlock: {}", Hex.encodeHexString(signatureDataBlock));
+
+
 
         }catch (Exception ex) {
 
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error extracting signature from {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
 
         return true;

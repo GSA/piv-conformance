@@ -39,7 +39,6 @@ public class PIVRunner {
 
     public static boolean TestCard(CardHandle c) {
 
-
         if(c.isValid()) {
             CardTerminal t = c.getConnectionDescription().getTerminal();
             try {
@@ -196,6 +195,35 @@ public class PIVRunner {
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)) {
 
                         s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+
+
+                        s_logger.info("Biometric Creation Date: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricCreationDate()));
+                        s_logger.info("Validity Period From: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodFrom()));
+                        s_logger.info("Validity Period To: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodTo()));
+
+
+                        CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
+                        SignerInformationStore signers = sd.getSignerInfos();
+                        Collection collection = signers.getSigners();
+                        Iterator it = collection.iterator();
+
+                        while (it.hasNext())
+                        {
+                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerId sid = signer.getSID();
+                            String issuer = sid.getIssuer().toString();
+                            String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
+                            String skid = "";
+                            if( sid.getSubjectKeyIdentifier() != null)
+                                skid = Hex.encodeHexString(sid.getSubjectKeyIdentifier());
+
+                            if(sid.getSubjectKeyIdentifier() != null)
+                                s_logger.info("Signer skid: {} ", skid);
+                            else
+                                s_logger.info("Signer issuer: {}, serial number: {} ", issuer, serial);
+
+                        }
+
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
                     }
 
@@ -239,10 +267,35 @@ public class PIVRunner {
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
                         s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+
+                        s_logger.info("Biometric Creation Date: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricCreationDate()));
+                        s_logger.info("Validity Period From: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodFrom()));
+                        s_logger.info("Validity Period To: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getValidityPeriodTo()));
+
+
+                        CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
+                        SignerInformationStore signers = sd.getSignerInfos();
+                        Collection collection = signers.getSigners();
+                        Iterator it = collection.iterator();
+
+                        while (it.hasNext())
+                        {
+                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerId sid = signer.getSID();
+                            String issuer = sid.getIssuer().toString();
+                            String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
+                            String skid = "";
+                            if( sid.getSubjectKeyIdentifier() != null)
+                                skid = Hex.encodeHexString(sid.getSubjectKeyIdentifier());
+
+                            if(sid.getSubjectKeyIdentifier() != null)
+                                s_logger.info("Signer skid: {} ", skid);
+                            else
+                                s_logger.info("Signer issuer: {}, serial number: {} ", issuer, serial);
+
+                        }
+
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
-
-                        decoded = ((CardholderBiometricData) dataObject).decodeFacialImage();
-
                     }
 
 
@@ -317,8 +370,36 @@ public class PIVRunner {
                     s_logger.info("{} {}", cardholderIrisImages.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
                     if (decoded) {
-                        if (((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null)
+                        if (((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null) {
                             s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
+
+                            s_logger.info("Biometric Creation Date: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricCreationDate()));
+                            s_logger.info("Validity Period From: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getValidityPeriodFrom()));
+                            s_logger.info("Validity Period To: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getValidityPeriodTo()));
+
+
+                            CMSSignedData sd = ((CardholderBiometricData) cardholderIrisImages).getSignedData();
+                            SignerInformationStore signers = sd.getSignerInfos();
+                            Collection collection = signers.getSigners();
+                            Iterator it = collection.iterator();
+
+                            while (it.hasNext())
+                            {
+                                SignerInformation signer = (SignerInformation)it.next();
+                                SignerId sid = signer.getSID();
+                                String issuer = sid.getIssuer().toString();
+                                String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
+                                String skid = "";
+                                if( sid.getSubjectKeyIdentifier() != null)
+                                    skid = Hex.encodeHexString(sid.getSubjectKeyIdentifier());
+
+                                if(sid.getSubjectKeyIdentifier() != null)
+                                    s_logger.info("Signer skid: {} ", skid);
+                                else
+                                    s_logger.info("Signer issuer: {}, serial number: {} ", issuer, serial);
+
+                            }
+                        }
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
 
                     }
