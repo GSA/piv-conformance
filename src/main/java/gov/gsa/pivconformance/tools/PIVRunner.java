@@ -180,7 +180,31 @@ public class PIVRunner {
                         s_logger.info("Expiration Date: {}", sdfmt.format(((CardHolderUniqueIdentifier) dataObject).getExpirationDate()));
 
                         s_logger.info("Cardholder UUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getCardholderUUID()));
-                        s_logger.info("Issuer Asymmetric Signature: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature()));
+                        s_logger.info("Issuer Asymmetric Signature Info:");
+
+                        CMSSignedData sd = ((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature();
+                        SignerInformationStore signers = sd.getSignerInfos();
+                        Collection collection = signers.getSigners();
+                        Iterator it = collection.iterator();
+
+                        while (it.hasNext())
+                        {
+                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerId sid = signer.getSID();
+                            String issuer = sid.getIssuer().toString();
+                            String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
+                            String skid = "";
+                            if( sid.getSubjectKeyIdentifier() != null)
+                                skid = Hex.encodeHexString(sid.getSubjectKeyIdentifier());
+
+                            if(sid.getSubjectKeyIdentifier() != null)
+                                s_logger.info("Signer skid: {} ", skid);
+                            else
+                                s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
+
+                        }
+
+
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
                     }
 
@@ -220,7 +244,7 @@ public class PIVRunner {
                             if(sid.getSubjectKeyIdentifier() != null)
                                 s_logger.info("Signer skid: {} ", skid);
                             else
-                                s_logger.info("Signer issuer: {}, serial number: {} ", issuer, serial);
+                                s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
 
@@ -259,7 +283,7 @@ public class PIVRunner {
                             if(sid.getSubjectKeyIdentifier() != null)
                                 s_logger.info("Signer skid: {} ", skid);
                             else
-                                s_logger.info("Signer issuer: {}, serial number: {} ", issuer, serial);
+                                s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
                         //s_logger.info("Error Detection Code Tag Present: {}", ((SecurityObject) dataObject).getErrorDetectionCode());
@@ -291,7 +315,7 @@ public class PIVRunner {
                             if(sid.getSubjectKeyIdentifier() != null)
                                 s_logger.info("Signer skid: {} ", skid);
                             else
-                                s_logger.info("Signer issuer: {}, serial number: {} ", issuer, serial);
+                                s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
 
@@ -396,7 +420,7 @@ public class PIVRunner {
                                 if(sid.getSubjectKeyIdentifier() != null)
                                     s_logger.info("Signer skid: {} ", skid);
                                 else
-                                    s_logger.info("Signer issuer: {}, serial number: {} ", issuer, serial);
+                                    s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                             }
                         }

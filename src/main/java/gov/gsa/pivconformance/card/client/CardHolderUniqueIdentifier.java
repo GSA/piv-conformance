@@ -1,10 +1,15 @@
 package gov.gsa.pivconformance.card.client;
 
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.cms.CMSSignedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
+
+import java.io.ByteArrayInputStream;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -21,7 +26,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     private byte[] m_gUID;
     private Date m_expirationDate;
     private byte[] m_cardholderUUID;
-    private byte[] m_issuerAsymmetricSignature;
+    private CMSSignedData m_issuerAsymmetricSignature;
     private boolean m_errorDetectionCode;
 
     public CardHolderUniqueIdentifier() {
@@ -83,11 +88,11 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         m_cardholderUUID = cardholderUUID;
     }
 
-    public byte[] getIssuerAsymmetricSignature() {
+    public CMSSignedData getIssuerAsymmetricSignature() {
         return m_issuerAsymmetricSignature;
     }
 
-    public void setIssuerAsymmetricSignature(byte[] issuerAsymmetricSignature) {
+    public void setIssuerAsymmetricSignature(CMSSignedData issuerAsymmetricSignature) {
         m_issuerAsymmetricSignature = issuerAsymmetricSignature;
     }
 
@@ -166,7 +171,15 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)) {
 
-                                m_issuerAsymmetricSignature = tlv2.getBytesValue();
+                                byte [] issuerAsymmetricSignature = tlv2.getBytesValue();
+
+                                if(issuerAsymmetricSignature != null) {
+                                    //Decode the ContentInfo and get SignedData object.
+                                    ByteArrayInputStream bIn = new ByteArrayInputStream(issuerAsymmetricSignature);
+                                    ASN1InputStream aIn = new ASN1InputStream(bIn);
+                                    ContentInfo ci = ContentInfo.getInstance(aIn.readObject());
+                                    m_issuerAsymmetricSignature = new CMSSignedData(ci);
+                                }
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 
