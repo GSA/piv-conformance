@@ -2,18 +2,35 @@ package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.cms.ContentInfo;
-import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
+import java.util.Iterator;
 import java.nio.ByteBuffer;
+import java.security.cert.X509Certificate;
+import org.bouncycastle.util.Store;
+import java.security.cert.CertificateException;
+
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.SignerInformationStore;
+import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSProcessable;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.cms.CMSSignerDigestMismatchException;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 
 public class CardholderBiometricData extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -26,8 +43,9 @@ public class CardholderBiometricData extends PIVDataObject {
     private String m_validityPeriodFrom;
     private String m_validityPeriodTo;
     private byte[] m_biometricDataBlock;
-    private CMSSignedData m_signedData;;
-
+    private CMSSignedData m_signedData;
+    private ContentInfo m_contentInfo;
+    private byte[] m_signedContent;
 
 
     public CardholderBiometricData() {
@@ -38,6 +56,24 @@ public class CardholderBiometricData extends PIVDataObject {
         m_validityPeriodTo = null;
         m_signedData = null;
         m_biometricDataBlock = null;
+        m_contentInfo = null;
+        m_signedContent = null;
+    }
+
+    public byte[] getSignedContent() {
+        return m_signedContent;
+    }
+
+    public void setSignedContent(byte[] signedContent) {
+        m_signedContent = signedContent;
+    }
+
+    public ContentInfo getContentInfo() {
+        return m_contentInfo;
+    }
+
+    public void setContentInfo(ContentInfo contentInfo) {
+        m_contentInfo = contentInfo;
     }
 
     public byte[] getBiometricData() {
@@ -179,6 +215,8 @@ public class CardholderBiometricData extends PIVDataObject {
                         wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
                         int signatureDataBlockLength = (int) wrapped.getShort();
 
+                        m_signedContent = Arrays.copyOfRange(m_biometricData, 0, 88 + biometricDataBlockLength);
+
                         m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);
 
                         byte[] signatureDataBlock = Arrays.copyOfRange(m_biometricData, 88 + biometricDataBlockLength, 88 + biometricDataBlockLength + signatureDataBlockLength);
@@ -186,8 +224,8 @@ public class CardholderBiometricData extends PIVDataObject {
                         //Decode the ContentInfo and get SignedData object from the signature block.
                         ByteArrayInputStream bIn = new ByteArrayInputStream(signatureDataBlock);
                         ASN1InputStream aIn = new ASN1InputStream(bIn);
-                        ContentInfo ci = ContentInfo.getInstance(aIn.readObject());
-                        m_signedData = new CMSSignedData(ci);
+                        m_contentInfo = ContentInfo.getInstance(aIn.readObject());
+                        m_signedData = new CMSSignedData(m_contentInfo);
                     }
                 }
             }
@@ -196,6 +234,77 @@ public class CardholderBiometricData extends PIVDataObject {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
         return true;
+    }
+
+    public boolean verifySignature(X509Certificate signingCertificate) {
+        boolean rv_result = false;
+
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+        } catch (Exception e) {
+            s_logger.error("Unable to add provider for signature verification: {}" , e.getMessage());
+            return rv_result;
+        }
+
+        CMSSignedData s;
+        try {
+            s = new CMSSignedData(m_contentInfo);
+            if (m_signedData.isDetachedSignature()) {
+                CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
+                s = new CMSSignedData(procesableContentBytes, m_contentInfo);
+            }
+
+            Store<X509CertificateHolder> certs = s.getCertificates();
+            SignerInformationStore signers = s.getSignerInfos();
+            X509Certificate signingCert = null;
+
+            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+                SignerInformation signer = i.next();
+
+                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+                if (certIt.hasNext()) {
+                    X509CertificateHolder certHolder = certIt.next();
+                    signingCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                }
+                else if(signingCertificate != null){
+                    signingCert = signingCertificate;
+                }
+                else {
+                    s_logger.error("Missing signing certificate to verifysignature on {}", APDUConstants.oidNameMAP.get(super.getOID()));
+                    rv_result = false;
+                    return rv_result;
+                }
+
+
+                try {
+                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCert))) {
+                        rv_result = true;
+                    }
+                } catch (CMSSignerDigestMismatchException e) {
+                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+                } catch (OperatorCreationException | CMSException e) {
+                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+                } finally {
+                    CMSProcessable signedContent;
+                    if ((signedContent = s.getSignedContent()) != null) {
+                        byte[] origContentBytes = (byte[]) signedContent.getContent();
+
+                        boolean matches = false;
+                        if(Arrays.equals(origContentBytes, m_signedContent))
+                            matches = true;
+                        if(matches)
+                            s_logger.debug("Message digest attribute value does match calculated value for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+                        else
+                            s_logger.debug("Message digest attribute value does NOT match calculated value for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+                    }
+                }
+            }
+        } catch (CMSException | CertificateException ex) {
+            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+        }
+
+        return rv_result;
     }
 
     private String BytesToDateString(byte[] buf) {

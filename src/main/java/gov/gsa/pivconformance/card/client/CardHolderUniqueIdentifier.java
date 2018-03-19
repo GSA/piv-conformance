@@ -2,7 +2,13 @@ package gov.gsa.pivconformance.card.client;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.cms.ContentInfo;
-import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cms.*;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,10 +16,11 @@ import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.ByteArrayInputStream;
-import java.util.Date;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.*;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
 
 public class CardHolderUniqueIdentifier extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -28,8 +35,39 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     private byte[] m_cardholderUUID;
     private CMSSignedData m_issuerAsymmetricSignature;
     private boolean m_errorDetectionCode;
+    private ContentInfo m_contentInfo;
+    X509Certificate m_signingCertificate;
+
 
     public CardHolderUniqueIdentifier() {
+        m_bufferLength = null;
+        m_fASCN = null;
+        m_organizationalIdentifier = null;
+        m_dUNS = null;
+        m_gUID = null;
+        m_expirationDate = null;
+        m_cardholderUUID = null;
+        m_issuerAsymmetricSignature = null;
+        m_errorDetectionCode = false;
+        m_contentInfo = null;
+        m_signingCertificate = null;
+    }
+
+    public X509Certificate getSigningCertificate() {
+        return m_signingCertificate;
+    }
+
+    public void setSigningCertificate(X509Certificate signingCertificate) {
+        m_signingCertificate = signingCertificate;
+    }
+
+
+    public ContentInfo getContentInfo() {
+        return m_contentInfo;
+    }
+
+    public void setContentInfo(ContentInfo contentInfo) {
+        m_contentInfo = contentInfo;
     }
 
     public byte[] getBufferLength() {
@@ -177,8 +215,8 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                     //Decode the ContentInfo and get SignedData object.
                                     ByteArrayInputStream bIn = new ByteArrayInputStream(issuerAsymmetricSignature);
                                     ASN1InputStream aIn = new ASN1InputStream(bIn);
-                                    ContentInfo ci = ContentInfo.getInstance(aIn.readObject());
-                                    m_issuerAsymmetricSignature = new CMSSignedData(ci);
+                                    m_contentInfo = ContentInfo.getInstance(aIn.readObject());
+                                    m_issuerAsymmetricSignature = new CMSSignedData(m_contentInfo);
                                 }
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
@@ -198,5 +236,72 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         }
         return true;
     }
+
+    public boolean verifySignature() {
+        boolean rv_result = false;
+
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+        } catch (Exception e) {
+            s_logger.error("Unable to add provider for signature verification: {}" , e.getMessage());
+            return rv_result;
+        }
+
+        CMSSignedData s;
+        try {
+            s = new CMSSignedData(m_contentInfo);
+
+            //TO DO Need to figure out bytes that re signed
+            //if (m_issuerAsymmetricSignature.isDetachedSignature()) {
+            //    CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_biometricDataBlock);
+            //    s = new CMSSignedData(procesableContentBytes, m_contentInfo);
+            //}
+
+            Store<X509CertificateHolder> certs = s.getCertificates();
+            SignerInformationStore signers = s.getSignerInfos();
+
+            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+                SignerInformation signer = i.next();
+
+                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+                if (certIt.hasNext()) {
+                    X509CertificateHolder certHolder = certIt.next();
+                    m_signingCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+
+                    //For now just get the signing cert
+                    return true;
+                }
+
+//                try {
+//                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCert))) {
+//                        rv_result = true;
+//                    }
+//                } catch (CMSSignerDigestMismatchException e) {
+//                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+//                } catch (OperatorCreationException | CMSException e) {
+//                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+//                } finally {
+//                    CMSProcessable signedContent;
+//                    if ((signedContent = s.getSignedContent()) != null) {
+//                        byte[] origContentBytes = (byte[]) signedContent.getContent();
+//
+//                        boolean matches = false;
+//                        if(Arrays.equals(origContentBytes, m_biometricDataBlock))
+//                            matches = true;
+//                        if(matches)
+//                            s_logger.error("Message digest attribute value does match calculated value for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+//                        else
+//                            s_logger.error("Message digest attribute value does NOT match calculated value for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+//                    }
+//                }
+            }
+        } catch (CMSException | CertificateException ex) {
+            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+        }
+
+        return rv_result;
+    }
+
 
 }

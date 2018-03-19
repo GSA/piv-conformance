@@ -103,8 +103,11 @@ public class PIVRunner {
                     }
                 }
 
+
                 if(result != MiddlewareStatus.PIV_OK)
                     s_logger.error("Error authenticating to the smartcard: {}", result.toString());
+
+                X509Certificate signingCertificate = null;
 
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
@@ -202,7 +205,8 @@ public class PIVRunner {
                                 s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
-
+                        s_logger.info("Signature valid: {}", ((CardHolderUniqueIdentifier) dataObject).verifySignature());
+                        signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSigningCertificate();
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
                     }
@@ -246,8 +250,14 @@ public class PIVRunner {
                                 s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
+                        if(signingCertificate != null)
+                            s_logger.info("Is signatue valid: {}",((CardholderBiometricData) dataObject).verifySignature(signingCertificate));
+                        else
+                            s_logger.info("Missing signing certificate to verify signature.");
+
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+
                     }
 
                     if (containerOID.equals(APDUConstants.SECURITY_OBJECT_OID)) {
@@ -317,6 +327,11 @@ public class PIVRunner {
                                 s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
+
+                        if(signingCertificate != null)
+                            s_logger.info("Is signatue valid: {}",((CardholderBiometricData) dataObject).verifySignature(signingCertificate));
+                        else
+                            s_logger.info("Missing signing certificate to verify signature.");
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
                     }
@@ -422,6 +437,11 @@ public class PIVRunner {
                                     s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                             }
+
+                            if(signingCertificate != null)
+                                s_logger.info("Is signatue valid: {}",((CardholderBiometricData) cardholderIrisImages).verifySignature(signingCertificate));
+                            else
+                                s_logger.info("Missing signing certificate to verify signature.");
                         }
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
 
