@@ -17,10 +17,7 @@ import java.text.SimpleDateFormat;
 import javax.smartcardio.*;
 import java.lang.invoke.MethodHandles;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class PIVRunner {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -38,6 +35,23 @@ public class PIVRunner {
     }
 
     public static boolean TestCard(CardHandle c) {
+
+
+        LinkedHashMap<Integer, String> valueMap = new LinkedHashMap();
+
+        valueMap.put(1, "ONE");
+        valueMap.put(2, "TWO");
+        valueMap.put(3, "THREE");
+        valueMap.put(4, "FOUR");
+        valueMap.put(5, "FIVE");
+
+        Iterator<Integer> it2 = valueMap.keySet().iterator();
+        while (it2.hasNext()) {
+            int number = it2.next();
+            String value = valueMap.get(number);
+
+            s_logger.info("{} -- {}", number, value);
+        }
 
         if(c.isValid()) {
             CardTerminal t = c.getConnectionDescription().getTerminal();
@@ -103,6 +117,9 @@ public class PIVRunner {
                     }
                 }
 
+                PIVAuthenticators authenticators = new PIVAuthenticators();
+                authenticators.addApplicationPin("123456");
+                piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 
                 if(result != MiddlewareStatus.PIV_OK)
                     s_logger.error("Error authenticating to the smartcard: {}", result.toString());

@@ -239,6 +239,10 @@ public class CardholderBiometricData extends PIVDataObject {
     public boolean verifySignature(X509Certificate signingCertificate) {
         boolean rv_result = false;
 
+        if(signingCertificate == null) {
+            s_logger.error("Signing certificate is not provided for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+        }
+
         try {
             Security.addProvider(new BouncyCastleProvider());
         } catch (Exception e) {
@@ -285,19 +289,6 @@ public class CardholderBiometricData extends PIVDataObject {
                     s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
                 } catch (OperatorCreationException | CMSException e) {
                     s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                } finally {
-                    CMSProcessable signedContent;
-                    if ((signedContent = s.getSignedContent()) != null) {
-                        byte[] origContentBytes = (byte[]) signedContent.getContent();
-
-                        boolean matches = false;
-                        if(Arrays.equals(origContentBytes, m_signedContent))
-                            matches = true;
-                        if(matches)
-                            s_logger.debug("Message digest attribute value does match calculated value for {}", APDUConstants.oidNameMAP.get(super.getOID()));
-                        else
-                            s_logger.debug("Message digest attribute value does NOT match calculated value for {}", APDUConstants.oidNameMAP.get(super.getOID()));
-                    }
                 }
             }
         } catch (CMSException | CertificateException ex) {
