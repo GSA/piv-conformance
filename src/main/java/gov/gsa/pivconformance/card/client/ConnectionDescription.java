@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.TerminalFactory;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -46,61 +48,48 @@ public class ConnectionDescription {
      */
     public byte[] getBytes() {
 
-        byte[] buffer = new byte[2048];
+        //Get reader name and bytes from the name
+        String readerName = m_reader.getName();
+        byte[] readerNameBytes = readerName.getBytes();
+        int readerNameBytesLen = readerNameBytes.length;
 
+        //Get byte value of reader name length value
+        ByteBuffer bbuf = ByteBuffer.allocate(4);
+        bbuf.putInt(readerNameBytesLen);
+        byte[] readerNameBytesLenBuffer = bbuf.array();
+
+        //Get offset to ignore 0x00 value
+        int readerNameBytesLenBufferOffset = 0;
+        while (readerNameBytesLenBuffer[readerNameBytesLenBufferOffset] == 0x00)
+            readerNameBytesLenBufferOffset++;
+
+        //Calcuate length value for the entire Connection Description Template
+        int readerNameBytesPlusTagLen = readerNameBytesLen + 1 + readerNameBytesLenBuffer.length - readerNameBytesLenBufferOffset + m_tagLocal.length;
+
+        //Get byte value of the total field length
+        ByteBuffer bbuf2 = ByteBuffer.allocate(4);
+        bbuf2.putInt(readerNameBytesPlusTagLen);
+        byte[] readerNameBytesPlusTagLenBuffer = bbuf2.array();
+
+        //Get offset to ignore 0x00 value
+        int readerNameBytesPlusTagLenBufferOffset = 0;
+        while (readerNameBytesPlusTagLenBuffer[readerNameBytesPlusTagLenBufferOffset] == 0x00)
+            readerNameBytesPlusTagLenBufferOffset++;
+
+
+        ByteArrayOutputStream bufOut = new ByteArrayOutputStream();
         try {
-
-
-            //Get reader name and bytes from the name
-            String readerName = m_reader.getName();
-            byte[] readerNameBytes = readerName.getBytes();
-            int readerNameBytesLen = readerNameBytes.length;
-
-            //Get byte value of reader name length value
-            ByteBuffer bbuf = ByteBuffer.allocate(4);
-            bbuf.putInt(readerNameBytesLen);
-            byte[] readerNameBytesLenBuffer = bbuf.array();
-
-            //Get offset to ignore 0x00 value
-            int readerNameBytesLenBufferOffset = 0;
-            while (readerNameBytesLenBuffer[readerNameBytesLenBufferOffset] == 0x00)
-                readerNameBytesLenBufferOffset++;
-
-            //Calcuate length value for the entire Connection Description Template
-            int readerNameBytesPlusTagLen = readerNameBytesLen + 1 + readerNameBytesLenBuffer.length - readerNameBytesLenBufferOffset + m_tagLocal.length;
-
-            //Get byte value of the total field length
-            ByteBuffer bbuf2 = ByteBuffer.allocate(4);
-            bbuf2.putInt(readerNameBytesPlusTagLen);
-            byte[] readerNameBytesPlusTagLenBuffer = bbuf2.array();
-
-            //Get offset to ignore 0x00 value
-            int readerNameBytesPlusTagLenBufferOffset = 0;
-            while (readerNameBytesPlusTagLenBuffer[readerNameBytesPlusTagLenBufferOffset] == 0x00)
-                readerNameBytesPlusTagLenBufferOffset++;
-
-            //Populate the final buffer
-            int totalLenth = m_tag.length + (readerNameBytesPlusTagLenBuffer.length - readerNameBytesPlusTagLenBufferOffset) + m_tagCRN.length + (readerNameBytesLenBuffer.length - readerNameBytesLenBufferOffset) + readerNameBytes.length + m_tagLocal.length;
-
-            //XXX Not sure if buffer should remain allocated for 2048 bytes.
-            buffer = new byte[totalLenth];
-            Arrays.fill(buffer, (byte) 0);
-
-
-            ByteBuffer target = ByteBuffer.wrap(buffer);
-            target.put(m_tag);
-            target.put(readerNameBytesPlusTagLenBuffer, readerNameBytesPlusTagLenBufferOffset, readerNameBytesPlusTagLenBuffer.length - readerNameBytesPlusTagLenBufferOffset);
-            target.put(m_tagCRN);
-            target.put(readerNameBytesLenBuffer, readerNameBytesLenBufferOffset, readerNameBytesLenBuffer.length - readerNameBytesLenBufferOffset);
-            target.put(readerNameBytes);
-            target.put(m_tagLocal);
-
-        }catch (Exception ex) {
-
-            s_logger.error("Exception in getBytes of ConnectionDescription class: {}", ex.getMessage());
+            bufOut.write(m_tag);
+            bufOut.write(readerNameBytesPlusTagLenBuffer, readerNameBytesLenBufferOffset, readerNameBytesPlusTagLenBuffer.length - readerNameBytesPlusTagLenBufferOffset);
+            bufOut.write(m_tagCRN);
+            bufOut.write(readerNameBytesLenBuffer, readerNameBytesLenBufferOffset, readerNameBytesLenBuffer.length - readerNameBytesLenBufferOffset);
+            bufOut.write(readerNameBytes);
+            bufOut.write(m_tagLocal);
+        } catch(IOException e) {
+            s_logger.error("Failed to write to buffer", e);
+            return null;
         }
-
-        return buffer;
+        return bufOut.toByteArray();
     }
 
     /**
