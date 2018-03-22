@@ -4,6 +4,7 @@ package gov.gsa.pivconformance.card.client;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.lang.IllegalArgumentException;
 
 public class APDUConstants {
     public static final byte COMMAND = 0x00;
@@ -219,5 +220,6 @@ public class APDUConstants {
 
         return arr;
     }
+
 
 }

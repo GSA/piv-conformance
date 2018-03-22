@@ -77,4 +77,18 @@ public class APDUUtils {
 
         return rv_pivGetData;
     }
+
+    public static final int bytesToInt(byte[] b) {
+
+        if(b.length != 2){
+            throw new IllegalArgumentException("Invalid buffer length passed in.");
+        }
+
+
+        int l = 0;
+        l |= b[0] & 0xFF;
+        l <<= 8;
+        l |= b[1] & 0xFF;
+        return l;
+    }
 }

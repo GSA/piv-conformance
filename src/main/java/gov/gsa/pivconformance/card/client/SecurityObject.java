@@ -9,14 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.io.ByteArrayInputStream;
-import java.nio.ByteBuffer;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.cms.SignerInformation;
-import org.bouncycastle.cms.SignerInformationStore;
-import org.bouncycastle.cms.SignerId;
 
 public class SecurityObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -24,7 +20,7 @@ public class SecurityObject extends PIVDataObject {
     private byte[] m_mapping;
     private byte[] m_so;
     private List<String> m_containerIDList;
-    private CMSSignedData m_signedData;;
+    private CMSSignedData m_signedData;
 
     public SecurityObject() {
         m_mapping = null;
@@ -110,7 +106,7 @@ public class SecurityObject extends PIVDataObject {
                             m_containerIDList = new ArrayList<String>();
 
                         byte[] tg = Arrays.copyOfRange(b, 1, 3);
-                        Integer i = (int)ByteBuffer.wrap(tg).getShort();
+                        int i = (int) APDUUtils.bytesToInt(tg);
                         String cc = APDUConstants.idMAP.get(i);
 
                         //Add the container oid to the list will be easier to look up.
