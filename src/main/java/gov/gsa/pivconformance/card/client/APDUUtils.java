@@ -91,4 +91,35 @@ public class APDUUtils {
         l |= b[1] & 0xFF;
         return l;
     }
+
+    public static final byte[] getTLV(byte[] tag, byte[] value) {
+
+        if(tag == null || value == null)
+            throw new IllegalArgumentException("Null buffer passed into getTLV().");
+        byte[] rv = null;
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        int numberLenBytes = (value == null) ? 0 : (value.length > 127) ? 2 : 1;
+        try {
+            // Tag
+            os.write(tag);
+            // Length & value
+            if (numberLenBytes == 2) {
+                os.write((byte) ((0x80 + numberLenBytes) & 0xff));
+                os.write((byte) (((value.length & 0xff00) >> 8) & 0xff));
+                os.write((byte) (value.length & 0x00ff));
+                os.write(value);
+            } else if (numberLenBytes == 1) {
+                os.write((byte) (value.length & 0xff));
+                os.write(value);
+            } else if (numberLenBytes == 0) {
+                os.write(0x00);
+            }
+        } catch (IOException e) {
+            s_logger.error("Failed to create TLV value: {}" , e.getMessage());
+            return rv;
+        }
+
+        rv = os.toByteArray();
+        return rv;
+    }
 }

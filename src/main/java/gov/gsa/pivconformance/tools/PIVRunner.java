@@ -18,6 +18,8 @@ import javax.smartcardio.*;
 import java.lang.invoke.MethodHandles;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.io.Console;
+
 
 public class PIVRunner {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -99,9 +101,20 @@ public class PIVRunner {
                     }
                 }
 
-                PIVAuthenticators authenticators = new PIVAuthenticators();
+
+                result = MiddlewareStatus.PIV_AUTHENTICATION_FAILURE;
                 //authenticators.addApplicationPin("123456");
-                //piv.pivLogIntoCardApplication(c, authenticators.getBytes());
+//                Console cons = System.console();
+//                char[] passwd;
+//                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
+//
+//                    PIVAuthenticators authenticators = new PIVAuthenticators();
+//                    authenticators.addApplicationPin(new String(passwd));
+//                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
+//                    java.util.Arrays.fill(passwd, ' ');
+//                }
+
+
 
                 if(result != MiddlewareStatus.PIV_OK)
                     s_logger.error("Error authenticating to the smartcard: {}", result.toString());

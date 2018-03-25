@@ -5,6 +5,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -22,6 +23,7 @@ public class PrintedInformation extends PIVDataObject {
     private String m_organizationAffiliation1;
     private String m_organizationAffiliation2;
     private boolean m_errorDetectionCode;
+    private byte[] m_signedContent;
 
 
     public PrintedInformation() {
@@ -33,6 +35,15 @@ public class PrintedInformation extends PIVDataObject {
         m_organizationAffiliation1 = "";
         m_organizationAffiliation2 = "";
         m_errorDetectionCode = false;
+        m_signedContent = null;
+    }
+
+    public byte[] getSignedContent() {
+        return m_signedContent;
+    }
+
+    public void setSignedContent(byte[] signedContent) {
+        m_signedContent = signedContent;
     }
 
     public String getName() {
@@ -129,6 +140,8 @@ public class PrintedInformation extends PIVDataObject {
                         return false;
                     }
 
+                    ByteArrayOutputStream scos = new ByteArrayOutputStream();
+
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
@@ -136,29 +149,43 @@ public class PrintedInformation extends PIVDataObject {
 
                                 m_name = new String(tlv2.getBytesValue());
 
+                                scos.write(APDUUtils.getTLV(TagConstants.NAME_TAG, tlv2.getBytesValue()));
+
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.EMPLOYEE_AFFILIATION_TAG)) {
 
                                 m_employeeAffiliation = new String(tlv2.getBytesValue());
+
+                                scos.write(APDUUtils.getTLV(TagConstants.EMPLOYEE_AFFILIATION_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG)) {
 
                                 m_expirationDate = new String(tlv2.getBytesValue());
 
+                                scos.write(APDUUtils.getTLV(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG, tlv2.getBytesValue()));
+
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG)) {
 
                                 m_agencyCardSerialNumber = new String(tlv2.getBytesValue());
+
+                                scos.write(APDUUtils.getTLV(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ISSUER_IDENTIFICATION_TAG)) {
 
                                 m_issuerIdentification = new String(tlv2.getBytesValue());
 
+                                scos.write(APDUUtils.getTLV(TagConstants.ISSUER_IDENTIFICATION_TAG, tlv2.getBytesValue()));
+
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG)) {
 
                                 m_organizationAffiliation1 = new String(tlv2.getBytesValue());
 
+                                scos.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG, tlv2.getBytesValue()));
+
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG)) {
 
                                 m_organizationAffiliation2 = new String(tlv2.getBytesValue());
+
+                                scos.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG, tlv2.getBytesValue()));
 
                             }else{
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
@@ -168,11 +195,16 @@ public class PrintedInformation extends PIVDataObject {
 
                                 m_errorDetectionCode = true;
 
+                                scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
+                                scos.write((byte) 0x00);
+
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
                         }
                     }
+
+                    m_signedContent = scos.toByteArray();
                 }
             }
         }catch (Exception ex) {

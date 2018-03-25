@@ -201,35 +201,35 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
 
                                 m_fASCN = tlv2.getBytesValue();
-                                scos.write(getTLV(TagConstants.FASC_N_TAG, m_fASCN));
+                                scos.write(APDUUtils.getTLV(TagConstants.FASC_N_TAG, m_fASCN));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG)) {
 
                                 m_organizationalIdentifier = tlv2.getBytesValue();
-                                scos.write(getTLV(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG, m_organizationalIdentifier));
+                                scos.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG, m_organizationalIdentifier));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.DUNS_TAG)) {
 
                                 m_dUNS = tlv2.getBytesValue();
-                                scos.write(getTLV(TagConstants.DUNS_TAG, m_dUNS));
+                                scos.write(APDUUtils.getTLV(TagConstants.DUNS_TAG, m_dUNS));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.GUID_TAG)) {
 
                                 m_gUID = tlv2.getBytesValue();
-                                scos.write(getTLV(TagConstants.GUID_TAG, m_gUID));
+                                scos.write(APDUUtils.getTLV(TagConstants.GUID_TAG, m_gUID));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG)) {
 
                                 String s = new String(tlv2.getBytesValue());
                                 Date date = new SimpleDateFormat("yyyyMMdd").parse(s);
                                 m_expirationDate = date;
-                                scos.write(getTLV(TagConstants.CHUID_EXPIRATION_DATE_TAG, tlv2.getBytesValue()));
+                                scos.write(APDUUtils.getTLV(TagConstants.CHUID_EXPIRATION_DATE_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CARDHOLDER_UUID_TAG)) {
 
                                 m_cardholderUUID = tlv2.getBytesValue();
                                 if(m_cardholderUUID != null)
-                                    scos.write(getTLV(TagConstants.CARDHOLDER_UUID_TAG, tlv2.getBytesValue()));
+                                    scos.write(APDUUtils.getTLV(TagConstants.CARDHOLDER_UUID_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)) {
 
@@ -339,37 +339,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         }
 
         return rv_result;
-    }
-
-    public byte[] getTLV(byte[] tag, byte[] value) {
-
-        if(tag == null || value == null)
-            throw new IllegalArgumentException("Null buffer passed into getTLV().");
-        byte[] rv = null;
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        int numberLenBytes = (value == null) ? 0 : (value.length > 127) ? 2 : 1;
-        try {
-            // Tag
-            os.write(tag);
-            // Length & value
-            if (numberLenBytes == 2) {
-                os.write((byte) ((0x80 + numberLenBytes) & 0xff));
-                os.write((byte) (((value.length & 0xff00) >> 8) & 0xff));
-                os.write((byte) (value.length & 0x00ff));
-                os.write(value);
-            } else if (numberLenBytes == 1) {
-                os.write((byte) (value.length & 0xff));
-                os.write(value);
-            } else if (numberLenBytes == 0) {
-                os.write(0x00);
-            }
-        } catch (IOException e) {
-            s_logger.error("Failed to create TLV value: {}" , e.getMessage());
-            return rv;
-        }
-
-        rv = os.toByteArray();
-        return rv;
     }
 
 

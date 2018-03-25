@@ -5,6 +5,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,6 +20,15 @@ public class DiscoveryObject extends PIVDataObject {
     private boolean m_appPINSatisfiesACR;
     private boolean m_globalPINisPrimary;
     private boolean m_occSatisfiesACR;
+    private byte[] m_signedContent;
+
+    public byte[] getSignedContent() {
+        return m_signedContent;
+    }
+
+    public void setSignedContent(byte[] signedContent) {
+        m_signedContent = signedContent;
+    }
 
     public byte[] getAid() {
         return m_aid;
@@ -79,37 +89,54 @@ public class DiscoveryObject extends PIVDataObject {
             s_logger.info("DiscoveryObject.decode() called for empty discovery object.");
             return false;
         }
-        BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
-        BerTlv outer = tlvp.parseConstructed(rawBytes);
-        for(BerTlv tlv : outer.getValues()) {
-            byte[] tag = tlv.getTag().bytes;
-            if(Arrays.equals(tag, TagConstants.PIV_CARD_APPLICATION_AID_TAG)) {
-                m_aid = tlv.getBytesValue();
-            } else if(Arrays.equals(tag, TagConstants.PIN_USAGE_POLICY_TAG)) {
-                m_pinPolicy = tlv.getBytesValue();
-                m_globalPINisPrimary = false;
-                m_globalPINSatisfiesACR = false;
-                m_appPINSatisfiesACR = false;
-                m_occSatisfiesACR = false;
-                if(is_set(m_pinPolicy[0], 8)) {
-                    s_logger.error("PIN Policy bit 8 was set");
-                }
-                if(is_set(m_pinPolicy[0], 7)){
-                   m_appPINSatisfiesACR = true;
-                }
-                if(is_set(m_pinPolicy[0], 6)) {
-                    m_globalPINSatisfiesACR = true;
-                    if(m_pinPolicy[1] == 0x20) {
-                        m_globalPINisPrimary = true;
-                    }
-                }
-                if(is_set(m_pinPolicy[0], 5)) {
-                    m_occSatisfiesACR = true;
-                }
 
-            } else {
-                s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+        try {
+            BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
+            BerTlv outer = tlvp.parseConstructed(rawBytes);
+
+            ByteArrayOutputStream scos = new ByteArrayOutputStream();
+            for (BerTlv tlv : outer.getValues()) {
+                byte[] tag = tlv.getTag().bytes;
+                if (Arrays.equals(tag, TagConstants.PIV_CARD_APPLICATION_AID_TAG)) {
+                    m_aid = tlv.getBytesValue();
+
+                    scos.write(APDUUtils.getTLV(TagConstants.PIV_CARD_APPLICATION_AID_TAG, m_aid));
+
+                } else if (Arrays.equals(tag, TagConstants.PIN_USAGE_POLICY_TAG)) {
+                    m_pinPolicy = tlv.getBytesValue();
+
+                    scos.write(APDUUtils.getTLV(TagConstants.PIN_USAGE_POLICY_TAG, m_pinPolicy));
+
+                    m_globalPINisPrimary = false;
+                    m_globalPINSatisfiesACR = false;
+                    m_appPINSatisfiesACR = false;
+                    m_occSatisfiesACR = false;
+                    if (is_set(m_pinPolicy[0], 8)) {
+                        s_logger.error("PIN Policy bit 8 was set");
+                    }
+                    if (is_set(m_pinPolicy[0], 7)) {
+                        m_appPINSatisfiesACR = true;
+                    }
+                    if (is_set(m_pinPolicy[0], 6)) {
+                        m_globalPINSatisfiesACR = true;
+                        if (m_pinPolicy[1] == 0x20) {
+                            m_globalPINisPrimary = true;
+                        }
+                    }
+                    if (is_set(m_pinPolicy[0], 5)) {
+                        m_occSatisfiesACR = true;
+                    }
+
+                } else {
+                    s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                }
             }
+
+            m_signedContent = scos.toByteArray();
+
+        }catch (Exception ex) {
+
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
         return true;
     }
