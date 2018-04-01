@@ -58,6 +58,43 @@ public class APDUUtils {
         return rv_pivSelect;
     }
 
+    public static byte[] PIVGenerateKeyPairAPDU(byte keyReference, byte cryptoMechanism, byte[] parameter) {
+        byte[] rv_pivGenerate = null;
+        if(rv_pivGenerate == null) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                baos.write(APDUConstants.COMMAND);
+                baos.write(APDUConstants.GENERATE);
+                byte[] p1 = {0x00};
+                baos.write(p1);
+                baos.write(keyReference);
+
+                //If parameter is present data length will be 1 (cryptographic mechanism tag) + 1 (cryptographic mechanism) + 1 (parameter tag) + parameter length.
+                //If parameter is absent data length will be 1 (cryptographic mechanism tag) + 1 (cryptographic mechanism)
+                if(parameter != null)
+                    baos.write(1+1+1+parameter.length);
+                else
+                    baos.write(1+1);
+                baos.write(APDUConstants.CRYPTO_MECHANISM_TAG);
+                baos.write(cryptoMechanism);
+                if(parameter != null)  {
+                    byte[] parameterTag = {APDUConstants.PARAMETER_TAG};
+                    baos.write(parameterTag);
+                    baos.write(parameter);
+                }
+                byte[] Le = {0x00};
+                baos.write(Le);
+                rv_pivGenerate = baos.toByteArray();
+            } catch(IOException ioe) {
+                // if we ever hit this, OOM is coming soon
+                s_logger.error("Unable to populate static PIV Generate APDU field.", ioe);
+                rv_pivGenerate = new byte[0];
+            }
+        }
+        return rv_pivGenerate;
+    }
+
+
     public static byte[] PIVGetDataAPDU(byte[] data) {
 
         byte[] rv_pivGetData = null;
@@ -88,7 +125,6 @@ public class APDUUtils {
         if(b.length != 2){
             throw new IllegalArgumentException("Invalid buffer length passed in.");
         }
-
 
         int l = 0;
         l |= b[0] & 0xFF;

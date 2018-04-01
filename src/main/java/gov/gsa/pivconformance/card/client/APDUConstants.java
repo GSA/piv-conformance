@@ -10,8 +10,11 @@ public class APDUConstants {
     public static final byte COMMAND = 0x00;
     public static final byte COMMAND_CC = 0x10;
     public static final byte SELECT = (byte)0xa4;
+    public static final byte GENERATE = (byte)0x47;
     public static final byte GET = (byte)0xcb;
     public static final byte VERIFY = 0x20;
+    public static final byte CRYPTO_MECHANISM_TAG = (byte) 0x80;
+    public static final byte PARAMETER_TAG = (byte) 0x81;
     public static final byte DATA_FIELD_TAG = 0x5c;
     public static final byte[] PIV_APPID = { (byte)0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
@@ -19,6 +22,9 @@ public class APDUConstants {
 
     public static final int APP_NOT_FOUND = 0x6A82;
     public static final int SECURITY_STATUS_NOT_SATISFIED = 0x6982;
+    public static final int INCORREECT_PARAMETER = 0x6A80;
+    public static final int FUNCTION_NOT_SUPPORTED = 0x6A81;
+    public static final int INCORREECT_PARAMETER_P2 = 0x6A86;
 
     public static final String CARD_CAPABILITY_CONTAINER_OID = "2.16.840.1.101.3.7.1.219.0";
     public static final byte[] CARD_CAPABILITY_CONTAINER_TAG =  {0x5F, (byte)0xC1, 0x07};

@@ -181,4 +181,60 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
     public MiddlewareStatus pivCrypt(CardHandle cardHandle, byte algorithmIdentifier, byte keyReference, PIVDataObject algorithmInput, PIVDataObject algorithmOutput) {
         return null;
     }
+
+    public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey){
+        try {
+            // Establishing channel
+            Card card = cardHandle.getCard();
+            if (card == null)
+                return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+
+            // Establishing channel
+            CardChannel channel = card.getBasicChannel();
+
+            //Construct APDU command using APDUUtils and applicationAID that was passed in.
+            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGenerateKeyPairAPDU(keyReference, cryptographicMechanism, null));
+
+            // Transmit command and get response
+            ResponseAPDU response = channel.transmit(cmd);
+            s_logger.debug("Response to GENERATE command: {} {}", String.format("0x%02X", response.getSW1()), String.format("0x%02X", response.getSW2()));
+
+            //Check for Successful execution status word
+            if(response.getSW() != APDUConstants.SUCCESSFUL_EXEC) {
+
+                if(response.getSW() == APDUConstants.SECURITY_STATUS_NOT_SATISFIED){
+                    s_logger.error("Security condition not satisfied");
+                    return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+                }
+                else if(response.getSW() == APDUConstants.INCORREECT_PARAMETER){
+                    s_logger.error("Incorrect parameter in command data field");
+                    return MiddlewareStatus.PIV_UNSUPPORTED_CRYPTOGRAPHIC_MECHANISM;
+                }
+                else if(response.getSW() == APDUConstants.FUNCTION_NOT_SUPPORTED){
+                    s_logger.error("Function not supported");
+                    return MiddlewareStatus.PIV_FUNCTION_NOT_SUPPORTED;
+                }
+                else if(response.getSW() == APDUConstants.INCORREECT_PARAMETER_P2){
+                    s_logger.error("Incorrect parameter in command data field");
+                    return MiddlewareStatus.PIV_INVALID_KEY_OR_KEYALG_COMBINATION;
+                }
+                else {
+                    s_logger.error("Error generating key pair, failed with error: {}", Integer.toHexString(response.getSW()));
+                    return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+                }
+            }
+
+            // Populated the response in ApplicationProperties
+            publicKey.setBytes(response.getData());
+            cardHandle.setCurrentChannel(channel);
+
+        }
+        catch (Exception ex) {
+
+            s_logger.error("Error generating key pair: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+        }
+        s_logger.debug("pivGenerateKeyPair returning {}", MiddlewareStatus.PIV_OK);
+        return MiddlewareStatus.PIV_OK;
+    }
 }
