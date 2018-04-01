@@ -20,6 +20,20 @@ public class APDUConstants {
 
     public static final int SUCCESSFUL_EXEC = 0x9000;
 
+
+    public static final byte PIV_SECURE_MESSAGING_KEY = 0x04;
+    public static final byte PIV_AUTHENTICATION_KEY = (byte) 0x9A;
+    public static final byte PIV_CARD_APPLICATION_ADMINISTRATION_KEY = (byte) 0x9B;
+    public static final byte DIGITAL_SIGNATURE_KEY = (byte) 0x9C;
+    public static final byte KEY_MANAGEMENT_KEY = (byte) 0x9D;
+    public static final byte KEY_AUTHENTICATION_KEY = (byte) 0x9D;
+    public static final byte RETIRED_KEY_MANAGEMENT_KEY = (byte) 0x82;
+
+    public static final byte CRYPTO_MECHANISM_RSA = 0x07;
+    public static final byte CRYPTO_MECHANISM_ECC_P286 = 0x11;
+    public static final byte CRYPTO_MECHANISM_ECC_P384 = 0x14;
+
+
     public static final int APP_NOT_FOUND = 0x6A82;
     public static final int SECURITY_STATUS_NOT_SATISFIED = 0x6982;
     public static final int INCORREECT_PARAMETER = 0x6A80;
