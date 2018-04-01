@@ -1,10 +1,15 @@
 package gov.gsa.pivconformance.card.client;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.Provider;
+import java.security.Security;
+import java.util.Arrays;
 
 public class APDUUtils {
     private static byte[] s_pivSelect = null;
@@ -121,5 +126,26 @@ public class APDUUtils {
 
         rv = os.toByteArray();
         return rv;
+    }
+
+    public static ASN1ObjectIdentifier getAlgorithmIdentifier(String serviceName, String name) {
+        ASN1ObjectIdentifier oid = null;
+        Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
+        Provider.Service service = provider.getService(serviceName, name);
+        if (service != null) {
+            String string = service.toString();
+            String array[] = string.split("\n");
+            if (array.length > 1) {
+                string = array[array.length - 1];
+                array = string.split("[\\[\\]]");
+                if (array.length > 2) {
+                    string = array[array.length - 2];
+                    array = string.split(", ");
+                    Arrays.sort(array);
+                    oid = new ASN1ObjectIdentifier(array[0]);
+                }
+            }
+        }
+        return oid;
     }
 }

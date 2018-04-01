@@ -2,17 +2,31 @@ package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.icao.DataGroupHash;
+import org.bouncycastle.asn1.icao.LDSSecurityObject;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cms.*;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.security.MessageDigest;
+import java.security.Provider;
+import java.security.Security;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.*;
 import java.io.ByteArrayInputStream;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.cms.ContentInfo;
-import org.bouncycastle.cms.CMSSignedData;
 
 public class SecurityObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -21,12 +35,33 @@ public class SecurityObject extends PIVDataObject {
     private byte[] m_so;
     private List<String> m_containerIDList;
     private CMSSignedData m_signedData;
+    private ContentInfo m_contentInfo;
+    HashMap<String, byte[]> m_mapOfDataElements;
+
 
     public SecurityObject() {
         m_mapping = null;
         m_so = null;
         m_signedData = null;
         m_containerIDList = null;
+        m_contentInfo = null;
+        m_mapOfDataElements = null;
+    }
+
+    public HashMap<String, byte[]> getMapOfDataElements() {
+        return m_mapOfDataElements;
+    }
+
+    public void setMapOfDataElements(HashMap<String, byte[]> mapOfDataElements) {
+        m_mapOfDataElements = mapOfDataElements;
+    }
+
+    public ContentInfo getContentInfo() {
+        return m_contentInfo;
+    }
+
+    public void setContentInfo(ContentInfo contentInfo) {
+        m_contentInfo = contentInfo;
     }
 
     public byte[] getMapping() {
@@ -125,8 +160,8 @@ public class SecurityObject extends PIVDataObject {
                     //Decode the ContentInfo and get SignedData object.
                     ByteArrayInputStream bIn = new ByteArrayInputStream(m_so);
                     ASN1InputStream      aIn = new ASN1InputStream(bIn);
-                    ContentInfo ci = ContentInfo.getInstance(aIn.readObject());
-                    m_signedData = new CMSSignedData(ci);
+                    m_contentInfo = ContentInfo.getInstance(aIn.readObject());
+                    m_signedData = new CMSSignedData(m_contentInfo);
 
                 } else {
                     if (!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
@@ -140,6 +175,86 @@ public class SecurityObject extends PIVDataObject {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
         }
         return true;
+    }
+
+
+    public boolean verifySignature(X509Certificate signingCertificate) {
+        boolean rv_result = false;
+
+        try {
+            DEROctetString newRawSo = null;
+            //Create signed content if availble
+            if(m_mapOfDataElements != null) {
+
+                String defaultDigAlgName = "SHA-256";
+                AlgorithmIdentifier digestAlgorithmAid = new AlgorithmIdentifier(APDUUtils.getAlgorithmIdentifier("MessageDigest", defaultDigAlgName));
+                int count = 0;
+                DataGroupHash ndghArray[] = new DataGroupHash[m_containerIDList.size()];
+                for (String oid : m_containerIDList) {
+
+
+                    byte[] containerBufferBytes = m_mapOfDataElements.get(oid);
+                    MessageDigest contentDigest = MessageDigest.getInstance(defaultDigAlgName);
+                    byte[] containerDigestBytes = contentDigest.digest(containerBufferBytes);
+                    DataGroupHash dgHash = new DataGroupHash(count, (new DEROctetString(containerDigestBytes)));
+
+                    ndghArray[count++] = dgHash;
+                }
+
+                LDSSecurityObject nldsso = new LDSSecurityObject(digestAlgorithmAid, ndghArray);
+
+                newRawSo = new DEROctetString(nldsso.getEncoded("DER"));
+            }
+
+
+            CMSSignedData s = new CMSSignedData(m_contentInfo);
+
+            //Check if signature is detached and if so used created signed content above.
+            if (s.isDetachedSignature()) {
+                if(newRawSo != null) {
+                    CMSProcessable procesableContentBytes = new CMSProcessableByteArray(newRawSo.getOctets());
+                    s = new CMSSignedData(procesableContentBytes, m_contentInfo);
+                }
+                else
+                    s_logger.error("Error verifying signature on {}: missing signed content", APDUConstants.oidNameMAP.get(super.getOID()));
+            }
+
+            Store<X509CertificateHolder> certs = s.getCertificates();
+            SignerInformationStore signers = s.getSignerInfos();
+
+            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+                SignerInformation signer = i.next();
+
+                //Check if signing certificate was included
+                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+                if (certIt.hasNext()) {
+                    X509CertificateHolder certHolder = certIt.next();
+                    signingCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                }
+
+                //Check that we have a signer certificate either from the SignedData or passed in
+                if(signingCertificate == null)
+                    s_logger.error("Unable to find signing certificate for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+
+                try {
+                    //Verify signature
+                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCertificate))) {
+                        rv_result = true;
+                    }
+                } catch (CMSSignerDigestMismatchException e) {
+                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+                } catch (OperatorCreationException | CMSException e) {
+                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+                }
+            }
+
+
+
+        } catch (Exception ex) {
+            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+        }
+        return rv_result;
     }
 
 }

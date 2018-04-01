@@ -103,14 +103,15 @@ public class PIVRunner {
 
 
                 result = MiddlewareStatus.PIV_AUTHENTICATION_FAILURE;
-                //authenticators.addApplicationPin("123456");
+
 //                Console cons = System.console();
 //                char[] passwd;
 //                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
-//
-//                    PIVAuthenticators authenticators = new PIVAuthenticators();
+
+                    PIVAuthenticators authenticators = new PIVAuthenticators();
+                    authenticators.addApplicationPin("123456");
 //                    authenticators.addApplicationPin(new String(passwd));
-//                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
+                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 //                    java.util.Arrays.fill(passwd, ' ');
 //                }
 
@@ -120,6 +121,8 @@ public class PIVRunner {
                     s_logger.error("Error authenticating to the smartcard: {}", result.toString());
 
                 X509Certificate signingCertificate = null;
+
+                HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
 
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
@@ -175,6 +178,8 @@ public class PIVRunner {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
 
+                        soDataElements.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, ((CardCapabilityContainer) dataObject).getSignedContent());
+
                     }
 
                     if (containerOID.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
@@ -221,6 +226,8 @@ public class PIVRunner {
                         signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSigningCertificate();
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
+
+                        soDataElements.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, ((CardHolderUniqueIdentifier) dataObject).getSignedContent());
                     }
 
                     if (containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)) {
@@ -270,10 +277,11 @@ public class PIVRunner {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
+                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getSignedContent());
+
                     }
 
                     if (containerOID.equals(APDUConstants.SECURITY_OBJECT_OID)) {
-
 
                         s_logger.info("RAW Mapping of DG to ContainerID value: {}", Hex.encodeHexString(((SecurityObject) dataObject).getMapping()));
 
@@ -308,6 +316,8 @@ public class PIVRunner {
 
                         }
                         //s_logger.info("Error Detection Code Tag Present: {}", ((SecurityObject) dataObject).getErrorDetectionCode());
+
+                        s_logger.info("SecurityObject signatue valid: {}",((SecurityObject) dataObject).verifySignature(signingCertificate));
                     }
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
@@ -346,6 +356,8 @@ public class PIVRunner {
                             s_logger.info("Missing signing certificate to verify signature.");
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+
+                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getSignedContent());
                     }
 
 
@@ -396,6 +408,9 @@ public class PIVRunner {
                         s_logger.info("Error Detection Code Tag Present: {}", ((PrintedInformation) printedInformation).getErrorDetectionCode());
 
                     }
+
+
+                    soDataElements.put(APDUConstants.PRINTED_INFORMATION_OID, ((PrintedInformation) printedInformation).getSignedContent());
                 }
 
                 boolean decoded = false;
@@ -408,6 +423,7 @@ public class PIVRunner {
                     s_logger.info("{} {}", discoveryObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
                 }
 
+                soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, ((DiscoveryObject) discoveryObject).getSignedContent());
 
 
 
@@ -528,7 +544,6 @@ public class PIVRunner {
 
                     }
                 }
-
             }
             ResponseAPDU rsp = null;
             return true;
