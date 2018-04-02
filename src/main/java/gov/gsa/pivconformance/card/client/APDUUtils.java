@@ -69,17 +69,22 @@ public class APDUUtils {
                 baos.write(p1);
                 baos.write(keyReference);
 
-                //If parameter is present data length will be 1 (cryptographic mechanism tag) + 1 (cryptographic mechanism) + 1 (parameter tag) + parameter length.
-                //If parameter is absent data length will be 1 (cryptographic mechanism tag) + 1 (cryptographic mechanism)
-                if(parameter != null)
-                    baos.write(1+1+1+parameter.length);
-                else
-                    baos.write(1+1);
+                //If parameter is present data length will be 1 (Tag 'AC') + length + 1 (cryptographic mechanism tag) + 1 (length) + 1 (cryptographic mechanism) + 1 (parameter tag) + parameter length length+ parameter length .
+                //If parameter is absent data length will be 1 (Tag 'AC') + length + 1 (cryptographic mechanism tag) + 1 (cryptographic mechanism)
+                if(parameter != null) {
+                    baos.write(1 + (1 + 1 + 1 + 1 + parameter.length) + 1 + 1 + 1 + 1 + parameter.length);
+                }
+                else {
+                    baos.write(1 + (1 + 1 + 1 + 1 + parameter.length) + 1 + 1);
+                }
                 baos.write(APDUConstants.CRYPTO_MECHANISM_TAG);
+                //Add length of crypto mechanism which will be 1
+                baos.write(1);
                 baos.write(cryptoMechanism);
                 if(parameter != null)  {
                     byte[] parameterTag = {APDUConstants.PARAMETER_TAG};
                     baos.write(parameterTag);
+                    baos.write(parameter.length);
                     baos.write(parameter);
                 }
                 byte[] Le = {0x00};
