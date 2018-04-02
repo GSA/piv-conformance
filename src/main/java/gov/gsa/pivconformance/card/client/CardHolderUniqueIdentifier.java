@@ -41,6 +41,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     private ContentInfo m_contentInfo;
     X509Certificate m_signingCertificate;
     private byte[] m_signedContent;
+    private byte[] m_chuidContainer;
 
 
     public CardHolderUniqueIdentifier() {
@@ -56,6 +57,15 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         m_contentInfo = null;
         m_signingCertificate = null;
         m_signedContent = null;
+        m_chuidContainer = null;
+    }
+
+    public byte[] getChuidContainer() {
+        return m_chuidContainer;
+    }
+
+    public void setChuidContainer(byte[] chuidContainer) {
+        m_chuidContainer = chuidContainer;
     }
 
     public byte[] getSignedContent() {
@@ -175,6 +185,8 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
             boolean ecAdded = false;
             ByteArrayOutputStream scos = new ByteArrayOutputStream();
+            ByteArrayOutputStream scos2 = new ByteArrayOutputStream();
+            byte [] issuerAsymmetricSignature = null;
 
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
@@ -233,7 +245,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)) {
 
-                                byte [] issuerAsymmetricSignature = tlv2.getBytesValue();
+                                issuerAsymmetricSignature = tlv2.getBytesValue();
 
                                 if(issuerAsymmetricSignature != null) {
                                     //Decode the ContentInfo and get SignedData object.
@@ -261,10 +273,17 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                 }
             }
 
+            scos2.write(scos.toByteArray());
             //There is a bug in the encoder what adds an extar FE00 this will need to be removed for the new version
             scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
             scos.write((byte) 0x00);
             m_signedContent = scos.toByteArray();
+
+            scos2.write(APDUUtils.getTLV(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG, issuerAsymmetricSignature));
+            scos2.write(TagConstants.ERROR_DETECTION_CODE_TAG);
+            scos2.write((byte) 0x00);
+            m_chuidContainer = scos2.toByteArray();
+
         }catch (Exception ex) {
 
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());

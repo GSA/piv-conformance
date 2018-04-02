@@ -107,11 +107,11 @@ public class PIVRunner {
 //                Console cons = System.console();
 //                char[] passwd;
 //                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
-
-                    //PIVAuthenticators authenticators = new PIVAuthenticators();
-                    //authenticators.addApplicationPin("123456");
+//
+//                    PIVAuthenticators authenticators = new PIVAuthenticators();
+//                    authenticators.addApplicationPin("123456");
 //                    authenticators.addApplicationPin(new String(passwd));
-                    //result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
+//                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 //                    java.util.Arrays.fill(passwd, ' ');
 //                }
 
@@ -123,6 +123,7 @@ public class PIVRunner {
                 X509Certificate signingCertificate = null;
 
                 HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
+                PIVDataObject securityObject = null;
 
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
@@ -227,7 +228,7 @@ public class PIVRunner {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, ((CardHolderUniqueIdentifier) dataObject).getSignedContent());
+                        soDataElements.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, ((CardHolderUniqueIdentifier) dataObject).getChuidContainer());
                     }
 
                     if (containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)) {
@@ -277,7 +278,7 @@ public class PIVRunner {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getSignedContent());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
 
                     }
 
@@ -286,12 +287,11 @@ public class PIVRunner {
                         s_logger.info("RAW Mapping of DG to ContainerID value: {}", Hex.encodeHexString(((SecurityObject) dataObject).getMapping()));
 
 
-                        List<String> cList = ((SecurityObject) dataObject).getContainerIDList();
-
+                        HashMap<Integer, String> idMap = ((SecurityObject) dataObject).getContainerIDList();
 
                         s_logger.info("List of containers included in the Security Object:");
-                        for(String oid : cList) {
-                            s_logger.info(APDUConstants.oidNameMAP.get(oid));
+                        for (HashMap.Entry<Integer, String> entry : idMap.entrySet()) {
+                            s_logger.info("Container ID: {}, Container Name: {}, Container OID: {}",entry.getKey(), entry.getValue(), APDUConstants.oidNameMAP.get(entry.getValue()));
                         }
 
                         CMSSignedData sd = ((SecurityObject) dataObject).getSignedData();
@@ -319,6 +319,7 @@ public class PIVRunner {
 
                         s_logger.info("SecurityObject signatue valid: {}",((SecurityObject) dataObject).verifySignature(signingCertificate));
 
+                        securityObject = dataObject;
 
 
                     }
@@ -360,7 +361,7 @@ public class PIVRunner {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getSignedContent());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
                     }
 
 
@@ -547,6 +548,14 @@ public class PIVRunner {
 
                     }
                 }
+                ((SecurityObject) securityObject).setMapOfDataElements(soDataElements);
+
+                boolean hashesVerified = ((SecurityObject) securityObject).verifyHashes();
+                s_logger.info("Security Object hashes verified: {}", hashesVerified);
+
+                boolean hashVerified = ((SecurityObject) securityObject).verifyHash(5);
+                s_logger.info("Printed Information hash verified: {}", hashVerified);
+
             }
             ResponseAPDU rsp = null;
             return true;

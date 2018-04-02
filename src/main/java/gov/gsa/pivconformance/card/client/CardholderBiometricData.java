@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.security.MessageDigest;
 import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -46,7 +48,7 @@ public class CardholderBiometricData extends PIVDataObject {
     private CMSSignedData m_signedData;
     private ContentInfo m_contentInfo;
     private byte[] m_signedContent;
-
+    private byte[] m_cbeffContainer;
 
     public CardholderBiometricData() {
         m_biometricData = null;
@@ -58,6 +60,16 @@ public class CardholderBiometricData extends PIVDataObject {
         m_biometricDataBlock = null;
         m_contentInfo = null;
         m_signedContent = null;
+        m_cbeffContainer = null;
+    }
+
+
+    public byte[] getCceffContainer() {
+        return m_cbeffContainer;
+    }
+
+    public void setCceffContainer(byte[] cbeffContainer) {
+        m_cbeffContainer = cbeffContainer;
     }
 
     public byte[] getSignedContent() {
@@ -166,6 +178,7 @@ public class CardholderBiometricData extends PIVDataObject {
                         return false;
                     }
 
+                    ByteArrayOutputStream scos = new ByteArrayOutputStream();
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
@@ -174,22 +187,32 @@ public class CardholderBiometricData extends PIVDataObject {
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
 
                                 m_biometricData = tlv2.getBytesValue();
+                                scos.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG)) {
 
                                 m_biometricData = tlv2.getBytesValue();
+                                scos.write(APDUUtils.getTLV(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG, m_biometricData));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.IMAGES_FOR_IRIS_TAG)) {
 
                                 m_biometricData = tlv2.getBytesValue();
+                                scos.write(APDUUtils.getTLV(TagConstants.IMAGES_FOR_IRIS_TAG, m_biometricData));
 
                             }else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 
                                 m_errorDetectionCode = true;
+                                scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
+                                scos.write((byte) 0x00);
 
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
+
+                            //There is a bug in the encoder what adds an extar FE00 this will need to be removed for the new version
+                            //scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
+                            //scos.write((byte) 0x00);
+                            m_cbeffContainer = scos.toByteArray();
                         }
                     }
 
@@ -291,7 +314,7 @@ public class CardholderBiometricData extends PIVDataObject {
                     s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
                 }
             }
-        } catch (CMSException | CertificateException ex) {
+        } catch ( Exception ex) {
             s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
 

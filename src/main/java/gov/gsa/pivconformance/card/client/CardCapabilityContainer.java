@@ -208,7 +208,7 @@ public class CardCapabilityContainer extends PIVDataObject {
                                 if (tlv2.hasRawValue()) {
                                     m_pkcs15 = tlv2.getBytesValue();
 
-                                    scos.write(APDUUtils.getTLV(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG, m_pkcs15));
+                                    scos.write(APDUUtils.getTLV(TagConstants.PKCS15_TAG, m_pkcs15));
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG)) {
@@ -263,7 +263,9 @@ public class CardCapabilityContainer extends PIVDataObject {
                                 scos.write(APDUUtils.getTLV(TagConstants.SECURITY_OBJECT_BUFFER_TAG, tlv2.getBytesValue()));
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
-                                    m_errorDetectionCode = true;
+                                m_errorDetectionCode = true;
+                                scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
+                                scos.write((byte) 0x00);
                             }
                         }
                     }

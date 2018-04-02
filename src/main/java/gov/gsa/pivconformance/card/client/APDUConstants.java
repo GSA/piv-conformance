@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.lang.IllegalArgumentException;
 
 public class APDUConstants {
+
+    public static final String DEFAULTHASHALG = "SHA-256";
     public static final byte COMMAND = 0x00;
     public static final byte COMMAND_CC = 0x10;
     public static final byte SELECT = (byte)0xa4;
