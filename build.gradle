@@ -1,3 +1,4 @@
+// set up junit 5 support for gradle
 buildscript {
     repositories {
         mavenCentral()
@@ -25,6 +26,9 @@ repositories {
     maven { url 'https://repository.apache.org/snapshots' }
 }
 
+// custom task from
+// https://stackoverflow.com/questions/39444908/how-to-create-an-html-report-for-junit-5-tests
+// to get readable output for passing tests
 configurations {
     junitXmlToHtml
 }
@@ -55,10 +59,8 @@ dependencies {
 
 }
 
-// Define the main class for the application
+// Define the main class for the application jar that will be produced
 mainClassName = 'gov.gsa.pivconformance.tools.PIVRunner'
-//mainClassName = 'gov.gsa.pivconformance.tools.PrintEnvironmentInfo'
-//ext.moduleName = 'gov.gsa.pivconformance'
 
 jar {
     manifest {
@@ -66,9 +68,8 @@ jar {
     }
     doLast {
      configurations.runtime.each { println it }
-    println "Packaged version $version"
+     println "Packaged version $version"
     }
-
 }
 
 run {
@@ -77,10 +78,13 @@ run {
     }
 }
 
+// because the tests are also modular and we don't muck with the package exported by the library.
+// An alternate approach may be preferable here, but this makes both gradle and the IDEs happy.
 compileTestJava {
     javaModule.name = 'gov.gsa.pivconformancetest'
 }
 
+// use junit platform for tests
 test {
     useJUnitPlatform()
     testLogging {
@@ -88,15 +92,13 @@ test {
     }
 }
 
-//tasks.withType(Test) {
- //   scanForTestClasses = false
-  //  include "**/*Tests.class"
-//}
+// a place to configure junit platform plugin... not currently necessary, but it is very likely desirable
+// to filter tests by tag
 junitPlatform {
-    //logManager 'org.apache.logging.log4j.jul.LogManager'
 }
 
 
+// get readable test reports since gradle eats the summary unless there's a failure
 task generateHtmlTestReports << {
     def reportsDir = new File(buildDir, 'test-reports')
     reportsDir.mkdirs()
@@ -113,12 +115,15 @@ task generateHtmlTestReports << {
     }
 }
 
+// make gradle check generate the reports
 afterEvaluate {
     def junitPlatformTestTask = tasks.getByName('junitPlatformTest')
     generateHtmlTestReports.dependsOn(junitPlatformTestTask)
     check.dependsOn(generateHtmlTestReports)
 }
 
+// when producing a jar that is suitable for distribution using the shadow plugin,
+// this will enbed a version properties file.
 compileJava.doFirst {
         //options.compilerArgs = ['--add-modules', 'java.smartcardio']
         def git = org.ajoberstar.grgit.Grgit.open(dir: '.')
@@ -142,11 +147,5 @@ compileJava.doFirst {
         versionProperties.setProperty('git.commit.id', commitId)
         versionProperties.setProperty('build.version', version)
         versionProperties.store(propertiesFile.newWriter(), null)
-
-        /*propertiesFile.text = """git.commit.id=${commitId}
-git.commit.time=${commitDate.format('dd.MM.yyyy HH:mm:ss')}
-build.time=${buildDate.format('dd.MM.yyyy HH:mm:ss')}
-build.version=${version}
-"""*/
 }
 
