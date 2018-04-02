@@ -108,10 +108,10 @@ public class PIVRunner {
 //                char[] passwd;
 //                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
 
-                    PIVAuthenticators authenticators = new PIVAuthenticators();
-                    authenticators.addApplicationPin("123456");
+                    //PIVAuthenticators authenticators = new PIVAuthenticators();
+                    //authenticators.addApplicationPin("123456");
 //                    authenticators.addApplicationPin(new String(passwd));
-                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
+                    //result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 //                    java.util.Arrays.fill(passwd, ' ');
 //                }
 
@@ -318,6 +318,9 @@ public class PIVRunner {
                         //s_logger.info("Error Detection Code Tag Present: {}", ((SecurityObject) dataObject).getErrorDetectionCode());
 
                         s_logger.info("SecurityObject signatue valid: {}",((SecurityObject) dataObject).verifySignature(signingCertificate));
+
+
+
                     }
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
