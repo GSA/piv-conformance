@@ -13,6 +13,7 @@ import javax.smartcardio.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.ArrayList;
 
 /**
@@ -113,7 +114,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
-    public MiddlewareStatus pivGetAllDataContainers(CardHandle cardHandle, ArrayList<PIVDataObject> dataList) {
+    public MiddlewareStatus pivGetAllDataContainers(CardHandle cardHandle, List<PIVDataObject> dataList) {
 
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 
