@@ -14,9 +14,13 @@ public class PIVDataObject {
 
     private byte[] m_dataBytes;
     private String m_OID;
+    private boolean m_signed;
+
 
     public PIVDataObject() {
+
         m_OID = null;
+        m_signed = false;
     }
 
     public PIVDataObject(String OID) {
@@ -62,5 +66,13 @@ public class PIVDataObject {
         sb.append("PIV Data Object with OID " + m_OID + " (" + getFriendlyName() + "):");
         sb.append(toRawHexString());
         return sb.toString();
+    }
+
+    public void setSigned(boolean signed) {
+        m_signed = signed;
+    }
+
+    public boolean isSigned() {
+        return m_signed;
     }
 }

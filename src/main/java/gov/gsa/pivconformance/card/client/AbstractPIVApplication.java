@@ -13,6 +13,7 @@ import javax.smartcardio.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * A base class for items that will implement the IPIVApplication interface, to allow those methods that can be
@@ -109,6 +110,45 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             }
 
         }
+        return MiddlewareStatus.PIV_OK;
+    }
+
+    public MiddlewareStatus pivGetAllDataContainers(CardHandle cardHandle, ArrayList<PIVDataObject> dataList) {
+
+        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+
+        if (cardHandle == null)
+            return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+
+        try {
+            if(dataList == null)
+                dataList = new ArrayList<PIVDataObject>();
+
+            for(String containerOID : APDUConstants.AllContainers()){
+
+                //Create object from the OID
+                PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
+                s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
+
+                result = this.pivGetData(cardHandle, containerOID, dataObject);
+
+                //Add the data object to the list if successful return code
+                if(result == MiddlewareStatus.PIV_OK)
+                    dataList.add(dataObject);
+            }
+
+
+        }catch (SecurityException ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+        }
+        catch (Exception ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+        }
+
         return MiddlewareStatus.PIV_OK;
     }
 
@@ -215,7 +255,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                     return MiddlewareStatus.PIV_FUNCTION_NOT_SUPPORTED;
                 }
                 else if(response.getSW() == APDUConstants.INCORREECT_PARAMETER_P2){
-                    s_logger.error("Incorrect parameter in command data field");
+                    s_logger.error("Invalid key or key algorithm combination");
                     return MiddlewareStatus.PIV_INVALID_KEY_OR_KEYALG_COMBINATION;
                 }
                 else {

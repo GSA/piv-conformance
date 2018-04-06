@@ -125,6 +125,12 @@ public class PIVRunner {
                 HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
                 PIVDataObject securityObject = null;
 
+                ArrayList<PIVDataObject> dataList = new ArrayList<PIVDataObject>();
+                result = piv.pivGetAllDataContainers(c, dataList);
+
+                if(result == MiddlewareStatus.PIV_OK)
+                    s_logger.info("Number of containers present on the card: {}", dataList.size());
+
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
                     s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));

@@ -186,11 +186,12 @@ public class CardholderBiometricData extends PIVDataObject {
                         } else {
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
 
+                                super.setSigned(true);
                                 m_biometricData = tlv2.getBytesValue();
                                 scos.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG)) {
-
+                                
                                 m_biometricData = tlv2.getBytesValue();
                                 scos.write(APDUUtils.getTLV(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG, m_biometricData));
 
@@ -249,6 +250,7 @@ public class CardholderBiometricData extends PIVDataObject {
                         ASN1InputStream aIn = new ASN1InputStream(bIn);
                         m_contentInfo = ContentInfo.getInstance(aIn.readObject());
                         m_signedData = new CMSSignedData(m_contentInfo);
+                        super.setSigned(true);
                     }
                 }
             }

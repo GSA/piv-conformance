@@ -2,6 +2,7 @@ package gov.gsa.pivconformance.card.client;
 
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.lang.IllegalArgumentException;
@@ -131,6 +132,7 @@ public class APDUConstants {
     public static final int PAIRING_CODE_REFERENCE_DATA_CONTAINER_ID = 0x1018;
     public static final String PAIRING_CODE_REFERENCE_DATA_CONTAINER_NAME = "Pairing Code Reference Data Container";
 
+
     public static final String[] MandatoryContainers() {
         final String[] rv = {
                 CARD_CAPABILITY_CONTAINER_OID,
@@ -141,6 +143,29 @@ public class APDUConstants {
                 CARDHOLDER_FACIAL_IMAGE_OID,
                 X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID
         };
+        return rv;
+    }
+
+    public static final ArrayList<String> AllContainers() {
+
+        ArrayList<String> rv = new ArrayList<String>();
+        rv.add(CARD_CAPABILITY_CONTAINER_OID);
+        rv.add(CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+        rv.add(X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+        rv.add(CARDHOLDER_FINGERPRINTS_OID);
+        rv.add(SECURITY_OBJECT_OID);
+        rv.add(CARDHOLDER_FACIAL_IMAGE_OID);
+        rv.add(X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+        rv.add(X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+        rv.add(X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+        rv.add(PRINTED_INFORMATION_OID);
+        rv.add(DISCOVERY_OBJECT_OID);
+        rv.add(KEY_HISTORY_OBJECT_OID);
+        rv.add(CARDHOLDER_IRIS_IMAGES_OID);
+        rv.add(BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID);
+        rv.add(SECURE_MESSAGING_CERTIFICATE_SIGNER_OID);
+        rv.add(PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID);
+
         return rv;
     }
 
