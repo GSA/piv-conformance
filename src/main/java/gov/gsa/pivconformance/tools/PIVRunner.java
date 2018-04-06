@@ -131,6 +131,13 @@ public class PIVRunner {
                 if(result == MiddlewareStatus.PIV_OK)
                     s_logger.info("Number of containers present on the card: {}", dataList.size());
 
+
+//                PIVDataObject keyDataObject = PIVDataObjectFactory.createDataObjectForOid("1.2.3");
+//                result = piv.pivGenerateKeyPair(c, APDUConstants.DIGITAL_SIGNATURE_KEY, APDUConstants.CRYPTO_MECHANISM_RSA, keyDataObject);
+//
+//                if(result == MiddlewareStatus.PIV_OK)
+//                    s_logger.info("Key Generated");
+
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
                     s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));

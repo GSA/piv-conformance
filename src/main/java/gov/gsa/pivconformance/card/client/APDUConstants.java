@@ -37,6 +37,9 @@ public class APDUConstants {
     public static final byte CRYPTO_MECHANISM_ECC_P384 = 0x14;
 
 
+    public static final byte CONTROL_REFERENCE_TEMPLATE_TAG = (byte) 0xAC;
+
+
     public static final int APP_NOT_FOUND = 0x6A82;
     public static final int SECURITY_STATUS_NOT_SATISFIED = 0x6982;
     public static final int INCORREECT_PARAMETER = 0x6A80;

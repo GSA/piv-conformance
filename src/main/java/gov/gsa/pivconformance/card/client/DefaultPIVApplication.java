@@ -35,8 +35,8 @@ public class DefaultPIVApplication extends AbstractPIVApplication {
         return rv;
     }
 
-    @Override
-    public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey) {
-        return null;
-    }
+//    @Override
+//    public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey) {
+//        return null;
+//    }
 }

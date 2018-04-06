@@ -233,8 +233,12 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             // Establishing channel
             CardChannel channel = card.getBasicChannel();
 
+            byte[] apdubuff = APDUUtils.PIVGenerateKeyPairAPDU(keyReference, cryptographicMechanism, null);
+
+            s_logger.debug("apdubuff: {}", Hex.encodeHexString(apdubuff));
+
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
-            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGenerateKeyPairAPDU(keyReference, cryptographicMechanism, null));
+            CommandAPDU cmd = new CommandAPDU(apdubuff);
 
             // Transmit command and get response
             ResponseAPDU response = channel.transmit(cmd);
