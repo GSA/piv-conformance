@@ -60,7 +60,7 @@ dependencies {
 }
 
 // Define the main class for the application jar that will be produced
-mainClassName = 'gov.gsa.pivconformance.tools.PIVRunner'
+mainClassName = 'gov.gsa.pivconformance.tools.ConformanceTestRunner'
 
 jar {
     manifest {
