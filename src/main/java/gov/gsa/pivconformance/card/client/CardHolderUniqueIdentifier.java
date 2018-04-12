@@ -253,6 +253,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                     ASN1InputStream aIn = new ASN1InputStream(bIn);
                                     m_contentInfo = ContentInfo.getInstance(aIn.readObject());
                                     m_issuerAsymmetricSignature = new CMSSignedData(m_contentInfo);
+                                    super.setSigned(true);
                                 }
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {

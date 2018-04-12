@@ -11,10 +11,10 @@ public class DefaultPIVApplication extends AbstractPIVApplication {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(DefaultPIVApplication.class);
 
-    @Override
-    public MiddlewareStatus pivEstablishSecureMessaging(CardHandle cardHandle) {
-        return null;
-    }
+//    @Override
+//    public MiddlewareStatus pivEstablishSecureMessaging(CardHandle cardHandle) {
+//        return null;
+//    }
 
     @Override
     public MiddlewareStatus pivPutData(CardHandle cardHandle, String OID, PIVDataObject data) {
@@ -35,8 +35,8 @@ public class DefaultPIVApplication extends AbstractPIVApplication {
         return rv;
     }
 
-    @Override
-    public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey) {
-        return null;
-    }
+//    @Override
+//    public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey) {
+//        return null;
+//    }
 }

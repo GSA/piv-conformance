@@ -166,6 +166,7 @@ public class SecurityObject extends PIVDataObject {
                     ASN1InputStream      aIn = new ASN1InputStream(bIn);
                     m_contentInfo = ContentInfo.getInstance(aIn.readObject());
                     m_signedData = new CMSSignedData(m_contentInfo);
+                    super.setSigned(true);
 
                 } else {
                     if (!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
@@ -317,6 +318,12 @@ public class SecurityObject extends PIVDataObject {
         return rv_result;
     }
 
+    /**
+     * Verifies hash of a specific container identified by the conteiner ID value
+     *
+     * @param id Container ID value
+     * @return True if hash value included in the security object for the specified container matches hashed value of the container data.
+     */
     public boolean verifyHash(Integer id){
         boolean rv_result = true;
 
@@ -367,6 +374,24 @@ public class SecurityObject extends PIVDataObject {
         }
 
         return rv_result;
+    }
+
+
+    /**
+     * Returns true if a specified container identified by the oid is covered by one of the hashes in the map.
+     *
+     * @param oid String identifying container to look up
+     * @return True if specified container is covered by one of the hashes in the map, false otherwise
+     */
+    public boolean hashIncluded(String oid){
+
+        boolean rv = false;
+
+
+        if(m_containerIDList.get(oid) != null)
+            rv = true;
+
+        return rv;
     }
 
 }

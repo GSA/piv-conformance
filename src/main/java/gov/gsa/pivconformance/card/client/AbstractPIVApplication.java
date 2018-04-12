@@ -13,6 +13,8 @@ import javax.smartcardio.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A base class for items that will implement the IPIVApplication interface, to allow those methods that can be
@@ -112,6 +114,45 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
+    public MiddlewareStatus pivGetAllDataContainers(CardHandle cardHandle, List<PIVDataObject> dataList) {
+
+        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+
+        if (cardHandle == null)
+            return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+
+        try {
+            if(dataList == null)
+                dataList = new ArrayList<PIVDataObject>();
+
+            for(String containerOID : APDUConstants.AllContainers()){
+
+                //Create object from the OID
+                PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
+                s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
+
+                result = this.pivGetData(cardHandle, containerOID, dataObject);
+
+                //Add the data object to the list if successful return code
+                if(result == MiddlewareStatus.PIV_OK)
+                    dataList.add(dataObject);
+            }
+
+
+        }catch (SecurityException ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+        }
+        catch (Exception ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+        }
+
+        return MiddlewareStatus.PIV_OK;
+    }
+
     @Override
     public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
 
@@ -192,8 +233,11 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             // Establishing channel
             CardChannel channel = card.getBasicChannel();
 
-            //Construct APDU command using APDUUtils and applicationAID that was passed in.
-            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGenerateKeyPairAPDU(keyReference, cryptographicMechanism, null));
+            //Construct APDU command using APDUUtils and keyReference, cryptographicMechanism that was passed in.
+            byte[] rawAPDU = APDUUtils.PIVGenerateKeyPairAPDU(keyReference, cryptographicMechanism, null);
+            s_logger.info("GENERATE APDU: {}", Hex.encodeHexString(rawAPDU));
+
+            CommandAPDU cmd = new CommandAPDU(rawAPDU);
 
             // Transmit command and get response
             ResponseAPDU response = channel.transmit(cmd);
@@ -215,7 +259,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                     return MiddlewareStatus.PIV_FUNCTION_NOT_SUPPORTED;
                 }
                 else if(response.getSW() == APDUConstants.INCORREECT_PARAMETER_P2){
-                    s_logger.error("Incorrect parameter in command data field");
+                    s_logger.error("Invalid key or key algorithm combination");
                     return MiddlewareStatus.PIV_INVALID_KEY_OR_KEYALG_COMBINATION;
                 }
                 else {
@@ -235,6 +279,59 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             return MiddlewareStatus.PIV_CONNECTION_FAILURE;
         }
         s_logger.debug("pivGenerateKeyPair returning {}", MiddlewareStatus.PIV_OK);
+        return MiddlewareStatus.PIV_OK;
+    }
+
+    @Override
+    public MiddlewareStatus pivEstablishSecureMessaging(CardHandle cardHandle) {
+        s_logger.debug("pivEstablishSecureMessaging()");
+        try {
+            // Establishing channel
+            Card card = cardHandle.getCard();
+            if (card == null)
+                return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+
+
+            byte[] dataField = { (byte) 0x7C, 0x05, (byte) 0x81, 0x01, 0x00, (byte) 0x82, 0x00 };
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                baos.write(APDUConstants.COMMAND);
+                baos.write(APDUConstants.SM);
+                baos.write(APDUConstants.CIPHER_SUITE_1); // Algorithm Reference for algs that support SM.
+                baos.write(APDUConstants.PIV_SECURE_MESSAGING_KEY);
+                baos.write(dataField.length);
+                baos.write(dataField);
+                baos.write(0x00); //Le
+            } catch(IOException ioe) {
+                s_logger.error("Failed to populate VERIFY APDU buffer");
+            }
+            byte[] rawAPDU = baos.toByteArray();
+            s_logger.info("SM APDU: {}", Hex.encodeHexString(rawAPDU));
+            CardChannel channel = cardHandle.getCurrentChannel();
+            CommandAPDU smApdu = new CommandAPDU(rawAPDU);
+            ResponseAPDU resp = null;
+            try {
+                resp = channel.transmit(smApdu);
+            } catch (CardException e) {
+                s_logger.error("Failed to transmit SM APDU to card", e);
+                return MiddlewareStatus.PIV_CARD_READER_ERROR;
+            }
+            if(resp.getSW() == 0x9000) {
+                cardHandle.setCurrentChannel(channel);
+                s_logger.info("Successfully logged into card application");
+            } else {
+                s_logger.error("Login failed: {}", Hex.encodeHexString(resp.getBytes()));
+                return MiddlewareStatus.PIV_SM_FAILED;
+            }
+
+        }
+        catch (Exception ex) {
+
+            s_logger.error("Error selecting card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_CARD_READER_ERROR;
+        }
+        s_logger.debug("pivSelectCardApplication returning {}", MiddlewareStatus.PIV_OK);
         return MiddlewareStatus.PIV_OK;
     }
 }

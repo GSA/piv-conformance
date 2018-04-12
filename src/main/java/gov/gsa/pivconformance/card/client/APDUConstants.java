@@ -2,6 +2,7 @@ package gov.gsa.pivconformance.card.client;
 
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.lang.IllegalArgumentException;
@@ -15,12 +16,16 @@ public class APDUConstants {
     public static final byte GENERATE = (byte)0x47;
     public static final byte GET = (byte)0xcb;
     public static final byte VERIFY = 0x20;
+    public static final byte SM = (byte)0x87;
     public static final byte CRYPTO_MECHANISM_TAG = (byte) 0x80;
     public static final byte PARAMETER_TAG = (byte) 0x81;
     public static final byte DATA_FIELD_TAG = 0x5c;
     public static final byte[] PIV_APPID = { (byte)0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
     public static final int SUCCESSFUL_EXEC = 0x9000;
+
+    public static final int CIPHER_SUITE_1 = 0x27;
+    public static final int CIPHER_SUITE_2 = 0x2E;
 
 
     public static final byte PIV_SECURE_MESSAGING_KEY = 0x04;
@@ -34,6 +39,9 @@ public class APDUConstants {
     public static final byte CRYPTO_MECHANISM_RSA = 0x07;
     public static final byte CRYPTO_MECHANISM_ECC_P286 = 0x11;
     public static final byte CRYPTO_MECHANISM_ECC_P384 = 0x14;
+
+
+    public static final byte CONTROL_REFERENCE_TEMPLATE_TAG = (byte) 0xAC;
 
 
     public static final int APP_NOT_FOUND = 0x6A82;
@@ -131,6 +139,7 @@ public class APDUConstants {
     public static final int PAIRING_CODE_REFERENCE_DATA_CONTAINER_ID = 0x1018;
     public static final String PAIRING_CODE_REFERENCE_DATA_CONTAINER_NAME = "Pairing Code Reference Data Container";
 
+
     public static final String[] MandatoryContainers() {
         final String[] rv = {
                 CARD_CAPABILITY_CONTAINER_OID,
@@ -141,6 +150,29 @@ public class APDUConstants {
                 CARDHOLDER_FACIAL_IMAGE_OID,
                 X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID
         };
+        return rv;
+    }
+
+    public static final ArrayList<String> AllContainers() {
+
+        ArrayList<String> rv = new ArrayList<String>();
+        rv.add(CARD_CAPABILITY_CONTAINER_OID);
+        rv.add(CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+        rv.add(X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+        rv.add(CARDHOLDER_FINGERPRINTS_OID);
+        rv.add(SECURITY_OBJECT_OID);
+        rv.add(CARDHOLDER_FACIAL_IMAGE_OID);
+        rv.add(X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+        rv.add(X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+        rv.add(X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+        rv.add(PRINTED_INFORMATION_OID);
+        rv.add(DISCOVERY_OBJECT_OID);
+        rv.add(KEY_HISTORY_OBJECT_OID);
+        rv.add(CARDHOLDER_IRIS_IMAGES_OID);
+        rv.add(BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID);
+        rv.add(SECURE_MESSAGING_CERTIFICATE_SIGNER_OID);
+        rv.add(PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID);
+
         return rv;
     }
 

@@ -108,8 +108,9 @@ public class PIVRunner {
 //                char[] passwd;
 //                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
 //
-//                    PIVAuthenticators authenticators = new PIVAuthenticators();
-//                    authenticators.addApplicationPin("123456");
+                   // PIVAuthenticators authenticators = new PIVAuthenticators();
+                    //authenticators.addApplicationPin("123456");
+                // authenticators.addGlobalPin("12345678");
 //                    authenticators.addApplicationPin(new String(passwd));
 //                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 //                    java.util.Arrays.fill(passwd, ' ');
@@ -124,6 +125,19 @@ public class PIVRunner {
 
                 HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
                 PIVDataObject securityObject = null;
+
+//                ArrayList<PIVDataObject> dataList = new ArrayList<PIVDataObject>();
+//                result = piv.pivGetAllDataContainers(c, dataList);
+//
+//                if(result == MiddlewareStatus.PIV_OK)
+//                    s_logger.info("Number of containers present on the card: {}", dataList.size());
+//
+//
+//                PIVDataObject keyDataObject = PIVDataObjectFactory.createDataObjectForOid("1.2.3");
+//                result = piv.pivGenerateKeyPair(c, APDUConstants.PIV_AUTHENTICATION_KEY, APDUConstants.CRYPTO_MECHANISM_RSA, keyDataObject);
+//
+//                if(result == MiddlewareStatus.PIV_OK)
+//                    s_logger.info("Key Generated");
 
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
