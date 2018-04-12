@@ -16,12 +16,16 @@ public class APDUConstants {
     public static final byte GENERATE = (byte)0x47;
     public static final byte GET = (byte)0xcb;
     public static final byte VERIFY = 0x20;
+    public static final byte SM = (byte)0x87;
     public static final byte CRYPTO_MECHANISM_TAG = (byte) 0x80;
     public static final byte PARAMETER_TAG = (byte) 0x81;
     public static final byte DATA_FIELD_TAG = 0x5c;
     public static final byte[] PIV_APPID = { (byte)0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
     public static final int SUCCESSFUL_EXEC = 0x9000;
+
+    public static final int CIPHER_SUITE_1 = 0x27;
+    public static final int CIPHER_SUITE_2 = 0x2E;
 
 
     public static final byte PIV_SECURE_MESSAGING_KEY = 0x04;
