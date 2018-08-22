@@ -19,9 +19,12 @@ public class TagConstants {
     public static final byte[] COMPRESSED_TAG = { 0x01 };
 
 
+    public static final byte CRYPTO_MECHANISM_TAG = (byte) 0x80;
+    public static final byte PARAMETER_TAG = (byte) 0x81;
+    public static final byte DATA_FIELD_TAG = 0x5c;
+
+
     public static final byte[] INTERMEDIATE_CVC_TAG = { 0x7F, 0x21 };
-
-
 
     public static final byte[] ERROR_DETECTION_CODE_TAG = { (byte) 0xFE };
 

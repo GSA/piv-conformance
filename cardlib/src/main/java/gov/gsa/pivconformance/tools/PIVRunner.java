@@ -108,9 +108,9 @@ public class PIVRunner {
 //                char[] passwd;
 //                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
 //
-                   // PIVAuthenticators authenticators = new PIVAuthenticators();
-                    //authenticators.addApplicationPin("123456");
-                // authenticators.addGlobalPin("12345678");
+//                    PIVAuthenticators authenticators = new PIVAuthenticators();
+//                    authenticators.addApplicationPin("123456");
+//                    authenticators.addGlobalPin("12345678");
 //                    authenticators.addApplicationPin(new String(passwd));
 //                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 //                    java.util.Arrays.fill(passwd, ' ');
@@ -430,6 +430,12 @@ public class PIVRunner {
 
                     soDataElements.put(APDUConstants.PRINTED_INFORMATION_OID, ((PrintedInformation) printedInformation).getSignedContent());
                 }
+
+
+//                result = piv.pivPutData(c, APDUConstants.PRINTED_INFORMATION_OID, printedInformation);
+//                if(result != MiddlewareStatus.PIV_OK) {
+//                    s_logger.error("Attempted to write {} to the card failed.", APDUConstants.oidNameMAP.get(APDUConstants.PRINTED_INFORMATION_OID));
+//                }
 
                 boolean decoded = false;
                 PIVDataObject discoveryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.DISCOVERY_OBJECT_OID);

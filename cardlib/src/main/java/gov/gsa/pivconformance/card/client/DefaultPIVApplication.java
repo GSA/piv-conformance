@@ -16,10 +16,10 @@ public class DefaultPIVApplication extends AbstractPIVApplication {
 //        return null;
 //    }
 
-    @Override
-    public MiddlewareStatus pivPutData(CardHandle cardHandle, String OID, PIVDataObject data) {
-        return null;
-    }
+//    @Override
+//    public MiddlewareStatus pivPutData(CardHandle cardHandle, String OID, PIVDataObject data) {
+//        return null;
+//    }
 
     @Override
     public MiddlewareStatus pivSelectCardApplication(CardHandle cardHandle, ApplicationAID applicationAID, ApplicationProperties applicationProperties) {

@@ -17,9 +17,9 @@ public class APDUConstants {
     public static final byte GET = (byte)0xcb;
     public static final byte VERIFY = 0x20;
     public static final byte SM = (byte)0x87;
-    public static final byte CRYPTO_MECHANISM_TAG = (byte) 0x80;
-    public static final byte PARAMETER_TAG = (byte) 0x81;
-    public static final byte DATA_FIELD_TAG = 0x5c;
+    public static final byte INS_DB = (byte)0xDB;
+    public static final byte P1_3F = 0x3F;
+    public static final byte P2_FF = (byte)0xFF;
     public static final byte[] PIV_APPID = { (byte)0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
     public static final int SUCCESSFUL_EXEC = 0x9000;

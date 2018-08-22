@@ -169,7 +169,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
             //Construct data field based on the data field oid and the tag for the specific oid
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            baos.write(APDUConstants.DATA_FIELD_TAG);
+            baos.write(TagConstants.DATA_FIELD_TAG);
             baos.write(APDUConstants.oidMAP.get(OID).length);
             baos.write(APDUConstants.oidMAP.get(OID));
 
@@ -304,7 +304,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                 baos.write(dataField);
                 baos.write(0x00); //Le
             } catch(IOException ioe) {
-                s_logger.error("Failed to populate VERIFY APDU buffer");
+                s_logger.error("Failed to populate SM APDU buffer");
             }
             byte[] rawAPDU = baos.toByteArray();
             s_logger.info("SM APDU: {}", Hex.encodeHexString(rawAPDU));
@@ -319,19 +319,97 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             }
             if(resp.getSW() == 0x9000) {
                 cardHandle.setCurrentChannel(channel);
-                s_logger.info("Successfully logged into card application");
+                s_logger.info("Successfully established secure messaging");
             } else {
-                s_logger.error("Login failed: {}", Hex.encodeHexString(resp.getBytes()));
+                s_logger.error("Error establishing secure messaging: {}", Hex.encodeHexString(resp.getBytes()));
                 return MiddlewareStatus.PIV_SM_FAILED;
             }
 
         }
         catch (Exception ex) {
 
-            s_logger.error("Error selecting card application: {}", ex.getMessage());
+            s_logger.error("Error establishing secure messaging: {}", ex.getMessage());
             return MiddlewareStatus.PIV_CARD_READER_ERROR;
         }
         s_logger.debug("pivSelectCardApplication returning {}", MiddlewareStatus.PIV_OK);
+        return MiddlewareStatus.PIV_OK;
+    }
+
+    @Override
+    public MiddlewareStatus pivPutData(CardHandle cardHandle, String OID, PIVDataObject data) {
+
+        s_logger.debug("pivPutData()");
+        try {
+            // Establishing channel
+            Card card = cardHandle.getCard();
+            if (card == null)
+                return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+
+            if (OID == null)
+                return MiddlewareStatus.PIV_INVALID_OID;
+
+
+
+            ByteArrayOutputStream baosDataField = new ByteArrayOutputStream();
+            if(data.getOID().equals(APDUConstants.DISCOVERY_OBJECT_OID) || data.getOID().equals(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID)){
+
+                baosDataField.write(data.getBytes());
+            }
+            else {
+                baosDataField.write(TagConstants.TAG_LIST);
+                baosDataField.write(APDUConstants.oidMAP.get(OID).length);
+                baosDataField.write(APDUConstants.oidMAP.get(OID));
+                baosDataField.write(data.getBytes());
+            }
+
+            s_logger.debug("dataField: {}", Hex.encodeHexString(baosDataField.toByteArray()));
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                baos.write(APDUConstants.COMMAND);
+                baos.write(APDUConstants.INS_DB);
+                baos.write(APDUConstants.P1_3F);
+                baos.write(APDUConstants.P2_FF);
+                baos.write(baosDataField.toByteArray().length);
+                baos.write(baosDataField.toByteArray());
+            } catch(IOException ioe) {
+                s_logger.error("Failed to populate PUT DATA APDU buffer");
+            }
+            byte[] rawAPDU = baos.toByteArray();
+            s_logger.info("PUT DATA APDU: {}", Hex.encodeHexString(rawAPDU));
+            CardChannel channel = cardHandle.getCurrentChannel();
+            CommandAPDU smApdu = new CommandAPDU(rawAPDU);
+            ResponseAPDU resp = null;
+            try {
+                resp = channel.transmit(smApdu);
+            } catch (CardException e) {
+                s_logger.error("Failed to transmit PUT DATA APDU to card", e);
+                return MiddlewareStatus.PIV_CARD_READER_ERROR;
+            }
+            if(resp.getSW() == 0x9000) {
+                cardHandle.setCurrentChannel(channel);
+                s_logger.info("Successfully wrote data object to the card.");
+            } else if(resp.getSW() == 0x6A82){
+                s_logger.error("Failed to write object to the card, security condition not satisfied: {}", Hex.encodeHexString(resp.getBytes()));
+                return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+            } else if(resp.getSW() == 0x6A81){
+                s_logger.error("Failed to write object to the card, function is not supported: {}", Hex.encodeHexString(resp.getBytes()));
+                return MiddlewareStatus.PIV_FUNCTION_NOT_SUPPORTED;
+            } else if(resp.getSW() == 0x6A84){
+                s_logger.error("Failed to write object to the card, not enough memory: {}", Hex.encodeHexString(resp.getBytes()));
+                return MiddlewareStatus.PIV_INSUFFICIENT_CARD_RESOURCE;
+            } else {
+                s_logger.error("Failed to write object to the card: {}", Hex.encodeHexString(resp.getBytes()));
+                return MiddlewareStatus.PIV_CARD_READER_ERROR;
+            }
+
+        }
+        catch (Exception ex) {
+
+            s_logger.error("Error writing data object to the card: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_CARD_READER_ERROR;
+        }
+        s_logger.debug("pivPutData returning {}", MiddlewareStatus.PIV_OK);
         return MiddlewareStatus.PIV_OK;
     }
 }

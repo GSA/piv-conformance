@@ -1,5 +1,6 @@
 package gov.gsa.pivconformance.card.client;
 
+import gov.gsa.pivconformance.tlv.TagConstants;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -95,12 +96,12 @@ public class APDUUtils {
                     baos.write(3);
                 }
 
-                baos.write(APDUConstants.CRYPTO_MECHANISM_TAG);
+                baos.write(TagConstants.CRYPTO_MECHANISM_TAG);
                 //Add length of crypto mechanism which will be 1
                 baos.write(1);
                 baos.write(cryptoMechanism);
                 if(parameter != null)  {
-                    byte[] parameterTag = {APDUConstants.PARAMETER_TAG};
+                    byte[] parameterTag = {TagConstants.PARAMETER_TAG};
                     baos.write(parameterTag);
                     baos.write(parameter.length);
                     baos.write(parameter);
