@@ -4,14 +4,31 @@ import gov.gsa.pivconformance.tlv.TagConstants;
 
 import java.util.Arrays;
 
+/**
+ * A class that serves the function of the handle objects passed around that encapsulate authenticator information
+ */
 public class PIVAuthenticator {
     byte m_type;
     byte[] m_data;
 
+    /**
+     *
+     * Constructor that initializes PIVAuthenticator object based on passed in parameter
+     *
+     * @param type Authenticator type either an Application Pin or a Global PIN
+     * @param data String object containing the pin information
+     */
     public PIVAuthenticator(byte type, String data) {
         this(type, data.getBytes());
     }
 
+    /**
+     *
+     * Constructor that initializes PIVAuthenticator object based on passed in parameter
+     *
+     * @param type Authenticator type either an Application Pin or a Global PIN
+     * @param data Byte array object containing the pin information
+     */
     public PIVAuthenticator(byte type, byte[] data) {
         m_type = type;
         if(m_type == TagConstants.KEY_REFERENCE_APPLICATION_PIN_TAG ||
@@ -24,18 +41,42 @@ public class PIVAuthenticator {
         }
     }
 
+    /**
+     *
+     * Get the authenticator type
+     *
+     * @return Byte identifying authenticator type
+     */
     public byte getType() {
         return m_type;
     }
 
+    /**
+     *
+     * Set the authenticator type
+     *
+     * @param type byte containing authenticator type
+     */
     public void setType(byte type) {
         m_type = type;
     }
 
+    /**
+     *
+     * Get the pin information
+     *
+     * @return Byte array containing pin information
+     */
     public byte[] getData() {
         return m_data;
     }
 
+    /**
+     *
+     * Set the pin
+     *
+     * @param data byte array containing pin information
+     */
     public void setData(byte[] data) {
         m_data = data;
     }

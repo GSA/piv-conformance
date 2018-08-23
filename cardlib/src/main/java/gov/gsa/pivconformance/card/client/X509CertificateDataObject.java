@@ -14,6 +14,11 @@ import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.util.zip.GZIPInputStream;
 
+/**
+ *
+ * Encapsulates data object that store   as defined by SP800-73-4 Part 2 Appendix A Table 8
+ *
+ */
 public class X509CertificateDataObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateDataObject.class);
@@ -21,21 +26,41 @@ public class X509CertificateDataObject extends PIVDataObject {
     private X509Certificate m_pivAuthCert;
     private boolean m_error_Detection_Code;
 
+    /**
+     * CardCapabilityContainer class constructor, initializes all the class fields.
+     */
     public X509CertificateDataObject() {
 
         m_pivAuthCert = null;
         m_error_Detection_Code = false;
     }
 
+    /**
+     * Returns boolean value indicating if error detection code is present
+     *
+     * @return Boolean value indicating if error detection code is present
+     */
     public boolean getErrorDetectionCode() {
 
         return m_error_Detection_Code;
     }
 
+    /**
+     *
+     * Returns X509Certificate object containing the certificate in the PIV data object
+     *
+     * @return X509Certificate object containing the certificate in the PIV data object
+     */
     public X509Certificate getCertificate() {
         return m_pivAuthCert;
     }
 
+    /**
+     *
+     * Decode function that decodes PIV data object object containing x509 certificate retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         if(m_pivAuthCert == null){
