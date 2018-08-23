@@ -9,6 +9,11 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ *
+ * Encapsulates a Discovery Object data object  as defined by SP800-73-4 Part 2 Appendix A Table 18
+ *
+ */
 public class DiscoveryObject extends PIVDataObject {
 
     // slf4j will thunk this through to an appropriately configured logging library
@@ -22,67 +27,169 @@ public class DiscoveryObject extends PIVDataObject {
     private boolean m_occSatisfiesACR;
     private byte[] m_signedContent;
 
+
+    /**
+     *
+     * Returns byte array with signed content
+     *
+     * @return Byte array with signed content buffer
+     */
     public byte[] getSignedContent() {
         return m_signedContent;
     }
 
+    /**
+     *
+     * Sets the signed content value
+     *
+     * @param signedContent Byte array with signed content buffer
+     */
     public void setSignedContent(byte[] signedContent) {
         m_signedContent = signedContent;
     }
 
+    /**
+     *
+     * Returns PIV Card Application AID value
+     *
+     * @return Byte array containing PIV Card Application AID value
+     */
     public byte[] getAid() {
         return m_aid;
     }
 
+    /**
+     *
+     * Sets the PIV Card Application AID value
+     *
+     * @param aid Byte array containing PIV Card Application AID value
+     */
     public void setAid(byte[] aid) {
         m_aid = aid;
     }
 
+    /**
+     *
+     * Returns PIN Usage Policy value
+     *
+     * @return Byte array containing PIN Usage Policy value
+     */
     public byte[] getPinPolicy() {
         return m_pinPolicy;
     }
 
+    /**
+     *
+     * Sets the PIN Usage Policy value
+     *
+     * @param pinPolicy Byte array containing PIN Usage Policy value
+     */
     public void setPinPolicy(byte[] pinPolicy) {
         m_pinPolicy = pinPolicy;
     }
 
+
+    /**
+     *
+     * Returns true if Global PIN satisfies the PIV ACRs, false otherwise
+     *
+     * @return True if Global PIN satisfies the PIV ACRs, false otherwise
+     */
     public boolean globalPINSatisfiesACR() {
         return m_globalPINSatisfiesACR;
     }
 
+    /**
+     *
+     * Sets if Global PIN satisfies the PIV ACRs, false otherwise
+     *
+     * @param globalPINSatisfiesACR True if Global PIN satisfies the PIV ACRs, false otherwise
+     */
     public void setGlobalPINSatisfiesACR(boolean globalPINSatisfiesACR) {
         m_globalPINSatisfiesACR = globalPINSatisfiesACR;
     }
 
+    /**
+     *
+     * Returns true if Global PIN is primary, false otherwise
+     *
+     * @return True if Global PIN is primary, false otherwise
+     */
     public boolean globalPINisPrimary() {
         return m_globalPINisPrimary;
     }
 
+    /**
+     *
+     * Sets if Global PIN is primary
+     *
+     * @param globalPINisPrimary True if Global PIN is primary, false otherwise
+     */
     public void setGlobalPINisPrimary(boolean globalPINisPrimary) {
         m_globalPINisPrimary = globalPINisPrimary;
     }
 
     // XXX *** MOVE this
+
+    /**
+     *
+     * Helper function to determine if byte if set at a given position
+     *
+     * @param field Byte value
+     * @param position Integer specifying the position to check
+     * @return True if set, false otherwise
+     */
     private boolean is_set(byte field, int position) {
         return ((field >> position) & 1) == 1;
     }
 
+    /**
+     *
+     * Returns true if App PIN satisfies the PIV ACRs, false otherwise
+     *
+     * @return True if App PIN satisfies the PIV ACRs, false otherwise
+     */
     public boolean appPINSatisfiesACR() {
         return m_appPINSatisfiesACR;
     }
 
+    /**
+     *
+     * Sets if App PIN satisfies the PIV ACRs
+     *
+     * @param appPINSatisfiesACR True if App PIN satisfies the PIV ACRs, false otherwise
+     */
     public void setAppPINSatisfiesACR(boolean appPINSatisfiesACR) {
         m_appPINSatisfiesACR = appPINSatisfiesACR;
     }
 
+    /**
+     *
+     * Returns true if OCC satisfies the PIV ACRs, false otherwise
+     *
+     * @return True if OCC satisfies the PIV ACRs, false otherwise
+     */
     public boolean occSatisfiesACR() {
         return m_occSatisfiesACR;
     }
 
+    /**
+     *
+     * Sets if OCC satisfies the PIV ACRs
+     *
+     * @param occSatisfiesACR True if OCC satisfies the PIV ACRs, false otherwise
+     */
     public void setOccSatisfiesACR(boolean occSatisfiesACR) {
         m_occSatisfiesACR = occSatisfiesACR;
     }
 
+
+    /**
+     *
+     * Decode function that decodes Discovery Object object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
         byte[] rawBytes = this.getBytes();
         if(rawBytes.length == 0) {

@@ -1,5 +1,10 @@
 package gov.gsa.pivconformance.card.client;
 
+/**
+ *
+ * Enumeration containing PIV Client Application Programming Interface return codes
+ *
+ */
 public enum MiddlewareStatus {
     PIV_OK,
     PIV_CONNECTION_DESCRIPTION_MALFORMED,

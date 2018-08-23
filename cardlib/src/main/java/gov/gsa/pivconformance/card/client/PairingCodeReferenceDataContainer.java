@@ -8,6 +8,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ *
+ * Encapsulates a Pairing Code Reference Data Container data object  as defined by SP800-73-4 Part 2 Appendix A Table 43
+ *
+ */
 public class PairingCodeReferenceDataContainer extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(PairingCodeReferenceDataContainer.class);
@@ -15,28 +20,60 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
     private String m_pairingCode;
     private boolean m_errorDetectionCode;
 
-
+    /**
+     * PairingCodeReferenceDataContainer class constructor, initializes all the class fields.
+     */
     public PairingCodeReferenceDataContainer() {
         m_pairingCode = "";
         m_errorDetectionCode = false;
     }
 
+    /**
+     *
+     * Returns a String with pairing code name
+     *
+     * @return String containing pairing code name
+     */
     public String getName() {
         return m_pairingCode;
     }
 
+    /**
+     *
+     * Sets the pairing code name
+     *
+     * @param pairingCode String containing pairing code name
+     */
     public void setName(String pairingCode) {
         m_pairingCode = pairingCode;
     }
 
+    /**
+     *
+     * Returns True if error Error Detection Code is present, false otherwise
+     *
+     * @return True if error Error Detection Code is present, false otherwise
+     */
     public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
+    /**
+     *
+     * Sets if error Error Detection Code is present
+     *
+     * @param errorDetectionCode True if error Error Detection Code is present, false otherwise
+     */
     public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
+    /**
+     *
+     * Decode function that decodes Pairing Code Reference Data Container object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         try{

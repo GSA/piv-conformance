@@ -14,7 +14,9 @@ public class CardHandle {
     private static final Logger s_logger = LoggerFactory.getLogger(CardHandle.class);
 
     /**
+     *
      * Get the connection description object associated with this card handle
+     *
      * @return ConnectionDescription that includes as CardTerminal object used to access the reader
      */
     public ConnectionDescription getConnectionDescription() {
@@ -22,7 +24,9 @@ public class CardHandle {
     }
 
     /**
-     * set the connection description object that will be used by the card handle
+     *
+     * Set the connection description object that will be used by the card handle
+     *
      * @param connectionDescription Connection description object
      */
     public void setConnectionDescription(ConnectionDescription connectionDescription) {

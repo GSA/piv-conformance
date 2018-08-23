@@ -44,7 +44,10 @@ public class ConnectionDescription {
     }
 
     /**
+     *
      * Populate connection description data object based on information from CardTerminal
+     *
+     * @return Byte array containing Connection Description value
      */
     public byte[] getBytes() {
 
@@ -93,7 +96,9 @@ public class ConnectionDescription {
     }
 
     /**
+     *
      * Create a ConnectionDescription object from a javax.smartcardio.CardTerminal
+     *
      * @return ConnectionDescription used to interact with a PIV card in the specified terminal
      */
     public static ConnectionDescription createFromTerminal(CardTerminal reader) {
@@ -103,7 +108,11 @@ public class ConnectionDescription {
     }
 
     /**
+     *
      * Given the data object described in SP800-73-4 table 2, create a new connection description object
+     *
+     * @param data Byte array containing Connection Description info from which ConnectionDescription object will be constructed
+     * @return ConnectionDescription Object
      */
     public static ConnectionDescription createFromBuffer(byte[] data) {
         ConnectionDescription rv = new ConnectionDescription();
@@ -163,8 +172,10 @@ public class ConnectionDescription {
     }
 
     /**
+     *
      * Get the reader that will be used to actually send/receive APDUs from the card
-     * @return
+     *
+     * @return CardTerminal object
      */
     public CardTerminal getTerminal() {
         return m_reader;

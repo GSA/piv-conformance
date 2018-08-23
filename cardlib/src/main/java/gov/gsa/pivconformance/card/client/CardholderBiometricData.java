@@ -34,7 +34,8 @@ import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 
 /**
  *
- * Container class that parses and stores information about Biometric Data elements.  Biometric Data elements include Cardholder Fingerprints, Cardholder Facial Image and  Cardholder Iris Image
+ * Container class that parses and stores information about Biometric Data elements.  Biometric Data elements include Cardholder Fingerprints,
+ * Cardholder Facial Image and  Cardholder Iris Image as defined by SP800-73-4 Part 2 Appendix A Table 11, Table 13 and Table 40
  *
  */
 public class CardholderBiometricData extends PIVDataObject {

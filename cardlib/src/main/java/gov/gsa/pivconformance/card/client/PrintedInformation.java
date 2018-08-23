@@ -11,6 +11,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ *
+ * Encapsulates a Printed Information data object  as defined by SP800-73-4 Part 2 Appendix A Table 9
+ *
+ */
 public class PrintedInformation extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(PrintedInformation.class);
@@ -26,6 +31,9 @@ public class PrintedInformation extends PIVDataObject {
     private byte[] m_signedContent;
 
 
+    /**
+     * PrintedInformation class constructor, initializes all the class fields.
+     */
     public PrintedInformation() {
         m_name = "";
         m_employeeAffiliation = "";
@@ -38,78 +46,194 @@ public class PrintedInformation extends PIVDataObject {
         m_signedContent = null;
     }
 
+    /**
+     *
+     * Returns byte array with signed content
+     *
+     * @return Byte array with signed content buffer
+     */
     public byte[] getSignedContent() {
         return m_signedContent;
     }
 
+    /**
+     *
+     * Sets the signed content value
+     *
+     * @param signedContent Byte array with signed content buffer
+     */
     public void setSignedContent(byte[] signedContent) {
         m_signedContent = signedContent;
     }
 
+
+    /**
+     *
+     * Returns the Name value as String
+     *
+     * @return String with the Name value
+     */
     public String getName() {
         return m_name;
     }
 
+
+    /**
+     *
+     * Sets the name value
+     *
+     * @param name String with the Name value
+     */
     public void setName(String name) {
         m_name = name;
     }
 
+    /**
+     *
+     * Returns the Employee Affiliation value as String
+     *
+     * @return String with the Employee Affiliation value
+     */
     public String getEmployeeAffiliation() {
         return m_employeeAffiliation;
     }
 
+    /**
+     *
+     * Sets the Employee Affiliation value
+     *
+     * @param employeeAffiliation String with the Employee Affiliation value
+     */
     public void setEmployeeAffiliation(String employeeAffiliation) {
         m_employeeAffiliation = employeeAffiliation;
     }
 
+    /**
+     *
+     * Returns the Expiration Date value as String
+     *
+     * @return String with the Expiration Date value
+     */
     public String getExpirationDate() {
         return m_expirationDate;
     }
 
+    /**
+     *
+     * Sets the Expiration Date value
+     *
+     * @param expirationDate String with the Expiration Date value
+     */
     public void setExpirationDate(String expirationDate) {
         m_expirationDate = expirationDate;
     }
 
+    /**
+     *
+     * Returns the Agency Card Serial Number value as String
+     *
+     * @return String with the Agency Card Serial Number value
+     */
     public String getAgencyCardSerialNumber() {
         return m_agencyCardSerialNumber;
     }
 
+    /**
+     *
+     * Sets the Agency Card Serial Number value
+     *
+     * @param agencyCardSerialNumber String with the Agency Card Serial Number value
+     */
     public void setAgencyCardSerialNumber(String agencyCardSerialNumber) {
         m_agencyCardSerialNumber = agencyCardSerialNumber;
     }
 
+    /**
+     *
+     * Returns the Issuer Identification value as String
+     *
+     * @return String with the Issuer Identification value
+     */
     public String getIssuerIdentification() {
         return m_issuerIdentification;
     }
 
+    /**
+     *
+     * Sets the Issuer Identification value
+     *
+     * @param issuerIdentification String with the Issuer Identification value
+     */
     public void setIssuerIdentification(String issuerIdentification) {
         m_issuerIdentification = issuerIdentification;
     }
 
+    /**
+     *
+     * Returns the Organization Affiliation1 value as String
+     *
+     * @return String with the Organization Affiliation1 value
+     */
     public String getOrganizationAffiliation1() {
         return m_organizationAffiliation1;
     }
 
+    /**
+     *
+     * Sets the Organization Affiliation1 value
+     *
+     * @param organizationAffiliation1 String with the Organization Affiliation1 value
+     */
     public void setOrganizationAffiliation1(String organizationAffiliation1) {
         m_organizationAffiliation1 = organizationAffiliation1;
     }
 
+    /**
+     *
+     * Returns the Organization Affiliation2 value as String
+     *
+     * @return String with the Organization Affiliation2 value
+     */
     public String getOrganizationAffiliation2() {
         return m_organizationAffiliation2;
     }
 
+    /**
+     *
+     * Sets the Organization Affiliation2 value
+     *
+     * @param organizationAffiliation2 String with the Organization Affiliation2 value
+     */
     public void setOrganizationAffiliation2(String organizationAffiliation2) {
         m_organizationAffiliation2 = organizationAffiliation2;
     }
 
+    /**
+     *
+     * Returns True if error Error Detection Code is present, false otherwise
+     *
+     * @return True if error Error Detection Code is present, false otherwise
+     */
     public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
+    /**
+     *
+     * Sets if error Error Detection Code is present
+     *
+     * @param errorDetectionCode True if error Error Detection Code is present, false otherwise
+     */
     public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
+    /**
+     *
+     * Decode function that decodes Printed Information object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         try{

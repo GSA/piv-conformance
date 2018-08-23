@@ -8,6 +8,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ *
+ * Encapsulates a Key History data object  as defined by SP800-73-4 Part 2 Appendix A Table 19
+ *
+ */
 public class KeyHistoryObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(KeyHistoryObject.class);
@@ -15,31 +20,73 @@ public class KeyHistoryObject extends PIVDataObject {
     private int m_keysWithOffCardCerts = 0;
     private byte[] m_offCardCertUrl;
 
+    /**
+     *
+     * Returns Integer containing keysWithOnCardCerts value
+     *
+     * @return Integer containing keysWithOnCardCerts value
+     */
     public int getKeysWithOnCardCerts() {
         return m_keysWithOnCardCerts;
     }
 
+    /**
+     *
+     * Sets the keysWithOnCardCerts value
+     *
+     * @param keysWithOnCardCerts Integer containing keysWithOnCardCerts value
+     */
     public void setKeysWithOnCardCerts(int keysWithOnCardCerts) {
         m_keysWithOnCardCerts = keysWithOnCardCerts;
     }
 
+    /**
+     *
+     * Returns Integer containing keysWithOffCardCerts value
+     *
+     * @return Integer containing keysWithOffCardCerts value
+     */
     public int getKeysWithOffCardCerts() {
         return m_keysWithOffCardCerts;
     }
 
+    /**
+     *
+     * Sets the keysWithOffCardCerts value
+     *
+     * @param keysWithOffCardCerts Integer containing keysWithOffCardCerts value
+     */
     public void setKeysWithOffCardCerts(int keysWithOffCardCerts) {
         m_keysWithOffCardCerts = keysWithOffCardCerts;
     }
 
+    /**
+     *
+     * Returns byte array containing offCardCertUrl value
+     *
+     * @return Byte array containing offCardCertUrl value
+     */
     public byte[] getOffCardCertUrl() {
         return m_offCardCertUrl;
     }
 
+
+    /**
+     *
+     * Sets the offCardCertUrl value
+     *
+     * @param offCardCertUrl Byte array containing offCardCertUrl value
+     */
     public void setOffCardCertUrl(byte[] offCardCertUrl) {
         m_offCardCertUrl = offCardCertUrl;
     }
 
-
+    /**
+     *
+     * Decode function that decodes Key History Object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
         byte[] rawBytes = this.getBytes();
         BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));

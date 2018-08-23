@@ -13,6 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+/**
+ *
+ * Encapsulates a Card Holder Unique Identifier data object  as defined by SP800-73-4 Part 2 Appendix A Table 42
+ *
+ */
 public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(SecureMessagingCertificateSigner.class);
 
@@ -20,6 +25,9 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
     private byte[] m_intermediateCVC;
     private boolean m_error_Detection_Code;
 
+    /**
+     * SecureMessagingCertificateSigner class constructor, initializes all the class fields.
+     */
     public SecureMessagingCertificateSigner() {
 
         m_pivAuthCert = null;
@@ -27,23 +35,53 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
         m_error_Detection_Code = false;
     }
 
+    /**
+     *
+     * Returns True if error Error Detection Code is present, false otherwise
+     *
+     * @return True if error Error Detection Code is present, false otherwise
+     */
     public boolean getErrorDetectionCode() {
 
         return m_error_Detection_Code;
     }
 
+    /**
+     *
+     * Returns X509Certificate object containing X.509 Certificate for Content Signing
+     *
+     * @return X509Certificate object containing X.509 Certificate for Content Signing
+     */
     public X509Certificate getCertificate() {
         return m_pivAuthCert;
     }
 
+    /**
+     *
+     * Returns byte array with Intermediate CVC value
+     *
+     * @return Byte array containing Intermediate CVC value
+     */
     public byte[] getIntermediateCVC() {
         return m_intermediateCVC;
     }
 
+    /**
+     *
+     * Sets the Intermediate CVC value
+     *
+     * @param intermediateCVC Byte array containing Intermediate CVC value
+     */
     public void setIntermediateCVC(byte[] intermediateCVC) {
         m_intermediateCVC = intermediateCVC;
     }
 
+    /**
+     *
+     * Decode function that decodes Secure Messaging Certificate Signer object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         if(m_pivAuthCert == null){

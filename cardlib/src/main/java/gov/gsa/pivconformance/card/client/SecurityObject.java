@@ -27,6 +27,11 @@ import java.io.ByteArrayInputStream;
 
 import org.bouncycastle.asn1.cms.ContentInfo;
 
+/**
+ *
+ * Encapsulates a Security Object data object  as defined by SP800-73-4 Part 2 Appendix A Table 12
+ *
+ */
 public class SecurityObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(SecurityObject.class);
@@ -39,6 +44,9 @@ public class SecurityObject extends PIVDataObject {
     HashMap<Integer, byte[]> m_dghList;
 
 
+    /**
+     * SecurityObject class constructor, initializes all the class fields.
+     */
     public SecurityObject() {
         m_mapping = null;
         m_so = null;
@@ -57,47 +65,119 @@ public class SecurityObject extends PIVDataObject {
         m_mapOfDataElements = mapOfDataElements;
     }
 
+    /**
+     *
+     * Returns ContentInfo object
+     *
+     * @return ContentInfo object
+     */
     public ContentInfo getContentInfo() {
         return m_contentInfo;
     }
 
+    /**
+     *
+     * Sets the ContentInfo object
+     *
+     * @param contentInfo ContentInfo object
+     */
     public void setContentInfo(ContentInfo contentInfo) {
         m_contentInfo = contentInfo;
     }
 
+    /**
+     *
+     * Returns byte array containing Mapping of DG to ContainerID
+     *
+     * @return Byte array containing Mapping of DG to ContainerID
+     */
     public byte[] getMapping() {
         return m_mapping;
     }
 
+    /**
+     *
+     * Sets the Mapping of DG to ContainerID
+     *
+     * @param mapping Byte array containing Mapping of DG to ContainerID
+     */
     public void setMapping(byte[] mapping) {
         m_mapping = mapping;
     }
 
+
+    /**
+     *
+     * Returns byte array containing security object
+     *
+     * @return Byte array containing security object value
+     */
     public byte[] getSecurityObject() {
         return m_so;
     }
 
+    /**
+     *
+     * Sets the security object value
+     *
+     * @param so Byte array containing security object value
+     */
     public void setSecurtiyObject(byte[] so) {
         m_so = so;
     }
 
+    /**
+     *
+     * Returns CMSSignedData object containing signed data
+     *
+     * @return CMSSignedData object containing signed data
+     */
     public CMSSignedData getSignedData() {
         return m_signedData;
     }
 
+    /**
+     *
+     * Sets the CMSSignedData object containing Issuer signed data
+     *
+     * @param signedData CMSSignedData object containing signed data
+     */
     public void setSignedData(CMSSignedData signedData) {
         m_signedData = signedData;
     }
 
 
+    /**
+     *
+     * Returns a map containing container ID list
+     *
+     * @return HashMap containing container ID list
+     */
     public HashMap<Integer, String> getContainerIDList() {
         return m_containerIDList;
     }
 
+    /**
+     *
+     * Sets the Hash map with containing container ID list
+     *
+     * @param containerIDList HashMap containing container ID list
+     */
     public void setContainerIDList(HashMap<Integer, String> containerIDList) {
         m_containerIDList = containerIDList;
     }
 
+
+    //XXX Move this
+
+    /**
+     *
+     * Helper function to divide a byte array into n numer of chuncks
+     *
+     * @param source  Byte array to be divided
+     * @param chunksize Integer specifying number of chanks
+     * @return List of byte arrays
+     */
     public static List<byte[]> divideArray(byte[] source, int chunksize) {
 
         List<byte[]> result = new ArrayList<byte[]>();
@@ -111,6 +191,12 @@ public class SecurityObject extends PIVDataObject {
         return result;
     }
 
+    /**
+     *
+     * Decode function that decodes Security Object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         try {
@@ -182,7 +268,13 @@ public class SecurityObject extends PIVDataObject {
         return true;
     }
 
-
+    /**
+     *
+     * Verifies the signature on the Security Object
+     *
+     * @param signingCertificate X509Certificate object containing signing certificate
+     * @return True if signature successfully verified, false otherwise
+     */
     public boolean verifySignature(X509Certificate signingCertificate) {
         boolean rv_result = false;
 
@@ -263,6 +355,12 @@ public class SecurityObject extends PIVDataObject {
     }
 
 
+    /**
+     *
+     * Verifies all included hashes
+     *
+     * @return True if all hashes match, false otherwise
+     */
     public boolean verifyHashes() {
         boolean rv_result = true;
 

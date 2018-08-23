@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  *
- * Container class that parses and stores information about Biometric Information Templates Group Template Data element.
+ * Encapsulates a Biometric Information Templates Group Template data object  as defined by SP800-73-4 Part 2 Appendix A Table 41
  *
  */
 public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {

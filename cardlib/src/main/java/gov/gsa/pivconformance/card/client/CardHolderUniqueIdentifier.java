@@ -25,6 +25,11 @@ import java.util.*;
 import java.text.SimpleDateFormat;
 import java.security.MessageDigest;
 
+/**
+ *
+ * Encapsulates a Card Holder Unique Identifier data object  as defined by SP800-73-4 Part 2 Appendix A Table 9
+ *
+ */
 public class CardHolderUniqueIdentifier extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(CardHolderUniqueIdentifier.class);
@@ -43,7 +48,9 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     private byte[] m_signedContent;
     private byte[] m_chuidContainer;
 
-
+    /**
+     * CardCapabilityContainer class constructor, initializes all the class fields.
+     */
     public CardHolderUniqueIdentifier() {
         m_bufferLength = null;
         m_fASCN = null;
@@ -60,111 +67,280 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         m_chuidContainer = null;
     }
 
+    /**
+     *
+     * Returns Byte array with CHUID buffer
+     *
+     * @return Byte array with CHUID buffer
+     */
     public byte[] getChuidContainer() {
         return m_chuidContainer;
     }
 
+    /**
+     *
+     * Sets the CHUID value
+     *
+     * @param chuidContainer Byte array with CHUID value
+     */
     public void setChuidContainer(byte[] chuidContainer) {
         m_chuidContainer = chuidContainer;
     }
 
+    /**
+     *
+     * Returns byte array with signed content
+     *
+     * @return Byte array with signed content buffer
+     */
     public byte[] getSignedContent() {
         return m_signedContent;
     }
 
+    /**
+     *
+     * Sets the signed content value
+     *
+     * @param signedContent Byte array with signed content buffer
+     */
     public void setSignedContent(byte[] signedContent) {
         m_signedContent = signedContent;
     }
 
+    /**
+     *
+     * Returns the signing certificate in X509Certificate object
+     *
+     * @return X509Certificate object containing the signing certificate
+     */
     public X509Certificate getSigningCertificate() {
         return m_signingCertificate;
     }
 
+    /**
+     *
+     * Sets the signing certificate
+     *
+     * @param signingCertificate X509Certificate object containing the signing certificate
+     */
     public void setSigningCertificate(X509Certificate signingCertificate) {
         m_signingCertificate = signingCertificate;
     }
 
 
+    /**
+     *
+     * Returns ContentInfo object
+     *
+     * @return ContentInfo object
+     */
     public ContentInfo getContentInfo() {
         return m_contentInfo;
     }
 
+    /**
+     *
+     * Sets the ContentInfo object
+     *
+     * @param contentInfo ContentInfo object
+     */
     public void setContentInfo(ContentInfo contentInfo) {
         m_contentInfo = contentInfo;
     }
 
+
+    /**
+     *
+     * Returns buffer length value
+     *
+     * @return Byte array containing buffer length value
+     */
     public byte[] getBufferLength() {
         return m_bufferLength;
     }
 
+    /**
+     *
+     * Sets buffer length value
+     *
+     * @param bufferLength Byte array containing buffer length value
+     */
     public void setBufferLength(byte[] bufferLength) {
         m_bufferLength = bufferLength;
     }
 
+
+    /**
+     *
+     * Returns FASCN value
+     *
+     * @return Byte array containing FASCN value
+     */
     public byte[] getfASCN() {
         return m_fASCN;
     }
 
+    /**
+     *
+     * Sets the FASCN value
+     *
+     * @param fASCN Byte array containing FASCN value
+     */
     public void setfASCN(byte[] fASCN) {
         m_fASCN = fASCN;
     }
 
+
+    /**
+     *
+     * Returns byte array containing Organizational Identifier value
+     *
+     * @return Byte array containing Organizational Identifier value
+     */
     public byte[] getOrganizationalIdentifier() {
         return m_organizationalIdentifier;
     }
 
+
+    /**
+     *
+     * Sets Organizational Identifier value
+     *
+     * @param organizationalIdentifier Byte array containing Organizational Identifier value
+     */
     public void setOrganizationalIdentifier(byte[] organizationalIdentifier) {
         m_organizationalIdentifier = organizationalIdentifier;
     }
 
+
+    /**
+     *
+     * Returns DUNS value
+     *
+     * @return Byte array containing DUNS value
+     */
     public byte[] getdUNS() {
         return m_dUNS;
     }
 
+    /**
+     *
+     * Sets DUNS value
+     *
+     * @param dUNS Byte array containing DUNS value
+     */
     public void setdUNS(byte[] dUNS) {
         m_dUNS = dUNS;
     }
 
+
+    /**
+     *
+     * Returns byte array containing GUID value
+     *
+     * @return Byte array containing GUID value
+     */
     public byte[] getgUID() {
         return m_gUID;
     }
 
+    /**
+     *
+     * Sets the GUID value
+     *
+     * @param gUID Byte array containing GUID value
+     */
     public void setgUID(byte[] gUID) {
         m_gUID = gUID;
     }
 
+    /**
+     *
+     * Returns Expiration Date value
+     *
+     * @return Date object containing Expiration Date value
+     */
     public Date getExpirationDate() {
         return m_expirationDate;
     }
 
+    /**
+     *
+     * Sets  Expiration Date value
+     *
+     * @param expirationDate Date object containing Expiration Date value
+     */
     public void setExpirationDate(Date expirationDate) {
         m_expirationDate = expirationDate;
     }
 
+    /**
+     *
+     * Returns byte array containing Cardholder UUID value
+     *
+     * @return Byte array containing Cardholder UUID value
+     */
     public byte[] getCardholderUUID() {
         return m_cardholderUUID;
     }
 
+    /**
+     *
+     * Sets the Cardholder UUID value
+     *
+     * @param cardholderUUID Byte array containing Cardholder UUID value
+     */
     public void setCardholderUUID(byte[] cardholderUUID) {
         m_cardholderUUID = cardholderUUID;
     }
 
+
+    /**
+     *
+     * Returns CMSSignedData object containing Issuer Asymmetric Signature value
+     *
+     * @return CMSSignedData object containing Issuer Asymmetric Signature value
+     */
     public CMSSignedData getIssuerAsymmetricSignature() {
         return m_issuerAsymmetricSignature;
     }
 
+    /**
+     *
+     * Sets the CMSSignedData object containing Issuer Asymmetric Signature value
+     *
+     * @param issuerAsymmetricSignature CMSSignedData object containing Issuer Asymmetric Signature value
+     */
     public void setIssuerAsymmetricSignature(CMSSignedData issuerAsymmetricSignature) {
         m_issuerAsymmetricSignature = issuerAsymmetricSignature;
     }
 
+    /**
+     *
+     * Returns True if error Error Detection Code is present, false otherwise
+     *
+     * @return True if error Error Detection Code is present, false otherwise
+     */
     public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
+    /**
+     *
+     * Sets if error Error Detection Code is present
+     *
+     * @param errorDetectionCode True if error Error Detection Code is present, false otherwise
+     */
     public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
+    /**
+     *
+     * Decode function that decodes Card Holder Unique Identifier object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         try{
@@ -292,6 +468,12 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         return true;
     }
 
+    /**
+     *
+     * Verifies the signature on the Card Holder Unique Identifier object.  No signing certificate parameter is needed because it is included in the SignedData
+     *
+     * @return True if signature successfully verified, false otherwise
+     */
     public boolean verifySignature() {
         boolean rv_result = false;
 

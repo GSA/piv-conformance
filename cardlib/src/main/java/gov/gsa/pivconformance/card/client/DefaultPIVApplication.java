@@ -21,6 +21,17 @@ public class DefaultPIVApplication extends AbstractPIVApplication {
 //        return null;
 //    }
 
+    /**
+     *
+     * Set the PIV Card Application as the currently selected card application and establish
+     * the PIV Card Applicationâs security state.
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param applicationAID ApplicationAID object containing the AID of the PIV Card Application
+     * @param applicationProperties ApplicationProperties object containing application properties of the selected PIV
+     * Card Application
+     * @return
+     */
     @Override
     public MiddlewareStatus pivSelectCardApplication(CardHandle cardHandle, ApplicationAID applicationAID, ApplicationProperties applicationProperties) {
         s_logger.debug("pivSelectCardApplication()");

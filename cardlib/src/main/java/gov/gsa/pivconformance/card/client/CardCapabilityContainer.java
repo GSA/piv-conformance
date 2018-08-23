@@ -14,6 +14,8 @@ import java.util.Arrays;
 
 /**
  *
+ * Encapsulates a Card Capability Container data object  as defined by SP800-73-4 Part 2 Appendix A Table 8
+ *
  */
 public class CardCapabilityContainer extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
