@@ -25,6 +25,14 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(AbstractPIVApplication.class);
 
+    /**
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param applicationAID ApplicationAID object containing the AID of the PIV Card Application
+     * @param applicationProperties ApplicationProperties object containing application properties of the selected PIV
+     * Card Application
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     @Override
     public MiddlewareStatus pivSelectCardApplication(CardHandle cardHandle, ApplicationAID applicationAID, ApplicationProperties applicationProperties) {
         s_logger.debug("pivSelectCardApplication()");
@@ -70,6 +78,15 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
+    /**
+     *
+     * Sets security state within the PIV Card Application.
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param authenticators Byte array cotaining authenticators to be used to authenticate and set security
+     * state/status in the PIV Card Application context
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     @Override
     public MiddlewareStatus pivLogIntoCardApplication(CardHandle cardHandle, byte[] authenticators) {
         PIVAuthenticators pas = new PIVAuthenticators();
@@ -114,6 +131,14 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
+    /**
+     *
+     * Retrieves all the data containers of the PIV Card Application
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param dataList List of PIVDataObject objects containing all the data containers of PIV Card Application
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     public MiddlewareStatus pivGetAllDataContainers(CardHandle cardHandle, List<PIVDataObject> dataList) {
 
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
@@ -153,6 +178,14 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
+    /**
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param OID String containing OID value identifying data object whose data content is to be
+     * retrieved
+     * @param data PIVDataObject object that will store retrieved data content
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     @Override
     public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
 
@@ -213,16 +246,46 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
+    /**
+     *
+     * Reses the application security state/status of the PIV Card Application.
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     @Override
     public MiddlewareStatus pivLogoutOfCardApplication(CardHandle cardHandle) {
         return null;
     }
 
+    /**
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param algorithmIdentifier Byte value identifying the cryptographic algorithm to be used for
+     * the cryptographic operation
+     * @param keyReference Byte value identifying the on-card key to be used for the
+     * cryptographic operation.
+     * @param algorithmInput PIVDataObject object containing sequence of bytes used as the input to the cryptographic
+     * operation
+     * @param algorithmOutput PIVDataObject object containing sequence of bytes used as the output to the cryptographic
+     *      * operation
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     @Override
     public MiddlewareStatus pivCrypt(CardHandle cardHandle, byte algorithmIdentifier, byte keyReference, PIVDataObject algorithmInput, PIVDataObject algorithmOutput) {
         return null;
     }
 
+    /**
+     *
+     *  Generates an asymmetric key pair in the currently selected card application.
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param keyReference Byte value identifying key reference of the generated key pair
+     * @param cryptographicMechanism Byte value identifying the type of key pair to be generated
+     * @param publicKey PIVDataObject object defining the public key of the generated key pair
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey){
         try {
             // Establishing channel
@@ -282,6 +345,12 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
+    /**
+     * Establishes secure messaging with the PIV Card Application.
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     @Override
     public MiddlewareStatus pivEstablishSecureMessaging(CardHandle cardHandle) {
         s_logger.debug("pivEstablishSecureMessaging()");
@@ -335,6 +404,14 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         return MiddlewareStatus.PIV_OK;
     }
 
+    /**
+     *  Replaces the entire data content of the data object specified by the OID parameter with the provided data.
+     *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param OID String containing OID value identifying data object
+     * @param data PIVDataObject object containing data that will be written to the card
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
     @Override
     public MiddlewareStatus pivPutData(CardHandle cardHandle, String OID, PIVDataObject data) {
 

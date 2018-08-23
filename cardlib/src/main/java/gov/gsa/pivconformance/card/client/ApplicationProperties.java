@@ -21,6 +21,9 @@ public class ApplicationProperties {
     private byte[] m_coexistentTagAllocationAuthority;
     private byte[] m_appID;
 
+    /**
+     * ApplicationAID class constructor, initializes all the class fields.
+     */
     public ApplicationProperties() {
 
         m_appPropertiesBytes = null;
@@ -32,7 +35,12 @@ public class ApplicationProperties {
         m_appID = null;
     }
 
-
+    /**
+     *
+     * Sets the application properties value based on passed in parameter
+     *
+     * @param appPropertiesBytes Byte array with application properties value
+     */
     public void setBytes(byte[] appPropertiesBytes) {
 
         m_appPropertiesBytes = appPropertiesBytes;
@@ -92,26 +100,62 @@ public class ApplicationProperties {
         }
     }
 
+    /**
+     *
+     * Returns a byte array with application properties value
+     *
+     * @return Byte array with application properties value
+     */
     public byte[] getBytes() {
         return m_appPropertiesBytes;
     }
 
+    /**
+     *
+     * Returns application URL value
+     *
+     * @return String with application URL
+     */
     public String getURL() {
         return m_url;
     }
 
+    /**
+     *
+     * Returns application label value
+     *
+     * @return String with application label
+     */
     public String getAppLabel() {
         return m_appLabel;
     }
 
+    /**
+     *
+     * Returns list of cryptographic algorithms
+     *
+     * @return List of cryptographic algorithms
+     */
     public List<byte[]> getCryptoAlgs() {
         return m_cryptoAlgs;
     }
 
+    /**
+     *
+     * Returns coexistent tag allocation authority
+     *
+     * @return Byte array with coexistent tag allocation authority
+     */
     public byte[] getCoexistentTagAllocationAuthority() {
         return m_coexistentTagAllocationAuthority;
     }
 
+    /**
+     *
+     * Returns Application ID
+     *
+     * @return Byte array with Application ID
+     */
     public byte[] getAppID() {
         return m_appID;
     }

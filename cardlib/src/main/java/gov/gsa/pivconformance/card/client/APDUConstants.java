@@ -3,10 +3,15 @@ package gov.gsa.pivconformance.card.client;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.lang.IllegalArgumentException;
 
+/**
+ * Helper class that containes helper variables and functions for APDU generation
+ *
+ */
 public class APDUConstants {
 
     public static final String DEFAULTHASHALG = "SHA-256";
@@ -140,6 +145,12 @@ public class APDUConstants {
     public static final String PAIRING_CODE_REFERENCE_DATA_CONTAINER_NAME = "Pairing Code Reference Data Container";
 
 
+    /**
+     *
+     * Helper function that returns a list of all mandatory containers.
+     *
+     * @return Array of String values containing OIDs for all mandatory containers
+     */
     public static final String[] MandatoryContainers() {
         final String[] rv = {
                 CARD_CAPABILITY_CONTAINER_OID,
@@ -153,7 +164,13 @@ public class APDUConstants {
         return rv;
     }
 
-    public static final ArrayList<String> AllContainers() {
+    /**
+     *
+     * Helper function that returns a list of all possible containers in a PIV Card Application
+     *
+     * @return Array of String values containing OIDs for all possible containers in a PIV Card Application
+     */
+    public static final List<String> AllContainers() {
 
         ArrayList<String> rv = new ArrayList<String>();
         rv.add(CARD_CAPABILITY_CONTAINER_OID);
@@ -176,6 +193,11 @@ public class APDUConstants {
         return rv;
     }
 
+    /**
+     *
+     * HashMap for easy lookup of tag values for PIV Data Objects
+     *
+     */
     public static final HashMap<String, byte[]> oidMAP = new HashMap<String, byte[]>(){
         {
             put(CARD_CAPABILITY_CONTAINER_OID, CARD_CAPABILITY_CONTAINER_TAG);
@@ -196,6 +218,12 @@ public class APDUConstants {
             put(PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, PAIRING_CODE_REFERENCE_DATA_CONTAINER_TAG);
         }
     };
+
+    /**
+     *
+     * HashMap for easy lookup of name values for PIV Data Objects
+     *
+     */
     public static final HashMap<String, String> oidNameMAP = new HashMap<String, String>(){
         {
             put(CARD_CAPABILITY_CONTAINER_OID, CARD_CAPABILITY_CONTAINER_NAME);
@@ -217,6 +245,12 @@ public class APDUConstants {
         }
     };
 
+
+    /**
+     *
+     * HashMap for easy lookup of OID values for PIV Data Objects given container ID value
+     *
+     */
     public static final HashMap<Integer, String> idMAP = new HashMap<Integer, String>(){
         {
             put(CARD_CAPABILITY_CONTAINER_ID, CARD_CAPABILITY_CONTAINER_OID);
@@ -238,6 +272,13 @@ public class APDUConstants {
         }
     };
 
+    /**
+     *
+     * Helper function to get key management certificate oid based on a number
+     *
+     * @param number Integer value identifying key management certificate
+     * @return String value containing oid of the key management certificate
+     */
     public static final String getKeyManagmentCertOID(int number){
 
         String firstPart = "2.16.840.1.101.3.7.2.16.";
@@ -246,6 +287,13 @@ public class APDUConstants {
         return oid;
     }
 
+    /**
+     *
+     * Helper function to get key managment certificate name based on a number
+     *
+     * @param number Integer value identifying key management certificate
+     * @return String value containing name of the key management certificate
+     */
     public static final String getKeyManagmentCertName(int number){
 
         String firstPart = "Retired X.509 Certificate for Key Management ";
@@ -254,6 +302,13 @@ public class APDUConstants {
         return name;
     }
 
+    /**
+     *
+     * Helper function to get key managment certificate tag based on a number
+     *
+     * @param number Integer value identifying key management certificate
+     * @return Byte value containing tag of the key management certificate
+     */
     public static final byte[] getKeyManagmentCertTag(int number){
 
         int firstPart = 0x5FC10C;
@@ -264,7 +319,13 @@ public class APDUConstants {
         return arr;
     }
 
-
+    /**
+     *
+     * Helper function to get key managment certificate ID based on a number
+     *
+     * @param number Integer value identifying key management certificate
+     * @return Byte array containing ID of the key management certificate
+     */
     public static final byte[] getKeyManagmentCertID(int number){
 
         int firstPart = 0x1000;

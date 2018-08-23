@@ -14,7 +14,7 @@ public class CardHandle {
     private static final Logger s_logger = LoggerFactory.getLogger(CardHandle.class);
 
     /**
-     * get the connection description object associated with this card handle
+     * Get the connection description object associated with this card handle
      * @return ConnectionDescription that includes as CardTerminal object used to access the reader
      */
     public ConnectionDescription getConnectionDescription() {
@@ -23,22 +23,26 @@ public class CardHandle {
 
     /**
      * set the connection description object that will be used by the card handle
-     * @param connectionDescription
+     * @param connectionDescription Connection description object
      */
     public void setConnectionDescription(ConnectionDescription connectionDescription) {
         m_connectionDescription = connectionDescription;
     }
 
     /**
-     * set the Card object that will be used by the card handle
-     * @param card
+     *
+     * Set the Card object that will be used by the card handle
+     *
+     * @param card Card object
      */
     public void setCard(Card card) {
         m_card = card;
     }
 
     /**
-     * get the Card object associated with this card handle
+     *
+     * Get the Card object associated with this card handle
+     *
      * @return Card object
      */
     public Card getCard() {
@@ -55,15 +59,29 @@ public class CardHandle {
         m_valid = false;
     }
 
+    /**
+     *
+     * Get the current card channel
+     *
+     * @return CardChannel object
+     */
     public CardChannel getCurrentChannel() {
         return m_currentChannel;
     }
 
+    /**
+     *
+     * Sets the current card channel
+     *
+     * @param currentChannel CardChannel object
+     */
     public void setCurrentChannel(CardChannel currentChannel) {
         m_currentChannel = currentChannel;
     }
 
     /**
+     *
+     * Returns trues if card handle is valid for accessing a PIV card
      *
      * @return true if the handle is valid for accessing a PIV card
      */
@@ -72,6 +90,9 @@ public class CardHandle {
     }
 
     /**
+     *
+     * Sets the value that indicates the status of the card handle object
+     *
      * sets the boolen value that indicates the status of card handle object
      * @param valid
      */

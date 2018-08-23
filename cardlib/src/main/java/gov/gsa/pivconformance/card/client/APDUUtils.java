@@ -12,10 +12,21 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
 
+/**
+ *
+ * Helper class that facilitates creation of APDU values
+ *
+ */
 public class APDUUtils {
     private static byte[] s_pivSelect = null;
     private static final Logger s_logger = LoggerFactory.getLogger(APDUUtils.class);
 
+    /**
+     *
+     * Return APDU value for SELECT card operation
+     *
+     * @return Byte array with SELECT APDU
+     */
     public static byte[] PIVSelectAPDU() {
         if(s_pivSelect == null) {
             try {
@@ -36,6 +47,13 @@ public class APDUUtils {
         return s_pivSelect;
     }
 
+    /**
+     *
+     * Return APDU value for SELECT card operation based on a specific APP ID value
+     *
+     * @param appid Byte array with APP ID
+     * @return Byte array with SELECT APDU
+     */
     public static byte[] PIVSelectAPDU(byte[] appid) {
         byte[] rv_pivSelect = null;
         if(rv_pivSelect == null) {
@@ -59,6 +77,15 @@ public class APDUUtils {
         return rv_pivSelect;
     }
 
+    /**
+     *
+     * Return APDU value for GENERATE card operation based on a specific APP ID value
+     *
+     * @param keyReference Byte value identifying key reference of the generated key pair
+     * @param cryptoMechanism Byte value identifying the type of key pair to be generated
+     * @param parameter Byte array containing the parameter value
+     * @return Byte array with GENERATE APDU
+     */
     public static byte[] PIVGenerateKeyPairAPDU(byte keyReference, byte cryptoMechanism, byte[] parameter) {
         byte[] rv_pivGenerate = null;
         if(rv_pivGenerate == null) {
@@ -118,7 +145,11 @@ public class APDUUtils {
         return rv_pivGenerate;
     }
 
-
+    /**
+     *
+     * @param data
+     * @return
+     */
     public static byte[] PIVGetDataAPDU(byte[] data) {
 
         byte[] rv_pivGetData = null;
@@ -144,6 +175,13 @@ public class APDUUtils {
         return rv_pivGetData;
     }
 
+    /**
+     *
+     * Helper fuction that converts byte[] into unsigned int
+     *
+     * @param b Byte array to be converter to unsigned int
+     * @return Unsigned int value
+     */
     public static final int bytesToInt(byte[] b) {
 
         if(b.length != 2){
@@ -157,6 +195,14 @@ public class APDUUtils {
         return l;
     }
 
+    /**
+     *
+     * Helper function that constructs a TLV buffer based on passed in tag and value buffer
+     *
+     * @param tag  Byte array with tag info
+     * @param value Byte array with value
+     * @return Byte array with resulting TLV value
+     */
     public static final byte[] getTLV(byte[] tag, byte[] value) {
 
         if(tag == null || value == null)
@@ -188,6 +234,14 @@ public class APDUUtils {
         return rv;
     }
 
+    /**
+     *
+     * Helper function that creates ASN1ObjectIdentifier object based on OID value and a service name
+     *
+     * @param serviceName String value identifying the service
+     * @param name String value identifying OID by name
+     * @return
+     */
     public static ASN1ObjectIdentifier getAlgorithmIdentifier(String serviceName, String name) {
         ASN1ObjectIdentifier oid = null;
         Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);

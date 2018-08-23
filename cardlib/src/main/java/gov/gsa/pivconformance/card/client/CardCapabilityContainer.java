@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
+/**
+ *
+ */
 public class CardCapabilityContainer extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(CardCapabilityContainer.class);
@@ -33,6 +36,9 @@ public class CardCapabilityContainer extends PIVDataObject {
     private boolean m_errorDetectionCode;
     private byte[] m_signedContent;
 
+    /**
+     * CardCapabilityContainer class constructor, initializes all the class fields.
+     */
     public CardCapabilityContainer() {
 
         m_cardIdentifier = null;
@@ -52,91 +58,196 @@ public class CardCapabilityContainer extends PIVDataObject {
         m_errorDetectionCode = false;
     }
 
-
+    /**
+     *
+     * Returns byte array with signed content buffer
+     *
+     * @return Byte array with signed content buffer
+     */
     public byte[] getSignedContent() {
         return m_signedContent;
     }
 
+    /**
+     *
+     * Sets the signed content buffer
+     *
+     * @param signedContent Byte array with signed content buffer
+     */
     public void setSignedContent(byte[] signedContent) {
         m_signedContent = signedContent;
     }
 
+    /**
+     *
+     * Returns card identifier
+     *
+     * @return Byte array containing card identifier
+     */
     public byte[] getCardIdentifier() {
 
         return m_cardIdentifier;
     }
 
+    /**
+     *
+     *  Returns capability container version number
+     *
+     * @return Byte array containing capability container version number
+     */
     public byte[] getCapabilityContainerVersionNumber() {
 
         return m_capabilityContainerVersionNumber;
     }
 
+    /**
+     *
+     * Returns capability grammar version number
+     *
+     * @return Byte array containing capability grammar version number
+     */
     public byte[] getCapabilityGrammarVersionNumber() {
 
         return m_capabilityGrammarVersionNumber;
     }
 
+    /**
+     *
+     * Returns a list of application card urls
+     *
+     * @return List of application card urls
+     */
     public List<byte[]> getAppCardURL() {
 
         return m_appCardURL;
     }
 
+    /**
+     *
+     * Returns PKCS15 value
+     *
+     * @return Byte array containing PKCS15 value
+     */
     public byte[] getPkcs15() {
 
         return m_pkcs15;
     }
 
+    /**
+     *
+     * Returns Registered Data Model number value
+     *
+     * @return Byte array containing Registered Data Model number
+     */
     public byte[] getRegisteredDataModelNumber() {
 
         return m_registeredDataModelNumber;
     }
 
+    /**
+     *
+     * Returns Access Control Rule Table value
+     *
+     * @return Byte array containing Access Control Rule Table value
+     */
     public byte[] getAccessControlRuleTable() {
 
         return m_accessControlRuleTable;
     }
 
+    /**
+     *
+     * Returns Card APDUs value
+     *
+     * @return Byte array containing Card APDUs value
+     */
     public boolean getCardAPDUs() {
 
         return m_cardAPDUs;
     }
 
+    /**
+     *
+     * Returns Redirection Tag value
+     *
+     * @return Byte array containing Redirection Tag value
+     */
     public boolean getRedirectionTag() {
 
         return m_redirectionTag;
     }
 
+    /**
+     *
+     * Returns Capability Tuples value
+     *
+     * @return Byte array containing Capability Tuples value
+     */
     public boolean getCapabilityTuples() {
 
         return m_capabilityTuples;
     }
 
+    /**
+     *
+     * Returns Status Tuples value
+     *
+     * @return Byte array containing Status Tuples value
+     */
     public boolean getStatusTuples() {
 
         return m_statusTuples;
     }
 
+    /**
+     *
+     * Returns Next CCC value
+     *
+     * @return Byte array containing Next CCC value
+     */
     public boolean getNextCCC() {
 
         return m_nextCCC;
     }
 
+    /**
+     *
+     * Returns a list of if Extended Application CardURL
+     *
+     * @return List of if Extended Application CardURL
+     */
     public List<byte[]> getExtendedApplicationCardURL() {
 
         return m_extendedApplicationCardURL;
     }
 
+    /**
+     *
+     * Returns Security Object Buffer value
+     *
+     * @return Byte array containing Security Object Buffer
+     */
     public byte[] getSecurityObjectBuffer() {
 
         return m_securityObjectBuffer;
     }
 
+    /**
+     * Returns boolean value indicating if error detection code is present
+     *
+     * @return Boolean value indicating if error detection code is present
+     */
     public boolean getErrorDetectionCode() {
 
         return m_errorDetectionCode;
     }
 
-
+    /**
+     *
+     * Decode function that decodes Card Capability Container object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         try{

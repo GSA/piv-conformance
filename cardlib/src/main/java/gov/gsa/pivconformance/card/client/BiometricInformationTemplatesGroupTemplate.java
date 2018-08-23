@@ -10,6 +10,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+/**
+ *
+ * Container class that parses and stores information about Biometric Information Templates Group Template Data element.
+ *
+ */
 public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(BiometricInformationTemplatesGroupTemplate.class);
@@ -19,36 +24,81 @@ public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
     private byte[] m_bITForSecondFinger;
 
 
+    /**
+     * BiometricInformationTemplatesGroupTemplate class constructor, initializes all the class fields.
+     */
     public BiometricInformationTemplatesGroupTemplate() {
         m_numberOfFingers = null;
         m_bITForFirstFinger = null;
         m_bITForSecondFinger = null;
     }
 
+    /**
+     *
+     * Returns byte array containing number of fingers information
+     *
+     * @return Byte array containing number of fingers information
+     */
     public byte[] getNumberOfFingers() {
         return m_numberOfFingers;
     }
 
+    /**
+     *
+     * Sets the number of fingers information
+     *
+     * @param numberOfFingers Byte array containing number of fingers information
+     */
     public void setNumberOfFingers(byte[] numberOfFingers) {
         m_numberOfFingers = numberOfFingers;
     }
 
+    /**
+     *
+     * Returns the BIT information for the first finger
+     *
+     * @return Byte array containing BIT information for the first finger
+     */
     public byte[] getbITForFirstFinger() {
         return m_bITForFirstFinger;
     }
 
+    /**
+     *
+     * Sets the BIT information for the first finger
+     *
+     * @param bITForFirstFinger Byte array containing BIT information for the first finger
+     */
     public void setbITForFirstFinger(byte[] bITForFirstFinger) {
         m_bITForFirstFinger = bITForFirstFinger;
     }
 
+    /**
+     *
+     * Returns the BIT information for the second finger
+     *
+     * @return Byte array containing BIT information for the second finger
+     */
     public byte[] getbITForSecondFinger() {
         return m_bITForSecondFinger;
     }
 
+    /**
+     *
+     * Sets the BIT information for the second finger
+     *
+     * @param bITForSecondFinger Byte array containing BIT information for the second finger
+     */
     public void setbITForSecondFinger(byte[] bITForSecondFinger) {
         m_bITForSecondFinger = bITForSecondFinger;
     }
 
+    /**
+     *
+     * Decode function that decodes Biometric Information Templates Group Template object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         try{

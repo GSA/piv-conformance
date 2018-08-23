@@ -10,7 +10,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.security.Security;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.Iterator;
 import java.nio.ByteBuffer;
 import java.security.cert.X509Certificate;
 import org.bouncycastle.util.Store;
-import java.security.cert.CertificateException;
 
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.SignerInformationStore;
@@ -34,6 +32,11 @@ import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 
+/**
+ *
+ * Container class that parses and stores information about Biometric Data elements.  Biometric Data elements include Cardholder Fingerprints, Cardholder Facial Image and  Cardholder Iris Image
+ *
+ */
 public class CardholderBiometricData extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(CardholderBiometricData.class);
@@ -50,6 +53,9 @@ public class CardholderBiometricData extends PIVDataObject {
     private byte[] m_signedContent;
     private byte[] m_cbeffContainer;
 
+    /**
+     * CardholderBiometricData class constructor, initializes all the class fields.
+     */
     public CardholderBiometricData() {
         m_biometricData = null;
         m_errorDetectionCode = false;
@@ -63,89 +69,214 @@ public class CardholderBiometricData extends PIVDataObject {
         m_cbeffContainer = null;
     }
 
-
+    /**
+     *
+     * Returns the CCEFF container value
+     *
+     * @return Byte array with CCEFF container value
+     */
     public byte[] getCceffContainer() {
         return m_cbeffContainer;
     }
 
+    /**
+     *
+     * Sets the CCEFF container value
+     *
+     * @param cbeffContainer Byte array with CCEFF container value
+     */
     public void setCceffContainer(byte[] cbeffContainer) {
         m_cbeffContainer = cbeffContainer;
     }
 
+    /**
+     *
+     * Returns byte array with signed content buffer
+     *
+     * @return Byte array with signed content buffer
+     */
     public byte[] getSignedContent() {
         return m_signedContent;
     }
 
+    /**
+     *
+     * Sets the signed content buffer
+     *
+     * @param signedContent Byte array with signed content buffer
+     */
     public void setSignedContent(byte[] signedContent) {
         m_signedContent = signedContent;
     }
 
+    /**
+     *
+     * Returns the ContentInfo object
+     *
+     * @return ContentInfo object
+     */
     public ContentInfo getContentInfo() {
         return m_contentInfo;
     }
 
+    /**
+     *
+     * Sets the ContentInfo object
+     *
+     * @param contentInfo ContentInfo object
+     */
     public void setContentInfo(ContentInfo contentInfo) {
         m_contentInfo = contentInfo;
     }
 
+    /**
+     *
+     * Returns a byte array with biometric data
+     *
+     * @return Byte array with biometric data
+     */
     public byte[] getBiometricData() {
         return m_biometricData;
     }
 
+    /**
+     *
+     * Sets the biometric data
+     *
+     * @param biometricData Byte array with biometric data
+     */
     public void setBiometricData(byte[] biometricData) {
         m_biometricData = biometricData;
     }
 
+    /**
+     *
+     * Returns true if error detection code is present, false otherwise
+     *
+     * @return Returns true if error detection code is present, false otherwise
+     */
     public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
+    /**
+     *
+     * Sets if error detection code is present
+     *
+     * @param errorDetectionCode Boolean indicating if error detection code is present
+     */
     public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
 
+    /**
+     *
+     * Returns biometric creation date value
+     *
+     * @return String indicating biometric creation date
+     */
     public String getBiometricCreationDate() {
         return m_biometricCreationDate;
     }
 
+    /**
+     *
+     * Sets the biometric creation date
+     *
+     * @param biometricCreationDate String indicating biometric creation date
+     */
     public void setBiometricCreationDate(String biometricCreationDate) {
         m_biometricCreationDate = biometricCreationDate;
     }
 
+    /**
+     *
+     * Returns the biometric data block
+     *
+     * @return Byte array containing biometric data block
+     */
     public byte[] getBiometricDataBlock() {
         return m_biometricDataBlock;
     }
 
+    /**
+     *
+     * Sets the biometric data block
+     *
+     * @param biometricDataBlock Byte array containing biometric data block
+     */
     public void setBiometricDataBlock(byte[] biometricDataBlock) {
         m_biometricDataBlock = biometricDataBlock;
     }
 
+    /**
+     *
+     * Returns the validity preriod from value
+     *
+     * @return String indicating validity from value
+     */
     public String getValidityPeriodFrom() {
         return m_validityPeriodFrom;
     }
 
+    /**
+     *
+     * Sets the validity from value
+     *
+     * @param validityPeriodFrom String indicating validity from value
+     */
     public void setValidityPeriodFrom(String validityPeriodFrom) {
         m_validityPeriodFrom = validityPeriodFrom;
     }
 
+    /**
+     *
+     * Returns the validity preriod to value
+     *
+     * @return String indicating validity to value
+     */
     public String getValidityPeriodTo() {
         return m_validityPeriodTo;
     }
 
+    /**
+     *
+     * Sets the validity from value
+     *
+     * @param validityPeriodTo String indicating validity from value
+     */
     public void setValidityPeriodTo(String validityPeriodTo) {
         m_validityPeriodTo = validityPeriodTo;
     }
 
+    /**
+     *
+     * Returns the CMSSignedData object
+     *
+     * @return CMSSignedData object
+     */
     public CMSSignedData getSignedData() {
         return m_signedData;
     }
 
+    /**
+     *
+     * Sets the CMSSignedData object
+     *
+     * @param signedData CMSSignedData object
+     */
     public void setSignedData(CMSSignedData signedData) {
         m_signedData = signedData;
     }
 
 
+    /**
+     *
+     * Decode function that decodes biometric data object retrieved from the card and populates various class fields.
+     *
+     * @return True if decode was successful, false otherwise
+     */
     public boolean decode() {
 
         try{
@@ -261,6 +392,13 @@ public class CardholderBiometricData extends PIVDataObject {
         return true;
     }
 
+    /**
+     *
+     * Verifies the signature on the biometric data object
+     *
+     * @param signingCertificate X509Certificate object containing signing certificate
+     * @return True if signature successfully verified, false otherwise
+     */
     public boolean verifySignature(X509Certificate signingCertificate) {
         boolean rv_result = false;
 
@@ -323,6 +461,14 @@ public class CardholderBiometricData extends PIVDataObject {
         return rv_result;
     }
 
+
+    /**
+     *
+     * Helper function that converts byte array to a date string
+     *
+     * @param buf  Byte array to be converted
+     * @return String containing date value
+     */
     private String BytesToDateString(byte[] buf) {
         if((char)buf[buf.length-1] != 'Z') {
             throw new IllegalArgumentException("bcd byte array doesn't end with Z");
