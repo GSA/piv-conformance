@@ -391,6 +391,10 @@ public class CardholderBiometricData extends PIVDataObject {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;
         }
+
+        if(m_biometricData == null)
+            return false;
+
         return true;
     }
 
