@@ -136,6 +136,10 @@ public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
 
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
+
+        if(m_numberOfFingers == null || m_bITForFirstFinger == null)
+            return false;
+
         return true;
     }
 }
