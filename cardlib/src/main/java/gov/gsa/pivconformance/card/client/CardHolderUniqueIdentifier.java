@@ -467,6 +467,12 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
+
+        if(m_fASCN == null || m_gUID == null || m_expirationDate == null ||
+                m_issuerAsymmetricSignature == null) {
+            return false;
+        }
+
         return true;
     }
 
