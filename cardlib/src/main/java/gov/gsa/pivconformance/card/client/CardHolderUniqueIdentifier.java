@@ -346,6 +346,8 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         try{
             byte[] rawBytes = this.getBytes();
 
+            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+
             if(rawBytes == null){
                 s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
                 return false;
@@ -538,6 +540,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
             }
         } catch (CMSException | CertificateException ex) {
             s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            return false;
         }
 
         return rv_result;

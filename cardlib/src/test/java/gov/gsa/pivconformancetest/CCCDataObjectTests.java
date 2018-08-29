@@ -1,8 +1,6 @@
 package gov.gsa.pivconformancetest;
 
-import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,6 +15,8 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CCCDataObjectTests {
     @DisplayName("Test CCC object parsing")
@@ -35,9 +35,29 @@ public class CCCDataObjectTests {
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
         reporter.publishEntry(oid, o.getClass().getSimpleName());
+
+        byte[] data = APDUUtils.getTLV(APDUConstants.DATA, fileData);
+
         o.setOID(oid);
-        o.setBytes(fileData);
+        o.setBytes(data);
         assert(o.decode());
+
+
+        assertNotNull(((CardCapabilityContainer) o).getCardIdentifier());
+        assertNotNull(((CardCapabilityContainer) o).getCapabilityContainerVersionNumber());
+        assertNotNull(((CardCapabilityContainer) o).getCapabilityGrammarVersionNumber());
+
+        assertNotNull(((CardCapabilityContainer) o).getRegisteredDataModelNumber());
+        assertNotNull(((CardCapabilityContainer) o).getAccessControlRuleTable());
+
+
+        assertTrue(((CardCapabilityContainer) o).getCardAPDUs());
+        assertTrue(((CardCapabilityContainer) o).getRedirectionTag());
+        assertTrue(((CardCapabilityContainer) o).getCapabilityTuples());
+        assertTrue(((CardCapabilityContainer) o).getStatusTuples());
+        assertTrue(((CardCapabilityContainer) o).getNextCCC());
+
+        assertTrue(((CardCapabilityContainer) o).getErrorDetectionCode());
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {

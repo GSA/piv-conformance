@@ -1,8 +1,7 @@
 package gov.gsa.pivconformancetest;
 
-import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.*;
+import gov.gsa.pivconformance.tlv.TagConstants;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,6 +16,8 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BiometricDataObjectTests {
     @DisplayName("Test Biometric Data Object parsing")
@@ -35,9 +36,26 @@ public class BiometricDataObjectTests {
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
         reporter.publishEntry(oid, o.getClass().getSimpleName());
+
+
+        byte[] data = APDUUtils.getTLV(APDUConstants.DATA, fileData);
+
         o.setOID(oid);
-        o.setBytes(fileData);
+        o.setBytes(data);
         assert(o.decode());
+
+        assertNotNull(((CardholderBiometricData) o).getBiometricCreationDate());
+        assertNotNull(((CardholderBiometricData) o).getValidityPeriodFrom());
+        assertNotNull(((CardholderBiometricData) o).getValidityPeriodTo());
+
+        assertNotSame(((CardholderBiometricData) o).getBiometricCreationDate(), "");
+        assertNotSame(((CardholderBiometricData) o).getValidityPeriodFrom(), "");
+        assertNotSame(((CardholderBiometricData) o).getValidityPeriodTo(), "");
+
+        assertNotNull(((CardholderBiometricData) o).getSignedData());
+
+        assertTrue(((CardholderBiometricData) o).getErrorDetectionCode());
+
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {

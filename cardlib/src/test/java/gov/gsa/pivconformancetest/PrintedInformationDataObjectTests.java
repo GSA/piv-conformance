@@ -1,8 +1,6 @@
 package gov.gsa.pivconformancetest;
 
-import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,8 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PrintedInformationDataObjectTests {
     @DisplayName("Test Printed Information Object Data Object parsing")
@@ -35,9 +32,26 @@ public class PrintedInformationDataObjectTests {
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
         reporter.publishEntry(oid, o.getClass().getSimpleName());
+
+        byte[] data = APDUUtils.getTLV(APDUConstants.DATA, fileData);
+
         o.setOID(oid);
-        o.setBytes(fileData);
+        o.setBytes(data);
         assert(o.decode());
+
+
+        assertNotNull(((PrintedInformation) o).getName());
+        assertNotNull(((PrintedInformation) o).getEmployeeAffiliation());
+        assertNotNull(((PrintedInformation) o).getExpirationDate());
+        assertNotNull(((PrintedInformation) o).getAgencyCardSerialNumber());
+        assertNotNull(((PrintedInformation) o).getIssuerIdentification());
+
+        assertNotSame(((PrintedInformation) o).getName(), "");
+        assertNotSame(((PrintedInformation) o).getEmployeeAffiliation(), "");
+        assertNotSame(((PrintedInformation) o).getExpirationDate(), "");
+        assertNotSame(((PrintedInformation) o).getAgencyCardSerialNumber(), "");
+        assertNotSame(((PrintedInformation) o).getIssuerIdentification(), "");
+        assertTrue(((PrintedInformation) o).getErrorDetectionCode());
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {

@@ -27,6 +27,9 @@ public class APDUConstants {
     public static final byte P2_FF = (byte)0xFF;
     public static final byte[] PIV_APPID = { (byte)0xa0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00 };
 
+
+    public static final byte[] DATA = {0x53};
+
     public static final int SUCCESSFUL_EXEC = 0x9000;
 
     public static final int CIPHER_SUITE_1 = 0x27;

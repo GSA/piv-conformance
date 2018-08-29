@@ -68,6 +68,8 @@ public class X509CertificateDataObject extends PIVDataObject {
             try{
                 byte [] raw = super.getBytes();
 
+                s_logger.debug("rawBytes: {}", Hex.encodeHexString(raw));
+
                 BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(X509CertificateDataObject.class));
                 BerTlvs outer = tp.parse(raw);
 
@@ -137,6 +139,7 @@ public class X509CertificateDataObject extends PIVDataObject {
             }catch (Exception ex) {
 
                 s_logger.error("Error parsing X.509 Certificate: {}", ex.getMessage());
+                return false;
             }
         }
         return true;

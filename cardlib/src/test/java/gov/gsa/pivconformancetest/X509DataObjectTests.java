@@ -1,8 +1,6 @@
 package gov.gsa.pivconformancetest;
 
-import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,6 +33,9 @@ public class X509DataObjectTests {
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
         reporter.publishEntry(oid, o.getClass().getSimpleName());
+
+        //XXX Unit tests will need to be updated files here are just cert files not card data objects.
+
         o.setOID(oid);
         o.setBytes(fileData);
         assert(o.decode());

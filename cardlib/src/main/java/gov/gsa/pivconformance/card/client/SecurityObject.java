@@ -42,6 +42,7 @@ public class SecurityObject extends PIVDataObject {
     private ContentInfo m_contentInfo;
     HashMap<String, byte[]> m_mapOfDataElements;
     HashMap<Integer, byte[]> m_dghList;
+    private boolean m_errorDetectionCode;
 
 
     /**
@@ -55,6 +56,17 @@ public class SecurityObject extends PIVDataObject {
         m_contentInfo = null;
         m_mapOfDataElements = null;
         m_dghList = null;
+        m_errorDetectionCode = false;
+    }
+
+    /**
+     * Returns boolean value indicating if error detection code is present
+     *
+     * @return Boolean value indicating if error detection code is present
+     */
+    public boolean getErrorDetectionCode() {
+
+        return m_errorDetectionCode;
     }
 
     public HashMap<String, byte[]> getMapOfDataElements() {
@@ -201,6 +213,7 @@ public class SecurityObject extends PIVDataObject {
 
         try {
             byte[] rawBytes = this.getBytes();
+            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
             BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
             BerTlvs outer = tlvp.parse(rawBytes);
             List<BerTlv> outerTlvs = outer.getList();
@@ -258,12 +271,17 @@ public class SecurityObject extends PIVDataObject {
                     if (!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
                         s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
                     }
+                    else{
+                        m_errorDetectionCode = true;
+                    }
+
                 }
             }
         }
         catch (Exception e)
         {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+            return false;
         }
         return true;
     }
@@ -350,6 +368,7 @@ public class SecurityObject extends PIVDataObject {
 
         } catch (Exception ex) {
             s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            return false;
         }
         return rv_result;
     }

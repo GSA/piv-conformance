@@ -1,8 +1,6 @@
 package gov.gsa.pivconformancetest;
 
-import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,6 +36,8 @@ public class DODataObjectTests {
         o.setOID(oid);
         o.setBytes(fileData);
         assert(o.decode());
+
+        assertNotNull(((DiscoveryObject) o).getSignedContent());
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {
