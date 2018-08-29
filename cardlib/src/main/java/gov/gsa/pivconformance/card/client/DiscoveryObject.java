@@ -27,6 +27,14 @@ public class DiscoveryObject extends PIVDataObject {
     private boolean m_occSatisfiesACR;
     private byte[] m_signedContent;
 
+    /**
+     * DiscoveryObject class constructor, initializes all the class fields.
+     */
+    public DiscoveryObject() {
+        m_aid = null;
+        m_pinPolicy = null;
+        m_signedContent = null;
+    }
 
     /**
      *
@@ -247,6 +255,11 @@ public class DiscoveryObject extends PIVDataObject {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;
         }
+
+        if(m_aid == null || m_pinPolicy == null)
+            return false;
+
+
         return true;
     }
 }
