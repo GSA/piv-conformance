@@ -109,6 +109,10 @@ public class KeyHistoryObject extends PIVDataObject {
             }
             s_logger.debug("found tag: {}", Hex.encodeHexString(tag));
         }
+
+        if (m_keysWithOnCardCerts == 0 || m_keysWithOffCardCerts == 0)
+            return false;
+
         return true;
     }
 }
