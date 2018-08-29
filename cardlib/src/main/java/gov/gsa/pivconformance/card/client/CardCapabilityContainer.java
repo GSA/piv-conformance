@@ -395,6 +395,14 @@ public class CardCapabilityContainer extends PIVDataObject {
             s_logger.error("Error parsing X.509 Certificate: {}", ex.getMessage());
             return false;
         }
+
+        if(m_cardIdentifier == null || m_capabilityContainerVersionNumber == null ||
+                m_capabilityGrammarVersionNumber == null || m_appCardURL == null || m_pkcs15 == null ||
+                m_registeredDataModelNumber == null || m_accessControlRuleTable == null || m_cardAPDUs == false ||
+                m_redirectionTag ==  false || m_capabilityTuples == false || m_statusTuples == false ||
+                m_nextCCC == false) {
+            return false;
+        }
         return true;
     }
 
