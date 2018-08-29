@@ -131,6 +131,10 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;
         }
+
+        if (m_pairingCode == "")
+            return false;
+
         return true;
     }
 }
