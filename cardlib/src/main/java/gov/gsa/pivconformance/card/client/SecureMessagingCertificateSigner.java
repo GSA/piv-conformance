@@ -162,6 +162,9 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                 s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
                 return false;
             }
+
+            if (m_pivAuthCert == null)
+                return false;
         }
         return true;
     }
