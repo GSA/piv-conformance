@@ -141,6 +141,10 @@ public class X509CertificateDataObject extends PIVDataObject {
                 s_logger.error("Error parsing X.509 Certificate: {}", ex.getMessage());
                 return false;
             }
+
+            if (m_pivAuthCert == null)
+                return false;
+
         }
         return true;
     }
