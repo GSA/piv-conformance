@@ -336,6 +336,11 @@ public class PrintedInformation extends PIVDataObject {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;
         }
+
+        if (m_name == "" || m_employeeAffiliation == "" || m_expirationDate == "" ||
+                m_agencyCardSerialNumber == "" || m_issuerIdentification == "")
+            return false;
+
         return true;
     }
 }
