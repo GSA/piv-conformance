@@ -283,6 +283,10 @@ public class SecurityObject extends PIVDataObject {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
             return false;
         }
+
+        if (m_mapping == null || m_so == null)
+            return false;
+
         return true;
     }
 
@@ -370,6 +374,7 @@ public class SecurityObject extends PIVDataObject {
             s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;
         }
+
         return rv_result;
     }
 
