@@ -213,7 +213,7 @@ public class SecurityObject extends PIVDataObject {
 
         try {
             byte[] rawBytes = this.getBytes();
-            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+            //s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
             BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
             BerTlvs outer = tlvp.parse(rawBytes);
             List<BerTlv> outerTlvs = outer.getList();

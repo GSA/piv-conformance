@@ -18,6 +18,6 @@ public class CCTTlvLogger implements IBerTlvLogger {
     @Override
     public void debug(String aFormat, Object... args) {
         if (m_logger == null) return;
-        m_logger.debug(aFormat, args);
+        //m_logger.debug(aFormat, args);
     }
 }

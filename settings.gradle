@@ -1,0 +1,5 @@
+rootProject.name = 'piv-conformance'
+include 'cardlib', 'pivconformancetools', 'conformancelib'
+
+project(':pivconformancetools').projectDir = file('tools')
+
