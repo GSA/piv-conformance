@@ -65,4 +65,42 @@ public class PCSCUtils {
         s_logger.debug("Found {} readers.", terminalCount);
         return readerList;
     }
+    
+    public static CardTerminal TerminalForReaderName(String name) {
+    	TerminalFactory tf = TerminalFactory.getDefault();
+    	List<CardTerminal> terminals = null;
+    	try {
+			terminals = tf.terminals().list();
+		} catch (CardException e) {
+			s_logger.error("TerminalForReaderName(): Unable to enumerate terminals");
+			return null;
+		}
+    	if(terminals.size() == 0) {
+    		s_logger.error("Unable to find any readers.");
+    		return null;
+    	}
+    	for(CardTerminal t : terminals) {
+    		if(t.getName().equals(name)) {
+    			return t;
+    		}
+    	}
+    	s_logger.error("No reader named " + name + " is attached to the system.");
+    	return null;
+    	
+    }
+    
+    public static int StatusWordsToRetries(byte[] sw)
+    {
+    	if(sw == null || sw.length < 2) {
+    		s_logger.error("a status word array must be at least 2 bytes.");
+    		return -1;
+    	}
+    	byte sw1 = sw[sw.length -2];
+    	byte sw2 = sw[sw.length -1];
+    	if(sw1 != 0x63 || sw2 == 0x00) {
+    		s_logger.error("bytes do not contain password retry count.");
+    		return -1;
+    	}
+    	return (int) 0x0F & sw2;
+    }
 }

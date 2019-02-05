@@ -24,6 +24,8 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(AbstractPIVApplication.class);
+    private CommandAPDU m_lastCommandAPDU = null;
+    private ResponseAPDU m_lastResponseAPDU;
 
     /**
      *
@@ -50,9 +52,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU(applicationAID.getBytes()));
-
+            m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
             // Transmit command and get response
             ResponseAPDU response = channel.transmit(cmd);
+            m_lastResponseAPDU = response;
             s_logger.debug("Response to SELECT command: {} {}", String.format("0x%02X", response.getSW1()), String.format("0x%02X", response.getSW2()));
 
             //Check for Successful execution status word
@@ -117,7 +120,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU verifyApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
             try {
+                m_lastCommandAPDU = verifyApdu; m_lastResponseAPDU = null;
                 resp = channel.transmit(verifyApdu);
+                m_lastResponseAPDU = resp;
             } catch (CardException e) {
                 s_logger.error("Failed to transmit VERIFY APDU to card", e);
                 return MiddlewareStatus.PIV_CARD_READER_ERROR;
@@ -213,7 +218,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU(baos.toByteArray()));
 
             // Transmit command and get response
+            m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
             ResponseAPDU response = channel.transmit(cmd);
+            m_lastResponseAPDU = response;
 
             //Check for Successful execution status word
             if(response.getSW() != APDUConstants.SUCCESSFUL_EXEC) {
@@ -306,7 +313,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU cmd = new CommandAPDU(rawAPDU);
 
             // Transmit command and get response
+            m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
             ResponseAPDU response = channel.transmit(cmd);
+            m_lastResponseAPDU = response;
+            
             s_logger.debug("Response to GENERATE command: {} {}", String.format("0x%02X", response.getSW1()), String.format("0x%02X", response.getSW2()));
 
             //Check for Successful execution status word
@@ -384,7 +394,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU smApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
             try {
+            	m_lastCommandAPDU = smApdu; m_lastResponseAPDU = null;
                 resp = channel.transmit(smApdu);
+                m_lastResponseAPDU = resp;
             } catch (CardException e) {
                 s_logger.error("Failed to transmit SM APDU to card", e);
                 return MiddlewareStatus.PIV_CARD_READER_ERROR;
@@ -461,7 +473,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU smApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
             try {
+            	m_lastCommandAPDU = smApdu; m_lastResponseAPDU = null;
                 resp = channel.transmit(smApdu);
+                m_lastResponseAPDU = resp;
             } catch (CardException e) {
                 s_logger.error("Failed to transmit PUT DATA APDU to card", e);
                 return MiddlewareStatus.PIV_CARD_READER_ERROR;
@@ -491,5 +505,27 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
         }
         s_logger.debug("pivPutData returning {}", MiddlewareStatus.PIV_OK);
         return MiddlewareStatus.PIV_OK;
+    }
+    
+    public byte[] getLastCommandAPDUBytes()
+    {
+    	byte[] apduBytes = null;
+    	if(m_lastCommandAPDU == null) {
+    		s_logger.error("getLastCommandAPDUBytes() called without any command APDU having been sent.");
+    		return apduBytes;
+    	}
+    	apduBytes = m_lastCommandAPDU.getBytes();
+    	return apduBytes;
+    }
+    
+    public byte[] getLastResponseAPDUBytes()
+    {
+    	byte[] apduBytes = null;
+    	if(m_lastResponseAPDU == null) {
+    		s_logger.error("getLastResponseAPDUBytes() called without any command APDU having been sent.");
+    		return apduBytes;
+    	}
+    	apduBytes = m_lastResponseAPDU.getBytes();
+    	return apduBytes;
     }
 }

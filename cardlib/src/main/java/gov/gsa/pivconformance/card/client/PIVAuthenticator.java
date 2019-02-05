@@ -33,11 +33,15 @@ public class PIVAuthenticator {
         m_type = type;
         if(m_type == TagConstants.KEY_REFERENCE_APPLICATION_PIN_TAG ||
                 m_type == TagConstants.KEY_REFERENCE_GLOBAL_PIN_TAG) {
-            if(data.length > 8 || data.length < 6) {
-                throw new IllegalArgumentException("PIN must be between 6 and 8 digits");
+            if(data.length == 0) {
+            	m_data = new byte[0];
+            } else {
+	        	if(data.length > 8 || data.length < 6) {
+	                throw new IllegalArgumentException("PIN must be between 6 and 8 digits");
+	            }
+	            m_data = Arrays.copyOf(data, 8);
+	            Arrays.fill(m_data, data.length, m_data.length, (byte)0xff);
             }
-            m_data = Arrays.copyOf(data, 8);
-            Arrays.fill(m_data, data.length, m_data.length, (byte)0xff);
         }
     }
 

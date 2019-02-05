@@ -154,3 +154,12 @@ compileJava.doFirst {
         versionProperties.store(propertiesFile.newWriter(), null)
 }
 
+compileJava {
+    //sourceCompatibility = '1.8'
+    //targetCompatibility = '1.8'
+}
+
+task getDeps(type: Copy) {
+  from sourceSets.main.runtimeClasspath
+  into 'runtime/'
+}
