@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="gov.gsa.e4.rcp.cct.services.internal.CCTServiceContextFunction">
-   <property name="service.context.key" value="gov.gsa.e4.rcp.cct.model.ICCTService"/>
-   <service>
-      <provide interface="org.eclipse.e4.core.contexts.IContextFunction"/>
-   </service>
-   <implementation class="gov.gsa.e4.rcp.cct.services.internal.CCTServiceContextFunction"/>
-</scr:component>
