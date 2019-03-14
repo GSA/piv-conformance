@@ -33,6 +33,19 @@ sourceSets {
         }
     }
 }
+
+import org.gradle.plugins.ide.eclipse.model.AccessRule
+
+eclipse {
+    classpath {
+        file {
+            whenMerged {
+                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
+                jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
+            }
+        }
+    }
+}
     
 
 //if(targetCompatibility != JavaVersion.VERSION_1_8)
