@@ -1,4 +1,3 @@
-// set up junit 5 support for gradle
 buildscript {
     repositories {
         mavenCentral()
@@ -10,7 +9,7 @@ buildscript {
 
 plugins {
     id 'org.ajoberstar.grgit' version '2.1.0'
-    id 'com.zyxist.chainsaw' version '0.1.3'
+    //id 'com.zyxist.chainsaw' version '0.1.3'
     //id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
@@ -19,11 +18,21 @@ apply plugin: 'java'
 //apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
 
-javaModule.name = 'gov.gsa.pivconformancetests'
+//javaModule.name = 'gov.gsa.pivconformancetests'
+targetCompatibility = targetJavaVersion
 
 repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
+}
+
+sourceSets {
+    main {
+        java {
+            if(targetCompatibility != JavaVersion.VERSION_11)
+                exclude '**/module-info.java'
+        }
+    }
 }
 
 // custom task from
@@ -42,9 +51,9 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.8+'
     compile 'ch.qos.logback:logback-classic:1.3+'
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
-    compile project(':cardlib')
     compile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     compile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
+    compile files('../tools/85b-swing-gui/lib/cardlib.jar')
     testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
     testRuntime 'org.junit.jupiter:junit-jupiter-params:5.1.0'
 
