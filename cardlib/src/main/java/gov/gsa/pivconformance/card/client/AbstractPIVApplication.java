@@ -258,6 +258,75 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
     /**
      *
+     * @param cardHandle CardHandle object that encapsulates connection to a card
+     * @param OID String containing OID value identifying data object whose data content is to be
+     * retrieved
+     * @param data PIVDataObject object that will store retrieved data content
+     * @return MiddlewareStatus value indicating the result of the function call
+     */
+    public MiddlewareStatus pivGetAllData(CardHandle cardHandle, String OID, PIVDataObject data) {
+
+        try {
+            // Establishing channel
+            Card card = cardHandle.getCard();
+            if (card == null)
+                return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+
+            CardChannel channel = cardHandle.getCurrentChannel();
+            if(channel == null) {
+                throw new IllegalStateException("Must select PIV application before calling pivGetData");
+            }
+
+            //Construct data field based on the data field oid and the tag for the specific oid
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            baos.write(TagConstants.DATA_FIELD_TAG);
+            baos.write(0x00);
+            baos.write(APDUConstants.oidMAP.get(OID));
+
+            //Construct APDU command using APDUUtils and applicationAID that was passed in.
+            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU(baos.toByteArray()));
+
+            // Transmit command and get response
+            m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
+            ResponseAPDU response = channel.transmit(cmd);
+            m_lastResponseAPDU = response;
+
+            //Check for Successful execution status word
+            if(response.getSW() != APDUConstants.SUCCESSFUL_EXEC) {
+
+                if(response.getSW() == APDUConstants.APP_NOT_FOUND){
+                    s_logger.info("Data object not found");
+                    return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+                }
+                else if(response.getSW() == APDUConstants.SECURITY_STATUS_NOT_SATISFIED){
+                    s_logger.info("Security status not satisfied");
+                    return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+                }
+
+                s_logger.error("Error getting object {}, failed with error: {}", OID, Integer.toHexString(response.getSW()));
+                return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+            }
+
+            // Populate the response in PIVDataObject
+            data.setOID(OID);
+            data.setBytes(response.getData());
+
+        }catch (SecurityException ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+        }
+        catch (Exception ex) {
+
+            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+        }
+
+        return MiddlewareStatus.PIV_OK;
+    }
+
+    /**
+     *
      * Reses the application security state/status of the PIV Card Application.
      *
      * @param cardHandle CardHandle object that encapsulates connection to a card
