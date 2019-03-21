@@ -8,7 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.BufferedReader;
 import java.lang.invoke.MethodHandles;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -23,6 +26,7 @@ public class SQLiteDBGenerator {
     static {
         s_options.addOption("h", "help", false, "Print this help and exit");
         s_options.addOption("d", "database", true, "path to database file");
+        s_options.addOption("c", "csv", true, "path to the csv file containing test cases");
     }
 
     private static void PrintHelpAndExit(int exitCode) {
@@ -84,8 +88,62 @@ public class SQLiteDBGenerator {
 			} catch (ConfigurationException e) {
 				s_logger.error("Caught configuration exception", e);
 			}
+            
+            if(cmd.hasOption("csv")) {
+                String csvParam = cmd.getOptionValue("csv");
+                
+                FileReader fr = null;
+                
+                try {
+    	            fr = new FileReader(csvParam);
+                } catch (FileNotFoundException e) {
+    				s_logger.error("CSV file {} does not exist", csvParam);
+                    System.exit(1);
+    			}            
+                
+                BufferedReader br = null;
+                String line = "";
+                String cvsSplitBy = ",";
+                try {
 
+                	s_logger.debug("Starting to add test cases from {}", csvParam);
+                    br = new BufferedReader(fr);
+                    //read the column headers
+                    line = br.readLine();
+                    //Iterate over the rest
+                    while ((line = br.readLine()) != null) {
+
+                        String[] testCase = line.split(cvsSplitBy);                        
+                        
+                        if(testCase.length != 2) {
+                        	s_logger.error("Test Case defenition must contain both \"Test Case\" and \"Test Defenition\", ", csvParam);
+                        }
+                        	
+                        try {
+                        	cdb.addTestCase(testCase);
+            			} catch (ConfigurationException e) {
+            				s_logger.error("Caught configuration exception", e);
+            			}                        
+                    }
+                    
+                    s_logger.debug("Finished adding test cases from {}", csvParam);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (br != null) {
+                        try {
+                            br.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
         }
+        
 
     }
 }

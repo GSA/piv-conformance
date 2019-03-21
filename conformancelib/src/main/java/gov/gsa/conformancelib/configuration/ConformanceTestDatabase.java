@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -51,6 +52,33 @@ public class ConformanceTestDatabase {
 			s_logger.error("Caught IOException while closing sql file", e);
 			throw new ConfigurationException("Failed to close sql file", e);
 		}
+	}
+	
+	public void addTestCase(String[] testCaseDescription ) throws ConfigurationException {
+		if(m_conn == null) {
+			s_logger.error("Attempting to populate conformance test database without a JDBC connection");
+			throw new ConfigurationException("ConformanceTestDatabase cannot be populated without a JDBC connection.");
+		}
+		
+		try {
+			m_conn.setAutoCommit(false);
+			String query = " insert into TestCases (TestCaseIdentifier, TestCaseDescription) values (?, ?)";
+			
+			PreparedStatement preparedStmt = m_conn.prepareStatement(query);
+			preparedStmt.setString (1, testCaseDescription[0]);
+			preparedStmt.setString (2, testCaseDescription[1]);
+			preparedStmt.execute();
+			m_conn.commit();
+		
+		} catch (SQLException e ) {
+			try {
+	            System.err.print("Transaction is being rolled back");
+	            m_conn.rollback();
+	        } catch(SQLException excep) {
+	        	throw new ConfigurationException("Failed to roll back transaction", excep);
+	        }
+		}
+		// do some SQL stuff
 	}
 
 	private Connection m_conn;
