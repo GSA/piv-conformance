@@ -1,7 +1,9 @@
 package gov.gsa.pivconformance.tlv;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.nio.ByteBuffer;
 
 public class TagConstants {
@@ -16,6 +18,24 @@ public class TagConstants {
 
     public static final byte[] CERTIFICATE_TAG = { 0x70 };
     public static final byte[] CERTINFO_TAG = { 0x71 };
+    public static final byte[] MSCUID_TAG = { 0x72 };
+    
+    /**
+    *
+    * List of all x509 Tags for easy lookup
+    *
+    */
+    public static final List<byte[]> Allx509Tags() {
+
+        ArrayList<byte[]> rv = new ArrayList<byte[]>();
+        rv.add(CERTIFICATE_TAG);
+        rv.add(CERTINFO_TAG);
+        rv.add(MSCUID_TAG);
+        rv.add(ERROR_DETECTION_CODE_TAG);
+
+        return rv;
+    }
+    
     public static final byte[] COMPRESSED_TAG = { 0x01 };
 
 
@@ -43,6 +63,34 @@ public class TagConstants {
     public static final byte[] NEXT_CCC_TAG = { (byte) 0xFD };
     public static final byte[] EXTENDED_APPLICATION_CARDURL_TAG = { (byte) 0xE3 };
     public static final byte[] SECURITY_OBJECT_BUFFER_TAG = { (byte) 0xB4 };
+    
+    /**
+    *
+    * List of all CCC Tag for easy lookup
+    *
+    */
+    public static final List<byte[]> AllCCCTags() {
+
+        ArrayList<byte[]> rv = new ArrayList<byte[]>();
+        rv.add(CARD_IDENTIFIER_TAG);
+        rv.add(CAPABILITY_CONTAINER_VERSION_NUMBER_TAG);
+        rv.add(CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG);
+        rv.add(APPLICATIONS_CARDURL_TAG);
+        rv.add(PKCS15_TAG);
+        rv.add(REGISTERED_DATA_MODEL_NUMBER_TAG);
+        rv.add(ACCESS_CONTROL_RULE_TABLE_TAG);
+        rv.add(CARD_APDUS_TAG);
+        rv.add(REDIRECTION_TAG_TAG);
+        rv.add(CAPABILITY_TUPLES_TAG);
+        rv.add(STATUS_TUPLES_TAG);
+        rv.add(NEXT_CCC_TAG);
+        rv.add(EXTENDED_APPLICATION_CARDURL_TAG);
+        rv.add(SECURITY_OBJECT_BUFFER_TAG);
+        rv.add(ERROR_DETECTION_CODE_TAG);
+
+        return rv;
+    }
+
 
     //SP800-73-4 Part 1, Table 9. Card Holder Unique Identifier tags
     public static final byte[] BUFFER_LENGTH_TAG = { (byte) 0xEE };
@@ -53,6 +101,27 @@ public class TagConstants {
     public static final byte[] CHUID_EXPIRATION_DATE_TAG = { 0x35 }; // differs from naming convention due to collision
     public static final byte[] CARDHOLDER_UUID_TAG = { 0x36 };
     public static final byte[] ISSUER_ASYMMETRIC_SIGNATURE_TAG = { 0x3E };
+    
+    /**
+    *
+    * List of all CHUID Tag for easy lookup
+    *
+    */
+    public static final List<byte[]> AllCHUIDTags() {
+
+        ArrayList<byte[]> rv = new ArrayList<byte[]>();
+        rv.add(BUFFER_LENGTH_TAG);
+        rv.add(FASC_N_TAG);
+        rv.add(ORGANIZATIONAL_IDENTIFIER_TAG);
+        rv.add(DUNS_TAG);
+        rv.add(GUID_TAG);
+        rv.add(CHUID_EXPIRATION_DATE_TAG);
+        rv.add(CARDHOLDER_UUID_TAG);
+        rv.add(ISSUER_ASYMMETRIC_SIGNATURE_TAG);
+        rv.add(ERROR_DETECTION_CODE_TAG);
+
+        return rv;
+    }
 
     //SP800-73-4 Part 1, Table 11. Card Holder Fingerprints Tags
     public static final byte[] FINGERPRINT_I_AND_II_TAG = { (byte) 0xBC };

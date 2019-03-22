@@ -93,6 +93,7 @@ public class X509CertificateDataObject extends PIVDataObject {
                         List<BerTlv> values2 = outer2.getList();
                         byte[] rawCertBuf = null;
                         byte[] certInfoBuf = null;
+                        byte[] mSCUIDBuf = null;
                         for(BerTlv tlv2 : values2) {
                             if(tlv2.isPrimitive()) {
                                 s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
@@ -108,25 +109,31 @@ public class X509CertificateDataObject extends PIVDataObject {
                                         m_error_Detection_Code = true;
                                     }
                                 }
+                                                                
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTINFO_TAG)) {
                                     certInfoBuf = tlv2.getBytesValue();
                                     s_logger.info("Got cert info buffer: {}", Hex.encodeHexString(certInfoBuf));
                                 }
+                                
+                                if(Arrays.equals(tlv2.getTag().bytes, TagConstants.MSCUID_TAG)) {
+                                	mSCUIDBuf = tlv2.getBytesValue();
+                                    s_logger.info("Got MSCUID buffer: {}", Hex.encodeHexString(mSCUIDBuf));
+                                }
                             }
                         }
 
+                        //Check to make sure certificate buffer is not null
+                        if(rawCertBuf != null && rawCertBuf.length > 0) {
+                            s_logger.error("Error parsing X.509 Certificate, unable to get certificate buffer.");
+                            return false;
+                        }
+                        
                         InputStream certIS = null;
                         //Check if the certificate buffer is compressed
                         if(certInfoBuf != null && Arrays.equals(certInfoBuf, TagConstants.COMPRESSED_TAG)) {
                             certIS = new GZIPInputStream(new ByteArrayInputStream(rawCertBuf));
                         } else {
                             certIS = new ByteArrayInputStream(rawCertBuf);
-                        }
-
-                        //Check to make sure certificate buffer is not null
-                        if(certIS == null){
-                            s_logger.error("Error parsing X.509 Certificate, unable to get certificate buffer.");
-                            return false;
                         }
 
                         CertificateFactory cf = CertificateFactory.getInstance("X509");

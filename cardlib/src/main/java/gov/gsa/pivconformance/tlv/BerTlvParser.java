@@ -168,14 +168,14 @@ public class BerTlvParser {
     }
 
 
-    private BerTag createTag(String aLevelPadding, byte[] aBuf, int aOffset, int aLength) {
+    public BerTag createTag(String aLevelPadding, byte[] aBuf, int aOffset, int aLength) {
         if(log.isDebugEnabled()) {
             log.debug("{}Creating tag {}...", aLevelPadding, HexUtil.toFormattedHexString(aBuf, aOffset, aLength));
         }
         return new BerTag(aBuf, aOffset, aLength);
     }
 
-    private int getTagBytesCount(byte[] aBuf, int aOffset) {
+    public int getTagBytesCount(byte[] aBuf, int aOffset) {
         if((aBuf[aOffset] & 0x1F) == 0x1F) { // see subsequent bytes
             int len = 2;
             for(int i=aOffset+1; i<aOffset+10; i++) {
@@ -191,7 +191,7 @@ public class BerTlvParser {
     }
 
 
-    private int getDataLength(byte[] aBuf, int aOffset) {
+    public int getDataLength(byte[] aBuf, int aOffset) {
 
         int length = aBuf[aOffset] & 0xff;
 
@@ -210,7 +210,7 @@ public class BerTlvParser {
         return length;
     }
 
-    private static int getLengthBytesCount(byte aBuf[], int aOffset) {
+    public static int getLengthBytesCount(byte aBuf[], int aOffset) {
 
         int len = aBuf[aOffset] & 0xff;
         if( (len & 0x80) == 0x80) {
