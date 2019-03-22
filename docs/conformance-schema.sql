@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS "TestSteps" (
 	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`Description`	TEXT,
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS "TestStepParameters" (
 
 CREATE TABLE IF NOT EXISTS "TestCases" (
 	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,
+        `TestGroup`         TEXT,
 	`TestCaseIdentifier`	TEXT,
         `TestCaseDescription`   TEXT,
         `Status`        INTEGER,
