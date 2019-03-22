@@ -1,7 +1,6 @@
 package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
-import gov.gsa.pivconformance.tools.PIVRunner;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
