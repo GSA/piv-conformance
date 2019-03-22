@@ -18,6 +18,7 @@ public class TestCaseModel {
 	private String m_description;
 	private int m_status;
 	private int m_expectedStatus;
+        private String m_testGroupName;
 	
 	TestCaseModel(ConformanceTestDatabase db) {
 		setDb(db);
@@ -94,6 +95,15 @@ public class TestCaseModel {
 
 	public void setExpectedStatus(int expectedStatus) {
 		m_expectedStatus = expectedStatus;
+	}
+
+	public String getTestGroupName() {
+		return m_testGroupName;
+	}
+
+
+	public void setTestGroupName(String name) {
+		m_testGroupName = name;
 	}
 	
 	public void retrieveForId(int testId) {
