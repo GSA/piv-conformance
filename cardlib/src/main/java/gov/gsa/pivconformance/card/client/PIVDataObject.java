@@ -29,7 +29,7 @@ public class PIVDataObject {
 
         m_OID = null;
         m_signed = false;
-        m_tagList = new ArrayList();
+        m_tagList = new ArrayList<BerTag>();
     }
 
     /**
@@ -110,7 +110,7 @@ public class PIVDataObject {
      * @return false
      */
     public boolean decode() {
-        // XXX *** make this throw a RuntimeError once implementations are notionally in place
+        // XXX *** make this throw a RuntimeError once implementations are notionally  in place
         s_logger.error("decode() called without a concrete implementation.");
         return false;
     }

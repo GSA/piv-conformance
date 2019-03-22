@@ -25,8 +25,19 @@ public class X509CertificateDataObject extends PIVDataObject {
 
     private X509Certificate m_pivAuthCert;
     private boolean m_error_Detection_Code;
+    private boolean m_error_Detection_Code_Has_Data;
 
+    
     /**
+     * Returns boolean value indicating if error detection code had any bytes
+     *
+     * @return Boolean value indicating if error detection code had any bytes
+     */
+    public boolean getErrorDetectionCodeHasData() {
+		return m_error_Detection_Code_Has_Data;
+	}
+
+	/**
      * CardCapabilityContainer class constructor, initializes all the class fields.
      */
     public X509CertificateDataObject() {
@@ -105,8 +116,9 @@ public class X509CertificateDataObject extends PIVDataObject {
                                     }
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
+                                    m_error_Detection_Code = true;
                                     if (tlv2.hasRawValue()) {
-                                        m_error_Detection_Code = true;
+                                    	m_error_Detection_Code_Has_Data = true;
                                     }
                                 }
                                                                 

@@ -1,9 +1,5 @@
 package gov.gsa.pivconformance.card.client;
 
-
-import gov.gsa.pivconformance.tlv.BerTlvParser;
-import gov.gsa.pivconformance.tlv.BerTlvs;
-import gov.gsa.pivconformance.tlv.CCTTlvLogger;
 import gov.gsa.pivconformance.tlv.TagConstants;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;

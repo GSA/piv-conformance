@@ -269,6 +269,8 @@ public class PrintedInformation extends PIVDataObject {
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
+
+                        	super.m_tagList.add(tlv2.getTag());
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.NAME_TAG)) {
 
                                 m_name = new String(tlv2.getBytesValue());
@@ -315,6 +317,7 @@ public class PrintedInformation extends PIVDataObject {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
                         } else {
+                        	super.m_tagList.add(tlv2.getTag());
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 
                                 m_errorDetectionCode = true;

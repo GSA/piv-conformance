@@ -39,6 +39,7 @@ public class X509DataObjectTests {
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
         	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
@@ -74,6 +75,7 @@ public class X509DataObjectTests {
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
         	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
@@ -106,6 +108,102 @@ public class X509DataObjectTests {
         
     }
     
+	//Tag 0x72 is optionally present and follows tags from 73-4.19
+    @DisplayName("SP800-73-4.20 testg")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_70_4_x509TestProvider")
+    void sp800_73_4_Test_20(String oid, TestReporter reporter) {
+        assertNotNull(oid);
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+        assertNotNull(o);
+        AbstractPIVApplication piv = css.getPivHandle();
+        CardHandle c = css.getCardHandle();
+        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+        result = piv.pivGetData(c, oid, o);
+        assert(result == MiddlewareStatus.PIV_OK);
+        assert(o.decode());
+        
+        
+		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		
+		BerTag berCertTag = new BerTag(TagConstants.CERTIFICATE_TAG);
+		BerTag berMSCUIDTag = new BerTag(TagConstants.MSCUID_TAG);
+		
+		if(tagList.contains(berMSCUIDTag)) {
+			
+			int tagIndex = tagList.indexOf(berCertTag);
+			
+			assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.CERTIFICATE_TAG));
+			assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.CERTINFO_TAG));
+			assertTrue(Arrays.equals(tagList.get(tagIndex+2).bytes,TagConstants.MSCUID_TAG));
+		}		       
+        
+    }
+    
+	//Tag 0x72 is optionally present and follows tags from 73-4.19
+    @DisplayName("SP800-73-4.21 testg")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_70_4_x509TestProvider")
+    void sp800_73_4_Test_21(String oid, TestReporter reporter) {
+        assertNotNull(oid);
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+        assertNotNull(o);
+        AbstractPIVApplication piv = css.getPivHandle();
+        CardHandle c = css.getCardHandle();
+        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+        result = piv.pivGetData(c, oid, o);
+        assert(result == MiddlewareStatus.PIV_OK);
+        assert(o.decode());
+        
+        
+		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		
+		BerTag berCertTag = new BerTag(TagConstants.CERTIFICATE_TAG);
+		BerTag berMSCUIDTag = new BerTag(TagConstants.MSCUID_TAG);
+		BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
+		
+		assertTrue(tagList.contains(berEDCTag));
+
+		int tagIndex = tagList.indexOf(berCertTag);
+		
+		if(tagList.contains(berMSCUIDTag)) {
+					
+			assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.CERTIFICATE_TAG));
+			assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.CERTINFO_TAG));
+			assertTrue(Arrays.equals(tagList.get(tagIndex+2).bytes,TagConstants.MSCUID_TAG));
+			assertTrue(Arrays.equals(tagList.get(tagIndex+3).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
+			
+		}else {
+			
+			assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.CERTIFICATE_TAG));
+			assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.CERTINFO_TAG));
+			assertTrue(Arrays.equals(tagList.get(tagIndex+2).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
+		}
+        
+    }
+    
 	//No tags other than (0x70, 0x71, 0x72, 0xFE) are present
     @DisplayName("SP800-73-4.22 testg")
     @ParameterizedTest(name = "{index} => oid = {0}")
@@ -116,6 +214,7 @@ public class X509DataObjectTests {
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
         	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
@@ -141,10 +240,46 @@ public class X509DataObjectTests {
 			assertTrue(allx509Tags.contains(tag.bytes));
 			
 		}
-        
-        
     }
 
+    
+	//Tag 0x72 is optionally present and follows tags from 73-4.19
+    @DisplayName("SP800-73-4.23 testg")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_70_4_x509TestProvider")
+    void sp800_73_4_Test_23(String oid, TestReporter reporter) {
+        assertNotNull(oid);
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+        assertNotNull(o);
+        AbstractPIVApplication piv = css.getPivHandle();
+        CardHandle c = css.getCardHandle();
+        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+        result = piv.pivGetData(c, oid, o);
+        assert(result == MiddlewareStatus.PIV_OK);
+        assert(o.decode());
+        
+        
+		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		
+		BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
+		
+		assertTrue(tagList.contains(berEDCTag));
+
+		boolean ecHasData =  ((X509CertificateDataObject) o).getErrorDetectionCodeHasData();
+		
+		assertTrue(ecHasData == false);
+    }
     
     private static Stream<Arguments> sp800_70_4_x509TestProvider() {
     	
