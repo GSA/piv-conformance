@@ -383,12 +383,13 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                         if (tlv2.isPrimitive()) {
                             s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
+                        	
+                        	super.m_tagList.add(tlv2.getTag());
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.BUFFER_LENGTH_TAG)) {
 
                                 m_bufferLength = tlv2.getBytesValue();
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.FASC_N_TAG)) {
-
 
                                 m_fASCN = tlv2.getBytesValue();
                                 scos.write(APDUUtils.getTLV(TagConstants.FASC_N_TAG, m_fASCN));
@@ -453,7 +454,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
             }
 
             scos2.write(scos.toByteArray());
-            //There is a bug in the encoder what adds an extar FE00 this will need to be removed for the new version
+            //There is a bug in the encoder what adds an extra FE00 this will need to be removed for the new version
             scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
             scos.write((byte) 0x00);
             m_signedContent = scos.toByteArray();

@@ -1,8 +1,13 @@
 package gov.gsa.pivconformance.card.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gov.gsa.pivconformance.tlv.BerTag;
 
 /**
  * Represents a PIV data object as read to or written from the card.
@@ -15,6 +20,7 @@ public class PIVDataObject {
     private byte[] m_dataBytes;
     private String m_OID;
     private boolean m_signed;
+    protected List<BerTag> m_tagList;
 
     /**
      * Initialize an invalid PIV data object
@@ -23,6 +29,7 @@ public class PIVDataObject {
 
         m_OID = null;
         m_signed = false;
+        m_tagList = new ArrayList();
     }
 
     /**
@@ -151,4 +158,24 @@ public class PIVDataObject {
     public boolean isSigned() {
         return m_signed;
     }
+    
+    /**
+    *
+    * Returns the list of tags in order for the PIV data object
+    *
+    * @return Returns the list of tags in order for the PIV data object
+    */
+    public List<BerTag> getTagList() {
+		return m_tagList;
+	}
+
+    /**
+    *
+    * Sets the list of tags in order for the PIV data object
+    *
+    * @return Set the list of tags in order for the PIV data object
+    */
+	public void setTagList(List<BerTag> tagList) {
+		this.m_tagList = tagList;
+	}
 }
