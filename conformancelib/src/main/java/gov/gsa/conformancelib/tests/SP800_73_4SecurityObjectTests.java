@@ -180,10 +180,10 @@ public class SP800_73_4SecurityObjectTests {
     }
 	
 	//No tags other than (0xBA, 0xBB, 0xFE) are present
-	@DisplayName("SP800-73-4.31 test")
+	@DisplayName("SP800-73-4.36 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_70_4_SecurityObjectTestProvider")
-    void sp800_73_4_Test_31(String oid, TestReporter reporter) {
+    void sp800_73_4_Test_36(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
