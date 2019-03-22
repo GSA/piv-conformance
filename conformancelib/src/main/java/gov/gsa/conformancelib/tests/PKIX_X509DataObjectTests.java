@@ -7,14 +7,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;
-import java.security.cert.Extension;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.EllipticCurve;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -39,12 +38,11 @@ import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
-import gov.gsa.pivconformance.tlv.BerTag;
-import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class PKIX_X509DataObjectTests {
 
@@ -581,14 +579,24 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+        PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         assertNotNull(o);
+        assertNotNull(o2);
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
         assert(o.decode());
+        
+
+        result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
+        assert(result == MiddlewareStatus.PIV_OK);
+        assert(o2.decode());
        
+        
+		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
+		
         
 		byte[] bertlv = o.getBytes();
 		assertNotNull(bertlv);
@@ -596,14 +604,17 @@ public class PKIX_X509DataObjectTests {
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 
 
-		//XXX Placeholder need to figure out a way to get the CHUID
+		
 		try {
 			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
 	        if (altNames != null) {
 	            for (List<?> altName : altNames) {
 	                Integer altNameType = (Integer) altName.get(0);
-	                if (altNameType != 2 && altNameType != 7) // dns or ip
-	                    continue;
+	                if (altNameType == 0) {
+	                	altName.get(0);
+	                	//XXX Placeholder need to figure out how to get other name
+	                }
+	                    
 	            }
 	        }
 		} catch (CertificateParsingException e) {
@@ -631,6 +642,7 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+        PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         assertNotNull(o);
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
@@ -639,15 +651,22 @@ public class PKIX_X509DataObjectTests {
         assert(result == MiddlewareStatus.PIV_OK);
         assert(o.decode());
        
+        result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
+        assert(result == MiddlewareStatus.PIV_OK);
+        assert(o2.decode());
         
 		byte[] bertlv = o.getBytes();
 		assertNotNull(bertlv);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 
-		//XXX Placeholder need to figure out a way to cart expiration date
 		Date notAfter =  cert.getNotAfter();
 		assertNotNull(notAfter);
+		
+		Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
+				
+		//Confirm that expiration of certificate is not later than expiration of card
+		assertTrue(notAfter.compareTo(expirationDate) <= 0);
     }
 
 	//For RSA certs, confirm that public exponent >= 65537
