@@ -21,8 +21,7 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
-import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
-import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
+import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
@@ -104,7 +103,7 @@ public class SP800_73_4FingerprintsTests {
         boolean decoded = o.decode();
 		assertTrue(decoded);
 		
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = ((CardholderBiometricData) o).getTagList();
 		
 		BerTag berFingerprintTag = new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG);
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
@@ -156,7 +155,7 @@ public class SP800_73_4FingerprintsTests {
 		boolean decoded = o.decode();
 		assertTrue(decoded);
 		
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = ((CardholderBiometricData) o).getTagList();
 		
 		BerTag berFingerprintTag = new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG);
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);

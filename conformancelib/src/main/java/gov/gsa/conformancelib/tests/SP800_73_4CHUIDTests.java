@@ -581,7 +581,7 @@ public class SP800_73_4CHUIDTests {
 
     }
 	
-	//Expiration Date is formatted YYYYMMDD
+	//Expiration Date is with in 5 years
 	@DisplayName("SP800-73-4.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_70_4_CHUIDTestProvider")
