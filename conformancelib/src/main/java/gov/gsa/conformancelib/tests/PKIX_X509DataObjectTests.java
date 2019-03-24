@@ -221,8 +221,6 @@ public class PKIX_X509DataObjectTests {
 		// confirm key usage extension is present
 		assertTrue(ku != null);
 
-		// XXX this would only be valid for signature certs does this test need to be
-		// taken out and placed somewhere else?
 		// Confirm digitalSignature bit is set
 		assertTrue(ku[0] == true);
 		assertTrue(ku[1] == false);

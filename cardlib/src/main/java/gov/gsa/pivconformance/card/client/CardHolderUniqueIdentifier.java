@@ -17,7 +17,6 @@ import org.apache.commons.codec.binary.Hex;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -489,6 +488,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         s_logger.debug("m_signedContent HEX value: {} ", Hex.encodeHexString(m_signedContent));
 
         try {
+        	//XXX need to be replaced with digest alg from the digestAlgorithms attribute
             MessageDigest md = MessageDigest.getInstance("SHA-256");
 
             md.update(m_signedContent);
