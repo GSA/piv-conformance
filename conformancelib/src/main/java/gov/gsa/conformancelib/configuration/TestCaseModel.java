@@ -111,7 +111,7 @@ public class TestCaseModel {
 		String query = "select TestCases.Id, TestCases.TestCaseIdentifier, TestCases.TestCaseDescription, TestCases.Status, TestCases.ExpectedStatus " +
 				"from TestCases where TestCases.Id = ?";
 										
-		String stepsQuery = "select Id, TestStepId from TestsToSteps where TestsToSteps.TestId = ?";
+		String stepsQuery = "select Id, TestStepId from TestsToSteps where TestsToSteps.TestId = ? order by ExecutionOrder";
 		try {
 			Connection conn = m_db.getConnection();
 			PreparedStatement pquery = conn.prepareStatement(query);

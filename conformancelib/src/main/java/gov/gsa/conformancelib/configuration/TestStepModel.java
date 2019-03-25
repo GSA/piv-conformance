@@ -82,7 +82,7 @@ public class TestStepModel {
 	public void retrieveForId(int testStepId, int testId) {
 		this.setId(testStepId);
 		String query = "select TestSteps.Id, TestSteps.Description, TestSteps.Class, "+
-				"TestSteps.Method, TestSteps.NumParameters, TestsToSteps.Status "+
+				"TestSteps.Method, TestSteps.JUnitName, TestSteps.JUnitGroup, TestSteps.NumParameters, TestsToSteps.Status "+
 				"from TestSteps left outer join TestsToSteps on TestSteps.Id = TestsToSteps.TestStepId "+
 				"where TestSteps.Id = ? and TestSteps.TestId = ?";
 								
