@@ -6,17 +6,21 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Stream;
 
 import java.security.cert.X509Certificate;
-import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.ECParameterSpec;
 import java.security.spec.EllipticCurve;
 import java.security.PublicKey;
 import java.security.Security;
 
+import org.bouncycastle.asn1.x9.ECNamedCurveTable;
+import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECCurve;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -106,17 +110,32 @@ public class SP800_78_X509DataObjectTests {
         
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		
-		
+		String supportedCurve = "prime256v1";
 		
 		PublicKey pubKey = (ECPublicKey) cert.getPublicKey();
 
 		if(pubKey instanceof ECPublicKey) {
 		
 			ECPublicKey pk = (ECPublicKey) pubKey;
-	        ECParameterSpec params = pk.getParams();
+	        ECParameterSpec ecParameterSpec = pk.getParameters();
 	        
-	        EllipticCurve ec = params.getCurve();
-	      //XXX Not sure how to get curve name from here
+	        String curveFromCert = "";
+	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
+	        	
+		        String name = (String)names.nextElement();
+	
+		        X9ECParameters params = ECNamedCurveTable.getByName(name);
+	
+		        if (params.getN().equals(ecParameterSpec.getN())
+		            && params.getH().equals(ecParameterSpec.getH())
+		            && params.getCurve().equals(ecParameterSpec.getCurve())
+		            && params.getG().equals(ecParameterSpec.getG())){
+		        	curveFromCert = name;
+		        }
+	        }
+	        
+	        //Confirm that the curve in the cert is prime256v1
+	        assertTrue(supportedCurve.compareTo(curveFromCert) == 0);
 		}
     }
     
