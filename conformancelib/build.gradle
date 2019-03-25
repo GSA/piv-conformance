@@ -72,8 +72,8 @@ dependencies {
     compile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
     compile files('../tools/85b-swing-gui/lib/cardlib.jar')
     compile group: 'org.apache.ibatis', name: 'ibatis-core', version: '3.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-params:5.1.0'
+    compile 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    compile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.9.7'
 }
