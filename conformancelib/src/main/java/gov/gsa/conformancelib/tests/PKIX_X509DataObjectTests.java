@@ -8,14 +8,12 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.EllipticCurve;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -26,6 +24,10 @@ import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.PolicyInformation;
+import org.bouncycastle.asn1.x9.ECNamedCurveTable;
+import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -86,12 +88,28 @@ public class PKIX_X509DataObjectTests {
 
 		if (pubKey instanceof ECPublicKey) {
 
+			String supportedCurve = "prime256v1";
+			
 			ECPublicKey pk = (ECPublicKey) pubKey;
-			ECParameterSpec params = pk.getParams();
-
-			EllipticCurve ec = params.getCurve();
-
-			// XXX Not sure how to get curve name from here
+	        ECParameterSpec ecParameterSpec = pk.getParameters();
+	        
+	        String curveFromCert = "";
+	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
+	        	
+		        String name = (String)names.nextElement();
+	
+		        X9ECParameters params = ECNamedCurveTable.getByName(name);
+	
+		        if (params.getN().equals(ecParameterSpec.getN())
+		            && params.getH().equals(ecParameterSpec.getH())
+		            && params.getCurve().equals(ecParameterSpec.getCurve())
+		            && params.getG().equals(ecParameterSpec.getG())){
+		        	curveFromCert = name;
+		        }
+	        }
+	        
+	        //Confirm that the curve in the cert is prime256v1
+	        assertTrue(supportedCurve.compareTo(curveFromCert) == 0);
 		}
 
 		List<String> algList = new ArrayList<String>();
@@ -481,7 +499,7 @@ public class PKIX_X509DataObjectTests {
         assertTrue(ocsppresent);
     }
 	
-	//Confirm that piv interim extension is present
+	//Confirm that piv interim "2.16.840.1.101.3.6.9.1" extension is present
 	@DisplayName("PKIX.10 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
@@ -513,12 +531,12 @@ public class PKIX_X509DataObjectTests {
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 
-		//XXX Placeholder as I don't know what piv interim extension is
-		//Get authorityInformationAccess extension
-		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+		//Get piv interim "2.16.840.1.101.3.6.9.1" extension
+		byte[] aiaex = cert.getExtensionValue("2.16.840.1.101.3.6.9.1");
 		
 		//Confirm authorityInformationAccess extension is present
 		assertTrue(aiaex != null);
+		assertTrue(aiaex.length > 0);
 		
     }
 	
