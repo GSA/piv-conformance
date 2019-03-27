@@ -272,14 +272,17 @@ public class BER_TLVTests {
         assertNotNull(o);
     	
         //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+        MiddlewareStatus result = piv.pivGetAllData(ch, oid, o);
         assertTrue(result == MiddlewareStatus.PIV_OK);
 
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
         
-        //XXX Not sure how to achieve "Setting final byte of command string to 0x00 retrieves entire data object regardless of size"
-        //Do we need another pivGetData?
+        boolean decoded = o.decode();
+        
+        //Confirm that we received all the data for the object and are able to decode.
+        assertTrue(decoded);
+
     }
     
     private static Stream<Arguments> bertlvTestProvider() {

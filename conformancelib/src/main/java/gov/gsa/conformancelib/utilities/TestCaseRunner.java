@@ -6,6 +6,7 @@ import gov.gsa.pivconformance.utils.VersionUtils;
 import org.apache.commons.cli.*;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ public class TestCaseRunner {
             }
             System.exit(0);
         }
-                
+        
         JUnitCore junit = new JUnitCore();
         junit.addListener(new TextListener(System.out));
         junit.run(CMSTests.class);
