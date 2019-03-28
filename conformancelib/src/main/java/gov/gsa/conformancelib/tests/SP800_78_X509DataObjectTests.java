@@ -64,19 +64,16 @@ public class SP800_78_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 				
-		
-		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
+		PublicKey pubKey = cert.getPublicKey();
 		
 		if(pubKey instanceof RSAPublicKey) {
-			assertTrue(pubKey.getModulus().bitLength() == 2048);
+			RSAPublicKey pk = (RSAPublicKey) pubKey;
+			assertTrue(pk.getModulus().bitLength() == 2048);
 		} 
     }
     
@@ -105,14 +102,14 @@ public class SP800_78_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
-        
+        assert(o.decode() == true);        
         
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 		
 		String supportedCurve = "prime256v1";
 		
-		PublicKey pubKey = (ECPublicKey) cert.getPublicKey();
+		PublicKey pubKey = cert.getPublicKey();
 
 		if(pubKey instanceof ECPublicKey) {
 		
@@ -163,9 +160,8 @@ public class SP800_78_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
-        
-        
+        assert(o.decode() == true);
+                
         List<String> algList = new ArrayList<String>();
         
         algList.add("1.2.840.113549.1.1.5");
@@ -175,7 +171,7 @@ public class SP800_78_X509DataObjectTests {
         algList.add("1.2.840.10045.4.3.3");
         
         X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-        
+		assertNotNull(cert);        
         
         String sigAlgFromCert = cert.getSigAlgOID();
         
