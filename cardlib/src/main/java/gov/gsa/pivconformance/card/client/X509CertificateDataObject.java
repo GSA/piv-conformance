@@ -132,9 +132,9 @@ public class X509CertificateDataObject extends PIVDataObject {
                                 }
                             }
                         }
-
+                        
                         //Check to make sure certificate buffer is not null
-                        if(rawCertBuf != null && rawCertBuf.length > 0) {
+                        if(rawCertBuf == null || rawCertBuf.length == 0) {
                             s_logger.error("Error parsing X.509 Certificate, unable to get certificate buffer.");
                             return false;
                         }

@@ -1889,7 +1889,7 @@ public class SP800_76_Tests {
 	//Verify that image color space is 1
 	@DisplayName("SP800-76.36 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_36(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -1948,7 +1948,7 @@ public class SP800_76_Tests {
 	//Verify that source type is 2 or 6
 	@DisplayName("SP800-76.37 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_37(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();

@@ -4,12 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -17,17 +20,26 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.PolicyInformation;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.x509.extension.X509ExtensionUtil;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -73,17 +85,16 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode());
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+		assert (o.decode() == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
-		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
+		PublicKey pubKey = cert.getPublicKey();
 
 		if (pubKey instanceof RSAPublicKey) {
-			assertTrue(pubKey.getModulus().bitLength() == 2048);
+			RSAPublicKey pk = (RSAPublicKey) pubKey;
+			assertTrue(pk.getModulus().bitLength() == 2048);
 		}
 
 		if (pubKey instanceof ECPublicKey) {
@@ -150,12 +161,10 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode());
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+		assert (o.decode() == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		assertTrue(cert.getKeyUsage() != null);
 	}
@@ -185,12 +194,10 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode());
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+		assert (o.decode() == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -228,12 +235,10 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode());
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+		assert (o.decode() == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 		boolean[] ku = cert.getKeyUsage();
 
 		// confirm key usage extension is present
@@ -275,13 +280,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
@@ -294,7 +296,7 @@ public class PKIX_X509DataObjectTests {
 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID is asserted in certificate policies
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_x509TestProvider")
+    @MethodSource("pKIX_CardAuthx509TestProvider")
     void PKIX_Test_6(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -315,13 +317,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
@@ -329,8 +328,13 @@ public class PKIX_X509DataObjectTests {
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null);
 		
-		CertificatePolicies policies = CertificatePolicies.getInstance(cpex);
-		
+		CertificatePolicies policies = null;
+		try {
+			policies = CertificatePolicies.getInstance(X509ExtensionUtil.fromExtensionValue(cpex));
+		} catch (IOException e) {
+			fail(e);
+		}
+		assertNotNull(policies);
 		boolean containsOOID = false;
 		
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
@@ -370,22 +374,17 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
-       
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+        assert(o.decode() == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
 		
 		//Confirm authorityInformationAccess extension is present
 		assertTrue(aiaex != null);
-		
-		
-    }
+	}
 	
 	//Confirm that an access method containing id-ad-ocsp is present
 	@DisplayName("PKIX.8 test")
@@ -411,13 +410,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
-       
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+        assert(o.decode() == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
@@ -425,9 +421,14 @@ public class PKIX_X509DataObjectTests {
 		//Confirm authorityInformationAccess extension is present
 		assertTrue(aiaex != null);
 		
-		AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(aiaex);
+		AuthorityInformationAccess aia = null;
+		try {
+			aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
+		} catch (IOException e) {
+			fail(e);
+		}
 		
-		assertTrue(aia != null);
+		assertNotNull(aia);
 		
 		boolean ocsppresent = false;
 		AccessDescription[] ads = aia.getAccessDescriptions();
@@ -467,13 +468,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
-       
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+        assert(o.decode() == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
@@ -481,9 +479,14 @@ public class PKIX_X509DataObjectTests {
 		//Confirm authorityInformationAccess extension is present
 		assertTrue(aiaex != null);
 		
-		AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(aiaex);
+		AuthorityInformationAccess aia = null;
+		try {
+			aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
+		} catch (IOException e) {
+			fail(e);
+		}
 		
-		assertTrue(aia != null);
+		assertNotNull(aia);
 		
 		boolean ocsppresent = false;
 		AccessDescription[] ads = aia.getAccessDescriptions();
@@ -491,6 +494,12 @@ public class PKIX_X509DataObjectTests {
         {
             if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
             {
+            	GeneralName gn = ads[i].getAccessLocation();
+            	
+            	assertTrue (gn.getTagNo() == GeneralName.uniformResourceIdentifier);
+                String url = ((DERIA5String) gn.getName()).getString();
+
+                assertTrue(url.startsWith("http"));
             	ocsppresent = true;
             }
         }
@@ -502,7 +511,7 @@ public class PKIX_X509DataObjectTests {
 	//Confirm that piv interim "2.16.840.1.101.3.6.9.1" extension is present
 	@DisplayName("PKIX.10 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_x509TestProvider")
+    @MethodSource("pKIX_PIVAuthx509TestProvider")
     void PKIX_Test_10(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -513,6 +522,8 @@ public class PKIX_X509DataObjectTests {
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			
+			//CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -523,14 +534,13 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
-       
         
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
+        boolean decoded = o.decode();
+        assertTrue(decoded);
+       
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 
+		assertNotNull(cert);
 		//Get piv interim "2.16.840.1.101.3.6.9.1" extension
 		byte[] aiaex = cert.getExtensionValue("2.16.840.1.101.3.6.9.1");
 		
@@ -564,13 +574,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		//XXX Placeholder Not sure how to do this test yet
 
@@ -581,6 +588,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.12 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
+	//@Disabled
     void PKIX_Test_12(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -603,23 +611,17 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
         
 
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
         assert(result == MiddlewareStatus.PIV_OK);
         assert(o2.decode());
-       
-        
+               
 		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
 		
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-
-
+		assertNotNull(cert);
 		
 		try {
 			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
@@ -627,17 +629,17 @@ public class PKIX_X509DataObjectTests {
 	            for (List<?> altName : altNames) {
 	                Integer altNameType = (Integer) altName.get(0);
 	                if (altNameType == 0) {
-	                	altName.get(0);
-	                	//XXX Placeholder need to figure out how to get other name
+	                	byte[] otherName = (byte[]) altName.toArray()[1];
+               	
+	                	//XXX Possibly a better way to get fascn value
+	                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
+	                	assertTrue(Arrays.equals(fascnFromCert, fascn));
 	                }
-	                    
 	            }
 	        }
 		} catch (CertificateParsingException e) {
 			fail(e);
 		}
-
-		
     }
 	
 	//Confirm that expiration of certificate is not later than expiration of card
@@ -665,16 +667,14 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
         assert(result == MiddlewareStatus.PIV_OK);
         assert(o2.decode());
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		Date notAfter =  cert.getNotAfter();
 		assertNotNull(notAfter);
@@ -709,13 +709,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+        X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
 		
@@ -752,13 +749,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+        X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -796,13 +790,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -838,16 +829,12 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-
+		assertNotNull(cert);
 		
-		PublicKey pubKey = (ECPublicKey) cert.getPublicKey();
+		PublicKey pubKey = cert.getPublicKey();
 
 		if(pubKey instanceof ECPublicKey) {
 		
@@ -855,8 +842,6 @@ public class PKIX_X509DataObjectTests {
 
 			// confirm key usage extension is present
 			assertTrue(ku != null);
-
-			// taken out and placed somewhere else?
 			// Confirm keyAgreement bit is set
 			assertTrue(ku[4] == true);
 		}
@@ -887,14 +872,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-
+        X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		assertNotNull(cert);
 		
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
@@ -902,7 +883,12 @@ public class PKIX_X509DataObjectTests {
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null);
 		
-		CertificatePolicies policies = CertificatePolicies.getInstance(cpex);
+		CertificatePolicies policies = null;
+		try {
+			policies = CertificatePolicies.getInstance(X509ExtensionUtil.fromExtensionValue(cpex));
+		} catch (IOException e) {
+			fail(e);
+		}
 		
 		boolean containsOOID = false;
 		
@@ -943,14 +929,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-
+		assertNotNull(cert);
 		
 		//Get eku extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.37");
@@ -959,7 +941,7 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(cpex != null);
     }
 
-	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.2.1.3.17 exists in extendedKeyUsage extension
+	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
 	@DisplayName("PKIX.20 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_CardAuthx509TestProvider")
@@ -983,14 +965,10 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
-       
+        assert(o.decode() == true);
         
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-
+		assertNotNull(cert);
 		
 		//Get certificate policies extension
 		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
@@ -998,18 +976,24 @@ public class PKIX_X509DataObjectTests {
 		//Confirm certificate policies extension is present
 		assertTrue(ekuex != null);
 		
-		ExtendedKeyUsage eku = ExtendedKeyUsage.getInstance(ekuex);
+		ExtendedKeyUsage eku = null;
+		try {
+			eku = ExtendedKeyUsage.getInstance(X509ExtensionUtil.fromExtensionValue(ekuex));
+		} catch (IOException e) {
+			fail(e);
+		}
 		
+		assertNotNull(eku);
 		boolean containsOOID = false;
 		
 	    KeyPurposeId[] kpilist = eku.getUsages();
 	    for (KeyPurposeId kpiInfo : kpilist) {
-	    	if(kpiInfo.getId().compareTo("2.16.840.1.101.3.2.1.3.17") == 0) {
+	    	if(kpiInfo.getId().compareTo("2.16.840.1.101.3.6.8") == 0) {
 	    		containsOOID = true;
 	    	}
 	    }
 	    
-	    //Confirm that id- fpki-common-cardAuth  2.16.840.1.101.3.2.1.3.17 OID is present in eku
+	    //Confirm that id-PIV-cardAuth 2.16.840.1.101.3.6.8 OID is present in eku
 	    assertTrue(containsOOID);
 		
     }
@@ -1025,8 +1009,8 @@ public class PKIX_X509DataObjectTests {
 	
 	private static Stream<Arguments> pKIX_PIVAuthx509TestProvider() {
 
-		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID));
-
+		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID));
 	}
 	
 	private static Stream<Arguments> pKIX_DigSigx509TestProvider() {
