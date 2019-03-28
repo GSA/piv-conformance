@@ -173,9 +173,7 @@ public class BER_TLVTests {
         assertTrue(result == MiddlewareStatus.PIV_OK);
 
         byte[] bertlv = o.getBytes();
-        assertNotNull(bertlv);
-        
-        System.out.println(Hex.encodeHexString(bertlv));
+        assertNotNull(bertlv);              
         
         BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(BER_TLVTests.class));
         
