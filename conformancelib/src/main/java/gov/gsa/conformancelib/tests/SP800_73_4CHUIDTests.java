@@ -279,7 +279,7 @@ public class SP800_73_4CHUIDTests {
 		assertTrue(tagList.size() >= 3);
 		
 		int orgFASCNTagIndex = tagList.indexOf(berFASCTag);
-		assertTrue(orgFASCNTagIndex > 0);
+		assertTrue(orgFASCNTagIndex >= 0);
 		
 		boolean optionalTagsPresent = false;
 		
@@ -379,7 +379,7 @@ public class SP800_73_4CHUIDTests {
 			assertTrue(tagList.size() >= 4);
 			
 			int orgFASCNTagIndex = tagList.indexOf(berFASCTag);
-			assertTrue(orgFASCNTagIndex > 0);
+			assertTrue(orgFASCNTagIndex >= 0);
 			
 			boolean optionalTagsPresent = false;
 			
@@ -479,14 +479,16 @@ public class SP800_73_4CHUIDTests {
 		assertTrue(tagList.size() >= 6);
 		
 		int orgFASCNTagIndex = tagList.indexOf(berFASCTag);
-		assertTrue(orgFASCNTagIndex > 0);
+		assertTrue(orgFASCNTagIndex >= 0);
 		
 		boolean optionalTagsPresent = false;
 		
+		
+		//XXX Test cards I have have and extra 0xFE out of place
 		if(tagList.contains(berOrgIDTag)) {
 
 			optionalTagsPresent = true;			
-			assertTrue(tagList.size() >= 5);
+			assertTrue(tagList.size() >= 7);
 			
 			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
 			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
@@ -515,7 +517,7 @@ public class SP800_73_4CHUIDTests {
 			
 			} else {
 			
-				assertTrue(tagList.size() >= 8);
+				assertTrue(tagList.size() >= 7);
 				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
 				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.DUNS_TAG));
 				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.GUID_TAG));
@@ -668,11 +670,16 @@ public class SP800_73_4CHUIDTests {
 		for(BerTag tag : tagList) {
 
 			//Check that the tag is present in the all CCC tags list
-			assertTrue(allCHUIDTags.contains(tag.bytes));
-			
+			boolean present = false;
+			for (int i = 0; i < allCHUIDTags.size(); i++) {
+				
+				if(Arrays.equals(allCHUIDTags.get(i), tag.bytes)) {
+					present = true;
+					break;
+				}
+			}
+			assertTrue(present);
 		}
-		
-
     }
 	
 	private static Stream<Arguments> sp800_70_4_CHUIDTestProvider() {
