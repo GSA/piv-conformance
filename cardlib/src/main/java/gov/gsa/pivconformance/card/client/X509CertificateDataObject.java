@@ -1,7 +1,6 @@
 package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
-import gov.gsa.pivconformance.tools.PIVRunner;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,19 @@ public class X509CertificateDataObject extends PIVDataObject {
 
     private X509Certificate m_pivAuthCert;
     private boolean m_error_Detection_Code;
+    private boolean m_error_Detection_Code_Has_Data;
 
+    
     /**
+     * Returns boolean value indicating if error detection code had any bytes
+     *
+     * @return Boolean value indicating if error detection code had any bytes
+     */
+    public boolean getErrorDetectionCodeHasData() {
+		return m_error_Detection_Code_Has_Data;
+	}
+
+	/**
      * CardCapabilityContainer class constructor, initializes all the class fields.
      */
     public X509CertificateDataObject() {
@@ -98,6 +108,8 @@ public class X509CertificateDataObject extends PIVDataObject {
                             if(tlv2.isPrimitive()) {
                                 s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             } else {
+
+                            	super.m_tagList.add(tlv2.getTag());
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
                                     if (tlv2.hasRawValue()) {
                                         rawCertBuf = tlv2.getBytesValue();
@@ -105,8 +117,10 @@ public class X509CertificateDataObject extends PIVDataObject {
                                     }
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
-                                    if (tlv2.hasRawValue()) {
-                                        m_error_Detection_Code = true;
+                                    m_error_Detection_Code = true;
+
+                                    if (tlv2.getBytesValue().length > 0) {
+                                    	m_error_Detection_Code_Has_Data = true;
                                     }
                                 }
                                                                 
@@ -121,9 +135,9 @@ public class X509CertificateDataObject extends PIVDataObject {
                                 }
                             }
                         }
-
+                        
                         //Check to make sure certificate buffer is not null
-                        if(rawCertBuf != null && rawCertBuf.length > 0) {
+                        if(rawCertBuf == null || rawCertBuf.length == 0) {
                             s_logger.error("Error parsing X.509 Certificate, unable to get certificate buffer.");
                             return false;
                         }

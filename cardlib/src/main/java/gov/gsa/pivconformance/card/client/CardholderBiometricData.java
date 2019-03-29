@@ -316,6 +316,7 @@ public class CardholderBiometricData extends PIVDataObject {
                         if (tlv2.isPrimitive()) {
                             s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
+                        	super.m_tagList.add(tlv2.getTag());
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
 
                                 super.setSigned(true);

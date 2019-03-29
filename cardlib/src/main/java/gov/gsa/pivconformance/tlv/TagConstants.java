@@ -104,7 +104,7 @@ public class TagConstants {
     
     /**
     *
-    * List of all CHUID Tag for easy lookup
+    * List of all CHUID tags for easy lookup
     *
     */
     public static final List<byte[]> AllCHUIDTags() {
@@ -142,6 +142,27 @@ public class TagConstants {
     public static final byte[] ORGANIZATIONAL_AFFILIATION_L1_TAG = { 0x07 };
     public static final byte[] ORGANIZATIONAL_AFFILIATION_L2_TAG = { 0x08 };
 
+    
+    /**
+    *
+    * List of all Printed Information tags for easy lookup
+    *
+    */
+    public static final List<byte[]> AllPrintedInfoTags() {
+
+        ArrayList<byte[]> rv = new ArrayList<byte[]>();
+        rv.add(NAME_TAG);
+        rv.add(EMPLOYEE_AFFILIATION_TAG);
+        rv.add(PRINTED_INFORMATION_EXPIRATION_DATE_TAG);
+        rv.add(AGENCY_CARD_SERIAL_NUMBER_TAG);
+        rv.add(ISSUER_IDENTIFICATION_TAG);
+        rv.add(ORGANIZATIONAL_AFFILIATION_L1_TAG);
+        rv.add(ORGANIZATIONAL_AFFILIATION_L2_TAG);
+        rv.add(ERROR_DETECTION_CODE_TAG);
+
+        return rv;
+    }
+    
     //SP800-73-4 Part 1, Table 18. Discovery Object Tags
     public static final byte[] PIV_CARD_APPLICATION_AID_TAG = { 0x4F };
     public static final byte[] PIN_USAGE_POLICY_TAG = { 0x5F, 0x2F };

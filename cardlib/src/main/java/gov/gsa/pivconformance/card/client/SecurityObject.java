@@ -3,7 +3,6 @@ package gov.gsa.pivconformance.card.client;
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.*;
-import org.bouncycastle.asn1.cms.SignedData;
 import org.bouncycastle.asn1.icao.DataGroupHash;
 import org.bouncycastle.asn1.icao.LDSSecurityObject;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -11,16 +10,12 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.MessageDigest;
-import java.security.Provider;
-import java.security.Security;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.io.ByteArrayInputStream;
@@ -266,6 +261,7 @@ public class SecurityObject extends PIVDataObject {
                     m_contentInfo = ContentInfo.getInstance(aIn.readObject());
                     m_signedData = new CMSSignedData(m_contentInfo);
                     super.setSigned(true);
+                    aIn.close();
 
                 } else {
                     if (!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
@@ -405,7 +401,6 @@ public class SecurityObject extends PIVDataObject {
                 LDSSecurityObject ldsso = LDSSecurityObject.getInstance(soSeq);
 
                 DataGroupHash [] dghList = ldsso.getDatagroupHash();
-                AlgorithmIdentifier algId = ldsso.getDigestAlgorithmIdentifier();
 
                 m_dghList = new HashMap<Integer, byte[]>();
                 for (DataGroupHash entry : dghList) {
@@ -466,7 +461,6 @@ public class SecurityObject extends PIVDataObject {
                 LDSSecurityObject ldsso = LDSSecurityObject.getInstance(soSeq);
 
                 DataGroupHash [] dghList = ldsso.getDatagroupHash();
-                AlgorithmIdentifier algId = ldsso.getDigestAlgorithmIdentifier();
 
                 m_dghList = new HashMap<Integer, byte[]>();
                 for (DataGroupHash entry : dghList) {

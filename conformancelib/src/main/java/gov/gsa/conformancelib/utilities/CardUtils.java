@@ -6,13 +6,16 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.tests.ConformanceTestException;
+import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.ApplicationAID;
 import gov.gsa.pivconformance.card.client.ApplicationProperties;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.ConnectionDescription;
 import gov.gsa.pivconformance.card.client.DefaultPIVApplication;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
+import gov.gsa.pivconformance.card.client.PIVAuthenticators;
 import gov.gsa.pivconformance.card.client.PIVMiddleware;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
@@ -71,4 +74,42 @@ public class CardUtils {
 		}
 		return true;
 	}
+	
+	// this method will authenticate to the card
+	public static boolean authenticateInSingleton(boolean useGlobal ) throws ConformanceTestException {
+		
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		
+		PIVAuthenticators authenticators = new PIVAuthenticators();
+		if(useGlobal) {
+			
+			if(css.getGlobalPin() == null || css.getGlobalPin().length() == 0) {
+				css.setLastLoginStatus(LOGIN_STATUS.LOGIN_FAIL);
+				throw new ConformanceTestException("authenticateInSingleton() failed, missing global pin");
+			}
+							
+			authenticators.addApplicationPin(css.getGlobalPin());			
+		} else {
+			
+			if(css.getApplicationPin() == null || css.getApplicationPin().length() == 0) {
+				css.setLastLoginStatus(LOGIN_STATUS.LOGIN_FAIL);
+				throw new ConformanceTestException("authenticateInSingleton() failed, missing application pin");
+			}
+			
+			authenticators.addApplicationPin(css.getApplicationPin());
+		}
+        
+        //Get card handle and PIV handle
+        CardHandle ch = css.getCardHandle();
+        AbstractPIVApplication piv = css.getPivHandle();
+        
+        MiddlewareStatus result = piv.pivLogIntoCardApplication(ch, authenticators.getBytes());
+        if(MiddlewareStatus.PIV_OK != result){
+        	css.setLastLoginStatus(LOGIN_STATUS.LOGIN_FAIL);
+			throw new ConformanceTestException("authenticateInSingleton() failed");
+		}
+        
+        return true;
+	}
+		
 }
