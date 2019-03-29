@@ -53,7 +53,7 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
        
         
 		byte[] bertlv = o.getBytes();
@@ -89,7 +89,7 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -132,7 +132,7 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -151,7 +151,7 @@ public class X509DataObjectTests {
         
     }
     
-	//Tag 0x72 is optionally present and follows tags from 73-4.19
+	//Tag 0xFE is present and follows tags from 73-4.19, 73-4.20
     @DisplayName("SP800-73-4.21 testg")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_70_4_x509TestProvider")
@@ -175,7 +175,7 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -228,7 +228,7 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -236,14 +236,21 @@ public class X509DataObjectTests {
 		List<byte[]> allx509Tags = TagConstants.Allx509Tags();
 		for(BerTag tag : tagList) {
 
-			//Check that the tag is present in the all x509 tags list
-			assertTrue(allx509Tags.contains(tag.bytes));
-			
+			//Check that the tag is present in the all CCC tags list
+			boolean present = false;
+			for (int i = 0; i < allx509Tags.size(); i++) {
+				
+				if(Arrays.equals(allx509Tags.get(i), tag.bytes)) {
+					present = true;
+					break;
+				}
+			}
+			assertTrue(present);
 		}
     }
 
     
-	//Tag 0x72 is optionally present and follows tags from 73-4.19
+	//Confirm that tag 0xFE has length of 0
     @DisplayName("SP800-73-4.23 testg")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_70_4_x509TestProvider")
@@ -267,7 +274,7 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode());
+        assert(o.decode() == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();

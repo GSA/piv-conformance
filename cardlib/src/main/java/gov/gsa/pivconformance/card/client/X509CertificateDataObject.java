@@ -108,6 +108,8 @@ public class X509CertificateDataObject extends PIVDataObject {
                             if(tlv2.isPrimitive()) {
                                 s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             } else {
+
+                            	super.m_tagList.add(tlv2.getTag());
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
                                     if (tlv2.hasRawValue()) {
                                         rawCertBuf = tlv2.getBytesValue();
@@ -116,7 +118,8 @@ public class X509CertificateDataObject extends PIVDataObject {
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
                                     m_error_Detection_Code = true;
-                                    if (tlv2.hasRawValue()) {
+
+                                    if (tlv2.getBytesValue().length > 0) {
                                     	m_error_Detection_Code_Has_Data = true;
                                     }
                                 }
