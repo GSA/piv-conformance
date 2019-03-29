@@ -1,6 +1,8 @@
 package gov.gsa.conformancelib.pivconformancetools;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
+import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.junitoptions.Theme;
 import gov.gsa.conformancelib.tests.SignedObjectVerificationTests;
 import gov.gsa.pivconformance.utils.PCSCUtils;
@@ -36,7 +38,7 @@ public class ConformanceTestRunner {
 
     private static final String FIRST_CONFIG = "SELECT * from SystemSettings LIMIT 1";
     private static final String NAMED_CONFIG = "SELECT * from SystemSettings where SettingsGroup='?'";
-    private static final String TEST_SET = "SELECT * from TestSelections";
+    private static final String TEST_SET = "SELECT * from TestCases where Enabled=1";
 
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(ConformanceTestRunner.class);
@@ -142,11 +144,15 @@ public class ConformanceTestRunner {
 
         LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
         List<DiscoverySelector> discoverySelectors = new ArrayList<>();
+        ConformanceTestDatabase ctd = new ConformanceTestDatabase(conn);
         try (Statement testStatement = conn.createStatement()) {
             ResultSet rs = testStatement.executeQuery(TEST_SET);
             while(rs.next()) {
+                TestCaseModel testCase = new TestCaseModel(ctd);
+                testCase.retrieveForId(rs.getInt("Id"));
                 int disabled = rs.getInt("Disabled");
-                String groupName = rs.getString("GroupName");
+                String groupName = rs.getString("TestGroup");
+                String testNameFromConfig = rs.getString("TestCaseIdentifier");
                 if(groupName == null || groupName.isEmpty()) {
                     s_logger.error("Record {} from configuration file {} contains no valid group name. This is a bug.",
                             rs.getInt("Id"), cmd.getOptionValue("config"));
@@ -160,14 +166,13 @@ public class ConformanceTestRunner {
                 Class<?> testClass = null;
                 try {
                     testClass = Class.forName("gov.gsa.conformancelib.tests." + groupName);
-                    /*for(Method m : testClass.getMethods()) {
+                    for(Method m : testClass.getMethods()) {
                         s_logger.debug("method: {}", m.getName());
-                    }*/
+                    }
                 } catch (ClassNotFoundException e) {
                     s_logger.error("{} was configured in the database but could not be found.", groupName);
                     break;
                 }
-                String testNameFromConfig = rs.getString("TestName");
                 if(testNameFromConfig != null && !testNameFromConfig.isEmpty()) {
                     String testName = testNameFromConfig;
                     if (!testNameFromConfig.startsWith("test")) testName = "test" + testNameFromConfig;

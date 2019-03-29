@@ -20,7 +20,7 @@ public class TestCaseModel {
 	private int m_expectedStatus;
         private String m_testGroupName;
 	
-	TestCaseModel(ConformanceTestDatabase db) {
+	public TestCaseModel(ConformanceTestDatabase db) {
 		setDb(db);
 	}
 
