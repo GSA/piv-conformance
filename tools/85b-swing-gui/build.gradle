@@ -44,6 +44,18 @@ dependencies {
 
 }
 
+sourceSets {
+    main {
+        java {
+            if(targetCompatibility != JavaVersion.VERSION_11)
+                exclude '**/module-info.java'
+            // temporarily ignore a pile of things that i want to push to the server but still needs to be fixed to build
+            // with some of the changes that outpaced the cli runner
+            exclude 'gov/gsa/pivconformancegui/**'
+        }
+    }
+}
+
 // Define the main class for the application jar that will be produced
 mainClassName = 'gov.gsa.pivconformancegui.GuiRunner'
 
