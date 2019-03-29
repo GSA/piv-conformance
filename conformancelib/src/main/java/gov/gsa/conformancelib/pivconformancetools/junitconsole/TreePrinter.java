@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.platform.commons.util.StringUtils;
-import gov.gsa.pivconformancetools.junitoptions.Theme;
+import gov.gsa.conformancelib.junitoptions.Theme;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.TestExecutionResult.Status;
 import org.junit.platform.engine.reporting.ReportEntry;

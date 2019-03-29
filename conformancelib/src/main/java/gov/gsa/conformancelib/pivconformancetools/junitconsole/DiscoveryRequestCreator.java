@@ -31,7 +31,7 @@ import java.util.Set;
 import org.junit.platform.commons.util.ModuleUtils;
 import org.junit.platform.commons.util.Preconditions;
 import org.junit.platform.commons.util.ReflectionUtils;
-import gov.gsa.pivconformancetools.junitoptions.CommandLineOptions;
+import gov.gsa.conformancelib.junitoptions.CommandLineOptions;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.discovery.ClasspathRootSelector;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
