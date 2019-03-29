@@ -34,7 +34,7 @@ sourceSets {
                 exclude '**/module-info.java'
             // temporarily ignore a pile of things that i want to push to the server but still needs to be fixed to build
             // with some of the changes that outpaced the cli runner
-            exclude 'gov/gsa/conformancelib/pivconformancetools/**'
+            //exclude 'gov/gsa/conformancelib/pivconformancetools/**'
         }
     }
 }
@@ -73,6 +73,8 @@ dependencies {
     compile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     compile 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
     compile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
+    compile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
+    compile 'org.junit.platform:junit-platform-launcher:1.5.0-M1'
     runtime 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     runtime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
     runtime 'org.junit.jupiter:junit-jupiter-params:5.1.0'
