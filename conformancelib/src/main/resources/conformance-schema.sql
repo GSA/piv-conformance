@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS "TestCases" (
 	`TestCaseIdentifier`	TEXT,
         `TestCaseDescription`   TEXT,
         `Status`        INTEGER,
-        `ExpectedStatus` INTEGER
+        `ExpectedStatus` INTEGER,
+        `Enabled`   INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS "TestGroups" (
