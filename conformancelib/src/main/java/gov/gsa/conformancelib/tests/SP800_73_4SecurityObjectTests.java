@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -43,7 +44,9 @@ public class SP800_73_4SecurityObjectTests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -80,7 +83,9 @@ public class SP800_73_4SecurityObjectTests {
         	fail(e);
         }
         try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -108,14 +113,14 @@ public class SP800_73_4SecurityObjectTests {
 		BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);
 		BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 		
-		//Confirm tags 0x01, 0x02, 0x05, 0x06 are present
+		//Confirm tags 0xBA, 0xBB, 0XFE are present
 		assertTrue(tagList.contains(berMappingTag));
 		assertTrue(tagList.contains(berSecurityObjectTag));
 		assertTrue(tagList.contains(berEDCTag));
 		
 		int orgMappingTagIndex = tagList.indexOf(berMappingTag);
 		
-		//Confirm tags 0x01, 0x02, 0x05, 0x06 are in right order
+		//Confirm tags 0xBA, 0xBB, 0XFE are in right order
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex).bytes,TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+1).bytes,TagConstants.SECURITY_OBJECT_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+2).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
@@ -134,7 +139,9 @@ public class SP800_73_4SecurityObjectTests {
         	fail(e);
         }
         try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -167,19 +174,21 @@ public class SP800_73_4SecurityObjectTests {
 		assertTrue(tagList.contains(berSecurityObjectTag));
 		assertTrue(tagList.contains(berEDCTag));
 		
+		
+		//Confirm only 3 tags are present
+		assertTrue(tagList.size() == 3);
+		
 		int orgMappingTagIndex = tagList.indexOf(berMappingTag);
 		
 		//Confirm tags 0x01, 0x02, 0x05, 0x06 are in right order
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex).bytes,TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+1).bytes,TagConstants.SECURITY_OBJECT_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+2).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
-		
-		//Confirm only 3 tags are present
-		assertTrue(tagList.size() == 3);
+
 
     }
 	
-	//No tags other than (0xBA, 0xBB, 0xFE) are present
+	//Parse data at tag 0xBA and for each data container found ensure that performing a select returns status words 0x90, 0x00
 	@DisplayName("SP800-73-4.36 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_70_4_SecurityObjectTestProvider")
@@ -192,7 +201,9 @@ public class SP800_73_4SecurityObjectTests {
         	fail(e);
         }
         try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -212,18 +223,26 @@ public class SP800_73_4SecurityObjectTests {
         
         boolean decoded = o.decode();
 		assertTrue(decoded);
-				
-		//Get mapping info buffer
-		byte[] mappingInfo = ((SecurityObject) o).getMapping();
 		
-		//XXX Not sure if this is enough for this test
-		assertNotNull(mappingInfo);
+		HashMap<Integer, String> idList = ((SecurityObject) o).getContainerIDList();
+		
+		assertTrue(idList.size() > 0);
+		
+		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
+            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
+		
+            PIVDataObject tmpObj = PIVDataObjectFactory.createDataObjectForOid(entry.getValue());
+            assertNotNull(tmpObj);
+            
+            result = piv.pivGetData(ch, entry.getValue(), tmpObj);
+            assertTrue(result == MiddlewareStatus.PIV_OK);
+		}
 
     }
 	
 	private static Stream<Arguments> sp800_70_4_SecurityObjectTestProvider() {
 
-		return Stream.of(Arguments.of(APDUConstants.PRINTED_INFORMATION_OID));
+		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));
 
 	}
 

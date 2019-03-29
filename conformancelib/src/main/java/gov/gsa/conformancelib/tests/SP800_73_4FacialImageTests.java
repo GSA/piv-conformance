@@ -47,6 +47,7 @@ public class SP800_73_4FacialImageTests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}

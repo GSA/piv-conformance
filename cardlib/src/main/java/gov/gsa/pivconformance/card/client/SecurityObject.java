@@ -218,6 +218,8 @@ public class SecurityObject extends PIVDataObject {
             }
             for (BerTlv tlv : outer.getList()) {
                 byte[] tag = tlv.getTag().bytes;
+
+            	super.m_tagList.add(tlv.getTag());
                 if (Arrays.equals(tag, TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG)) {
                     m_mapping = tlv.getBytesValue();
 

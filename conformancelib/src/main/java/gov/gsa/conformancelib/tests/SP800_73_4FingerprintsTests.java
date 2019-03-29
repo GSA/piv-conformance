@@ -46,6 +46,7 @@ public class SP800_73_4FingerprintsTests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -83,6 +84,7 @@ public class SP800_73_4FingerprintsTests {
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -116,7 +118,7 @@ public class SP800_73_4FingerprintsTests {
 		
 		//Confirm (0xBC, 0xFE) tag order
 		assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.FINGERPRINT_I_AND_II_TAG));
-		assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
+		assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
 
     }
 
@@ -135,6 +137,7 @@ public class SP800_73_4FingerprintsTests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -160,14 +163,12 @@ public class SP800_73_4FingerprintsTests {
 		BerTag berFingerprintTag = new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG);
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 		
+		//Confirm only two tags are present
 		assertTrue(tagList.size() == 2);
 		
 		//Confirm (0xBC, 0xFE) are present 
 		assertTrue(tagList.contains(berFingerprintTag));
 		assertTrue(tagList.contains(berECTag));
-		
-		//Confirm only two tags are present
-		assertTrue(tagList.size() == 2);
 			
 	}
 	
