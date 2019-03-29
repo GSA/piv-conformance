@@ -45,7 +45,6 @@ public class SP800_73_4FingerprintsTests {
 			fail(e);
 		}
 		try {
-			css.setApplicationPin("123456"); //XXX temporary add for debugging 
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -84,7 +83,6 @@ public class SP800_73_4FingerprintsTests {
         	fail(e);
         }
         try {
-			css.setApplicationPin("123456"); //XXX temporary add for debugging 
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -138,7 +136,6 @@ public class SP800_73_4FingerprintsTests {
 			fail(e);
 		}
 		try {
-			css.setApplicationPin("123456"); //XXX temporary add for debugging 
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
