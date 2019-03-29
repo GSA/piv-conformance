@@ -8,9 +8,9 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package gov.gsa.pivconformancetools.junitconsole;
+package gov.gsa.conformancelib.pivconformancetools.junitconsole;
 
-import static gov.gsa.pivconformancetools.junitconsole.Color.NONE;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.NONE;
 
 import java.io.PrintWriter;
 import java.util.regex.Pattern;

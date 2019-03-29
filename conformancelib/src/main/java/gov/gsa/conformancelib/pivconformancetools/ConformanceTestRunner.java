@@ -1,11 +1,11 @@
-package gov.gsa.pivconformancetools;
+package gov.gsa.conformancelib.pivconformancetools;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.conformancelib.junitoptions.Theme;
 import gov.gsa.conformancelib.tests.SignedObjectVerificationTests;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 import gov.gsa.pivconformance.utils.VersionUtils;
-import gov.gsa.pivconformancetools.junitconsole.Theme;
-import gov.gsa.pivconformancetools.junitconsole.VerboseTreePrintingListener;
+import gov.gsa.conformancelib.pivconformancetools.junitconsole.VerboseTreePrintingListener;
 import org.apache.commons.cli.*;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.launcher.*;
@@ -209,6 +209,6 @@ public class ConformanceTestRunner {
     private static TestExecutionListener createDetailsPrintingListener(PrintWriter out) {
         boolean disableAnsiColors = false;//options.isAnsiColorOutputDisabled();
         Theme theme = Theme.valueOf(Charset.defaultCharset());//options.getTheme();
-        return new VerboseTreePrintingListener(out, disableAnsiColors, 16, theme);
+        return new gov.gsa.conformancelib.pivconformancetools.junitconsole.VerboseTreePrintingListener(out, disableAnsiColors, 16, theme);
     }
 }

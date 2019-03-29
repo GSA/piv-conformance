@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package gov.gsa.pivconformancetools.junitconsole;
+package gov.gsa.conformancelib.pivconformancetools.junitconsole;
 
 import java.io.PrintWriter;
 import java.util.Map;

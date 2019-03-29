@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package gov.gsa.pivconformancetools.junitconsole;
+package gov.gsa.conformancelib.pivconformancetools.junitconsole;
 
 import static org.junit.platform.engine.discovery.ClassNameFilter.excludeClassNamePatterns;
 import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;

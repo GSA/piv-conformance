@@ -8,10 +8,10 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package gov.gsa.pivconformancetools.junitconsole;
+package gov.gsa.conformancelib.pivconformancetools.junitconsole;
 
 import static org.junit.platform.commons.util.ExceptionUtils.readStackTrace;
-import static gov.gsa.pivconformancetools.junitconsole.Color.NONE;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.NONE;
 
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
@@ -31,15 +31,15 @@ public class VerboseTreePrintingListener implements TestExecutionListener {
 
 	private final PrintWriter out;
 	private final boolean disableAnsiColors;
-	private final Theme theme;
+	private final gov.gsa.conformancelib.junitoptions.Theme theme;
 	private final Deque<Long> frames;
 	private final String[] verticals;
 	private long executionStartedMillis;
 
-	public VerboseTreePrintingListener(PrintWriter out, boolean disableAnsiColors, int maxContainerNestingLevel, Theme theme) {
+	public VerboseTreePrintingListener(PrintWriter out, boolean disableAnsiColors, int maxContainerNestingLevel, gov.gsa.conformancelib.junitoptions.Theme theme2) {
 		this.out = out;
 		this.disableAnsiColors = disableAnsiColors;
-		this.theme = theme;
+		this.theme = theme2;
 
 		// create frame stack and push initial root frame
 		this.frames = new ArrayDeque<>();
@@ -52,7 +52,7 @@ public class VerboseTreePrintingListener implements TestExecutionListener {
 		this.verticals[2] = ""; // "engine" level
 
 		for (int i = 3; i < verticals.length; i++) {
-			verticals[i] = verticals[i - 1] + theme.vertical();
+			verticals[i] = verticals[i - 1] + theme2.vertical();
 		}
 	}
 

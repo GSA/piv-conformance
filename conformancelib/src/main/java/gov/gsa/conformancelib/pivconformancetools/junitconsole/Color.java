@@ -8,7 +8,7 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package gov.gsa.pivconformancetools.junitconsole;
+package gov.gsa.conformancelib.pivconformancetools.junitconsole;
 
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.TestIdentifier;

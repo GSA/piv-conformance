@@ -8,15 +8,15 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 
-package gov.gsa.pivconformancetools.junitconsole;
+package gov.gsa.conformancelib.pivconformancetools.junitconsole;
 
 import static org.junit.platform.commons.util.CollectionUtils.getOnlyElement;
-import static gov.gsa.pivconformancetools.junitconsole.Color.CONTAINER;
-import static gov.gsa.pivconformancetools.junitconsole.Color.FAILED;
-import static gov.gsa.pivconformancetools.junitconsole.Color.GREEN;
-import static gov.gsa.pivconformancetools.junitconsole.Color.NONE;
-import static gov.gsa.pivconformancetools.junitconsole.Color.SKIPPED;
-import static gov.gsa.pivconformancetools.junitconsole.Color.YELLOW;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.CONTAINER;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.FAILED;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.GREEN;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.NONE;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.SKIPPED;
+import static gov.gsa.conformancelib.pivconformancetools.junitconsole.Color.YELLOW;
 
 import java.io.PrintWriter;
 import java.util.Iterator;

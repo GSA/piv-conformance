@@ -1,4 +1,4 @@
-package gov.gsa.pivconformancetools;
+package gov.gsa.conformancelib.pivconformancetools;
 
 import gov.gsa.pivconformance.card.client.*;
 import gov.gsa.pivconformance.tlv.*;
