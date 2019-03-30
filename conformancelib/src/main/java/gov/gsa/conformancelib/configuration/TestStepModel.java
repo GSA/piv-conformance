@@ -86,7 +86,9 @@ public class TestStepModel {
 				"from TestSteps left outer join TestsToSteps on TestSteps.Id = TestsToSteps.TestStepId "+
 				"where TestSteps.Id = ? and TestSteps.TestId = ?";
 								
-		String parametersQuery = "select Id, TestStepId, TestId, Value from TestStepParameters where TestStepParameters.TestStepId = ? and TestStepParameters.TestId = ?";
+		String parametersQuery = "select Id, TestStepId, TestId, Value from TestStepParameters " + 
+                                            "where TestStepParameters.TestStepId = ? and TestStepParameters.TestId = ? " +
+                                            "order by TestStepParameters.ParamOrder";
 		try {
 			Connection conn = m_db.getConnection();
 			PreparedStatement pquery = conn.prepareStatement(query);

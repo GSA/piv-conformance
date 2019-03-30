@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS "TestStepParameters" (
 	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,
 	`TestStepId`	INTEGER,
 	`TestId`	INTEGER,
-        `Value`         TEXT
+        `Value`         TEXT,
+        `ParamOrder`    TEXT
 );
 
 CREATE TABLE IF NOT EXISTS "TestCases" (
