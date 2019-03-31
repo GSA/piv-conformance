@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -618,7 +619,7 @@ public class SP800_76_Tests {
 		//Not sure what we actually need to test for this test case
 		assertNotNull(recordLength);
 		
-		int biometricDataBlockLength  = ((recordLength[0] << 8) | recordLength[1]);
+		int biometricDataBlockLength  = (((recordLength[0] & 0xFF) << 8) | (recordLength[1] & 0xFF));
         
         //Confirm that the record length value is the same at the length of the leftover buffer
         assertTrue(biometricDataBlockLength == biometricDataBlock.length);
@@ -665,14 +666,13 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 		
-		assertTrue(biometricDataBlock.length >= 18);
+		assertTrue(biometricDataBlock.length >= 14);
 		
-		//XXX Not clear to me if each field is 4 bytes or each field is 2 bytes 
-		byte [] cBEFFProductIdentifierOwner  = Arrays.copyOfRange(biometricDataBlock, 10, 14);
-		byte [] cBEFFProductIdentifierBype  = Arrays.copyOfRange(biometricDataBlock, 14,18);
+		byte [] cBEFFProductIdentifierOwner  = Arrays.copyOfRange(biometricDataBlock, 10, 12);
+		byte [] cBEFFProductIdentifierBype  = Arrays.copyOfRange(biometricDataBlock, 12,14);
 		
 		
-		byte [] zeroBlock = { 0x00, 0x00, 0x00, 0x00 };
+		byte [] zeroBlock = { 0x00, 0x00 };
 		
 		assertTrue(!Arrays.equals(cBEFFProductIdentifierOwner, zeroBlock));
 		assertTrue(!Arrays.equals(cBEFFProductIdentifierBype, zeroBlock));
@@ -719,10 +719,10 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock);
 				
 		//Not sure what does the 1000b value indicates that 4 bits and is it located on the 19th byte?
-		assertTrue(biometricDataBlock.length >= 19);
+		assertTrue(biometricDataBlock.length >= 15);
 		
-		//Check the second byte of biometric data to confirm its is b00001000 (0x08)
-		assertTrue(Byte.compare(biometricDataBlock[19], (byte)0x08) == 0);
+		//Check the second byte of biometric data to confirm its is 1000b (0x80)
+		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x80) == 0);
 	}
 	
 	
@@ -767,11 +767,11 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock);
 							
 		//XXX Is it located on the 20th byte?
-		assertTrue(biometricDataBlock.length >= 21);
+		assertTrue(biometricDataBlock.length >= 16);
 		
 		//Confirm that the 20th and 21st is not null
-		assertTrue(Byte.compare(biometricDataBlock[20], (byte)0x00) != 0);
-		assertTrue(Byte.compare(biometricDataBlock[21], (byte)0x00) != 0);
+		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x00) != 0);
+		assertTrue(Byte.compare(biometricDataBlock[15], (byte)0x00) != 0);
 	}
 	
 	//Confirm that scanned image in X and scanned image in Y are non-zero (and obtained from enrollment records??)
@@ -815,12 +815,12 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock);
 							
 		//Is it located on the 20th byte?
-		assertTrue(biometricDataBlock.length >= 25);
+		assertTrue(biometricDataBlock.length >= 21);
 
-		byte [] scannedIimageInX  = Arrays.copyOfRange(biometricDataBlock, 21, 23);
-		byte [] scannedIimageInY  = Arrays.copyOfRange(biometricDataBlock, 23, 25);
+		byte [] scannedIimageInX  = Arrays.copyOfRange(biometricDataBlock, 16, 18);
+		byte [] scannedIimageInY  = Arrays.copyOfRange(biometricDataBlock, 18, 20);
 		
-		byte [] zeroBlock = { 0x00, 0x00, 0x00, 0x00 };
+		byte [] zeroBlock = { 0x00, 0x00 };
 		
 		//CHeck the values are not zero
 		assertTrue(!Arrays.equals(scannedIimageInX, zeroBlock));
@@ -868,18 +868,14 @@ public class SP800_76_Tests {
 		
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
-		assertTrue(biometricDataBlock.length >= 29);
+		assertTrue(biometricDataBlock.length >= 25);
 
-		byte [] resolutionXBuff  = Arrays.copyOfRange(biometricDataBlock, 25, 27);
-		byte [] resolutionYBuff  = Arrays.copyOfRange(biometricDataBlock, 27, 29);
+		byte [] resolutionXBuff  = Arrays.copyOfRange(biometricDataBlock, 20, 22);
+		byte [] resolutionYBuff  = Arrays.copyOfRange(biometricDataBlock, 22, 24);
 		
- 		//Convert Biometric data block (BDB) Length byte[] value to int
-        ByteBuffer wrapped = ByteBuffer.wrap(resolutionXBuff);
-        int resolutionX = wrapped.getInt();
-        
- 		//Convert Biometric data block (BDB) Length byte[] value to int
-        wrapped = ByteBuffer.wrap(resolutionYBuff);
-        int resolutionY = wrapped.getInt();
+		
+		int resolutionX  = (((resolutionXBuff[0] & 0xFF) << 8) | (resolutionXBuff[1] & 0xFF));
+		int resolutionY  = (((resolutionYBuff[0] & 0xFF) << 8) | (resolutionYBuff[1] & 0xFF));
 		
         //Confirm the values are 197
         assertTrue(resolutionX == 197);     
@@ -925,20 +921,18 @@ public class SP800_76_Tests {
 		
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
-					
-		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
 		
-		assertTrue(biometricDataBlock.length >= 30);
+		assertTrue(biometricDataBlock.length >= 26);
 
-		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 29, 30);
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
 		
- 		//Convert Biometric data block (BDB) Length byte[] value to int
-        ByteBuffer wrapped = ByteBuffer.wrap(numberOfFingerViewsBuff);
-        int numberOfFingers = wrapped.getInt();
+		assertNotNull(numberOfFingerViewsBuff);
+		
+		
+		BigInteger numberOfFingers = new BigInteger(numberOfFingerViewsBuff);
         
         //Confirm nuimber of finger views is 2
-        assertTrue(numberOfFingers == 2);
+        assertTrue(numberOfFingers.intValue() == 2);
 	}
 	
 	//Confirm that reserved byte is set to 0
@@ -981,10 +975,10 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 							
-		assertTrue(biometricDataBlock.length >= 31);
+		assertTrue(biometricDataBlock.length >= 26);
 		
 		//Confirm that reserve byte is 0
-		assertTrue(Byte.compare(biometricDataBlock[31], (byte)0x00) == 0);
+		assertTrue(Byte.compare(biometricDataBlock[25], (byte)0x00) == 0);
 	}
 	
 	//Confirm that Finger View Header has value 'A'
