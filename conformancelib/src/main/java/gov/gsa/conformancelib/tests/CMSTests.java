@@ -785,19 +785,23 @@ public class CMSTests {
 		
 		assertNotNull(signers);
 
-        List<String> algList = new ArrayList<String>();
+        List<String> digestAlgList = new ArrayList<String>();
         
-        algList.add("1.2.840.113549.1.1.1");
-        algList.add("1.2.840.10045.2.1");
+        digestAlgList.add("2.16.840.1.101.3.4.2.1");
         
+        List<String> encryptionAlgList = new ArrayList<String>();
+        
+        encryptionAlgList.add("1.2.840.113549.1.1.1");
         
 		Iterator<?> it = signers.getSigners().iterator();
 		while (it.hasNext()) {
 			SignerInformation signer = (SignerInformation) it.next();
 			
+			String algOID1 = signer.getDigestAlgOID();
 			String algOID2 = signer.getEncryptionAlgOID();
 			
-			assertTrue(algList.contains(algOID2));
+			assertTrue(digestAlgList.contains(algOID1));
+			assertTrue(encryptionAlgList.contains(algOID2));
 		}	
     }
 	
@@ -860,7 +864,7 @@ public class CMSTests {
 			fail(e);
 		}
 		
-		//Verify signature using the cert from the cert bag.
+		//Verify signature using the cert from the cert bag.  XXX Need to revisit for some reson signature verification fails
 		assertTrue(((CardHolderUniqueIdentifier) o).verifySignature());
     }
 	
@@ -917,7 +921,7 @@ public class CMSTests {
 			fail(e);
 		}
 		
-		//Confirm the extension is not null
+		//Confirm id-PIV-content-signing (2.16.840.1.101.3.6.7) present (Will fail on test cards as they have (2.16.840.1.101.3.8.7) test oid
 		assertTrue(ekuList.contains("2.16.840.1.101.3.6.7"));
     }
 	
@@ -1024,6 +1028,9 @@ public class CMSTests {
 			
 			ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier("2.16.840.1.101.3.6.6");
 			Attribute attr = attributeTable.get(pivFASCN_OID);
+			
+			//XXX Test cards did not contain this signed attribute
+			assertNotNull(attr);
 					
 			try {
 
@@ -1074,6 +1081,7 @@ public class CMSTests {
 		
 		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
 
+		//XXX Failing this test with the test cards
 		assertTrue(signedData.getVersion() == 1);
 		
     }
@@ -1157,14 +1165,15 @@ public class CMSTests {
         
         boolean decoded = o.decode();
 		assertTrue(decoded);
-		
-		ContentInfo contentInfo = ((SecurityObject) o).getContentInfo();
 
-		assertNotNull(contentInfo);
+		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
+
+		assertNotNull(signedData);
 		
-		ASN1ObjectIdentifier ct = contentInfo.getContentType();
+		CMSTypedData ct = signedData.getSignedContent();
 		
-		assertTrue(ct.getId().compareTo("2.23.136.1.1.1") == 0);
+		//XXX Confirm the right oid for id-icao-ldsSecurityObject is it "2.23.136.1.1.1"  or "1.3.27.1.1.1"
+		assertTrue(ct.getContentType().toString().compareTo("1.3.27.1.1.1") == 0);
     }
 	
 	//Confirm certificates field is omitted
@@ -1242,9 +1251,17 @@ public class CMSTests {
         //Get data from the card corresponding to the OID value
         MiddlewareStatus result = piv.pivGetData(ch, oid, o);
         assertTrue(result == MiddlewareStatus.PIV_OK);
+        
+
+        //Get data from the card corresponding to the OID value
+        result = piv.pivGetData(ch, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
+        assertTrue(result == MiddlewareStatus.PIV_OK);
         	
         
         boolean decoded = o.decode();
+		assertTrue(decoded);
+		
+		decoded = o2.decode();
 		assertTrue(decoded);
 		
 		X509Certificate cert = ((CardHolderUniqueIdentifier) o2).getSigningCertificate();
@@ -1296,32 +1313,23 @@ public class CMSTests {
 		
 		assertNotNull(signers);
 
-		//List of acceptable signature algorithms
-        List<String> algList = new ArrayList<String>();
+        List<String> digestAlgList = new ArrayList<String>();
         
-        algList.add("1.2.840.113549.1.1.5");
-        algList.add("1.2.840.113549.1.1.10");
-        algList.add("1.2.840.113549.1.1.11");
-        algList.add("1.2.840.10045.4.3.2");
-        algList.add("1.2.840.10045.4.3.3");
+        digestAlgList.add("2.16.840.1.101.3.4.2.1");
         
-        //List of acceptable digest algorithms
-        List<String> algList2 = new ArrayList<String>();
+        List<String> encryptionAlgList = new ArrayList<String>();
         
-        algList2.add("2.16.840.1.101.3.4.2.1");
-        
+        encryptionAlgList.add("1.2.840.113549.1.1.1");
         
 		Iterator<?> it = signers.getSigners().iterator();
 		while (it.hasNext()) {
 			SignerInformation signer = (SignerInformation) it.next();
 			
-			String digestOid = signer.getDigestAlgOID();
-			String sigAlgOID = signer.getEncryptionAlgOID();
+			String algOID1 = signer.getDigestAlgOID();
+			String algOID2 = signer.getEncryptionAlgOID();
 			
-			
-			//Confirm that the signature and digest algorithm are acceptable.
-			assertTrue(algList.contains(sigAlgOID));
-			assertTrue(algList2.contains(digestOid));
+			assertTrue(digestAlgList.contains(algOID1));
+			assertTrue(encryptionAlgList.contains(algOID2));
 		}	
     }
 	
