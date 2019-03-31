@@ -4,12 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.stream.Stream;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Calendar;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -22,15 +20,11 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
-import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
-import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
-import gov.gsa.pivconformance.tlv.BerTag;
-import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class SP800_76_Tests {
 
@@ -49,6 +43,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -90,7 +85,7 @@ public class SP800_76_Tests {
 	}
 
 	
-	//BDB length field is non-zero
+	//Recorded length matches actual length
 	@DisplayName("SP800-76.2 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
@@ -105,6 +100,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -164,6 +160,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -188,7 +185,7 @@ public class SP800_76_Tests {
 		//Make sure biometric data is present
 		assertNotNull(biometricData);
 		
-		 if (biometricData != null && biometricData.length > 6+8) {
+		 if (biometricData != null && biometricData.length > 8) {
 			 
              //Get Signature block (SB) Length
              byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);
@@ -219,6 +216,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -243,7 +241,7 @@ public class SP800_76_Tests {
 		//Make sure biometric data is present
 		assertNotNull(biometricData);
 		
-		 if (biometricData != null && biometricData.length > 6+8) {
+		 if (biometricData != null && biometricData.length > 8) {
 			 
 			//Get Biometric data block (BDB) Length
 			byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
@@ -270,7 +268,7 @@ public class SP800_76_Tests {
 	//Patron Header Version is 0x03
 	@DisplayName("SP800-76.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_5(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -282,6 +280,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -327,6 +326,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -372,6 +372,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -418,6 +419,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -442,7 +444,7 @@ public class SP800_76_Tests {
 		//Make sure biometric data is present
 		assertNotNull(biometricData);
 		
-		 if (biometricData != null && biometricData.length > 6+8) {
+		 if (biometricData != null && biometricData.length > 8) {
 			 
 			//Get Biometric data block (BDB) Length
 			byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
@@ -483,6 +485,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -532,6 +535,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -560,9 +564,9 @@ public class SP800_76_Tests {
 		
 		//Get bytes 4 through 8 of biometric data block to get version identifier.
 		byte [] versionIdentifier = Arrays.copyOfRange(biometricDataBlock, 4, 8);
-		byte [] versionIdentifierValueToCheck = { 0x20, 0x32, 0x30, 0x30 };
+		byte [] versionIdentifierValueToCheck = { 0x20, 0x32, 0x30, 0x00 };
 		
-		//Check version identifier value of 0x20323030
+		//Check version identifier value of 0x20323030 XXX spreadsheet had this 0x20323030 but I believe this is wrong should be 0x20323000
 		assertTrue(Arrays.equals(versionIdentifier, versionIdentifierValueToCheck));
 	}
 	
@@ -581,6 +585,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -613,12 +618,10 @@ public class SP800_76_Tests {
 		//Not sure what we actually need to test for this test case
 		assertNotNull(recordLength);
 		
-		//Convert Biometric data block (BDB) Length byte[] value to int
-        ByteBuffer wrapped = ByteBuffer.wrap(recordLength);
-        int biometricDataBlockLength = wrapped.getInt();
+		int biometricDataBlockLength  = ((recordLength[0] << 8) | recordLength[1]);
         
         //Confirm that the record length value is the same at the length of the leftover buffer
-        assertTrue(biometricDataBlockLength == (biometricDataBlock.length - 10));
+        assertTrue(biometricDataBlockLength == biometricDataBlock.length);
 	}
 	
 	
@@ -637,6 +640,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -689,6 +693,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -736,6 +741,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -783,6 +789,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -837,6 +844,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -893,6 +901,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -947,6 +956,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -992,6 +1002,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1034,6 +1045,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1083,6 +1095,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1137,6 +1150,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1185,6 +1199,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1234,6 +1249,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1295,6 +1311,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1349,6 +1366,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1410,6 +1428,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1471,6 +1490,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1529,6 +1549,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1578,6 +1599,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1627,6 +1649,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1680,6 +1703,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1732,6 +1756,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1783,6 +1808,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1842,6 +1868,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1901,6 +1928,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -1960,6 +1988,7 @@ public class SP800_76_Tests {
 		}
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
