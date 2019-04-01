@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -23,6 +26,7 @@ import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
@@ -43,6 +47,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -100,6 +105,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -160,6 +166,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -216,6 +223,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -280,6 +288,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -326,6 +335,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -372,6 +382,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -419,6 +430,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -485,6 +497,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -535,6 +548,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -585,6 +599,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -640,6 +655,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -692,6 +708,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -740,6 +757,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -788,6 +806,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -843,6 +862,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -896,6 +916,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -949,6 +970,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -995,6 +1017,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1038,6 +1061,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1063,15 +1087,35 @@ public class SP800_76_Tests {
 		
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
+		        
+		assertTrue(biometricDataBlock.length >= 27);
 							
-		assertTrue(biometricDataBlock.length >= 32);
-		
-		Byte b = new Byte(biometricDataBlock[32]);
-		int fingerViewPosition = b.intValue();
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
         
-        //Confirm Finger View Position is between 0 and 14
-        assertTrue(fingerViewPosition > 0);
-        assertTrue(fingerViewPosition < 15);
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+			
+			
+
+	        assertTrue(fingerPosition >= 0);
+	        assertTrue(fingerPosition <= 14);
+
+	        offset = offset+6+numberOfMinutiae*6;
+        }
 	}
 	
 	//If only 1 minutiae present for a finger, view number must be 0
@@ -1088,6 +1132,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1113,20 +1158,35 @@ public class SP800_76_Tests {
 		
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
+		        
+		assertTrue(biometricDataBlock.length >= 27);
+							
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
 
-		assertTrue(biometricDataBlock.length >= 36);
-		
-		Byte b = new Byte(biometricDataBlock[33]);
-		int viewNumber = b.intValue();
-		
-		b = new Byte(biometricDataBlock[36]);
-		int numberOfMinutiae = b.intValue();
         
-		if(numberOfMinutiae == 1) {
-	        assertTrue(viewNumber == 0);
-		} else {
-	        assertTrue(viewNumber > 0);
-		}
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+			
+			
+			if(numberOfMinutiae == 1)
+	        	assertTrue(viewNumber == 0);
+
+	        offset = offset+6+numberOfMinutiae*6;
+        }
 	}
 	
 	//Impression type must be 0 or 2
@@ -1143,6 +1203,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1169,13 +1230,33 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 
-		assertTrue(biometricDataBlock.length >= 34);
+		assertTrue(biometricDataBlock.length >= 27);
 		
-		Byte b = new Byte(biometricDataBlock[34]);
-		int impressionType = b.intValue();
-		
-		//Confirm impression type is either 0 or 2
-		assertTrue(impressionType == 0 || impressionType == 2);
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
+        
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+			
+			
+			//Confirm impression type is 0 or 2
+	        assertTrue(impressionType == 0 || impressionType == 2);
+
+	        offset = offset+6+numberOfMinutiae*6;
+        }
 	}
 	
 	//Number of minutia (0, 128)
@@ -1192,6 +1273,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1212,20 +1294,39 @@ public class SP800_76_Tests {
 
 	    boolean decoded = o.decode();
 		assertTrue(decoded);
-			
+				
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);		
-		
-		assertTrue(biometricDataBlock.length >= 36);
-		
-		Byte b = new Byte(biometricDataBlock[36]);
-		int numberOfMinutia = b.intValue();
-		
-		//Confirm number of minutia is between 0 and 128
-		assertTrue(numberOfMinutia > 0);
-		assertTrue(numberOfMinutia < 128);
+		        
+		assertTrue(biometricDataBlock.length >= 29);
+							
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
+
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+	        
+	        //Confirm number of minutiae is between 0 and 128
+	        assertTrue(numberOfMinutiae >= 0);
+	        assertTrue(numberOfMinutiae <= 128);
+
+	        offset = offset+6+numberOfMinutiae*6;
+        }
 	}
 	
 	//Verify that minutiae type is 01b or 10b
@@ -1242,6 +1343,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1268,26 +1370,38 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);		
 		
-		assertTrue(biometricDataBlock.length >= 36);
+		assertTrue(biometricDataBlock.length >= 29);
 		
-		Byte b = new Byte(biometricDataBlock[36]);
-		int numberOfMinutia = b.intValue();
-		
-		int start = 37;
-		for(int i = 0; i < numberOfMinutia; i++) {
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
 
-			assertTrue(biometricDataBlock.length > start + 6);
-			byte [] minutiaBuff  = Arrays.copyOfRange(biometricDataBlock, start, 6);
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+	        
+			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
+				
+				int minType = ((biometricDataBlock[offset+4] & 0xC0) >> 6);
 			
-			boolean a = (1 == ((minutiaBuff[0] >> 1) & 1));
-			boolean c = (1 == ((minutiaBuff[0] >> 1) & 1));
-			
-			assertTrue((a == false && c == true) || (a == true && c == false));
-			
-			start = start+6;
-		}
-		
-		
+				assertTrue(minType == 1 || minType == 2);
+				
+				offset = offset+6;
+			}
+
+	        offset = offset+6;
+        }
 	}
 	
 	//Verify that position is one of the valid x,y coordinate types in the original image 
@@ -1304,6 +1418,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1330,19 +1445,39 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 							
-		assertTrue(biometricDataBlock.length >= 36);
+		assertTrue(biometricDataBlock.length >= 29);
 		
-		Byte b = new Byte(biometricDataBlock[36]);
-		int numberOfMinutia = b.intValue();
-		
-		int start = 37;
-		for(int i = 0; i < numberOfMinutia; i++) {
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
 
-			assertTrue(biometricDataBlock.length > start + 6);
-			byte [] minutiaBuff  = Arrays.copyOfRange(biometricDataBlock, start, 6);
-			
-			//XXX Not entierly sure how to do the rest of this test
-		}
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+	        
+			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
+				
+				int positionX = (((biometricDataBlock[offset+4] & ~0xC0) << 2 & 0xFF) | (biometricDataBlock[offset+5] & 0xFF));
+				int positionY = (((biometricDataBlock[offset+6] & ~0xC0) << 2 & 0xFF) | (biometricDataBlock[offset+7] & 0xFF));
+				
+				//XXX Not sure how to check position
+				
+				offset = offset+6;
+			}
+
+	        offset = offset+6;
+        }
 	}
 	
 	//Verify that angle (0,179)
@@ -1359,6 +1494,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1385,26 +1521,37 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 							
-		assertTrue(biometricDataBlock.length >= 36);
+		assertTrue(biometricDataBlock.length >= 29);
 		
-		Byte b = new Byte(biometricDataBlock[36]);
-		int numberOfMinutia = b.intValue();
-		
-		int start = 37;
-		for(int i = 0; i < numberOfMinutia; i++) {
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
 
-			assertTrue(biometricDataBlock.length > start + 6);
-			byte [] minutiaBuff  = Arrays.copyOfRange(biometricDataBlock, start, 6);
-			
-			assertTrue(minutiaBuff.length >= 3);
-			
-			Byte bt = new Byte(minutiaBuff[3]);
-			int angle = bt.intValue();
-			
-			//Confirm angle is between 0 and 179
-			assertTrue(angle >= 0);
-			assertTrue(angle <= 179);
-		}
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+	        
+			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
+
+				int angle = biometricDataBlock[offset+8] & 0xFF;
+				
+				assertTrue(angle >= 0 && angle <= 179);
+				offset = offset+6;
+			}
+
+	        offset = offset+6;
+        }
 	}
 	
 	//Verify that quality (0,100)
@@ -1421,6 +1568,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1447,26 +1595,37 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 							
-		assertTrue(biometricDataBlock.length >= 36);
+		assertTrue(biometricDataBlock.length >= 29);
 		
-		Byte b = new Byte(biometricDataBlock[36]);
-		int numberOfMinutia = b.intValue();
-		
-		int start = 37;
-		for(int i = 0; i < numberOfMinutia; i++) {
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
 
-			assertTrue(biometricDataBlock.length > start + 6);
-			byte [] minutiaBuff  = Arrays.copyOfRange(biometricDataBlock, start, 6);
-			
-			assertTrue(minutiaBuff.length >= 4);
-			
-			Byte bt = new Byte(minutiaBuff[4]);
-			int quality = bt.intValue();
-			
-			//Confirm quality between 0 and 100
-			assertTrue(quality >= 0);
-			assertTrue(quality <= 100);
-		}
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+	        
+			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
+
+				int quality = biometricDataBlock[offset+9] & 0xFF;
+				
+				assertTrue(quality >= 0 && quality <= 100);
+				offset = offset+6;
+			}
+
+	        offset = offset+6;
+        }
 	}
 	
 	//Verify that extended data block length is 0
@@ -1483,6 +1642,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1509,23 +1669,35 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 							
-		assertTrue(biometricDataBlock.length >= 36);
+		assertTrue(biometricDataBlock.length >= 29);
 		
-		Byte b = new Byte(biometricDataBlock[36]);
-		int numberOfMinutia = b.intValue();
-		
-		int start = 37;
-		for(int i = 0; i < numberOfMinutia; i++) {
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
 
-			assertTrue(biometricDataBlock.length > start + 6);
-			byte [] minutiaBuff  = Arrays.copyOfRange(biometricDataBlock, start, 6);
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+	        
+			byte [] zeroBlock = { 0x00, 0x00 };
 			
-			assertTrue(minutiaBuff.length >= 6);
+			byte [] extendedDataBlockLength  = Arrays.copyOfRange(biometricDataBlock, offset+numberOfMinutiae*6+3, offset+numberOfMinutiae*6+3+2);
 			
-			//Confirm that extended data block length is 0
-			assertTrue(Byte.compare(minutiaBuff[4], (byte)0x00) == 0);
-			assertTrue(Byte.compare(minutiaBuff[5], (byte)0x00) == 0);
-		}
+			assertTrue(Arrays.equals(extendedDataBlockLength, zeroBlock));
+			
+	        offset = offset+6+numberOfMinutiae*6;
+        }
 	}
 	
 	//Verify that format identifier is 0x46414300
@@ -1542,6 +1714,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1592,6 +1765,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1642,6 +1816,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1679,7 +1854,7 @@ public class SP800_76_Tests {
         int biometricDataBlockLength = wrapped.getInt();
         
         //Confirm that the record length value is the same at the length of the leftover buffer
-        assertTrue(biometricDataBlockLength == (biometricDataBlock.length - 12));
+        assertTrue(biometricDataBlockLength == biometricDataBlock.length);
 	}
 	
 	//Verify that number of facial images is 1
@@ -1696,6 +1871,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1729,10 +1905,9 @@ public class SP800_76_Tests {
 		
 		assertNotNull(numberoffacesBuf);
 		
-        ByteBuffer wrapped = ByteBuffer.wrap(numberoffacesBuf);
-        int numberoffaces = wrapped.getInt();
-		
-		assertTrue(numberoffaces == 1);
+        BigInteger numberoffaces = new BigInteger(numberoffacesBuf);
+        
+		assertTrue(numberoffaces.intValue() == 1);
 	}
 	
 	//Verify number of feature points is > 0
@@ -1749,6 +1924,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1769,9 +1945,8 @@ public class SP800_76_Tests {
 
 	    boolean decoded = o.decode();
 		assertTrue(decoded);
-			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
+		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 							
@@ -1781,16 +1956,16 @@ public class SP800_76_Tests {
 		
 		assertNotNull(numberOfFeaturePointsBuf);
 		
-        ByteBuffer wrapped = ByteBuffer.wrap(numberOfFeaturePointsBuf);
-        int numberOfFeaturePoints = wrapped.getInt();
+        int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
 		
+        //XXX Find out why test cards have 0 feature points
 		assertTrue(numberOfFeaturePoints > 0);
 	}
 	
 	//Verify that facial image type is 1
 	@DisplayName("SP800-76.34 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_34(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -1801,6 +1976,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1829,20 +2005,15 @@ public class SP800_76_Tests {
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
-		byte [] numberOfFeaturePointsBuf = Arrays.copyOfRange(biometricDataBlock, 18, 20);
-		
-		assertNotNull(numberOfFeaturePointsBuf);
-		
-        ByteBuffer wrapped = ByteBuffer.wrap(numberOfFeaturePointsBuf);
-        int numberOfFeaturePoints = wrapped.getInt();
+		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
         
-        
-        int offset = 12 + numberOfFeaturePoints*8;
+		int offset = 14;
+		if(numberOfFeaturePoints > 0)
+			offset = offset+ numberOfFeaturePoints*8;
         
         assertTrue(biometricDataBlock.length >= 20 + offset + 1);
         
-        Byte bt = new Byte(biometricDataBlock[20 + offset]);
-		int facialImageType  = bt.intValue();
+		int facialImageType  = biometricDataBlock[20 + offset] & 0xFF;
 		
 		assertTrue(facialImageType == 1);
 	}
@@ -1850,7 +2021,7 @@ public class SP800_76_Tests {
 	//Verify that image data type is 0 or 1
 	@DisplayName("SP800-76.35 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_35(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -1861,6 +2032,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1889,22 +2061,17 @@ public class SP800_76_Tests {
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
-		byte [] numberOfFeaturePointsBuf = Arrays.copyOfRange(biometricDataBlock, 18, 20);
+		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
+        
+		int offset = 15;
+		if(numberOfFeaturePoints > 0)
+			offset = offset+ numberOfFeaturePoints*8;
+        
+        assertTrue(biometricDataBlock.length >= 20 + offset + 1);
+        
+		int facialImageDataType  = biometricDataBlock[20 + offset] & 0xFF;
 		
-		assertNotNull(numberOfFeaturePointsBuf);
-		
-        ByteBuffer wrapped = ByteBuffer.wrap(numberOfFeaturePointsBuf);
-        int numberOfFeaturePoints = wrapped.getInt();
-        
-        
-        int offset = 12 + numberOfFeaturePoints*8;
-        
-        assertTrue(biometricDataBlock.length >= 20 + offset + 2);
-        
-        Byte bt = new Byte(biometricDataBlock[20 + offset +1]);
-		int facialImageType  = bt.intValue();
-		
-		assertTrue(facialImageType == 1 || facialImageType == 0);
+		assertTrue(facialImageDataType == 1 || facialImageDataType == 0);
 	}
 	
 	//Verify that image color space is 1
@@ -1921,6 +2088,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -1949,22 +2117,17 @@ public class SP800_76_Tests {
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
-		byte [] numberOfFeaturePointsBuf = Arrays.copyOfRange(biometricDataBlock, 18, 20);
+		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
+        
+		int offset = 20;
+		if(numberOfFeaturePoints > 0)
+			offset = offset+ numberOfFeaturePoints*8;
+        
+        assertTrue(biometricDataBlock.length >= 20 + offset + 1);
+        
+		int imageColorSpace  = biometricDataBlock[20 + offset] & 0xFF;
 		
-		assertNotNull(numberOfFeaturePointsBuf);
-		
-        ByteBuffer wrapped = ByteBuffer.wrap(numberOfFeaturePointsBuf);
-        int numberOfFeaturePoints = wrapped.getInt();
-        
-        
-        int offset = 12 + numberOfFeaturePoints*8;
-        
-        assertTrue(biometricDataBlock.length >= 20 + offset + 6);
-        
-        Byte bt = new Byte(biometricDataBlock[20 + offset + 5]);
-		int colorSpace  = bt.intValue();
-		
-		assertTrue(colorSpace == 1);
+		assertTrue(imageColorSpace == 1);
 	}
 	
 	//Verify that source type is 2 or 6
@@ -1981,6 +2144,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
+			css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
@@ -2009,20 +2173,15 @@ public class SP800_76_Tests {
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
-		byte [] numberOfFeaturePointsBuf = Arrays.copyOfRange(biometricDataBlock, 18, 20);
-		
-		assertNotNull(numberOfFeaturePointsBuf);
-		
-        ByteBuffer wrapped = ByteBuffer.wrap(numberOfFeaturePointsBuf);
-        int numberOfFeaturePoints = wrapped.getInt();
+		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
         
+		int offset = 21;
+		if(numberOfFeaturePoints > 0)
+			offset = offset+ numberOfFeaturePoints*8;
         
-        int offset = 12 + numberOfFeaturePoints*8;
+        assertTrue(biometricDataBlock.length >= 20 + offset + 1);
         
-        assertTrue(biometricDataBlock.length >= 20 + offset + 7);
-        
-        Byte bt = new Byte(biometricDataBlock[20 + offset + 7]);
-		int sourceType  = bt.intValue();
+		int sourceType  = biometricDataBlock[20 + offset] & 0xFF;
 		
 		assertTrue(sourceType == 2 || sourceType == 6);
 	}
