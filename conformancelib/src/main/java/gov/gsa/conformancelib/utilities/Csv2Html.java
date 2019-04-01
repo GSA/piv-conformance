@@ -37,8 +37,9 @@ public class Csv2Html {
 	public static void tableHeader(PrintStream ps, String[] columns) {
 		ps.print("<tr>");
 		for (int i = 0; i < columns.length; i++) {
+			String innerHtml = columns[i].replaceAll("^&quot;|&quot;$", "");
 			ps.print("<th>");
-			ps.print(columns[i]);
+			ps.print(innerHtml);
 			ps.print("</th>");
 		}
 		ps.println("</tr>");
@@ -48,23 +49,15 @@ public class Csv2Html {
 		ps.print("<tr>");
 
 		for (int i = 0; i < columns.length; i++) {
-			boolean backToNormal = false;
 			String innerHtml = columns[i].replaceAll("^&quot;|&quot;$", "");
-
-			ps.print("<td>");
 			if (innerHtml.contentEquals("Fail")) {
-				ps.print("<style \"background-color:red; color:white;\"/>");
-				backToNormal = true;
+				ps.print("<td class=\"fail\">");
 			} else if (innerHtml.contentEquals("Pass")) {
-				ps.print("<style \"background-color:green; color:black;\"/>");
-				backToNormal = true;
+				ps.print("<td class=\"pass\">");
 			} else {
-				ps.print("<style \"background-color:white; color:black;\"/>");
+				ps.print("<td>");
 			}
 			ps.print(innerHtml);
-			if (backToNormal) {
-				ps.print("<style \"background color:white; color:black;\"/>");
-			}
 			ps.print("</td>");
 		}
 		ps.println("</tr>");
@@ -77,17 +70,20 @@ public class Csv2Html {
 		File file = new File(filename); 
 
 		BufferedReader br = new BufferedReader(new FileReader(file)); 
-		PrintStream stdout = System.out;
-
+		PrintStream stdout = System.out;		
+		
 		stdout.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
 		stdout.println("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 		stdout.println("<head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\"/>");
 		stdout.println("<title>Test Results</title>");
 		stdout.println("<style type=\"text/css\">");
 		stdout.println("body{background-color:#FFF;color:#000;font-family:OpenSans,sans-serif;font-size:10px;}");
-		stdout.println("table{border:0.2em solid #2F6FAB;border-collapse:collapse;}");
-		stdout.println("th{border:0.15em solid #2F6FAB;padding:0.5em;background-color:#E9E9E9;}");
-		stdout.println("td{border:0.1em solid #2F6FAB;padding:0.5em;background-color:#F9F9F9;}</style>");
+		stdout.println("body{background-color:#FFF;color:#000;font-family:OpenSans,sans-serif;font-size:10px}");
+		stdout.println("table{border:0.2em solid #2F6FAB;border-collapse:collapse}");
+		stdout.println("th{border:0.15em solid #2F6FAB;padding:0.5em;background-color:#E9E9E9}");
+		stdout.println("td{border:0.1em solid #2F6FAB;padding:0.5em;background-color:#FFFFFF}");
+		stdout.println("td.pass{border:0.1em solid #2F6FAB;padding:0.5em;background-color:green;color:black}");
+		stdout.println("td.fail{border:0.1em solid #2F6FAB;padding:0.5em;background-color:red;color:yellow}</style>");
 		stdout.println("</head><body><h1>Test Results</h1>");
 
 		stdout.println("<table>");

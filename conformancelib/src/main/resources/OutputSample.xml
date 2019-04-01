@@ -1,0 +1,18 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+<title>Test Results</title>
+<style type="text/css">
+body{background-color:#FFF;color:#000;font-family:OpenSans,sans-serif;font-size:10px;}
+body{background-color:#FFF;color:#000;font-family:OpenSans,sans-serif;font-size:10px}
+table{border:0.2em solid #2F6FAB;border-collapse:collapse}
+th{border:0.15em solid #2F6FAB;padding:0.5em;background-color:#E9E9E9}
+td{border:0.1em solid #2F6FAB;padding:0.5em;background-color:#FFFFFF}
+td.pass{border:0.1em solid #2F6FAB;padding:0.5em;background-color:green;color:black}
+td.fail{border:0.1em solid #2F6FAB;padding:0.5em;background-color:red;color:yellow}</style>
+</head><body><h1>Test Results</h1>
+<table>
+<tr><th>LastName</th><th>FirstName</th><th>PassFail</th></tr>
+<tr><td>Fontana</td><td>Robert</td><td class="pass">Pass</td></tr>
+<tr><td>Smith</td><td>John</td><td class="fail">Fail</td></tr>
+</table></body></html>
