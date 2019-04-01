@@ -80,7 +80,7 @@ public class SP800_85BTests {
 		assertTrue(Byte.compare(biometricData[11], (byte)0x01) == 0);
 	}
 	
-	//Validate that that the creation date in the PIV Patron Format is encoded in 8 bytes using a binary representation of “YYYYMMDDhhmmssZ”
+	//Validate that that the creation date in the PIV Patron Format is encoded in 8 bytes using a binary representation of YYYYMMDDhhmmssZ
 	@DisplayName("SP800_85B.9.1.2.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_85B_FingerprintsTestProvider")
@@ -467,7 +467,7 @@ public class SP800_85BTests {
 		
 	}
 	
-	//Validate that the “Reserved for Future Use” field is equal to 0x00000000
+	//Validate that the 'Reserved for Future Use' field is equal to 0x00000000
 	@DisplayName("SP800_85B.9.1.2.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_85B_BiometricTestProvider")
@@ -563,7 +563,7 @@ public class SP800_85BTests {
 		assertTrue(Byte.compare(biometricData[11], (byte)0x01) == 0);
 	}
 	
-	//Validate that that the creation date in the PIV Patron Format is encoded in 8 bytes using a binary representation of “YYYYMMDDhhmmssZ”
+	//Validate that that the creation date in the PIV Patron Format is encoded in 8 bytes using a binary representation of 'YYYYMMDDhhmmssZ'
 	@DisplayName("SP800_85B.9.2.2.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_85B_FacialImageTestProvider")
@@ -951,7 +951,7 @@ public class SP800_85BTests {
 		
 	}
 	
-	//Validate that the “Reserved for Future Use” field is equal to 0x00000000
+	//Validate that the 'Reserved for Future Use' field is equal to 0x00000000
 	@DisplayName("SP800_85B.9.1.2.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_85B_FacialImageTestProvider")
