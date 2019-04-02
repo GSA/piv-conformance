@@ -11,7 +11,18 @@ public class LogThresholdFilter extends Filter<ILoggingEvent> {
 
     @Override
     public FilterReply decide(ILoggingEvent event) {
-        return FilterReply.NEUTRAL;
+        if (!isStarted()) {
+            return FilterReply.NEUTRAL;
+        }
+
+        if (!event.getLoggerName().startsWith(logger))
+            return FilterReply.NEUTRAL;
+
+        if (event.getLevel().isGreaterOrEqual(level)) {
+            return FilterReply.NEUTRAL;
+        } else {
+            return FilterReply.DENY;
+        }
     }
 
     public void setLevel(Level level) {
