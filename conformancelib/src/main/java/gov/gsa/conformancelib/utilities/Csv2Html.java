@@ -64,10 +64,17 @@ public class Csv2Html {
 	}
 
 	public static void main(String[] args) throws Exception {
+		
+		if (args.length == 0) {
+			System.out.println ("Usage: Csv2Html <filename> [header]\n");
+		}
+		
 		String filename = (args[0]);
 		boolean withTableHeader = (args.length > 1);
-
-		File file = new File(filename); 
+		
+		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+		 
+		File file = new File(classLoader.getResource(filename).getFile());
 
 		BufferedReader br = new BufferedReader(new FileReader(file)); 
 		PrintStream stdout = System.out;		
