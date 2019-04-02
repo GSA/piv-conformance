@@ -78,7 +78,7 @@ public class SP800_78_X509DataObjectTests {
     }
     
     
-    //Ensure that ECDSA key is curve P-256 (is >256 allowed? Probably not by current standard…)
+    //Ensure that ECDSA key is curve P-256 (is >256 allowed? Probably not by current standard)
     @DisplayName("SP800-78.2 testg")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
