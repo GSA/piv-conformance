@@ -974,8 +974,8 @@ public class CMSTests {
 	//Confirm that signed attributes include pivFASC-N attribute and that it matches FACSC-N read from CHUID container
 	@DisplayName("CMS.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
-    void CMS_Test_17(String oid, TestReporter reporter) {
+    @MethodSource("CMS_TestProvider2")
+    void CMS_Test_17(String oid, List<String> oidList, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -1007,6 +1007,7 @@ public class CMSTests {
 		
 		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
 		byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
+		byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
 		
 		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
 		assertNotNull(issuerAsymmetricSignature);
@@ -1026,20 +1027,38 @@ public class CMSTests {
 			assertNotNull(attributeTable);
 			assertNotNull(signerId);
 			
-			ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier("2.16.840.1.101.3.6.6");
-			Attribute attr = attributeTable.get(pivFASCN_OID);
+			Iterator<String> iterator = oidList.iterator();
+			while (iterator.hasNext()) {
+				String attrOid = iterator.next();
+				ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(attrOid);
+				Attribute attr = attributeTable.get(pivFASCN_OID);
 			
-			//XXX Test cards did not contain this signed attribute
-			assertNotNull(attr);
-					
-			try {
+				//XXX Need to revisit this test to figure out why is it failing.
+				assertNotNull(attr);
+				if(attrOid.compareTo("2.16.840.1.101.3.6.6") == 0) {
 
-				byte[] fascnEncoded = attr.getEncoded();
-				//Confirm issuer from the cert matcher issuer from the signer info	
-				assertTrue(Arrays.equals(fascn, fascnEncoded));
-				
-			} catch (IOException e) {
-				fail(e);
+					try {
+		
+						byte[] fascnEncoded = attr.getEncoded();
+						//Confirm issuer from the cert matcher issuer from the signer info	
+						assertTrue(Arrays.equals(fascn, fascnEncoded));
+						
+					} catch (IOException e) {
+						fail(e);
+					}
+				}
+				else if(attrOid.compareTo("1.3.6.1.1.16.4") == 0) {
+
+					try {
+		
+						byte[] guidEncoded = attr.getEncoded();
+						//Confirm issuer from the cert matcher issuer from the signer info	
+						assertTrue(Arrays.equals(guid, guidEncoded));
+						
+					} catch (IOException e) {
+						fail(e);
+					}
+				}
 			}
 		}	
     }
@@ -1336,6 +1355,13 @@ public class CMSTests {
 	private static Stream<Arguments> CMS_TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
+
+	}
+	
+	private static Stream<Arguments> CMS_TestProvider2() {
+
+		List<String> oids = Arrays.asList("2.16.840.1.101.3.6.6", "1.3.6.1.1.16.4");
+		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID,oids));
 
 	}
 	

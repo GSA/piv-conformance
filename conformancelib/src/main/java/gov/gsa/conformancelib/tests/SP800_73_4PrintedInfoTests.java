@@ -34,7 +34,7 @@ public class SP800_73_4PrintedInfoTests {
 	//Printed Information blob is no larger than 120 bytes
 	@DisplayName("SP800-73-4.27 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_PrintedInfoTestProvider")
+	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
 	void sp800_73_4_Test_27(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -72,7 +72,7 @@ public class SP800_73_4PrintedInfoTests {
 	//Tags 0x01, 0x02, 0x05, 0x06 are present in that order
 	@DisplayName("SP800-73-4.28 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_PrintedInfoTestProvider")
+    @MethodSource("sp800_73_4_PrintedInfoTestProvider")
     void sp800_73_4_Test_28(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -132,7 +132,7 @@ public class SP800_73_4PrintedInfoTests {
 	//Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28
 	@DisplayName("SP800-73-4.29 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_PrintedInfoTestProvider")
+	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
 	void sp800_73_4_Test_29(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -218,7 +218,7 @@ public class SP800_73_4PrintedInfoTests {
 	//Tag 0xFE is present and follows tags from 73-4.28, 73-4.29
 	@DisplayName("SP800-73-4.30 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_PrintedInfoTestProvider")
+	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
 	void sp800_73_4_Test_30(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -330,7 +330,7 @@ public class SP800_73_4PrintedInfoTests {
 	//No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present
 	@DisplayName("SP800-73-4.31 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_PrintedInfoTestProvider")
+    @MethodSource("sp800_73_4_PrintedInfoTestProvider")
     void sp800_73_4_Test_31(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -374,7 +374,7 @@ public class SP800_73_4PrintedInfoTests {
 
     }
 	
-	private static Stream<Arguments> sp800_70_4_PrintedInfoTestProvider() {
+	private static Stream<Arguments> sp800_73_4_PrintedInfoTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.PRINTED_INFORMATION_OID));
 

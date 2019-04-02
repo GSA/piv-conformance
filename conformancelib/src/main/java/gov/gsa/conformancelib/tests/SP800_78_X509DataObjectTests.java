@@ -79,7 +79,7 @@ public class SP800_78_X509DataObjectTests {
     
     
     //Ensure that ECDSA key is curve P-256 (is >256 allowed? Probably not by current standard)
-    @DisplayName("SP800-78.2 testg")
+    @DisplayName("SP800-78.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
     void sp800_78_Test_2(String oid, TestReporter reporter) {
@@ -137,7 +137,7 @@ public class SP800_78_X509DataObjectTests {
     }
     
 	//Ensure that signature algorithm is one of 1.2.840.113549.1.1.5, 1.2.840.113549.1.1.11, 1.2.840.113549.1.1.10, 1.2.840.10045.4.3.2, 1.2.840.10045.4.3.3
-    @DisplayName("SP800-78.3 testg")
+    @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
     void sp800_78_Test_3(String oid, TestReporter reporter) {

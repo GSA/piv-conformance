@@ -64,30 +64,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.1 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_x509TestProvider")
-	void PKIX_Test_1(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-		AbstractPIVApplication piv = css.getPivHandle();
-		CardHandle c = css.getCardHandle();
-		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-		result = piv.pivGetData(c, oid, o);
-		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode() == true);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+	void PKIX_Test_1(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		PublicKey pubKey = cert.getPublicKey();
@@ -140,30 +117,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.2 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_x509TestProvider")
-	void PKIX_Test_2(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-		AbstractPIVApplication piv = css.getPivHandle();
-		CardHandle c = css.getCardHandle();
-		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-		result = piv.pivGetData(c, oid, o);
-		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode() == true);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+	void PKIX_Test_2(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		assertTrue(cert.getKeyUsage() != null);
@@ -260,29 +214,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.5 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
-    void PKIX_Test_5(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+    void PKIX_Test_5(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		//Get certificate policies extension
@@ -296,9 +228,10 @@ public class PKIX_X509DataObjectTests {
 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID is asserted in certificate policies
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_CardAuthx509TestProvider")
-    void PKIX_Test_6(String oid, TestReporter reporter) {
+    @MethodSource("pKIX_CardAuthx509TestProvider2")
+    void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
         assertNotNull(oid);
+        assertNotNull(policyOid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -340,12 +273,12 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	if(curroid.getId().compareTo("2.16.840.1.101.3.2.1.3.13") == 0) {
+	    	if(curroid.getId().compareTo(policyOid) == 0) {
 	    		containsOOID = true;
 	    	}
 	    }
 	    
-	    //Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID is asserted in certificate policies
+	    //Confirm that oid matches is asserted in certificate policies
 	    assertTrue(containsOOID);
 		
     }
@@ -354,29 +287,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.7 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
-    void PKIX_Test_7(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+    void PKIX_Test_7(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		//Get authorityInformationAccess extension
@@ -390,29 +301,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.8 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
-    void PKIX_Test_8(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+    void PKIX_Test_8(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		//Get authorityInformationAccess extension
@@ -448,29 +337,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.9 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
-    void PKIX_Test_9(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+    void PKIX_Test_9(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		//Get authorityInformationAccess extension
@@ -554,29 +421,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.11 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
-    void PKIX_Test_11(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+    void PKIX_Test_11(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		//XXX Placeholder Not sure how to do this test yet
@@ -587,10 +432,14 @@ public class PKIX_X509DataObjectTests {
 	//Confirm that the certificate subjectAltName includes FASC-N and that it matches CHUID
 	@DisplayName("PKIX.12 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_x509TestProvider")
-	//@Disabled
-    void PKIX_Test_12(String oid, TestReporter reporter) {
-        assertNotNull(oid);
+    @MethodSource("pKIX_x509TestProvider2")
+	@Disabled
+    void PKIX_Test_12(X509Certificate cert, String oid, TestReporter reporter) {
+		assertNotNull(cert);
+		assertNotNull(oid);
+		
+		//XXX Not sure what to do with the second parameter
+		
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -602,16 +451,11 @@ public class PKIX_X509DataObjectTests {
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-        assertNotNull(o);
         assertNotNull(o2);
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
         
 
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
@@ -619,9 +463,7 @@ public class PKIX_X509DataObjectTests {
         assert(o2.decode());
                
 		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
-		
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		System.out.println(new String(fascn));
 		
 		try {
 			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
@@ -631,7 +473,6 @@ public class PKIX_X509DataObjectTests {
 	                if (altNameType == 0) {
 	                	byte[] otherName = (byte[]) altName.toArray()[1];
                	
-	                	//XXX Possibly a better way to get fascn value
 	                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
 	                	assertTrue(Arrays.equals(fascnFromCert, fascn));
 	                }
@@ -645,9 +486,13 @@ public class PKIX_X509DataObjectTests {
 	//Confirm that expiration of certificate is not later than expiration of card
 	@DisplayName("PKIX.13 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_x509TestProvider")
-    void PKIX_Test_13(String oid, TestReporter reporter) {
-        assertNotNull(oid);
+    @MethodSource("pKIX_x509TestProvider3")
+    void PKIX_Test_13(X509Certificate cert, int years, TestReporter reporter) {
+		assertNotNull(cert);
+		assertNotNull(years);
+		
+		//XXX Not sure what to do with years value
+
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -659,23 +504,16 @@ public class PKIX_X509DataObjectTests {
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-        assertNotNull(o);
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
        
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
         assert(result == MiddlewareStatus.PIV_OK);
         assert(o2.decode());
 
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
-
+        
 		Date notAfter =  cert.getNotAfter();
 		assertNotNull(notAfter);
 		
@@ -689,29 +527,7 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.14 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
-    void PKIX_Test_14(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
-       
-        X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+    void PKIX_Test_14(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
 		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
@@ -851,8 +667,8 @@ public class PKIX_X509DataObjectTests {
 	//Confirm that id- fpki-common-cardAuth 2.16.840.1.101.3.2.1.3.17 OID is asserted in certificate policies
 	@DisplayName("PKIX.18 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_CardAuthx509TestProvider")
-    void PKIX_Test_18(String oid, TestReporter reporter) {
+    @MethodSource("pKIX_CardAuthx509TestProvider2")
+    void PKIX_Test_18(String oid, String policyOid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -895,12 +711,12 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	if(curroid.getId().compareTo("2.16.840.1.101.3.2.1.3.17") == 0) {
+	    	if(curroid.getId().compareTo(policyOid) == 0) {
 	    		containsOOID = true;
 	    	}
 	    }
 	    
-	    //Confirm that id- fpki-common-cardAuth  2.16.840.1.101.3.2.1.3.17 OID is asserted in certificate policies
+	    //Confirm that policy oid is present
 	    assertTrue(containsOOID);
 		
     }
@@ -944,9 +760,10 @@ public class PKIX_X509DataObjectTests {
 	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
 	@DisplayName("PKIX.20 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_CardAuthx509TestProvider")
-    void PKIX_Test_20(String oid, TestReporter reporter) {
+    @MethodSource("pKIX_CardAuthx509TestProvider2")
+    void PKIX_Test_20(String oid, String ekuOid, TestReporter reporter) {
         assertNotNull(oid);
+        assertNotNull(ekuOid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -988,7 +805,7 @@ public class PKIX_X509DataObjectTests {
 		
 	    KeyPurposeId[] kpilist = eku.getUsages();
 	    for (KeyPurposeId kpiInfo : kpilist) {
-	    	if(kpiInfo.getId().compareTo("2.16.840.1.101.3.6.8") == 0) {
+	    	if(kpiInfo.getId().compareTo(ekuOid) == 0) {
 	    		containsOOID = true;
 	    	}
 	    }
@@ -1000,10 +817,207 @@ public class PKIX_X509DataObjectTests {
 	
 	private static Stream<Arguments> pKIX_x509TestProvider() {
 
-		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID));
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+		PIVDataObject o1 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+		PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+		PIVDataObject o3 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+		PIVDataObject o4 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+		PIVDataObject o5 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		assertNotNull(o1);
+		assertNotNull(o2);
+		assertNotNull(o3);
+		assertNotNull(o4);
+		assertNotNull(o5);
+		
+		AbstractPIVApplication piv = css.getPivHandle();
+		CardHandle c = css.getCardHandle();
+		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o1.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o2.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o3.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o4.decode() == true);
+			
+		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o5.decode() == true);
+
+		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
+		assertNotNull(cert1);
+		
+		X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
+		assertNotNull(cert2);
+		
+		X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
+		assertNotNull(cert3);
+		
+		X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
+		assertNotNull(cert4);
+		
+		X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getSigningCertificate();
+		assertNotNull(cert5);
+
+		return Stream.of(Arguments.of(cert1),Arguments.of(cert2),Arguments.of(cert3),Arguments.of(cert4),Arguments.of(cert5));
+
+	}
+	
+	private static Stream<Arguments> pKIX_x509TestProvider2() {
+
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+		PIVDataObject o1 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+		PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+		PIVDataObject o3 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+		PIVDataObject o4 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+		PIVDataObject o5 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		assertNotNull(o1);
+		assertNotNull(o2);
+		assertNotNull(o3);
+		assertNotNull(o4);
+		assertNotNull(o5);
+		
+		AbstractPIVApplication piv = css.getPivHandle();
+		CardHandle c = css.getCardHandle();
+		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o1.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o2.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o3.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o4.decode() == true);
+			
+		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o5.decode() == true);
+
+		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
+		assertNotNull(cert1);
+		
+		X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
+		assertNotNull(cert2);
+		
+		X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
+		assertNotNull(cert3);
+		
+		X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
+		assertNotNull(cert4);
+		
+		X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getSigningCertificate();
+		assertNotNull(cert5);
+
+		return Stream.of(Arguments.of(cert1, "1.3.6.1.1.16.4"),Arguments.of(cert2, "1.3.6.1.1.16.4"),Arguments.of(cert3, "1.3.6.1.1.16.4"),
+				Arguments.of(cert4, "1.3.6.1.1.16.4"),Arguments.of(cert5, "1.3.6.1.1.16.4"));
+
+	}
+	
+	private static Stream<Arguments> pKIX_x509TestProvider3() {
+
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+		PIVDataObject o1 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+		PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+		PIVDataObject o3 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+		PIVDataObject o4 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+		PIVDataObject o5 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		assertNotNull(o1);
+		assertNotNull(o2);
+		assertNotNull(o3);
+		assertNotNull(o4);
+		assertNotNull(o5);
+		
+		AbstractPIVApplication piv = css.getPivHandle();
+		CardHandle c = css.getCardHandle();
+		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o1.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o2.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o3.decode() == true);
+		
+		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o4.decode() == true);
+			
+		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
+		assert (result == MiddlewareStatus.PIV_OK);
+		assert (o5.decode() == true);
+
+		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
+		assertNotNull(cert1);
+		
+		X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
+		assertNotNull(cert2);
+		
+		X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
+		assertNotNull(cert3);
+		
+		X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
+		assertNotNull(cert4);
+		
+		X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getSigningCertificate();
+		assertNotNull(cert5);
+
+		return Stream.of(Arguments.of(cert1, 6),Arguments.of(cert2, 6),Arguments.of(cert3, 6),
+				Arguments.of(cert4, 6),Arguments.of(cert5, 6));
 
 	}
 	
@@ -1028,6 +1042,12 @@ public class PKIX_X509DataObjectTests {
 	private static Stream<Arguments> pKIX_CardAuthx509TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID));
+
+	}
+	
+	private static Stream<Arguments> pKIX_CardAuthx509TestProvider2() {
+
+		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.3.13"));
 
 	}
 }

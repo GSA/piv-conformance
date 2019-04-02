@@ -34,7 +34,7 @@ public class SP800_73_4FingerprintsTests {
 	//Fingerprints container blob no larger than 4006 bytes
 	@DisplayName("SP800-73-4.24 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_FingerprintsTestProvider")
+	@MethodSource("sp800_73_4_FingerprintsTestProvider")
 	void sp800_73_4_Test_24(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -73,7 +73,7 @@ public class SP800_73_4FingerprintsTests {
 	//Tags 0xBC and 0xFE are present in that order
 	@DisplayName("SP800-73-4.25 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_FingerprintsTestProvider")
+    @MethodSource("sp800_73_4_FingerprintsTestProvider")
     void sp800_73_4_Test_25(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -125,7 +125,7 @@ public class SP800_73_4FingerprintsTests {
 	//No tags other than (0xBC, 0xFE) are present
 	@DisplayName("SP800-73-4.26 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_FingerprintsTestProvider")
+	@MethodSource("sp800_73_4_FingerprintsTestProvider")
 	void sp800_73_4_Test_26(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -172,7 +172,7 @@ public class SP800_73_4FingerprintsTests {
 			
 	}
 	
-	private static Stream<Arguments> sp800_70_4_FingerprintsTestProvider() {
+	private static Stream<Arguments> sp800_73_4_FingerprintsTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID));
 

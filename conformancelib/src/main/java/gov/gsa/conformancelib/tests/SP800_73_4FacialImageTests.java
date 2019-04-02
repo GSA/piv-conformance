@@ -35,7 +35,7 @@ public class SP800_73_4FacialImageTests {
 	//Card Holder Facial Image blob no larger than 12710 bytes
 	@DisplayName("SP800-73-4.32 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_FacialImageTestProvider")
+	@MethodSource("sp800_73_4_FacialImageTestProvider")
 	void sp800_73_4_Test_32(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -72,7 +72,7 @@ public class SP800_73_4FacialImageTests {
 	}
 
 	
-	private static Stream<Arguments> sp800_70_4_FacialImageTestProvider() {
+	private static Stream<Arguments> sp800_73_4_FacialImageTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID));
 
