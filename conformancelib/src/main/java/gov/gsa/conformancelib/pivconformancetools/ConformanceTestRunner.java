@@ -140,67 +140,18 @@ public class ConformanceTestRunner {
                 String pinFromConfig = rs.getString("ApplicationPIN");
                 if(pinFromConfig != null && !pinFromConfig.isEmpty()) {
                     css.setApplicationPin(pinFromConfig);
-                } else {
-                    css.setApplicationPin("123456");
                 }
                 
-                for(String containerOID : APDUConstants.MandatoryContainers()) {
-                    PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
-                    s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
-                    MiddlewareStatus result = css.getPivHandle().pivGetData(css.getCardHandle(), containerOID, dataObject);
-                    if(result != MiddlewareStatus.PIV_OK) continue;
-                    boolean decoded = dataObject.decode();
-                    s_logger.info("{} {}", dataObject.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
-                    s_logger.info("pivGetData returned {}", result);
-                    s_logger.info(dataObject.toString());
-
-                    if(containerOID.equals(APDUConstants.CARD_CAPABILITY_CONTAINER_OID)) {
-
-                        s_logger.info("Card Identifier: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getCardIdentifier()));
-                        s_logger.info("Capability Container Version Number: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getCapabilityContainerVersionNumber()));
-                        s_logger.info("Capability Grammar Version Number: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getCapabilityGrammarVersionNumber()));
-
-                        List<byte[]> appCardURLList = ((CardCapabilityContainer) dataObject).getAppCardURL();
-
-                        if (appCardURLList.size() > 0) {
-                            s_logger.info("Applications CardURL List");
-                            for (byte[] u : appCardURLList) {
-                                s_logger.info("{}", Hex.encodeHexString(u));
-                            }
-                        }
-
-
-                        s_logger.info("Registered Data Model number: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getRegisteredDataModelNumber()));
-                        s_logger.info("Access Control Rule Table: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getAccessControlRuleTable()));
-
-
-                        s_logger.info("Card APDUs Tag Present: {}", ((CardCapabilityContainer) dataObject).getCardAPDUs());
-                        s_logger.info("RedirectionTag Tag Present: {}", ((CardCapabilityContainer) dataObject).getRedirectionTag());
-                        s_logger.info("Capability Tuples Tag Present: {}", ((CardCapabilityContainer) dataObject).getCapabilityTuples());
-                        s_logger.info("Status Tuples Tag Present: {}", ((CardCapabilityContainer) dataObject).getStatusTuples());
-                        s_logger.info("Next CCC Tag Present: {}", ((CardCapabilityContainer) dataObject).getNextCCC());
-
-                        if (((CardCapabilityContainer) dataObject).getExtendedApplicationCardURL() != null) {
-
-                            List<byte[]> extendedAppCardURLList = ((CardCapabilityContainer) dataObject).getExtendedApplicationCardURL();
-
-                            if (extendedAppCardURLList.size() > 0) {
-                                s_logger.info("Extended Application CardURL List:");
-                                for (byte[] u2 : extendedAppCardURLList) {
-                                    s_logger.info("     {}", Hex.encodeHexString(u2));
-                                }
-                            }
-                        }
-
-                        if (((CardCapabilityContainer) dataObject).getSecurityObjectBuffer() != null)
-                            s_logger.info("Security Object Buffer: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getSecurityObjectBuffer()));
-
-
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
-
-                        
-
-                    }
+                if(css.getEncodedRetries() > 1) {
+                	if(!css.checkApplicationPin()) {
+                		s_logger.error("Application PIN is invalid");
+                		System.exit(1);
+                	} else {
+                		s_logger.info("Verified Application PIN");
+                	}
+                } else {
+                	s_logger.error("PIN retry count is too low. Proceeding with tests risks locking the card");
+                	System.exit(1);
                 }
             }
         } catch (SQLException e) {
