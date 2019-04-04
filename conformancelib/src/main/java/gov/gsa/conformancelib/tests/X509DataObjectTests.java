@@ -30,9 +30,9 @@ import gov.gsa.pivconformance.tlv.TagConstants;
 public class X509DataObjectTests {
 	
 	//Container blob is no larger than 1905 bytes
-    @DisplayName("SP800-73-4.18 testg")
+    @DisplayName("SP800-73-4.18 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_x509TestProvider")
+    @MethodSource("sp800_73_4_x509TestProvider")
     void sp800_73_4_Test_18(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -66,9 +66,9 @@ public class X509DataObjectTests {
     
     
 	//Tags 0x70 and 0x71 are present in that order
-    @DisplayName("SP800-73-4.19 testg")
+    @DisplayName("SP800-73-4.19 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_x509TestProvider")
+    @MethodSource("sp800_73_4_x509TestProvider")
     void sp800_73_4_Test_19(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -109,9 +109,9 @@ public class X509DataObjectTests {
     }
     
 	//Tag 0x72 is optionally present and follows tags from 73-4.19
-    @DisplayName("SP800-73-4.20 testg")
+    @DisplayName("SP800-73-4.20 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_x509TestProvider")
+    @MethodSource("sp800_73_4_x509TestProvider")
     void sp800_73_4_Test_20(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -152,9 +152,9 @@ public class X509DataObjectTests {
     }
     
 	//Tag 0xFE is present and follows tags from 73-4.19, 73-4.20
-    @DisplayName("SP800-73-4.21 testg")
+    @DisplayName("SP800-73-4.21 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_x509TestProvider")
+    @MethodSource("sp800_73_4_x509TestProvider")
     void sp800_73_4_Test_21(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -205,9 +205,9 @@ public class X509DataObjectTests {
     }
     
 	//No tags other than (0x70, 0x71, 0x72, 0xFE) are present
-    @DisplayName("SP800-73-4.22 testg")
+    @DisplayName("SP800-73-4.22 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_x509TestProvider")
+    @MethodSource("sp800_73_4_x509TestProvider")
     void sp800_73_4_Test_22(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -251,9 +251,9 @@ public class X509DataObjectTests {
 
     
 	//Confirm that tag 0xFE has length of 0
-    @DisplayName("SP800-73-4.23 testg")
+    @DisplayName("SP800-73-4.23 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_x509TestProvider")
+    @MethodSource("sp800_73_4_x509TestProvider")
     void sp800_73_4_Test_23(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -288,7 +288,7 @@ public class X509DataObjectTests {
 		assertTrue(ecHasData == false);
     }
     
-    private static Stream<Arguments> sp800_70_4_x509TestProvider() {
+    private static Stream<Arguments> sp800_73_4_x509TestProvider() {
     	
     	return Stream.of(
                 Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID),

@@ -431,6 +431,26 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                     ASN1InputStream aIn = new ASN1InputStream(bIn);
                                     m_contentInfo = ContentInfo.getInstance(aIn.readObject());
                                     m_issuerAsymmetricSignature = new CMSSignedData(m_contentInfo);
+                                    
+                                    try {
+                                        Security.addProvider(new BouncyCastleProvider());
+                                    } catch (Exception e) {
+                                        s_logger.error("Unable to add provider for signature verification: {}" , e.getMessage());
+                                        return false;
+                                    }
+                                    Store<X509CertificateHolder> certs = m_issuerAsymmetricSignature.getCertificates();
+                                    SignerInformationStore signers = m_issuerAsymmetricSignature.getSignerInfos();
+
+                                    for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+                                        SignerInformation signer = i.next();
+
+                                        Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                                        Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+                                        if (certIt.hasNext()) {
+                                            X509CertificateHolder certHolder = certIt.next();
+                                            m_signingCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                                        }
+                                    }
                                     super.setSigned(true);
                                 }
 

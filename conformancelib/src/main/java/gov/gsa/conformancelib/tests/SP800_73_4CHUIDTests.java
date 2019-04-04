@@ -35,7 +35,7 @@ public class SP800_73_4CHUIDTests {
 	//CHUID blob no larger than 3395 bytes
 	@DisplayName("SP800-73-4.8 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_CHUIDTestProvider")
+	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_8(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -72,7 +72,7 @@ public class SP800_73_4CHUIDTests {
 	//If CHUID tag 0xEE is present, it is the first tag in the blob
 	@DisplayName("SP800-73-4.9 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_CHUIDTestProvider")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
     void sp800_73_4_Test_9(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -115,7 +115,7 @@ public class SP800_73_4CHUIDTests {
 	//Tag 0x30 is present and is the first tag or the first tag following 0xEE
 	@DisplayName("SP800-73-4.10 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_CHUIDTestProvider")
+	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_10(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -161,7 +161,7 @@ public class SP800_73_4CHUIDTests {
 	//Tags 0x32 and 0x33 are optionally present and must follow 0x30 in that order
 	@DisplayName("SP800-73-4.11 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_CHUIDTestProvider")
+	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_11(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -233,7 +233,7 @@ public class SP800_73_4CHUIDTests {
 	//Tags 0x34 and 0x35 are present and follow tags from 73-4.10, 73-4.11
 	@DisplayName("SP800-73-4.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_CHUIDTestProvider")
+	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_12(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -333,7 +333,7 @@ public class SP800_73_4CHUIDTests {
 	//Tag 0x36 is optionally present and follows tags from 73-4.10, 73-4.11, 73-4.12
 	@DisplayName("SP800-73-4.13 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_CHUIDTestProvider")
+	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_13(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -434,7 +434,7 @@ public class SP800_73_4CHUIDTests {
 	//Tags 0x3E and 0xFE are present and follow tags from 73-4.10, 73-4.11, 73-4.12, 73-4.13 in that order
 	@DisplayName("SP800-73-4.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_CHUIDTestProvider")
+	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_14(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -544,7 +544,7 @@ public class SP800_73_4CHUIDTests {
 	//Expiration Date is formatted YYYYMMDD
 	@DisplayName("SP800-73-4.15 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_CHUIDTestProvider")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
     void sp800_73_4_Test_15(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -586,7 +586,7 @@ public class SP800_73_4CHUIDTests {
 	//Expiration Date is with in 5 years
 	@DisplayName("SP800-73-4.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_CHUIDTestProvider")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
     void sp800_73_4_Test_16(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -633,7 +633,7 @@ public class SP800_73_4CHUIDTests {
 	//No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are present
 	@DisplayName("SP800-73-4.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_CHUIDTestProvider")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
     void sp800_73_4_Test_17(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -682,7 +682,7 @@ public class SP800_73_4CHUIDTests {
 		}
     }
 	
-	private static Stream<Arguments> sp800_70_4_CHUIDTestProvider() {
+	private static Stream<Arguments> sp800_73_4_CHUIDTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
 

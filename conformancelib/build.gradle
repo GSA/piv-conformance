@@ -87,7 +87,6 @@ dependencies {
     runtime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
     runtime 'org.junit.platform:junit-platform-launcher:1.5.0-M1'
 
-
     junitXmlToHtml 'org.apache.ant:ant-junit:1.9.7'
 }
 

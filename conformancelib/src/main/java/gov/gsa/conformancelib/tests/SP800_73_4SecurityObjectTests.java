@@ -33,7 +33,7 @@ public class SP800_73_4SecurityObjectTests {
 	//Security Object blob no larger than 1008 bytes
 	@DisplayName("SP800-73-4.33 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_70_4_SecurityObjectTestProvider")
+	@MethodSource("sp800_73_4_SecurityObjectTestProvider")
 	void sp800_73_4_Test_33(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -73,7 +73,7 @@ public class SP800_73_4SecurityObjectTests {
 	//Tags 0xBA, 0xBB, 0XFE are present in that order
 	@DisplayName("SP800-73-4.34 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_SecurityObjectTestProvider")
+    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_34(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -129,7 +129,7 @@ public class SP800_73_4SecurityObjectTests {
 	//No tags other than (0xBA, 0xBB, 0xFE) are present
 	@DisplayName("SP800-73-4.35 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_SecurityObjectTestProvider")
+    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_35(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -191,7 +191,7 @@ public class SP800_73_4SecurityObjectTests {
 	//Parse data at tag 0xBA and for each data container found ensure that performing a select returns status words 0x90, 0x00
 	@DisplayName("SP800-73-4.36 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_70_4_SecurityObjectTestProvider")
+    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_36(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -240,7 +240,7 @@ public class SP800_73_4SecurityObjectTests {
 
     }
 	
-	private static Stream<Arguments> sp800_70_4_SecurityObjectTestProvider() {
+	private static Stream<Arguments> sp800_73_4_SecurityObjectTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));
 

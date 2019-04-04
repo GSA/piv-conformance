@@ -506,7 +506,7 @@ public class SecurityObject extends PIVDataObject {
         boolean rv = false;
 
 
-        if(m_containerIDList.get(oid) != null)
+        if(m_containerIDList.containsValue(oid))
             rv = true;
 
         return rv;
