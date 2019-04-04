@@ -1,5 +1,6 @@
 package gov.gsa.conformancelib.pivconformancetools;
 
+import gov.gsa.conformancelib.configuration.CardInfoController;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
@@ -142,8 +143,8 @@ public class ConformanceTestRunner {
                     css.setApplicationPin(pinFromConfig);
                 }
                 
-                if(css.getEncodedRetries() > 1) {
-                	if(!css.checkApplicationPin()) {
+                if(CardInfoController.getEncodedRetries() > 1) {
+                	if(!CardInfoController.checkPin(true)) {
                 		s_logger.error("Application PIN is invalid");
                 		System.exit(1);
                 	} else {
