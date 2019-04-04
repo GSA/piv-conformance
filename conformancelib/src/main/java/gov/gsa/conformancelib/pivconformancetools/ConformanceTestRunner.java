@@ -5,7 +5,7 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.junitoptions.Theme;
-import gov.gsa.conformancelib.tests.SignedObjectVerificationTests;
+//import gov.gsa.conformancelib.tests.SignedObjectVerificationTests;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
