@@ -4,6 +4,7 @@ import gov.gsa.conformancelib.configuration.CardInfoController;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
+import gov.gsa.conformancelib.configuration.TestStepModel;
 import gov.gsa.conformancelib.junitoptions.Theme;
 //import gov.gsa.conformancelib.tests.SignedObjectVerificationTests;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -167,37 +168,39 @@ public class ConformanceTestRunner {
             while(rs.next()) {
                 TestCaseModel testCase = new TestCaseModel(ctd);
                 testCase.retrieveForId(rs.getInt("Id"));
-                int disabled = rs.getInt("Disabled");
+                
                 String groupName = rs.getString("TestGroup");
                 String testNameFromConfig = rs.getString("TestCaseIdentifier");
-                if(groupName == null || groupName.isEmpty()) {
+                /*if(groupName == null || groupName.isEmpty()) {
                     s_logger.error("Record {} from configuration file {} contains no valid group name. This is a bug.",
                             rs.getInt("Id"), cmd.getOptionValue("config"));
                     System.exit(1);
-                }
-                if(disabled != 0)
+                }*/
+                if(!testCase.isEnabled())
                 {
                     s_logger.info("Test {} was disabled in configuration", groupName);
                     continue;
                 }
-                Class<?> testClass = null;
-                try {
-                    testClass = Class.forName("gov.gsa.conformancelib.tests." + groupName);
-                    for(Method m : testClass.getMethods()) {
-                        s_logger.debug("method: {}", m.getName());
+                List<TestStepModel> steps = testCase.getSteps();
+                for(TestStepModel currentStep : steps) {
+                	Class<?> testClass = null;
+                	String className = currentStep.getTestClassName();
+                	String methodName = currentStep.getTestMethodName();
+                    try {
+                        testClass = Class.forName(className);
+                        for(Method m : testClass.getMethods()) {
+                            s_logger.debug("method: {}", m.getName());
+                        }
+                    } catch (ClassNotFoundException e) {
+                        s_logger.error("{} was configured in the database but could not be found.", groupName);
+                        break;
                     }
-                } catch (ClassNotFoundException e) {
-                    s_logger.error("{} was configured in the database but could not be found.", groupName);
-                    break;
-                }
-                if(testNameFromConfig != null && !testNameFromConfig.isEmpty()) {
-                    String testName = testNameFromConfig;
-                    if (!testNameFromConfig.startsWith("test")) testName = "test" + testNameFromConfig;
-                    discoverySelectors.add(selectMethod("gov.gsa.conformancelib.tests." + groupName + "#" + testName + "(org.junit.jupiter.api.TestReporter)"));
-                    s_logger.debug("Adding {}.{} from config", groupName, testName);
-                } else {
-                    discoverySelectors.add(selectClass(testClass));
-                    s_logger.debug("Adding all tests from {} from config", groupName);
+                    if(className != null && !className.isEmpty() && testClass != null) {
+                        //String testName = testNameFromConfig;
+                        discoverySelectors.add(selectMethod(className + "#" + methodName + "(org.junit.jupiter.api.TestReporter)"));
+                        s_logger.debug("Adding {}.{} from config", className, methodName);
+                    }
+                	
                 }
             }
         } catch (SQLException e) {

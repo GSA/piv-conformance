@@ -18,7 +18,8 @@ public class TestCaseModel {
 	private String m_description;
 	private int m_status;
 	private int m_expectedStatus;
-        private String m_testGroupName;
+    private String m_testGroupName;
+    private boolean m_bEnabled;
 	
 	public TestCaseModel(ConformanceTestDatabase db) {
 		setDb(db);
@@ -102,13 +103,24 @@ public class TestCaseModel {
 	}
 
 
+	public boolean isEnabled() {
+		return m_bEnabled;
+	}
+
+
+	public void setEnabled(boolean bEnabled) {
+		m_bEnabled = bEnabled;
+	}
+
+
 	public void setTestGroupName(String name) {
 		m_testGroupName = name;
 	}
 	
 	public void retrieveForId(int testId) {
 		this.setId(testId);
-		String query = "select TestCases.Id, TestCases.TestCaseIdentifier, TestCases.TestCaseDescription, TestCases.Status, TestCases.ExpectedStatus " +
+		String query = "select TestCases.Id, TestCases.TestCaseIdentifier, TestCases.TestCaseDescription, TestCases.Status, TestCases.ExpectedStatus, " +
+				"TestCases.TestGroup, TestCases.Enabled " +
 				"from TestCases where TestCases.Id = ?";
 										
 		String stepsQuery = "select Id, TestStepId from TestsToSteps where TestsToSteps.TestId = ? order by ExecutionOrder";
@@ -123,6 +135,8 @@ public class TestCaseModel {
 			this.setDescription(rs.getString("TestCases.TestDescription"));
 			this.setIdentifier(rs.getString("TestCases.TestCaseIdentifier"));
 			this.setStatus(rs.getInt("TestCases.Status"));
+			this.setEnabled(1 == rs.getInt("TestCases.Enabled"));
+			this.setTestGroupName(rs.getString("TestCases.TestGroup"));
 			
 			s_logger.debug("Test case {} {} instantiated from database", this.getIdentifier(), this.getDescription());
 			PreparedStatement pstepsQuery = conn.prepareStatement(stepsQuery);
