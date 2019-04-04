@@ -10,7 +10,16 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.DisplayName;
@@ -2185,6 +2194,592 @@ public class SP800_76_Tests {
 		assertTrue(sourceType == 2 || sourceType == 6);
 	}
 	
+	
+	//Validate that the BDB Format Type is set to the appropriate value
+	@DisplayName("SP800-76.38 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricParamTestProvider1")
+	void sp800_76Test_38(String paramsString , TestReporter reporter) {
+		
+		HashMap<String, Integer> mp = parseParams(paramsString);
+		Iterator<Entry<String, Integer>> it = mp.entrySet().iterator();
+	    while (it.hasNext()) {
+	    	HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>)it.next();
+	        
+	        String oid = pair.getKey();
+	        Integer value =  pair.getValue();
+			assertNotNull(oid);
+			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+			assertNotNull(css);
+			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+				ConformanceTestException e = new ConformanceTestException(
+						"Login has already been attempted and failed. Not trying again.");
+				fail(e);
+			}
+			try {
+				
+				CardUtils.setUpPivAppHandleInSingleton();
+				CardUtils.authenticateInSingleton(false);
+			} catch (ConformanceTestException e) {
+				fail(e);
+			}
+	
+			// Get card handle and PIV handle
+			CardHandle ch = css.getCardHandle();
+			AbstractPIVApplication piv = css.getPivHandle();
+	
+			// Created an object corresponding to the OID value
+			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+			assertNotNull(o);
+	
+			// Get data from the card corresponding to the OID value
+			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+			assertTrue(result == MiddlewareStatus.PIV_OK);
+	
+		    boolean decoded = o.decode();
+			assertTrue(decoded);
+				
+			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+			
+			//Make sure biometric data is present
+			assertNotNull(biometricData);
+			
+			assertTrue(biometricData.length >= 12);
+			
+			//Check format type field has the right value 
+			
+			int type  = (((biometricData[10] & 0xFF) << 8) | (biometricData[11] & 0xFF));
+			
+			assertTrue(type == value);
+	    }
+	}
+	
+	//Validate that that the creation date in the PIV Patron Format is encoded in 8 bytes using a binary representation of YYYYMMDDhhmmssZ
+	@DisplayName("SP800-76.39 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricTestProvider")
+	void sp800_76Test_39(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		
+		//Make sure biometric data is present
+		assertNotNull(biometricData);
+		
+		assertTrue(biometricData.length >= 21);
+		
+		
+		byte[] biometricCreationDate = Arrays.copyOfRange(biometricData, 12, 12+8);
+		StringBuilder str = new StringBuilder(); 
+		
+		for (int i = 0; i < biometricCreationDate.length-1; i++) {
+			
+			int num = biometricCreationDate[i] & 0xFF;
+			
+			if(num < 10  )
+				str.append("0");
+			str.append(num);
+		}
+		assertTrue(biometricCreationDate[biometricCreationDate.length-1] == 'Z');
+		System.out.print(str);
+		assertNotNull(biometricCreationDate);
+				
+		//Get the creation date value and parse it into a Date object using "YYYYMMDDhhmmssZ" format
+        try {
+			Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(str.toString());
+			
+			assertNotNull(date);
+		} catch (ParseException e) {
+			fail(e);
+		}
+	}
+	
+	
+	//Validate date encoding on Validity Period in PIV Patron Format
+	@DisplayName("SP800-76.40 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricTestProvider")
+	void sp800_76Test_40(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		
+		//Make sure biometric data is present
+		assertNotNull(biometricData);
+		
+		assertTrue(biometricData.length >= 37);
+		
+		
+		byte[] biometricValidityPeriodDate1 = Arrays.copyOfRange(biometricData, 20, 20+8);
+		byte[] biometricValidityPeriodDate2 = Arrays.copyOfRange(biometricData, 28, 36);
+		
+		assertNotNull(biometricValidityPeriodDate1);
+		assertNotNull(biometricValidityPeriodDate2);
+		
+		StringBuilder str1 = new StringBuilder(); 
+		
+		for (int i = 0; i < biometricValidityPeriodDate1.length-1; i++) {
+			
+			int num = biometricValidityPeriodDate1[i] & 0xFF;
+			
+			if(num < 10  )
+				str1.append("0");
+			str1.append(num);
+		}
+		assertTrue(biometricValidityPeriodDate1[biometricValidityPeriodDate1.length-1] == 'Z');
+		
+		StringBuilder str2 = new StringBuilder(); 
+		
+		for (int i = 0; i < biometricValidityPeriodDate2.length-1; i++) {
+			
+			int num = biometricValidityPeriodDate2[i] & 0xFF;
+			
+			if(num < 10  )
+				str2.append("0");
+			str2.append(num);
+		}
+		assertTrue(biometricValidityPeriodDate2[biometricValidityPeriodDate2.length-1] == 'Z');
+		
+		//Get the creation date value and parse it into a Data object using "YYYYMMDDhhmmssZ" format
+        try {
+			Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(str1.toString());
+			
+			assertNotNull(date);
+		} catch (ParseException e) {
+			fail(e);
+		}
+        
+		//Get the creation date value and parse it into a Data object using "YYYYMMDDhhmmssZ" format
+        try {
+			Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(str2.toString());
+			
+			assertNotNull(date);
+		} catch (ParseException e) {
+			fail(e);
+		}
+	}
+	
+	
+	//Validate that that Biometric Type has the right value
+	@DisplayName("SP800-76.41 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricParamTestProvider2")
+	void sp800_76Test_41(String paramsString, TestReporter reporter) {
+		
+		HashMap<String, Integer> mp = parseParams(paramsString);
+		Iterator<Entry<String, Integer>> it = mp.entrySet().iterator();
+	    while (it.hasNext()) {
+	    	HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>)it.next();
+	        
+	        String oid = pair.getKey();
+	        Integer value =  pair.getValue();
+			assertNotNull(oid);
+			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+			assertNotNull(css);
+			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+				ConformanceTestException e = new ConformanceTestException(
+						"Login has already been attempted and failed. Not trying again.");
+				fail(e);
+			}
+			try {
+				
+				CardUtils.setUpPivAppHandleInSingleton();
+				CardUtils.authenticateInSingleton(false);
+			} catch (ConformanceTestException e) {
+				fail(e);
+			}
+	
+			// Get card handle and PIV handle
+			CardHandle ch = css.getCardHandle();
+			AbstractPIVApplication piv = css.getPivHandle();
+	
+			// Created an object corresponding to the OID value
+			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+			assertNotNull(o);
+	
+			// Get data from the card corresponding to the OID value
+			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+			assertTrue(result == MiddlewareStatus.PIV_OK);
+	
+		    boolean decoded = o.decode();
+			assertTrue(decoded);
+				
+			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+			
+			//Make sure biometric data is present
+			assertNotNull(biometricData);
+			
+			assertTrue(biometricData.length >= 40);
+			
+			
+			byte[] biometricType = Arrays.copyOfRange(biometricData, 36, 39);
+			
+			assertNotNull(biometricType);
+			
+			assertTrue(biometricType.length >= 3);
+			
+			int type  = (((biometricType[0] & 0xFF) << 16) | ((biometricType[1] & 0xFF) << 8) | (biometricType[2] & 0xFF));
+			//Check the value of Biometric Type
+			assertTrue(type == value);
+	    }
+	}
+	
+	//Validate that that Biometric Type has the right value
+	@DisplayName("SP800-76.42 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricParamTestProvider3")
+	void sp800_76Test_42(String paramsString, TestReporter reporter) {
+		
+		HashMap<String, Integer> mp = parseParams(paramsString);
+		Iterator<Entry<String, Integer>> it = mp.entrySet().iterator();
+	    while (it.hasNext()) {
+	    	HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>)it.next();
+	        
+	        String oid = pair.getKey();
+	        Integer value =  pair.getValue();
+			assertNotNull(oid);
+			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+			assertNotNull(css);
+			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+				ConformanceTestException e = new ConformanceTestException(
+						"Login has already been attempted and failed. Not trying again.");
+				fail(e);
+			}
+			try {
+				
+				CardUtils.setUpPivAppHandleInSingleton();
+				CardUtils.authenticateInSingleton(false);
+			} catch (ConformanceTestException e) {
+				fail(e);
+			}
+
+			// Get card handle and PIV handle
+			CardHandle ch = css.getCardHandle();
+			AbstractPIVApplication piv = css.getPivHandle();
+
+			// Created an object corresponding to the OID value
+			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+			assertNotNull(o);
+
+			// Get data from the card corresponding to the OID value
+			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+			assertTrue(result == MiddlewareStatus.PIV_OK);
+
+		    boolean decoded = o.decode();
+			assertTrue(decoded);
+				
+			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+			
+			//Make sure biometric data is present
+			assertNotNull(biometricData);
+			
+			assertTrue(biometricData.length >= 41);
+			
+			//Check the value of Biometric Data Type			
+			int type  = ((biometricData[39] & 0xFF));
+			//Check the value of Biometric Type
+			assertTrue(type == value);
+	    }
+	}
+	
+	//Validate that the biometric quality field carries valid values
+	@DisplayName("SP800-76.43 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricParamTestProvider4")
+	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		
+		//Make sure biometric data is present
+		assertNotNull(biometricData);
+		
+		assertTrue(biometricData.length >= 42);
+		
+		int quality = biometricData[40];
+		
+		String[] arrayParams = param.split(",");
+		assertTrue(arrayParams.length == 2);
+		
+		int int1 = Integer.parseInt(arrayParams[0]);
+		int int2 = Integer.parseInt(arrayParams[1]);
+		
+		//Confirm quality is set to a valid number.
+		assertTrue(quality >= int1 && int2 <= 100);
+	}
+	
+	//Validate that that the Creator field in the PIV Patron Format contains 18 bytes of which the first K <= 17 bytes shall be ASCII characters, and the first of the remaining 18-K shall be a null terminator (zero)
+	@DisplayName("SP800-76.44 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricTestProvider")
+	void sp800_76Test_44(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		
+		//Make sure biometric data is present
+		assertNotNull(biometricData);
+		
+		assertTrue(biometricData.length >= 61);
+		
+		byte[] creator = Arrays.copyOfRange(biometricData, 41, 59);
+		
+		//Confirm last byte is null
+		assertTrue(Byte.compare(creator[creator.length-1], (byte)0x00) == 0);
+		
+		String s = new String(creator);
+		
+		//Check for ASCII
+		assertTrue(s.matches("\\A\\p{ASCII}*\\z"));
+	}
+	
+	//Validate that FASC-N field in the PIV Patron Format contains the same 25 bytes as the FASC-N component of the CHUID identifier
+	@DisplayName("SP800-76.45 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricTestProvider")
+	void sp800_76Test_45(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+        PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		assertNotNull(o);
+		assertNotNull(o2);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+		
+
+		result = piv.pivGetData(ch, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+		
+		decoded = o2.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		
+		//Make sure biometric data is present
+		assertNotNull(biometricData);
+		
+		assertTrue(biometricData.length >= 85);
+		
+		byte[] fASCN = Arrays.copyOfRange(biometricData, 59, 84);
+		
+		byte[] fASCN2 = ((CardHolderUniqueIdentifier) o2).getfASCN();
+		
+		assertTrue(fASCN.length == fASCN2.length);
+		
+		//Confirm fascn match
+		assertTrue(Arrays.equals(fASCN, fASCN2));
+		
+	}
+	
+	//Validate that the 'Reserved for Future Use' field is equal to 0x00000000
+	@DisplayName("SP800-76.46 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricTestProvider")
+	void sp800_76Test_46(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		
+		//Make sure biometric data is present
+		assertNotNull(biometricData);
+		
+		assertTrue(biometricData.length >= 89);
+		
+		byte[] reserved = Arrays.copyOfRange(biometricData, 84, 88);
+		
+		byte[] zeros = { 0x00, 0x00, 0x00, 0x00};
+		
+		//Confirm Reserved field is all zeros
+		assertTrue(Arrays.equals(reserved, zeros));
+		
+	}
+	
+	private static HashMap<String, Integer> parseParams(String paramsString){
+		
+		List<String> listParams;
+		String[] arrayParams = paramsString.split(",");
+		listParams = Arrays.asList(arrayParams);
+		HashMap<String, Integer> rv = new HashMap<String, Integer>();
+		for(String s : listParams) {
+			String[] params = s.split(":");
+			assert(params.length == 2);
+			rv.put(params[0],Integer.parseInt(params[1]));
+		}
+		
+		return rv;
+	}
+	
+	
 	private static Stream<Arguments> sp800_76_BiometricTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID),
@@ -2204,4 +2799,29 @@ public class SP800_76_Tests {
 
 	}
 
+	
+	private static Stream<Arguments> sp800_76_BiometricParamTestProvider1() {
+
+		String param = APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID + ":"+"1281"+","+APDUConstants.CARDHOLDER_FINGERPRINTS_OID+":"+"513";
+			return Stream.of(Arguments.of(param));
+	}
+	
+	private static Stream<Arguments> sp800_76_BiometricParamTestProvider2() {
+
+		String param = APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID + ":"+"2"+","+APDUConstants.CARDHOLDER_FINGERPRINTS_OID+":"+"8";
+			return Stream.of(Arguments.of(param));
+	}
+	
+	private static Stream<Arguments> sp800_76_BiometricParamTestProvider3() {
+
+		String param = APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID + ":"+"32"+","+APDUConstants.CARDHOLDER_FINGERPRINTS_OID+":"+"128";
+			return Stream.of(Arguments.of(param));
+	}
+	
+	private static Stream<Arguments> sp800_76_BiometricParamTestProvider4() {
+
+		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, "-2,100"),
+						Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, "-2,100"));
+
+	}
 }
