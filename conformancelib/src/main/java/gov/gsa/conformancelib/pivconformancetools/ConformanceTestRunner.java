@@ -3,6 +3,8 @@ package gov.gsa.conformancelib.pivconformancetools;
 import gov.gsa.conformancelib.configuration.CardInfoController;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
+import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
+import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 import gov.gsa.conformancelib.junitoptions.Theme;
@@ -186,6 +188,12 @@ public class ConformanceTestRunner {
                 	Class<?> testClass = null;
                 	String className = currentStep.getTestClassName();
                 	String methodName = currentStep.getTestMethodName();
+                	List<String> parameters = currentStep.getParameters();
+                	String parameterString = null;
+                	if(parameters != null) {
+                		parameterString = ParameterUtils.CreateFromList(parameters);
+                		s_logger.debug("processing {} as parameters for {}.{}", parameterString, className, methodName);
+                	}
                     try {
                         testClass = Class.forName(className);
                         for(Method m : testClass.getMethods()) {
@@ -197,7 +205,8 @@ public class ConformanceTestRunner {
                     }
                     if(className != null && !className.isEmpty() && testClass != null) {
                         //String testName = testNameFromConfig;
-                        discoverySelectors.add(selectMethod(className + "#" + methodName + "(org.junit.jupiter.api.TestReporter)"));
+                        discoverySelectors.add(selectMethod(className + "#" + methodName/* + "(org.junit.jupiter.api.TestReporter)"*/));
+                        ParameterProviderSingleton.getInstance().addNamedParameter(className + "." + methodName, parameters);
                         s_logger.debug("Adding {}.{} from config", className, methodName);
                     }
                 	
