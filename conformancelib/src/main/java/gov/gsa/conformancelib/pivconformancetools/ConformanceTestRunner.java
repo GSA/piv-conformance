@@ -59,6 +59,7 @@ public class ConformanceTestRunner {
         s_options.addOption("c", "config", true, "path to config file");
         s_options.addOption("n", "configName", true, "group of system settings to use if the config database has more than one");
         s_options.addOption("a", "appPin", true, "applicationPin to use for testing");
+        s_options.addOption("d", "parameterDebug", false, "enable junit parameter debugging");
     }
     private static void PrintHelpAndExit(int exitCode) {
         new HelpFormatter().printHelp("ConfigGenerator <options>", s_options);
@@ -79,6 +80,10 @@ public class ConformanceTestRunner {
 
         if(cmd.hasOption("help")) {
             PrintHelpAndExit(0);
+        }
+        boolean enableVerboseParameterDebugging = false;
+        if(cmd.hasOption("parameterDebug")) {
+        	enableVerboseParameterDebugging = true;
         }
 
         Connection conn = null;
@@ -215,13 +220,13 @@ public class ConformanceTestRunner {
                 	String parameterString = null;
                 	if(parameters != null) {
                 		parameterString = ParameterUtils.CreateFromList(parameters);
-                		s_logger.debug("processing {} as parameters for {}.{}", parameterString, className, methodName);
+                		if(enableVerboseParameterDebugging) s_logger.debug("processing {} as parameters for {}.{}", parameterString, className, methodName);
                 	}
                 	String fqmn = className;
                     try {
                         testClass = Class.forName(className);
                         for(Method m : testClass.getDeclaredMethods()) {
-                        	s_logger.debug("searching {}: {}", methodName, m.getName());
+                        	if(enableVerboseParameterDebugging)  s_logger.debug("searching {}: {}", methodName, m.getName());
                         	if(m.getName().contentEquals(methodName)) {
                         		fqmn += "#" + m.getName() + "(";
                         		Class<?>[] methodParameters = m.getParameterTypes();
@@ -234,7 +239,7 @@ public class ConformanceTestRunner {
                         			nMethodParameters++;
                         		}
                         		fqmn += ")";
-                        		s_logger.debug("method: {}", fqmn);
+                        		if(enableVerboseParameterDebugging) s_logger.debug("method: {}", fqmn);
                         	}
                             
                         }
