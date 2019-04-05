@@ -162,9 +162,13 @@ public class ConformanceTestRunner {
             s_logger.error("Failed to read configuration", e);
         }
 
-        LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
-        List<DiscoverySelector> discoverySelectors = new ArrayList<>();
+        
+        
         ConformanceTestDatabase ctd = new ConformanceTestDatabase(conn);
+        PrintWriter out = new PrintWriter(System.out);
+        SummaryGeneratingListener summaryListener = new SummaryGeneratingListener();
+        
+        
         try (Statement testStatement = conn.createStatement()) {
             ResultSet rs = testStatement.executeQuery(TEST_SET);
             while(rs.next()) {
@@ -183,6 +187,8 @@ public class ConformanceTestRunner {
                     s_logger.info("Test {} was disabled in configuration", groupName);
                     continue;
                 }
+                LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
+                List<DiscoverySelector> discoverySelectors = new ArrayList<>();
                 List<TestStepModel> steps = testCase.getSteps();
                 for(TestStepModel currentStep : steps) {
                 	Class<?> testClass = null;
@@ -211,18 +217,26 @@ public class ConformanceTestRunner {
                     }
                 	
                 }
+                suiteBuilder.selectors(discoverySelectors);
+                suiteBuilder.configurationParameter("TestCaseIdentifier", "TestCaseIdentifier");
+                LauncherDiscoveryRequest ldr = suiteBuilder.build();
+                
+                Launcher l = LauncherFactory.create();
+                List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
+                listeners.add(summaryListener);
+                registerListeners(out, l, listeners);
+                //l.registerTestExecutionListeners(summaryListener);
+                l.execute(ldr);
             }
         } catch (SQLException e) {
             s_logger.error("Could not read test selection from configuration");
         }
-        suiteBuilder.selectors(discoverySelectors);
-        LauncherDiscoveryRequest ldr = suiteBuilder.build();
-        Launcher l = LauncherFactory.create();
+        //suiteBuilder.selectors(discoverySelectors);
+        // XXX *** TODO: Need to add key/value to each suite so that logging can be fixed up
+        
         //TestPlan tp = l.discover(ldr);
-        PrintWriter out = new PrintWriter(System.out);
-        SummaryGeneratingListener summaryListener = registerListeners(out, l);
-        l.registerTestExecutionListeners(summaryListener);
-        l.execute(ldr);
+        
+
         System.out.println("--------------------------------------------------------------");
         TestExecutionSummary summary = summaryListener.getSummary();
         List<TestExecutionSummary.Failure> failures = summary.getFailures();
@@ -233,11 +247,11 @@ public class ConformanceTestRunner {
         summary.printTo(new PrintWriter(System.out));
 
     }
-    private static SummaryGeneratingListener registerListeners(PrintWriter out, Launcher launcher) {
-        SummaryGeneratingListener summaryListener = new SummaryGeneratingListener();
-        launcher.registerTestExecutionListeners(summaryListener);
+    private static void registerListeners(PrintWriter out, Launcher launcher, List<TestExecutionListener> listeners) {    
+        for(TestExecutionListener listener : listeners) {
+        	launcher.registerTestExecutionListeners(listener);
+        }
         launcher.registerTestExecutionListeners(createDetailsPrintingListener(out));
-        return summaryListener;
     }
 
     private static TestExecutionListener createDetailsPrintingListener(PrintWriter out) {
