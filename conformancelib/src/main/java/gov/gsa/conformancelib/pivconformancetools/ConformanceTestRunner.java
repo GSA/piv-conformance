@@ -205,10 +205,26 @@ public class ConformanceTestRunner {
                 		parameterString = ParameterUtils.CreateFromList(parameters);
                 		s_logger.debug("processing {} as parameters for {}.{}", parameterString, className, methodName);
                 	}
+                	String fqmn = className;
                     try {
                         testClass = Class.forName(className);
-                        for(Method m : testClass.getMethods()) {
-                            s_logger.debug("method: {}", m.getName());
+                        for(Method m : testClass.getDeclaredMethods()) {
+                        	s_logger.debug("searching {}: {}", methodName, m.getName());
+                        	if(m.getName().contentEquals(methodName)) {
+                        		fqmn += "#" + m.getName() + "(";
+                        		Class<?>[] methodParameters = m.getParameterTypes();
+                        		int nMethodParameters = 0;
+                        		for(Class<?> c : methodParameters) {
+                        			if(nMethodParameters >= 1) {
+                        				fqmn += ", ";
+                        			}
+                        			fqmn += c.getName();
+                        			nMethodParameters++;
+                        		}
+                        		fqmn += ")";
+                        		s_logger.debug("method: {}", fqmn);
+                        	}
+                            
                         }
                     } catch (ClassNotFoundException e) {
                         s_logger.error("{} was configured in the database but could not be found.", groupName);
@@ -216,9 +232,9 @@ public class ConformanceTestRunner {
                     }
                     if(className != null && !className.isEmpty() && testClass != null) {
                         //String testName = testNameFromConfig;
-                        discoverySelectors.add(selectMethod(className + "#" + methodName/* + "(org.junit.jupiter.api.TestReporter)"*/));
-                        ParameterProviderSingleton.getInstance().addNamedParameter(className + "." + methodName, parameters);
-                        s_logger.debug("Adding {}.{} from config", className, methodName);
+                        discoverySelectors.add(selectMethod(fqmn));
+                        ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
+                        s_logger.debug("Adding {} from config", fqmn);
                     }
                 	
                 }
