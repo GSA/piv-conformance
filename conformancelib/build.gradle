@@ -47,6 +47,8 @@ eclipse {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
+                def lib = entries.find { it.path.contains 'cardlib.jar' }
+                lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/cardlib-sources.jar'))
             }
         }
     }
