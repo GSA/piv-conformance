@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 
 import java.io.BufferedWriter;
+import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -57,6 +58,7 @@ public class ConformanceTestRunner {
         s_options.addOption("h", "help", false, "Print this help and exit");
         s_options.addOption("c", "config", true, "path to config file");
         s_options.addOption("n", "configName", true, "group of system settings to use if the config database has more than one");
+        s_options.addOption("a", "appPin", true, "applicationPin to use for testing");
     }
     private static void PrintHelpAndExit(int exitCode) {
         new HelpFormatter().printHelp("ConfigGenerator <options>", s_options);
@@ -113,8 +115,18 @@ public class ConformanceTestRunner {
             }
             s_logger.info("Opened configuration in {}", dbParam);
         }
-
+        
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        if(cmd.hasOption("appPin")) {
+        	String appPin = cmd.getOptionValue("appPin");
+        	css.setApplicationPin(appPin);
+        } else {
+          Console cons = System.console();
+          char[] passwd;
+          if (cons != null && (passwd = cons.readPassword("[Enter %s]", "Application Pin")) != null) {
+        	  css.setApplicationPin(new String(passwd));
+          }
+        }
 
         try (Statement configStatement = conn.createStatement()) {
             ResultSet rs = configStatement.executeQuery(FIRST_CONFIG);
