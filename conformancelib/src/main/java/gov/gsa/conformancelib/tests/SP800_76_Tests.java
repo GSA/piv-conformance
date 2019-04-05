@@ -19,10 +19,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -2192,7 +2194,8 @@ public class SP800_76_Tests {
 	//Validate that the BDB Format Type is set to the appropriate value
 	@DisplayName("SP800-76.38 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricParamTestProvider1")
+	//@MethodSource("sp800_76_BiometricParamTestProvider1")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_38(String paramsString , TestReporter reporter) {
 		
 		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
@@ -2424,7 +2427,8 @@ public class SP800_76_Tests {
 	//Validate that that Biometric Type has the right value
 	@DisplayName("SP800-76.41 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricParamTestProvider2")
+	//@MethodSource("sp800_76_BiometricParamTestProvider2")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_41(String paramsString, TestReporter reporter) {
 		
 		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
@@ -2497,7 +2501,8 @@ public class SP800_76_Tests {
 	//Validate that that Biometric Type has the right value
 	@DisplayName("SP800-76.42 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricParamTestProvider3")
+	//@MethodSource("sp800_76_BiometricParamTestProvider3")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_42(String paramsString, TestReporter reporter) {
 		
 		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
@@ -2564,7 +2569,8 @@ public class SP800_76_Tests {
 	//Validate that the biometric quality field carries valid values
 	@DisplayName("SP800-76.43 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricParamTestProvider4")
+	//@MethodSource("sp800_76_BiometricParamTestProvider4")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();

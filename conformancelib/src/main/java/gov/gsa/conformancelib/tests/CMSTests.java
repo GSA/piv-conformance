@@ -47,10 +47,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
@@ -928,7 +930,8 @@ public class CMSTests {
 	//Validate that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field)
 	@DisplayName("CMS.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_16(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -974,7 +977,8 @@ public class CMSTests {
 	//Confirm that signed attributes include pivFASC-N attribute and that it matches FACSC-N read from CHUID container
 	@DisplayName("CMS.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider2")
+    //@MethodSource("CMS_TestProvider2")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_17(String oid, List<String> oidList, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
