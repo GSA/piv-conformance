@@ -5,23 +5,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +22,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -2201,14 +2195,23 @@ public class SP800_76_Tests {
 	@MethodSource("sp800_76_BiometricParamTestProvider1")
 	void sp800_76Test_38(String paramsString , TestReporter reporter) {
 		
-		HashMap<String, Integer> mp = parseParams(paramsString);
-		Iterator<Entry<String, Integer>> it = mp.entrySet().iterator();
+		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
+		assertNotNull(mp);
+		Iterator<Entry<String, String>> it = mp.entrySet().iterator();
 	    while (it.hasNext()) {
-	    	HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>)it.next();
-	        
+	    	Map.Entry<String, String> pair = (Map.Entry<String, String>)it.next();
+	    	assertNotNull(pair);
 	        String oid = pair.getKey();
-	        Integer value =  pair.getValue();
+	        String valueStr =  pair.getValue();
 			assertNotNull(oid);
+			assertNotNull(valueStr);
+			int value = 0;
+			try {
+				value = Integer.parseInt(valueStr);
+			} catch(NumberFormatException e) {
+				fail(e);
+			}
+			
 			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 			assertNotNull(css);
 			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2424,14 +2427,23 @@ public class SP800_76_Tests {
 	@MethodSource("sp800_76_BiometricParamTestProvider2")
 	void sp800_76Test_41(String paramsString, TestReporter reporter) {
 		
-		HashMap<String, Integer> mp = parseParams(paramsString);
-		Iterator<Entry<String, Integer>> it = mp.entrySet().iterator();
+		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
+		assertNotNull(mp);
+		Iterator<Entry<String, String>> it = mp.entrySet().iterator();
 	    while (it.hasNext()) {
-	    	HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>)it.next();
-	        
+	    	Map.Entry<String, String> pair = (Map.Entry<String, String>)it.next();
+			assertNotNull(pair);
 	        String oid = pair.getKey();
-	        Integer value =  pair.getValue();
+	        String valueStr =  pair.getValue();
 			assertNotNull(oid);
+			assertNotNull(valueStr);
+			int value = 0;
+			try {
+				value = Integer.parseInt(valueStr);
+			} catch(NumberFormatException e) {
+				fail(e);
+			}
+			
 			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 			assertNotNull(css);
 			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2488,14 +2500,23 @@ public class SP800_76_Tests {
 	@MethodSource("sp800_76_BiometricParamTestProvider3")
 	void sp800_76Test_42(String paramsString, TestReporter reporter) {
 		
-		HashMap<String, Integer> mp = parseParams(paramsString);
-		Iterator<Entry<String, Integer>> it = mp.entrySet().iterator();
+		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
+		assertNotNull(mp);
+		Iterator<Entry<String, String>> it = mp.entrySet().iterator();
 	    while (it.hasNext()) {
-	    	HashMap.Entry<String, Integer> pair = (HashMap.Entry<String, Integer>)it.next();
-	        
+	    	Map.Entry<String, String> pair = (Map.Entry<String, String>)it.next();
+			assertNotNull(pair);
 	        String oid = pair.getKey();
-	        Integer value =  pair.getValue();
+	        String valueStr =  pair.getValue();
 			assertNotNull(oid);
+			assertNotNull(valueStr);
+			int value = 0;
+			try {
+				value = Integer.parseInt(valueStr);
+			} catch(NumberFormatException e) {
+				fail(e);
+			}
+			
 			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 			assertNotNull(css);
 			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2763,22 +2784,7 @@ public class SP800_76_Tests {
 		assertTrue(Arrays.equals(reserved, zeros));
 		
 	}
-	
-	private static HashMap<String, Integer> parseParams(String paramsString){
 		
-		List<String> listParams;
-		String[] arrayParams = paramsString.split(",");
-		listParams = Arrays.asList(arrayParams);
-		HashMap<String, Integer> rv = new HashMap<String, Integer>();
-		for(String s : listParams) {
-			String[] params = s.split(":");
-			assert(params.length == 2);
-			rv.put(params[0],Integer.parseInt(params[1]));
-		}
-		
-		return rv;
-	}
-	
 	
 	private static Stream<Arguments> sp800_76_BiometricTestProvider() {
 
