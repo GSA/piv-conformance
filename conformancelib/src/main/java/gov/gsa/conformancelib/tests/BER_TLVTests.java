@@ -26,6 +26,7 @@ import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.ApplicationProperties;
 import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.DefaultPIVApplication;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
@@ -52,9 +53,6 @@ public class BER_TLVTests {
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
-			//Probably need to add a condition in singleton to only authenticate if its turned on
-			//Adding for debug purposes
-			css.setApplicationPin("123456");
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
@@ -152,9 +150,6 @@ public class BER_TLVTests {
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
-			//Probably need to add a condition in singleton to only authenticate if its turned on
-			//Adding for debug purposes
-			css.setApplicationPin("123456");
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
@@ -173,18 +168,9 @@ public class BER_TLVTests {
         assertTrue(result == MiddlewareStatus.PIV_OK);
 
         byte[] bertlv = o.getBytes();
-        assertNotNull(bertlv);              
         
-        BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(BER_TLVTests.class));
-        
-    	int aOffset = 0;
-    	// tag
-        int tagBytesCount = tp.getTagBytesCount(bertlv, aOffset);
-        
-        //Need to revisit this why is the test asking for 3 bytes if tag is one byte?
-        assertTrue(tagBytesCount == 3);
-        
-        
+        //pivGetData retrives each data container using the 3 byte tag checking for a successful return code and returned bytes should satisfy this test XXX  Confirm that this assumption is correct
+        assertNotNull(bertlv);
     }
     
     //Each data object returned with 2 byte status word (90 00)
@@ -201,6 +187,7 @@ public class BER_TLVTests {
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -237,6 +224,7 @@ public class BER_TLVTests {
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -275,9 +263,6 @@ public class BER_TLVTests {
         }
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
-			//Probably need to add a condition in singleton to only authenticate if its turned on
-			//Adding for debug purposes
-			css.setApplicationPin("123456");
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);

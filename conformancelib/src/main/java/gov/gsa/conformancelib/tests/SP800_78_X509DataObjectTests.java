@@ -64,7 +64,8 @@ public class SP800_78_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -102,7 +103,8 @@ public class SP800_78_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);        
+        boolean decoded = o.decode();
+        assert(decoded == true);
         
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -160,7 +162,8 @@ public class SP800_78_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
                 
         List<String> algList = new ArrayList<String>();
         

@@ -91,7 +91,7 @@ public class X509CertificateDataObject extends PIVDataObject {
                 List<BerTlv> values = outer.getList();
                 for(BerTlv tlv : values) {
                     if(tlv.isPrimitive()) {
-                        s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                        s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                         BerTlvs outer2 = tp.parse(tlv.getBytesValue());
 
@@ -106,14 +106,14 @@ public class X509CertificateDataObject extends PIVDataObject {
                         byte[] mSCUIDBuf = null;
                         for(BerTlv tlv2 : values2) {
                             if(tlv2.isPrimitive()) {
-                                s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                                s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             } else {
 
                             	super.m_tagList.add(tlv2.getTag());
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
                                     if (tlv2.hasRawValue()) {
                                         rawCertBuf = tlv2.getBytesValue();
-                                        s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(rawCertBuf));
+                                        s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(rawCertBuf));
                                     }
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
@@ -126,12 +126,12 @@ public class X509CertificateDataObject extends PIVDataObject {
                                                                 
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTINFO_TAG)) {
                                     certInfoBuf = tlv2.getBytesValue();
-                                    s_logger.info("Got cert info buffer: {}", Hex.encodeHexString(certInfoBuf));
+                                    s_logger.debug("Got cert info buffer: {}", Hex.encodeHexString(certInfoBuf));
                                 }
                                 
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.MSCUID_TAG)) {
                                 	mSCUIDBuf = tlv2.getBytesValue();
-                                    s_logger.info("Got MSCUID buffer: {}", Hex.encodeHexString(mSCUIDBuf));
+                                    s_logger.debug("Got MSCUID buffer: {}", Hex.encodeHexString(mSCUIDBuf));
                                 }
                             }
                         }
@@ -152,9 +152,9 @@ public class X509CertificateDataObject extends PIVDataObject {
 
                         CertificateFactory cf = CertificateFactory.getInstance("X509");
                         m_pivAuthCert = (X509Certificate)cf.generateCertificate(certIS);
-                        s_logger.info(m_pivAuthCert.getSubjectDN().toString());
+                        s_logger.debug(m_pivAuthCert.getSubjectDN().toString());
                     } else {
-                        s_logger.info("Object: {}", Hex.encodeHexString(tlv.getTag().bytes));
+                        s_logger.debug("Object: {}", Hex.encodeHexString(tlv.getTag().bytes));
                     }
                 }
             }catch (Exception ex) {

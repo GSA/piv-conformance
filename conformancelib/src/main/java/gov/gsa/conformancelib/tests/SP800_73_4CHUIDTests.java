@@ -586,9 +586,18 @@ public class SP800_73_4CHUIDTests {
 	//Expiration Date is with in 5 years
 	@DisplayName("SP800-73-4.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
-    void sp800_73_4_Test_16(String oid, TestReporter reporter) {
+    @MethodSource("sp800_73_4_CHUIDTestProvider2")
+    void sp800_73_4_Test_16(String oid, String yearsStr, TestReporter reporter) {
         assertNotNull(oid);
+        assertNotNull(yearsStr);
+        
+		int years = 0;
+		try {
+			years = Integer.parseInt(yearsStr);
+		} catch(NumberFormatException e) {
+			fail(e);
+		}
+        
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -621,11 +630,11 @@ public class SP800_73_4CHUIDTests {
 		
 		Calendar cal = Calendar.getInstance();
 		Date today = cal.getTime();
-		cal.add(Calendar.YEAR, 5); 
+		cal.add(Calendar.YEAR, years); 
 		Date todayPlus5Years = cal.getTime();
 		
-		assertTrue(expirationDate.compareTo(today) > 0);
-		assertTrue(expirationDate.compareTo(todayPlus5Years) < 0);
+		assertTrue(expirationDate.compareTo(today) >= 0);
+		assertTrue(expirationDate.compareTo(todayPlus5Years) <= 0);
 		
 
     }
@@ -685,6 +694,12 @@ public class SP800_73_4CHUIDTests {
 	private static Stream<Arguments> sp800_73_4_CHUIDTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
+
+	}
+	
+	private static Stream<Arguments> sp800_73_4_CHUIDTestProvider2() {
+
+		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, "14"));
 
 	}
 

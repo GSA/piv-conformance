@@ -111,7 +111,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                 s_logger.error("Failed to populate VERIFY APDU buffer");
             }
             byte[] rawAPDU = baos.toByteArray();
-            s_logger.info("VERIFY APDU: {}", Hex.encodeHexString(rawAPDU));
+            s_logger.debug("VERIFY APDU: {}", Hex.encodeHexString(rawAPDU));
             CardChannel channel = cardHandle.getCurrentChannel();
             CommandAPDU verifyApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
@@ -125,7 +125,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             }
             if(resp.getSW() == 0x9000) {
                 cardHandle.setCurrentChannel(channel);
-                s_logger.info("Successfully logged into card application");
+                s_logger.debug("Successfully logged into card application");
             } else {
                 s_logger.error("Login failed: {}", Hex.encodeHexString(resp.getBytes()));
                 return MiddlewareStatus.PIV_AUTHENTICATION_FAILURE;

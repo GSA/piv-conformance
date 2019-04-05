@@ -53,7 +53,8 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
         
 		byte[] bertlv = o.getBytes();
@@ -89,7 +90,8 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -132,7 +134,8 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -175,7 +178,8 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -228,7 +232,8 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
@@ -274,7 +279,8 @@ public class X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
         
         
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();

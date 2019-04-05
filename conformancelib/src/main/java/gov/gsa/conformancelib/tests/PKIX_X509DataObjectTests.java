@@ -110,7 +110,16 @@ public class PKIX_X509DataObjectTests {
 
 		String sigAlgFromCert = cert.getSigAlgOID();
 
-		assertTrue(algList.contains(sigAlgFromCert));
+		boolean present = false;
+		for (int i = 0; i < algList.size(); i++) {
+			
+			if(algList.get(i).compareTo(sigAlgFromCert) == 0) {
+				present = true;
+				break;
+			}
+		}
+		assertTrue(present);
+		
 	}
 
 	// Confirm keyUsage extension is present
@@ -148,7 +157,8 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode() == true);
+		boolean decoded = o.decode();
+		assert (decoded == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -189,7 +199,8 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o.decode() == true);
+		boolean decoded = o.decode();
+		assert (decoded == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -228,7 +239,7 @@ public class PKIX_X509DataObjectTests {
 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID is asserted in certificate policies
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_CardAuthx509TestProvider2")
+    @MethodSource("pKIX_PIVAuthx509TestProvide2")
     void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(policyOid);
@@ -250,7 +261,8 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -275,6 +287,7 @@ public class PKIX_X509DataObjectTests {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
 	    	if(curroid.getId().compareTo(policyOid) == 0) {
 	    		containsOOID = true;
+	    		break;
 	    	}
 	    }
 	    
@@ -433,7 +446,6 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.12 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider2")
-	@Disabled
     void PKIX_Test_12(X509Certificate cert, String oid, TestReporter reporter) {
 		assertNotNull(cert);
 		assertNotNull(oid);
@@ -460,7 +472,8 @@ public class PKIX_X509DataObjectTests {
 
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o2.decode());
+        boolean decoded = o2.decode();
+        assert(decoded == true);
                
 		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
 		System.out.println(new String(fascn));
@@ -511,7 +524,8 @@ public class PKIX_X509DataObjectTests {
        
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o2.decode());
+        boolean decoded = o2.decode();
+        assert(decoded == true);
 
         
 		Date notAfter =  cert.getNotAfter();
@@ -565,7 +579,8 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
         X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -606,7 +621,8 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -645,7 +661,8 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -688,7 +705,8 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
         X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -745,7 +763,8 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -782,7 +801,8 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
         assert(result == MiddlewareStatus.PIV_OK);
-        assert(o.decode() == true);
+        boolean decoded = o.decode();
+        assert(decoded == true);
         
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert);
@@ -846,23 +866,28 @@ public class PKIX_X509DataObjectTests {
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o1.decode() == true);
+		boolean  decoded = o1.decode();
+		assert ( decoded == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o2.decode() == true);
+		decoded  = o2.decode();
+		assert ( decoded == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o3.decode() == true);
+		decoded  = o3.decode();
+		assert ( decoded == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o4.decode() == true);
+		decoded  = o4.decode();
+		assert ( decoded == true);
 			
 		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o5.decode() == true);
+		decoded  = o5.decode();
+		assert ( decoded == true);
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
 		assertNotNull(cert1);
@@ -983,23 +1008,28 @@ public class PKIX_X509DataObjectTests {
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o1.decode() == true);
+		boolean decoded = o1.decode();
+		assert ( decoded == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o2.decode() == true);
+		decoded = o2.decode();
+		assert ( decoded == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o3.decode() == true);
+		decoded = o3.decode();
+		assert ( decoded == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o4.decode() == true);
+		decoded = o4.decode();
+		assert ( decoded == true);
 			
 		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
 		assert (result == MiddlewareStatus.PIV_OK);
-		assert (o5.decode() == true);
+		decoded = o5.decode();
+		assert ( decoded == true);
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
 		assertNotNull(cert1);
@@ -1045,9 +1075,15 @@ public class PKIX_X509DataObjectTests {
 
 	}
 	
+	private static Stream<Arguments> pKIX_PIVAuthx509TestProvide2() {
+
+		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.48.11"));
+
+	}
+	
 	private static Stream<Arguments> pKIX_CardAuthx509TestProvider2() {
 
-		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.3.13"));
+		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.48.13"));
 
 	}
 }
