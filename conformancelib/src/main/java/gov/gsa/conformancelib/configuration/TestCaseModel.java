@@ -3,6 +3,7 @@ package gov.gsa.conformancelib.configuration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -119,8 +120,8 @@ public class TestCaseModel {
 	
 	public void retrieveForId(int testId) {
 		this.setId(testId);
-		String query = "select TestCases.Id, TestCases.TestCaseIdentifier, TestCases.TestCaseDescription, TestCases.Status, TestCases.ExpectedStatus, " +
-				"TestCases.TestGroup, TestCases.Enabled " +
+		String query = "select Id, TestCaseIdentifier, TestCaseDescription, Status, ExpectedStatus, " +
+				"TestGroup, Enabled " +
 				"from TestCases where TestCases.Id = ?";
 										
 		String stepsQuery = "select Id, TestStepId from TestsToSteps where TestsToSteps.TestId = ? order by ExecutionOrder";
@@ -130,18 +131,22 @@ public class TestCaseModel {
 			pquery.setInt(1, testId);
 			
 			ResultSet rs = pquery.executeQuery();
-			rs.absolute(1);
-			this.setExpectedStatus(rs.getInt("TestCases.Status"));
-			this.setDescription(rs.getString("TestCases.TestDescription"));
-			this.setIdentifier(rs.getString("TestCases.TestCaseIdentifier"));
-			this.setStatus(rs.getInt("TestCases.Status"));
-			this.setEnabled(1 == rs.getInt("TestCases.Enabled"));
-			this.setTestGroupName(rs.getString("TestCases.TestGroup"));
+			if(!rs.next()) {
+				s_logger.error("Database not configured properly: no test case for id {}", testId);
+				throw new ConfigurationException("Unable to retrieve record for test case id " + testId);
+			}
+			this.setExpectedStatus(rs.getInt("Status"));
+			this.setDescription(rs.getString("TestCaseDescription"));
+			this.setIdentifier(rs.getString("TestCaseIdentifier"));
+			this.setStatus(rs.getInt("Status"));
+			this.setEnabled(1 == rs.getInt("Enabled"));
+			this.setTestGroupName(rs.getString("TestGroup"));
 			
 			s_logger.debug("Test case {} {} instantiated from database", this.getIdentifier(), this.getDescription());
 			PreparedStatement pstepsQuery = conn.prepareStatement(stepsQuery);
 			pstepsQuery.setInt(1, testId);
 			ResultSet prs = pstepsQuery.executeQuery();
+			m_steps = new ArrayList<TestStepModel>();
 			while(prs.next()) {
 				TestStepModel ts = new TestStepModel(this.getDb());
 				ts.retrieveForId(prs.getInt("TestStepId"), testId);

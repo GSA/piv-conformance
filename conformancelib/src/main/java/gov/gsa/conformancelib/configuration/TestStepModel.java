@@ -81,10 +81,10 @@ public class TestStepModel {
 	
 	public void retrieveForId(int testStepId, int testId) {
 		this.setId(testStepId);
-		String query = "select TestSteps.Id, TestSteps.Description, TestSteps.Class, "+
-				"TestSteps.Method, TestSteps.JUnitName, TestSteps.JUnitGroup, TestSteps.NumParameters, TestsToSteps.Status "+
+		String query = "select TestSteps.Id as TestStepId, Description, Class, "+
+				"Method, NumParameters, Status "+
 				"from TestSteps left outer join TestsToSteps on TestSteps.Id = TestsToSteps.TestStepId "+
-				"where TestSteps.Id = ? and TestSteps.TestId = ?";
+				"where TestSteps.Id = ? and TestsToSteps.TestId = ?";
 								
 		String parametersQuery = "select Id, TestStepId, TestId, Value from TestStepParameters " + 
                                             "where TestStepParameters.TestStepId = ? and TestStepParameters.TestId = ? " +
@@ -95,12 +95,15 @@ public class TestStepModel {
 			pquery.setInt(1, testStepId);
 			pquery.setInt(2, testId);
 			ResultSet rs = pquery.executeQuery();
-			rs.absolute(1);
-			this.setTestClassName(rs.getString("TestSteps.Class"));
-			this.setTestMethodName(rs.getString("TestSteps.Method"));
-			this.setTestDescription(rs.getString("TestSteps.Description"));
-			this.setStatus(rs.getInt("TestSteps.Status"));
-			int nParameters = rs.getInt("TestSteps.NumParameters");
+			if(!rs.next()) {
+				s_logger.error("Database not configured properly: no test case for id {}, step id {}", testId, testStepId);
+				throw new ConfigurationException("Unable to retrieve record for test step id " + testStepId);
+			}
+			this.setTestClassName(rs.getString("Class"));
+			this.setTestMethodName(rs.getString("Method"));
+			this.setTestDescription(rs.getString("Description"));
+			this.setStatus(rs.getInt("Status"));
+			int nParameters = rs.getInt("NumParameters");
 			s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
 			PreparedStatement pparametersQuery = conn.prepareStatement(parametersQuery);
 			pparametersQuery.setInt(1, testStepId);
