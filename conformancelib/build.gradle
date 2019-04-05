@@ -39,6 +39,11 @@ sourceSets {
     }
 }
 
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
 import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 eclipse {
@@ -103,3 +108,18 @@ test {
 
 junitPlatform {
 }
+
+// copy a jar with library sources to make this easier to step through in eclipse
+task installSource(type: Copy) {
+    dependsOn sourceJar
+    from sourceJar
+    into "$projectDir/../tools/85b-swing-gui/lib"
+}
+
+task install(type: Copy) {
+    dependsOn jar 
+    dependsOn installSource
+    from jar
+    into "$projectDir/../tools/85b-swing-gui/lib"
+}
+
