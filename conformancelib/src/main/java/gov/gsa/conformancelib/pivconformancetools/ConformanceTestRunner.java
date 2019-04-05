@@ -119,7 +119,12 @@ public class ConformanceTestRunner {
         try (Statement configStatement = conn.createStatement()) {
             ResultSet rs = configStatement.executeQuery(FIRST_CONFIG);
             rs.next();
-            String readerName = rs.getString("ReaderName");
+            String readerName = null;
+            try {
+            	readerName = rs.getString("ReaderName");
+            } catch(SQLException e) {
+            	//no need to carp now... this'll just come from css
+            }
             if(readerName == null || readerName.isEmpty()) {
                 s_logger.info("No reader was specified. Using the first available reader.");
                 css.setReaderIndex(0);
@@ -239,6 +244,9 @@ public class ConformanceTestRunner {
 
         System.out.println("--------------------------------------------------------------");
         TestExecutionSummary summary = summaryListener.getSummary();
+        if(summary == null) {
+        	s_logger.error("Failed to record test summary");
+        }
         List<TestExecutionSummary.Failure> failures = summary.getFailures();
         for(TestExecutionSummary.Failure f : failures) {
             TestIdentifier ti = f.getTestIdentifier();
