@@ -7,6 +7,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class GuiRunnerApplication {
 
@@ -81,6 +83,9 @@ public class GuiRunnerApplication {
 		
 		JMenuItem mntmAboutPivCard = new JMenuItem("About PIV Card Conformance Tool");
 		mnHelp.add(mntmAboutPivCard);
+		
+		TestTreePanel panel = new TestTreePanel();
+		frame.getContentPane().add(panel, BorderLayout.WEST);
 	}
 
 }

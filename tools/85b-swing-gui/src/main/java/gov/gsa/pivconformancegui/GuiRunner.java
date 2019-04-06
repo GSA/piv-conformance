@@ -4,6 +4,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
+// this is just a temporary spot for testing individual controls before pulling them into the more complex
+// window layout. it should go away.
 public class GuiRunner {
     private static void createAndShow() {
         JFrame mainFrame = new JFrame("PIV Conformance Tester");
