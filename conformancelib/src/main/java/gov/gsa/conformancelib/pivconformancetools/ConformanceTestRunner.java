@@ -256,7 +256,7 @@ public class ConformanceTestRunner {
                 	
                 }
                 suiteBuilder.selectors(discoverySelectors);
-                suiteBuilder.configurationParameter("TestCaseIdentifier", "TestCaseIdentifier");
+                suiteBuilder.configurationParameter("TestCaseIdentifier", testNameFromConfig);
                 LauncherDiscoveryRequest ldr = suiteBuilder.build();
                 
                 Launcher l = LauncherFactory.create();
