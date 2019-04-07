@@ -483,8 +483,6 @@ public class SP800_73_4CHUIDTests {
 		
 		boolean optionalTagsPresent = false;
 		
-		
-		//XXX Test cards I have have and extra 0xFE out of place
 		if(tagList.contains(berOrgIDTag)) {
 
 			optionalTagsPresent = true;			

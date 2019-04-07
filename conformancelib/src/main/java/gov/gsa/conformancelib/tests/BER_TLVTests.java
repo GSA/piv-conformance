@@ -203,7 +203,6 @@ public class BER_TLVTests {
         //Get data from the card corresponding to the OID value
         MiddlewareStatus result = piv.pivGetData(ch, oid, o);
         
-      //XXX Is it sufficient to rely on the fact that pivGetData checks returned status from the card to be '9000'? 
         assertTrue(result == MiddlewareStatus.PIV_OK);
         byte[] bertlv = o.getBytes();           
         assertNotNull(bertlv);

@@ -150,7 +150,6 @@ public class SP800_76_Tests {
             
             assertTrue(biometricDataBlockLength > 0);
             
-            //XXX Will need to revisit to confirm if this is the right way to test this
             assertTrue(biometricData.length >= (88 + 88 + biometricDataBlockLength));
             
 		 }
@@ -585,7 +584,6 @@ public class SP800_76_Tests {
 		byte [] versionIdentifier = Arrays.copyOfRange(biometricDataBlock, 4, 8);
 		byte [] versionIdentifierValueToCheck = { 0x20, 0x32, 0x30, 0x00 };
 		
-		//Check version identifier value of 0x20323030 XXX spreadsheet had this 0x20323030 but I believe this is wrong should be 0x20323000
 		assertTrue(Arrays.equals(versionIdentifier, versionIdentifierValueToCheck));
 	}
 	
@@ -788,7 +786,6 @@ public class SP800_76_Tests {
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock);
 							
-		//XXX Is it located on the 20th byte?
 		assertTrue(biometricDataBlock.length >= 16);
 		
 		//Confirm that the 20th and 21st is not null
