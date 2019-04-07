@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
@@ -16,6 +17,7 @@ import gov.gsa.conformancelib.configuration.TestStepModel;
 public class TestTreePanel extends JPanel {
 	
 	List<TestCaseModel> m_testCases;
+	DefaultTreeModel m_treeModel;
 
 	public List<TestCaseModel> getTestCases() {
 		return m_testCases;
@@ -26,13 +28,17 @@ public class TestTreePanel extends JPanel {
 	}
 
 	public TestTreePanel() {
+		m_testCases = new ArrayList<TestCaseModel>();
 		setLayout(new BorderLayout());
-		JTree treeControl = new JTree();
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
+		createNodes(root);
+		m_treeModel = new DefaultTreeModel(root);
+		JTree treeControl = new JTree(m_treeModel);
 		treeControl.setRootVisible(false);
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.getViewport().add(treeControl);
 		this.add(scrollPane, BorderLayout.CENTER);
-		m_testCases = new ArrayList<TestCaseModel>();
+				
 	}
 	
     private void createNodes(DefaultMutableTreeNode top) {
