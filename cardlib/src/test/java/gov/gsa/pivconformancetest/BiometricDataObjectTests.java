@@ -42,7 +42,8 @@ public class BiometricDataObjectTests {
 
         o.setOID(oid);
         o.setBytes(data);
-        assert(o.decode());
+        boolean decoded = o.decode();
+        assert(decoded == true);
 
         assertNotNull(((CardholderBiometricData) o).getBiometricCreationDate());
         assertNotNull(((CardholderBiometricData) o).getValidityPeriodFrom());

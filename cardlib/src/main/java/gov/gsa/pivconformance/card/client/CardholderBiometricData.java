@@ -301,7 +301,7 @@ public class CardholderBiometricData extends PIVDataObject {
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
                 if(tlv.isPrimitive()) {
-                    s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                    s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                     BerTlvs outer2 = tlvp.parse(tlv.getBytesValue());
 
