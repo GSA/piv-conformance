@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -21,6 +22,11 @@ public class OpenDatabaseAction extends AbstractAction {
 	
 	public OpenDatabaseAction(String name) {
 		super(name);
+	}
+	
+	public OpenDatabaseAction(String name, ImageIcon icon, String toolTip) {
+		super(name, icon);
+		putValue(SHORT_DESCRIPTION, toolTip);
 	}
 
 	@Override

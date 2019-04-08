@@ -117,6 +117,8 @@ public class GuiRunnerApplication {
 		JMenuItem mntmShowDebugWindow = new JMenuItem(new ShowDebugWindowAction("Show Debugging Tools..."));
 		mnHelp.add(mntmShowDebugWindow);
 		
+		m_mainFrame.getContentPane().add(new GuiRunnerToolbar(), BorderLayout.NORTH);
+		
 		m_treePanel = new TestTreePanel();
 		m_treePanel.setMinimumSize(new Dimension(500,400));
 		m_mainFrame.getContentPane().add(m_treePanel, BorderLayout.WEST);

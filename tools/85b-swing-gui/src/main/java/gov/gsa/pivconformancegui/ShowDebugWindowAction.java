@@ -16,9 +16,9 @@ public class ShowDebugWindowAction extends AbstractAction {
 		
 	}
 
-	public ShowDebugWindowAction(String name, Icon icon) {
+	public ShowDebugWindowAction(String name, Icon icon, String toolTip) {
 		super(name, icon);
-		
+		putValue(SHORT_DESCRIPTION, toolTip);
 	}
 
 	@Override
