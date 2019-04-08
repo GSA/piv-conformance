@@ -3,6 +3,7 @@ package gov.gsa.conformancelib.configuration;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -110,6 +111,7 @@ public class TestStepModel {
 			pparametersQuery.setInt(2, testId);
 			ResultSet prs = pparametersQuery.executeQuery();
 			while(prs.next()) {
+				if(m_parameters == null) m_parameters = new ArrayList<String>();
 				m_parameters.add(prs.getString("Value"));
 			}
 		} catch(Exception e) {

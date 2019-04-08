@@ -67,6 +67,7 @@ public class ConformanceTestDatabase {
                 s_logger.error("Unable to read driver metadata", e);
             }
         }
+        m_conn = conn;
         s_logger.info("Opened conformance test database in {}", filename);
 	}
 	
