@@ -18,6 +18,9 @@ import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 import gov.gsa.pivconformance.utils.VersionUtils;
 import gov.gsa.conformancelib.pivconformancetools.junitconsole.VerboseTreePrintingListener;
+import gov.gsa.conformancelib.tests.ConformanceTestException;
+import gov.gsa.conformancelib.utilities.CardUtils;
+
 import org.apache.commons.cli.*;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.platform.engine.DiscoverySelector;
@@ -164,7 +167,9 @@ public class ConformanceTestRunner {
                     css.setReaderIndex(0);
                 } else {
                     css.setReaderIndex(found);
+                    CardUtils.setUpPivAppHandleInSingleton();
                 }
+                
                 String pinFromConfig = rs.getString("ApplicationPIN");
                 if(pinFromConfig != null && !pinFromConfig.isEmpty()) {
                     css.setApplicationPin(pinFromConfig);
@@ -184,9 +189,9 @@ public class ConformanceTestRunner {
             }
         } catch (SQLException e) {
             s_logger.error("Failed to read configuration", e);
-        }
-
-        
+        } catch (ConformanceTestException e) {
+        	s_logger.error("Test apparatus configuration error", e);
+		}
         
         ConformanceTestDatabase ctd = new ConformanceTestDatabase(conn);
         PrintWriter out = new PrintWriter(System.out);
