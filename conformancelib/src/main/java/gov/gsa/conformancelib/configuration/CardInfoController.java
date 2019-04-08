@@ -96,7 +96,8 @@ public class CardInfoController {
 			pivAuthenticators.addApplicationPin("");
 			result = piv.pivLogIntoCardApplication(ch, pivAuthenticators.getBytes());
 			if(result == MiddlewareStatus.PIV_AUTHENTICATION_FAILURE) {
-				rv = (PCSCUtils.StatusWordsToRetries(piv.getLastResponseAPDUBytes()) & 0xf) << 4;
+				rv = PCSCUtils.StatusWordsToRetries(piv.getLastResponseAPDUBytes()) & 0xf;
+				s_logger.info("Application PIN: {} retries remain", rv);
 			}
 
 			pivAuthenticators = new PIVAuthenticators();
