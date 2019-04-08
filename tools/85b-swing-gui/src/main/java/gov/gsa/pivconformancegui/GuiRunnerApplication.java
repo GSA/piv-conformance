@@ -7,6 +7,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
+
+import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
+
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
@@ -22,7 +25,13 @@ public class GuiRunnerApplication {
 			public void run() {
 				try {
 					GuiRunnerApplication window = new GuiRunnerApplication();
+					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+					c.setApp(window);
+					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
+					db.openDatabaseInFile("../../conformancelib/testdata/icam_test.db");
+					c.setTestDatabase(db);
 					window.m_mainFrame.setVisible(true);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

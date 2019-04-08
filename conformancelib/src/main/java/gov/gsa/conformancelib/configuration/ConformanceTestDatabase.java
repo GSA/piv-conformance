@@ -9,7 +9,11 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.slf4j.Logger;
@@ -17,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 public class ConformanceTestDatabase {
 	private static final Logger s_logger = LoggerFactory.getLogger(ConformanceTestDatabase.class);
+	private static final String TEST_SET = "SELECT * from TestCases where Enabled=1";
+	
 	public ConformanceTestDatabase(Connection conn) {
 		setConnconnection(conn);
 	}
@@ -62,6 +68,21 @@ public class ConformanceTestDatabase {
             }
         }
         s_logger.info("Opened conformance test database in {}", filename);
+	}
+	
+	public List<TestCaseModel> getTestCases() {
+		ArrayList<TestCaseModel> rv = new ArrayList<TestCaseModel>();
+		try (Statement testStatement = m_conn.createStatement()) {
+            ResultSet rs = testStatement.executeQuery(TEST_SET);
+            while(rs.next()) {
+                TestCaseModel testCase = new TestCaseModel(this);
+                testCase.retrieveForId(rs.getInt("Id"));
+                rv.add(testCase);
+            }
+		} catch(SQLException e) {
+			s_logger.error("Failed to retrieve test cases from database");
+		}
+		return rv;
 	}
 	
 	public void populateDefault() throws ConfigurationException {

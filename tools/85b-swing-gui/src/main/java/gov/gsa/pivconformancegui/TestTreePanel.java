@@ -41,6 +41,14 @@ public class TestTreePanel extends JPanel {
 				
 	}
 	
+	public void refresh() {
+		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+		m_testCases = c.getTestDatabase().getTestCases();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) m_treeModel.getRoot();
+		createNodes(root);
+		m_treeModel.reload();
+	}
+	
     private void createNodes(DefaultMutableTreeNode top) {
     	for(TestCaseModel tc : m_testCases) {
     		TestCaseTreeNode tcNode = new TestCaseTreeNode(tc);
