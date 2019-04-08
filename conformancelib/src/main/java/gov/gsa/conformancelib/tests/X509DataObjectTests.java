@@ -60,7 +60,6 @@ public class X509DataObjectTests {
 		byte[] bertlv = o.getBytes();
 		assertNotNull(bertlv);
 
-		//XXX This seems too low for certificates
 		assertTrue(bertlv.length <= 1905);
         
     }

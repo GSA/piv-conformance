@@ -473,9 +473,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
             }
 
             scos2.write(scos.toByteArray());
-            //There is a bug in the encoder what adds an extra FE00 this will need to be removed for the new version
-            scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
-            scos.write((byte) 0x00);
             m_signedContent = scos.toByteArray();
 
             scos2.write(APDUUtils.getTLV(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG, issuerAsymmetricSignature));

@@ -560,7 +560,6 @@ public class CMSTests {
 			Principal issuerFromCert = signingCert.getIssuerDN();
 			X500Name tmp = new X500Name(issuerFromCert.getName());
 			
-			//XXX Is this the right style??
 			X500NameStyle style = RFC4519Style.INSTANCE;
 			
 			//Confirm issuer from the cert matcher issuer from the signer info
@@ -625,7 +624,6 @@ public class CMSTests {
 	@DisplayName("CMS.11 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("CMS_TestProvider")
-	@Disabled //XXX DIsabled until I figure out why signature verification fails.
     void CMS_Test_11(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -665,7 +663,6 @@ public class CMSTests {
 		
 
 		//Signature verification confirms that message digest from signed attributes bag matches the digest over CHUID
-		//XXX need to figure out why signature verification fails
 		assertTrue(((CardHolderUniqueIdentifier) o).verifySignature());
     }
 	
@@ -866,7 +863,6 @@ public class CMSTests {
 			fail(e);
 		}
 		
-		//Verify signature using the cert from the cert bag.  XXX Need to revisit for some reson signature verification fails
 		assertTrue(((CardHolderUniqueIdentifier) o).verifySignature());
     }
 	
@@ -915,7 +911,6 @@ public class CMSTests {
 		
 		assertNotNull(signers);
 		
-		//XXX Two questions about this tests.  Is the extension need to be found in the signing certificate?  What is the oid for piv interum 
 		List<String> ekuList = new ArrayList<String>();
 		try {
 			ekuList = signingCert.getExtendedKeyUsage();
@@ -923,7 +918,7 @@ public class CMSTests {
 			fail(e);
 		}
 		
-		//Confirm id-PIV-content-signing (2.16.840.1.101.3.6.7) present (Will fail on test cards as they have (2.16.840.1.101.3.8.7) test oid
+		//Confirm id-PIV-content-signing (2.16.840.1.101.3.6.7) present
 		assertTrue(ekuList.contains("2.16.840.1.101.3.6.7"));
     }
 	
