@@ -8,14 +8,23 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class GuiRunnerApplication {
 
 	private JFrame m_mainFrame;
+	private DebugWindow m_debugFrame;
+	private TestTreePanel m_treePanel;
 
 	/**
 	 * Launch the application.
@@ -27,6 +36,12 @@ public class GuiRunnerApplication {
 					GuiRunnerApplication window = new GuiRunnerApplication();
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
 					c.setApp(window);
+					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+					a.setContext(lc);
+					a.start();
+					Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+					logger.addAppender(a);
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 					db.openDatabaseInFile("../../conformancelib/testdata/icam_test.db");
 					c.setTestDatabase(db);
@@ -51,8 +66,9 @@ public class GuiRunnerApplication {
 	 */
 	private void initialize() {
 		m_mainFrame = new JFrame();
-		m_mainFrame.setBounds(100, 100, 450, 300);
+		m_mainFrame.setBounds(100, 100, 640, 600);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		m_mainFrame.setTitle("PIV Card Conformance Tool");
 		
 		JMenuBar menuBar = new JMenuBar();
 		m_mainFrame.setJMenuBar(menuBar);
@@ -60,10 +76,15 @@ public class GuiRunnerApplication {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmOpen = new JMenuItem("Open");
+		JMenuItem mntmOpen = new JMenuItem(new OpenDatabaseAction("Open Database..."));
 		mnFile.add(mntmOpen);
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
+		mntmExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
 		mnFile.add(mntmExit);
 		
 		JMenu mnEdit = new JMenu("Edit");
@@ -93,16 +114,33 @@ public class GuiRunnerApplication {
 		JMenuItem mntmAboutPivCard = new JMenuItem("About PIV Card Conformance Tool");
 		mnHelp.add(mntmAboutPivCard);
 		
-		TestTreePanel panel = new TestTreePanel();
-		m_mainFrame.getContentPane().add(panel, BorderLayout.WEST);
+		JMenuItem mntmShowDebugWindow = new JMenuItem(new ShowDebugWindowAction("Show Debugging Tools..."));
+		mnHelp.add(mntmShowDebugWindow);
+		
+		m_treePanel = new TestTreePanel();
+		m_treePanel.setMinimumSize(new Dimension(500,400));
+		m_mainFrame.getContentPane().add(m_treePanel, BorderLayout.WEST);
+		m_debugFrame = new DebugWindow("Debugging Tools");
+		m_debugFrame.setBounds(150, 150, 640, 600);
 	}
 
 	public JFrame getMainFrame() {
 		return m_mainFrame;
+	}
+	
+	public DebugWindow getDebugFrame() {
+		return m_debugFrame;
 	}
 
 	public void setMainFrame(JFrame mainFrame) {
 		m_mainFrame = mainFrame;
 	}
 
+	public TestTreePanel getTreePanel() {
+		return m_treePanel;
+	}
+	
+	public boolean isDebugPaneVisible() {
+		return false;
+	}
 }

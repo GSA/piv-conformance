@@ -46,10 +46,11 @@ public class TestTreePanel extends JPanel {
 		m_testCases = c.getTestDatabase().getTestCases();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) m_treeModel.getRoot();
 		createNodes(root);
-		m_treeModel.reload();
+		m_treeModel.nodeStructureChanged(root);
 	}
 	
     private void createNodes(DefaultMutableTreeNode top) {
+    	top.removeAllChildren();
     	for(TestCaseModel tc : m_testCases) {
     		TestCaseTreeNode tcNode = new TestCaseTreeNode(tc);
     		top.add(tcNode);

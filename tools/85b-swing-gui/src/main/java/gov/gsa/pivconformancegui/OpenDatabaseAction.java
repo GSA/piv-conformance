@@ -1,6 +1,7 @@
 package gov.gsa.pivconformancegui;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
@@ -18,9 +19,15 @@ public class OpenDatabaseAction extends AbstractAction {
 	private static final long serialVersionUID = 5239821601447026620L;
 	private static final Logger s_logger = LoggerFactory.getLogger(OpenDatabaseAction.class);
 	
+	public OpenDatabaseAction(String name) {
+		super(name);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser fc = new JFileChooser();
+		File cwd = new File(System.getProperty("user.dir"));
+		fc.setCurrentDirectory(cwd);
 		JFrame mainFrame = GuiRunnerAppController.getInstance().getMainFrame();
 		int result = fc.showOpenDialog(mainFrame);
 		if(result == JFileChooser.APPROVE_OPTION) {

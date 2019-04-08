@@ -73,7 +73,7 @@ eclipse {
 }
 
 // Define the main class for the application jar that will be produced
-mainClassName = 'gov.gsa.pivconformancegui.GuiRunner'
+mainClassName = 'gov.gsa.pivconformancegui.GuiRunnerApplication'
 
 jar {
     manifest {

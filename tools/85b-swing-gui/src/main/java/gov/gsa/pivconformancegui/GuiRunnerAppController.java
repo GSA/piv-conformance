@@ -35,6 +35,7 @@ public class GuiRunnerAppController {
 
 	public void setTestDatabase(ConformanceTestDatabase testDatabase) {
 		m_testDatabase = testDatabase;
+		if(m_app != null) reloadTree();
 	}
 
 	public GuiRunnerApplication getApp() {
@@ -49,9 +50,16 @@ public class GuiRunnerAppController {
 		return m_app.getMainFrame();
 	}
 	
-	// show the debug window if it's hidden, hide it if it's shown, return whether it is now visible
-	public boolean toggleDebugWindow() {
-		// stub for now while fixing the debug window
-		return true;
+	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
+	public void showDebugWindow() {
+		DebugWindow window = m_app.getDebugFrame();
+		if(!window.isVisible()) {
+			window.setVisible(true);
+		}
+	}
+	
+	public void reloadTree() {
+		TestTreePanel tree = m_app.getTreePanel();
+		tree.refresh();
 	}
 }

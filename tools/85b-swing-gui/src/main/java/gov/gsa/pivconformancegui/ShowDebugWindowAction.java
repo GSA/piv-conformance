@@ -23,7 +23,7 @@ public class ShowDebugWindowAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		GuiRunnerAppController.getInstance().toggleDebugWindow();
+		GuiRunnerAppController.getInstance().showDebugWindow();
 	}
 
 }
