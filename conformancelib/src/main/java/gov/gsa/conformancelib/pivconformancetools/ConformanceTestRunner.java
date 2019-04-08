@@ -7,6 +7,7 @@ import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
+import gov.gsa.conformancelib.junitoptions.ConformanceTestExecutionListener;
 import gov.gsa.conformancelib.junitoptions.Theme;
 //import gov.gsa.conformancelib.tests.SignedObjectVerificationTests;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -60,6 +61,7 @@ public class ConformanceTestRunner {
         s_options.addOption("n", "configName", true, "group of system settings to use if the config database has more than one");
         s_options.addOption("a", "appPin", true, "applicationPin to use for testing");
         s_options.addOption("d", "parameterDebug", false, "enable junit parameter debugging");
+        s_options.addOption("", "noTree", false, "hide the junit test tree output");
     }
     private static void PrintHelpAndExit(int exitCode) {
         new HelpFormatter().printHelp("ConfigGenerator <options>", s_options);
@@ -189,6 +191,7 @@ public class ConformanceTestRunner {
         ConformanceTestDatabase ctd = new ConformanceTestDatabase(conn);
         PrintWriter out = new PrintWriter(System.out);
         SummaryGeneratingListener summaryListener = new SummaryGeneratingListener();
+        ConformanceTestExecutionListener ctListener = new ConformanceTestExecutionListener();
         
         
         try (Statement testStatement = conn.createStatement()) {
@@ -261,8 +264,10 @@ public class ConformanceTestRunner {
                 
                 Launcher l = LauncherFactory.create();
                 List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
-                listeners.add(summaryListener);
-                registerListeners(out, l, listeners);
+                if(!cmd.hasOption("noTree")) listeners.add(summaryListener);
+                ctListener.setTestCaseIdentifier(testNameFromConfig);
+                listeners.add(ctListener);
+                registerListeners(out, l, listeners, !cmd.hasOption("noTree"));
                 //l.registerTestExecutionListeners(summaryListener);
                 l.execute(ldr);
             }
@@ -279,20 +284,21 @@ public class ConformanceTestRunner {
         TestExecutionSummary summary = summaryListener.getSummary();
         if(summary == null) {
         	s_logger.error("Failed to record test summary");
+        } else {
+	        List<TestExecutionSummary.Failure> failures = summary.getFailures();
+	        for(TestExecutionSummary.Failure f : failures) {
+	            TestIdentifier ti = f.getTestIdentifier();
+	            System.out.println(String.format("Test failure: {}", ti.getDisplayName()));
+	        }
+	        summary.printTo(new PrintWriter(System.out));
         }
-        List<TestExecutionSummary.Failure> failures = summary.getFailures();
-        for(TestExecutionSummary.Failure f : failures) {
-            TestIdentifier ti = f.getTestIdentifier();
-            System.out.println(String.format("Test failure: {}", ti.getDisplayName()));
-        }
-        summary.printTo(new PrintWriter(System.out));
 
     }
-    private static void registerListeners(PrintWriter out, Launcher launcher, List<TestExecutionListener> listeners) {    
+    private static void registerListeners(PrintWriter out, Launcher launcher, List<TestExecutionListener> listeners, boolean showTree) {    
         for(TestExecutionListener listener : listeners) {
         	launcher.registerTestExecutionListeners(listener);
         }
-        launcher.registerTestExecutionListeners(createDetailsPrintingListener(out));
+        if(showTree) launcher.registerTestExecutionListeners(createDetailsPrintingListener(out));
     }
 
     private static TestExecutionListener createDetailsPrintingListener(PrintWriter out) {
