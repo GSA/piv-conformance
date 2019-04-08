@@ -2,16 +2,21 @@ package gov.gsa.pivconformancegui;
 
 import java.awt.EventQueue;
 
+import javax.print.attribute.standard.JobMessageFromOperator;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.UIManager;
 
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 
 import javax.swing.JPanel;
@@ -33,6 +38,7 @@ public class GuiRunnerApplication {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					GuiRunnerApplication window = new GuiRunnerApplication();
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
 					c.setApp(window);
@@ -43,9 +49,20 @@ public class GuiRunnerApplication {
 					Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 					logger.addAppender(a);
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
-					db.openDatabaseInFile("../../conformancelib/testdata/icam_test.db");
+					String errorMessage = null;
+					try {
+						db.openDatabaseInFile("../../conformancelib/testdata/icam_test.db");
+					} catch(ConfigurationException ce) {
+						errorMessage = ce.getMessage();
+					}
 					c.setTestDatabase(db);
 					window.m_mainFrame.setVisible(true);
+					if(errorMessage != null) {
+						JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
+						JDialog dialog = msgBox.createDialog(window.m_mainFrame, "Error");
+						dialog.setAlwaysOnTop(true);
+						dialog.setVisible(true);
+					}
 					
 				} catch (Exception e) {
 					e.printStackTrace();

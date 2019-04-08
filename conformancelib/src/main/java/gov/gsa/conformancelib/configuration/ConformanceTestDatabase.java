@@ -71,7 +71,11 @@ public class ConformanceTestDatabase {
         s_logger.info("Opened conformance test database in {}", filename);
 	}
 	
-	public List<TestCaseModel> getTestCases() {
+	public List<TestCaseModel> getTestCases() throws ConfigurationException {
+		if(m_conn == null) {
+			s_logger.error("getTestCases() called without any database");
+			throw new ConfigurationException("getTestCases() called without any database.");
+		}
 		ArrayList<TestCaseModel> rv = new ArrayList<TestCaseModel>();
 		try (Statement testStatement = m_conn.createStatement()) {
             ResultSet rs = testStatement.executeQuery(TEST_SET);

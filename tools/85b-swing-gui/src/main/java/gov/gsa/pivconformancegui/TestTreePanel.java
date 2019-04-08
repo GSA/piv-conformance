@@ -11,6 +11,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import gov.gsa.conformancelib.configuration.ConfigurationException;
+import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 
@@ -43,7 +45,19 @@ public class TestTreePanel extends JPanel {
 	
 	public void refresh() {
 		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
-		m_testCases = c.getTestDatabase().getTestCases();
+		ConformanceTestDatabase db = c.getTestDatabase();
+		if(db == null) {
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) m_treeModel.getRoot();
+			root.removeAllChildren();
+			m_treeModel.nodeStructureChanged(root);
+			return;
+		}
+		
+		try {
+			m_testCases = db.getTestCases();
+		}catch(ConfigurationException e) {
+			m_testCases = null;
+		}
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) m_treeModel.getRoot();
 		createNodes(root);
 		m_treeModel.nodeStructureChanged(root);
@@ -51,6 +65,9 @@ public class TestTreePanel extends JPanel {
 	
     private void createNodes(DefaultMutableTreeNode top) {
     	top.removeAllChildren();
+    	if(m_testCases == null) {
+    		return;
+    	}
     	for(TestCaseModel tc : m_testCases) {
     		TestCaseTreeNode tcNode = new TestCaseTreeNode(tc);
     		top.add(tcNode);
