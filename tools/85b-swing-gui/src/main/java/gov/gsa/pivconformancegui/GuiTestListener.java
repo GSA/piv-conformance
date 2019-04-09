@@ -1,5 +1,7 @@
 package gov.gsa.pivconformancegui;
 
+import javax.swing.JProgressBar;
+
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.reporting.ReportEntry;
 import org.junit.platform.launcher.TestExecutionListener;
@@ -17,6 +19,7 @@ public class GuiTestListener implements TestExecutionListener {
 	private static final Logger s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
 	
 	private String m_testCaseIdentifier;
+	private JProgressBar m_progressBar;
 
 	@Override
 	public void testPlanExecutionStarted(TestPlan testPlan) {
@@ -33,13 +36,21 @@ public class GuiTestListener implements TestExecutionListener {
 	@Override
 	public void executionStarted(TestIdentifier testIdentifier) {
 		TestExecutionListener.super.executionStarted(testIdentifier);
-		s_testProgressLogger.info("Started {}:{}", m_testCaseIdentifier, testIdentifier.getDisplayName());
+		String displayName = testIdentifier.getDisplayName();
+		if(displayName != "JUnit Jupiter") {
+			s_testProgressLogger.info("Started {}:{}", m_testCaseIdentifier, displayName);
+		}
 	}
 
 	@Override
 	public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
 		TestExecutionListener.super.executionFinished(testIdentifier, testExecutionResult);
-		s_testProgressLogger.info("Finished {}:{}", m_testCaseIdentifier, testIdentifier.getDisplayName());
+		
+		String displayName = testIdentifier.getDisplayName();
+		if(displayName != "JUnit Jupiter") {
+			s_testProgressLogger.info("Finished {}:{}", m_testCaseIdentifier, displayName);
+			m_progressBar.setValue(m_progressBar.getValue()+1);
+		}
 	}
 
 	@Override
@@ -57,6 +68,14 @@ public class GuiTestListener implements TestExecutionListener {
 
 	public void setTestCaseIdentifier(String testCaseIdentifier) {
 		m_testCaseIdentifier = testCaseIdentifier;
+	}
+
+	public JProgressBar getProgressBar() {
+		return m_progressBar;
+	}
+
+	public void setProgressBar(JProgressBar progressBar) {
+		m_progressBar = progressBar;
 	}
 
 }

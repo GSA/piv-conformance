@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingUtilities;
 
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.utils.PCSCUtils;
@@ -19,6 +20,8 @@ import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class SimpleTestExecutionPanel extends JPanel {
 	private JComboBox m_readerComboBox;
@@ -26,6 +29,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 	private JTextField m_databaseNameField;
 	private JTextField m_readerStatusField;
 	private JProgressBar m_testProgressBar;
+	private JButton m_runButton;
 	public SimpleTestExecutionPanel() {
 		setBackground(Color.WHITE);
 		
@@ -50,7 +54,16 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_readerStatusField = new JTextField();
 		m_readerStatusField.setColumns(10);
 		
-		JButton btnVerifyPinAnd = new JButton("Verify PIN and Execute Tests");
+		m_runButton = new JButton("Verify PIN and Execute Tests");
+		m_runButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TestExecutionController tc = TestExecutionController.getInstance();
+				TestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
+				SwingUtilities.invokeLater(() -> {
+					tc.runAllTests(root);
+				});
+			}
+		});
 		
 		m_testProgressBar = new JProgressBar();
 		
@@ -85,7 +98,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 									.addComponent(btnRefreshReaders))))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(159)
-							.addComponent(btnVerifyPinAnd))
+							.addComponent(m_runButton))
 						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
 							.addContainerGap()
 							.addComponent(m_testProgressBar, GroupLayout.DEFAULT_SIZE, 426, Short.MAX_VALUE)))
@@ -121,7 +134,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 							.addGap(18)))
 					.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
-					.addComponent(btnVerifyPinAnd)
+					.addComponent(m_runButton)
 					.addContainerGap())
 		);
 		setLayout(groupLayout);
@@ -179,5 +192,8 @@ public class SimpleTestExecutionPanel extends JPanel {
 		if(selectedReader != null) {
 			m_readerComboBox.setSelectedItem(selectedReader);
 		}
+	}
+	public JButton getRunButton() {
+		return m_runButton;
 	}
 }
