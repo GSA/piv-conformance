@@ -44,7 +44,12 @@ public class ConformanceTestExecutionListener implements TestExecutionListener {
 	@Override
 	public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
 		TestExecutionListener.super.executionFinished(testIdentifier, testExecutionResult);
-		s_testProgressLogger.info("Finished {}:{}", m_testCaseIdentifier, testIdentifier.getDisplayName());
+		String displayName = testIdentifier.getDisplayName();
+		if(displayName != "JUnit Jupiter") {
+			s_testProgressLogger.info("Finished {}:{}", m_testCaseIdentifier, testIdentifier.getDisplayName());
+		} else {
+			s_logger.debug("{}: Skipping progress logging for 'JUnit Jupiter' because that's not really a conformance test", m_testCaseIdentifier);
+		}
 	}
 
 	@Override
