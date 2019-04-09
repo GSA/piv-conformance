@@ -46,6 +46,65 @@ public class CardInfoController {
 		}
 		return ch.getCard().getATR().getBytes();
 	}
+	public static int getAppPinRetries()
+	{
+		int rv = -1;
+		
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		CardTerminal reader = css.getTerminal();
+		if(reader == null) {
+			s_logger.error("No card reader found.");
+			return -1;
+		}
+		
+		try {
+			if(!reader.isCardPresent()) {
+				s_logger.error("No card present in {}", reader.getName());
+				return -1;
+			}
+		} catch (CardException e) {
+			s_logger.error("Exception when querying terminal for card", e);
+			return -1;
+		}
+		
+		ConnectionDescription cd = ConnectionDescription.createFromTerminal(reader);
+		CardHandle ch = css.getCardHandle();
+		MiddlewareStatus result = PIVMiddleware.pivConnect(false, cd, ch);
+
+		try {
+			if(result != MiddlewareStatus.PIV_OK)
+				return -1;
+			
+			try {
+				// Make sure we're logged out, as this call doesn't work if logged in
+				ch.getCard().disconnect(true);
+				result = PIVMiddleware.pivConnect(false, cd, ch);
+			} catch (CardException e) {
+				s_logger.debug("Attempt at card reset failed. Trying to proceed.");
+			}
+		
+			DefaultPIVApplication piv = new DefaultPIVApplication();
+	        ApplicationProperties cardAppProperties = new ApplicationProperties();
+			ApplicationAID aid = new ApplicationAID();
+			result = piv.pivSelectCardApplication(ch, aid, cardAppProperties);
+			if(result != MiddlewareStatus.PIV_OK)
+				return -1;
+			
+			PIVAuthenticators pivAuthenticators = new PIVAuthenticators();
+			
+			pivAuthenticators.addApplicationPin("");
+			result = piv.pivLogIntoCardApplication(ch, pivAuthenticators.getBytes());
+			if(result == MiddlewareStatus.PIV_AUTHENTICATION_FAILURE) {
+				rv = PCSCUtils.StatusWordsToRetries(piv.getLastResponseAPDUBytes()) & 0x0f;
+				s_logger.info("Application PIN: {} retries remain", rv);
+			}
+
+			return rv;
+		} catch (Exception ex) {
+			s_logger.error("Error: {}", ex.getLocalizedMessage());
+		}
+		return rv;
+	}
 	
 	public static int getEncodedRetries()
 	{
@@ -96,7 +155,7 @@ public class CardInfoController {
 			pivAuthenticators.addApplicationPin("");
 			result = piv.pivLogIntoCardApplication(ch, pivAuthenticators.getBytes());
 			if(result == MiddlewareStatus.PIV_AUTHENTICATION_FAILURE) {
-				rv = PCSCUtils.StatusWordsToRetries(piv.getLastResponseAPDUBytes()) & 0xf;
+				rv = PCSCUtils.StatusWordsToRetries(piv.getLastResponseAPDUBytes()) & 0x0f;
 				s_logger.info("Application PIN: {} retries remain", rv);
 			}
 
@@ -105,7 +164,7 @@ public class CardInfoController {
 			pivAuthenticators.addGlobalPin("");
 			result = piv.pivLogIntoCardApplication(ch, pivAuthenticators.getBytes());
 			if(result == MiddlewareStatus.PIV_AUTHENTICATION_FAILURE) {
-				rv |= PCSCUtils.StatusWordsToRetries(piv.getLastResponseAPDUBytes()) & 0xf;
+				rv |= PCSCUtils.StatusWordsToRetries(piv.getLastResponseAPDUBytes()) & 0xf0;
 				s_logger.info("Global PIN: {} retries remain", rv);
 			}
 			return rv;

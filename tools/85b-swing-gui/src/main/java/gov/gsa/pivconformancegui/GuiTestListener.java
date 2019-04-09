@@ -57,6 +57,13 @@ public class GuiTestListener implements TestExecutionListener {
 		String displayName = testIdentifier.getDisplayName();
 		if(displayName != "JUnit Jupiter") {
 			s_testProgressLogger.info("Started {}:{}", m_testCaseIdentifier, displayName);
+			try {
+				SwingUtilities.invokeAndWait(() -> {
+					m_progressBar.setString(m_testCaseIdentifier + " (" + displayName + ")");
+				});
+			} catch (InterruptedException | InvocationTargetException e) {
+				s_logger.error("Failed to update progress bar on secondary thread", e);
+			}
 		}
 	}
 

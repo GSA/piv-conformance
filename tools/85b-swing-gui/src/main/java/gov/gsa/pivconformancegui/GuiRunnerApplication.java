@@ -54,7 +54,7 @@ public class GuiRunnerApplication {
 					logger.addAppender(a);
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 					String errorMessage = null;
-					String dbFilename = "../../conformancelib/testdata/icam_test.db";
+					String dbFilename = "85b_tests.db";
 					boolean opened = false;
 					try {
 						db.openDatabaseInFile(dbFilename);

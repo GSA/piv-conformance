@@ -27,7 +27,7 @@ public class GuiRunnerToolbar extends JToolBar {
 	    this.addSeparator();
 	    ImageIcon runIcon = getToolbarIcon("building_go", "Run");
 	    RunAllTestsAction runAction = new RunAllTestsAction("Run all tests", runIcon, "Run all available tests in database");
-	    this.add(runAction);
+	    //this.add(runAction);
 	    
 	    this.addSeparator();
 	    ImageIcon debugIcon = getToolbarIcon("application_xp_terminal", "Debug");

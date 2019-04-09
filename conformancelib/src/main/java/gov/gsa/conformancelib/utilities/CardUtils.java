@@ -23,29 +23,36 @@ public class CardUtils {
 	static {
 		PCSCUtils.ConfigureUserProperties();
 	}
+	public static void setUpReaderInSingleton() throws ConformanceTestException {
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		CardTerminal reader = null;
+		int idx = css.getReaderIndex();
+		// just use the first terminal
+		List<String> readers = PCSCUtils.GetConnectedReaders();
+		if(readers.isEmpty()) {
+			throw new ConformanceTestException("No connected readers found");
+		}
+		if(idx > readers.size()) {
+			throw new ConformanceTestException("Reader index specified: " + idx + " but only " + readers.size() + " connected.");
+		}
+		if(idx == -1) {				
+			reader = PCSCUtils.TerminalForReaderName(readers.get(0));
+		} else {
+			reader = PCSCUtils.TerminalForReaderName(readers.get(idx));
+		}
+		if(reader == null) {
+			throw new ConformanceTestException("Unable to connect to card reader");
+		}
+		css.setTerminal(reader);
+		
+	}
+	
 	// this method will set up the card and piv application handles in the singleton according to the reader index if specified
 	public static boolean setUpPivAppHandleInSingleton() throws ConformanceTestException {
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CardTerminal reader = css.getTerminal();
 		if(reader == null) {
-			int idx = css.getReaderIndex();
-			// just use the first terminal
-			List<String> readers = PCSCUtils.GetConnectedReaders();
-			if(readers.isEmpty()) {
-				throw new ConformanceTestException("No connected readers found");
-			}
-			if(idx > readers.size()) {
-				throw new ConformanceTestException("Reader index specified: " + idx + " but only " + readers.size() + " connected.");
-			}
-			if(idx == -1) {				
-				reader = PCSCUtils.TerminalForReaderName(readers.get(0));
-			} else {
-				reader = PCSCUtils.TerminalForReaderName(readers.get(idx));
-			}
-			if(reader == null) {
-				throw new ConformanceTestException("Unable to connect to card reader");
-			}
-			css.setTerminal(reader);
+			setUpReaderInSingleton();
 		}
 		try {
 			if(!reader.isCardPresent()) {
