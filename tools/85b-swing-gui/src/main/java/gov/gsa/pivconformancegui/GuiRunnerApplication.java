@@ -18,6 +18,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
+import gov.gsa.pivconformance.utils.PCSCUtils;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -40,6 +41,7 @@ public class GuiRunnerApplication {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					PCSCUtils.ConfigureUserProperties();
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					GuiRunnerApplication window = new GuiRunnerApplication();
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
@@ -52,12 +54,18 @@ public class GuiRunnerApplication {
 					logger.addAppender(a);
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 					String errorMessage = null;
+					String dbFilename = "../../conformancelib/testdata/icam_test.db";
+					boolean opened = false;
 					try {
-						db.openDatabaseInFile("../../conformancelib/testdata/icam_test.db");
+						db.openDatabaseInFile(dbFilename);
+						opened = true;
 					} catch(ConfigurationException ce) {
 						errorMessage = ce.getMessage();
 					}
 					c.setTestDatabase(db);
+					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
+					// XXX *** find out why this isn't coming from user info
+					if(opened) window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
 					window.m_mainFrame.setVisible(true);
 					if(errorMessage != null) {
 						JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);

@@ -4,9 +4,17 @@ import javax.swing.JPanel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
+import gov.gsa.pivconformance.utils.PCSCUtils;
+
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
@@ -118,7 +126,37 @@ public class SimpleTestExecutionPanel extends JPanel {
 		);
 		setLayout(groupLayout);
 		m_testProgressBar.setVisible(false);
+		
+		
+		refreshReaderState();
+		refreshDatabaseInfo();
+		
 	}
+
+	public void refreshDatabaseInfo() {
+		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
+		if(db != null) {
+			Connection c = db.getConnection();
+			if(c != null) {
+				String filename = null;
+				try {
+					filename = c.getClientInfo("filename");
+				} catch (SQLException e) {
+					m_databaseNameField.setText("No filename information is available.");
+				}
+				if(filename != null) {
+					m_databaseNameField.setText(filename);
+				} else {
+					m_databaseNameField.setText("(unavailable)");
+				}
+			} else {
+				m_databaseNameField.setText("No active database");
+			}
+		} else {
+			m_databaseNameField.setText("No database is currently open.");
+		}
+	}
+	
 	public JComboBox getReaderComboBox() {
 		return m_readerComboBox;
 	}
@@ -130,5 +168,16 @@ public class SimpleTestExecutionPanel extends JPanel {
 	}
 	public JProgressBar getTestProgressBar() {
 		return m_testProgressBar;
+	}
+	private void refreshReaderState() {
+		String selectedReader = (String) m_readerComboBox.getSelectedItem();
+		m_readerComboBox.removeAllItems();
+		List<String> readers = PCSCUtils.GetConnectedReaders();
+		for(String reader : readers) {
+			m_readerComboBox.addItem(reader);
+		}
+		if(selectedReader != null) {
+			m_readerComboBox.setSelectedItem(selectedReader);
+		}
 	}
 }
