@@ -24,12 +24,14 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JSplitPane;
 
 public class GuiRunnerApplication {
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
-	private TestTreePanel m_treePanel;
+	//private TestTreePanel m_treePanel;
+	private MainWindowContentPane m_mainContent;
 
 	/**
 	 * Launch the application.
@@ -83,9 +85,10 @@ public class GuiRunnerApplication {
 	 */
 	private void initialize() {
 		m_mainFrame = new JFrame();
-		m_mainFrame.setBounds(100, 100, 640, 600);
+		m_mainFrame.setBounds(100, 100, 1024, 768);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m_mainFrame.setTitle("PIV Card Conformance Tool");
+		
 		
 		JMenuBar menuBar = new JMenuBar();
 		m_mainFrame.setJMenuBar(menuBar);
@@ -136,9 +139,11 @@ public class GuiRunnerApplication {
 		
 		m_mainFrame.getContentPane().add(new GuiRunnerToolbar(), BorderLayout.NORTH);
 		
-		m_treePanel = new TestTreePanel();
-		m_treePanel.setMinimumSize(new Dimension(500,400));
-		m_mainFrame.getContentPane().add(m_treePanel, BorderLayout.WEST);
+		m_mainContent = new MainWindowContentPane();
+		m_mainFrame.getContentPane().add(m_mainContent.getSplitPane(), BorderLayout.CENTER);
+		
+		
+
 		m_debugFrame = new DebugWindow("Debugging Tools");
 		m_debugFrame.setBounds(150, 150, 640, 600);
 	}
@@ -156,7 +161,7 @@ public class GuiRunnerApplication {
 	}
 
 	public TestTreePanel getTreePanel() {
-		return m_treePanel;
+		return m_mainContent.getTreePanel();
 	}
 	
 	public boolean isDebugPaneVisible() {
