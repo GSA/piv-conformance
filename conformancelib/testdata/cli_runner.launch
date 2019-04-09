@@ -11,4 +11,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="gov.gsa.conformancelib.pivconformancetools.ConformanceTestRunner"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--config testdata/runner_test4.db"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="conformancelib"/>
+<booleanAttribute key="org.eclipse.jdt.launching.STOP_IN_MAIN" value="true"/>
 </launchConfiguration>
