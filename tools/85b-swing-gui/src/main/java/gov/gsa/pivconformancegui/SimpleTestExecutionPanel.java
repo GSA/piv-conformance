@@ -24,7 +24,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class SimpleTestExecutionPanel extends JPanel {
-	private JComboBox m_readerComboBox;
+	private JComboBox<String> m_readerComboBox;
 	private JPasswordField m_appPinField;
 	private JTextField m_databaseNameField;
 	private JTextField m_readerStatusField;
@@ -35,7 +35,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		
 		JLabel lblCardReader = new JLabel("Card Reader");
 		
-		m_readerComboBox = new JComboBox();
+		m_readerComboBox = new JComboBox<String>();
 		
 		JLabel lblApplicationPin = new JLabel("Application PIN");
 		
@@ -59,9 +59,10 @@ public class SimpleTestExecutionPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				TestExecutionController tc = TestExecutionController.getInstance();
 				TestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
-				SwingUtilities.invokeLater(() -> {
+				new Thread(() -> {
 					tc.runAllTests(root);
-				});
+				}).start();
+				
 			}
 		});
 		

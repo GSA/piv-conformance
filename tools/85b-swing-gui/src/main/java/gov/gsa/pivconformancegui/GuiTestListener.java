@@ -1,6 +1,9 @@
 package gov.gsa.pivconformancegui;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.reporting.ReportEntry;
@@ -25,12 +28,27 @@ public class GuiTestListener implements TestExecutionListener {
 	public void testPlanExecutionStarted(TestPlan testPlan) {
 		TestExecutionListener.super.testPlanExecutionStarted(testPlan);
 		s_testProgressLogger.info("Test plan started for conformance test {}", m_testCaseIdentifier);
+		try {
+			SwingUtilities.invokeAndWait(() -> {
+				m_progressBar.setString(m_testCaseIdentifier);
+			});
+		} catch (InterruptedException | InvocationTargetException e) {
+			s_logger.error("Failed to update progress bar on secondary thread", e);
+		}
 	}
 
 	@Override
 	public void testPlanExecutionFinished(TestPlan testPlan) {
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
+		try {
+			SwingUtilities.invokeAndWait(() -> {
+				m_progressBar.setString(m_testCaseIdentifier + " Finished.");
+				m_progressBar.setValue(m_progressBar.getValue()+1);
+			});
+		} catch (InterruptedException | InvocationTargetException e) {
+			s_logger.error("Failed to update progress bar on secondary thread", e);
+		}
 	}
 
 	@Override
@@ -49,7 +67,6 @@ public class GuiTestListener implements TestExecutionListener {
 		String displayName = testIdentifier.getDisplayName();
 		if(displayName != "JUnit Jupiter") {
 			s_testProgressLogger.info("Finished {}:{}", m_testCaseIdentifier, displayName);
-			m_progressBar.setValue(m_progressBar.getValue()+1);
 		}
 	}
 

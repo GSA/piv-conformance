@@ -2,11 +2,13 @@ package gov.gsa.pivconformancegui;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.launcher.Launcher;
@@ -73,10 +75,23 @@ public class TestExecutionController {
 			return;
 		}
 		m_running = true;
+		int atomCount = 0;
 		JProgressBar progress = m_testExecutionPanel.getTestProgressBar();
-		m_testExecutionPanel.getRunButton().setEnabled(false);
-		progress.setMaximum(root.getChildCount());
-		progress.setVisible(true);
+		try {
+			SwingUtilities.invokeAndWait(() -> {			
+				m_testExecutionPanel.getRunButton().setEnabled(false);
+				progress.setMaximum(root.getChildCount());
+				progress.setValue(0);
+				progress.setVisible(true);
+				progress.setStringPainted(true);
+				progress.setString("");
+			});
+		} catch (InvocationTargetException | InterruptedException e1) {
+			s_logger.error("Unable to launch tests", e1);
+			m_running = false;
+			return;
+		}
+		
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
 		TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
@@ -86,6 +101,7 @@ public class TestExecutionController {
 			List<DiscoverySelector> discoverySelectors = new ArrayList<>();
             List<TestStepModel> steps = testCase.getSteps();
             for(TestStepModel currentStep : steps) {
+            	atomCount++;
             	Class<?> testClass = null;
             	String className = currentStep.getTestClassName();
             	String methodName = currentStep.getTestMethodName();
@@ -136,7 +152,15 @@ public class TestExecutionController {
             l.execute(ldr);
             curr = (TestCaseTreeNode) curr.getNextSibling();
 		}
-		m_testExecutionPanel.getRunButton().setEnabled(true);
+		try {
+			SwingUtilities.invokeAndWait(() -> {
+				m_testExecutionPanel.getRunButton().setEnabled(true);
+			});
+		} catch (InvocationTargetException | InterruptedException e) {
+			s_logger.error("Failed to enable run button", e);
+		}
+		s_logger.debug("atom count: {}", atomCount);
+		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
         m_running = false;
 	}
 	
