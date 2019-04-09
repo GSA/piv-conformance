@@ -7,6 +7,8 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class RawLogPanel extends JPanel {
 	public RawLogPanel() {
@@ -23,6 +25,11 @@ public class RawLogPanel extends JPanel {
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0,10,10,10));
 		buttonPane.add(Box.createHorizontalGlue());
 		JButton btnNewButton = new JButton("Clear");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				m_debugTextPane.setText("");
+			}
+		});
 		buttonPane.add(btnNewButton);
 		add(buttonPane);
 		
