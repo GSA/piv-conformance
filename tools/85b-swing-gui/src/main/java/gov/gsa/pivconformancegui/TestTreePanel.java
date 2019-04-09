@@ -32,7 +32,7 @@ public class TestTreePanel extends JPanel {
 	public TestTreePanel() {
 		m_testCases = new ArrayList<TestCaseModel>();
 		setLayout(new BorderLayout());
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
+		TestCaseTreeNode root = new TestCaseTreeNode(null);
 		createNodes(root);
 		m_treeModel = new DefaultTreeModel(root);
 		JTree treeControl = new JTree(m_treeModel);
@@ -41,6 +41,10 @@ public class TestTreePanel extends JPanel {
 		scrollPane.getViewport().add(treeControl);
 		this.add(scrollPane, BorderLayout.CENTER);
 				
+	}
+	
+	TestCaseTreeNode getRootNode() {
+		return (TestCaseTreeNode) m_treeModel.getRoot();
 	}
 	
 	public void refresh() {
@@ -58,7 +62,7 @@ public class TestTreePanel extends JPanel {
 		}catch(ConfigurationException e) {
 			m_testCases = null;
 		}
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) m_treeModel.getRoot();
+		TestCaseTreeNode root = (TestCaseTreeNode) m_treeModel.getRoot();
 		createNodes(root);
 		m_treeModel.nodeStructureChanged(root);
 	}

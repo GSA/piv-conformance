@@ -32,7 +32,8 @@ public class TestCaseTreeNode extends DefaultMutableTreeNode {
 
 	@Override
 	public String toString() {
-		return m_testCase.getIdentifier();
+		if(m_testCase != null) return m_testCase.getIdentifier();
+		return new String("(null)");
 	}
 
 }

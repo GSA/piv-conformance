@@ -73,6 +73,9 @@ public class GuiRunnerApplication {
 						dialog.setAlwaysOnTop(true);
 						dialog.setVisible(true);
 					}
+					TestExecutionController tc = TestExecutionController.getInstance();
+					tc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
+					tc.setTestTreePanel(window.m_mainContent.getTreePanel());
 					
 				} catch (Exception e) {
 					e.printStackTrace();
