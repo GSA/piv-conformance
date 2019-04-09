@@ -298,6 +298,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 	private void refreshReaderState() {
 		String selectedReader = (String) m_readerComboBox.getSelectedItem();
 		m_readerComboBox.removeAllItems();
+		
 		List<String> readers = PCSCUtils.GetConnectedReaders();
 		for(String reader : readers) {
 			m_readerComboBox.addItem(reader);
@@ -312,6 +313,10 @@ public class SimpleTestExecutionPanel extends JPanel {
 
 	public void refreshReaderStatus(CardSettingsSingleton css) {
 		CardTerminal reader = css.getTerminal();
+		if(reader == null) { 
+			m_readerStatusField.setText("");
+			return;
+		}
 		try {
 			if(reader.isCardPresent()) {
 				try {
