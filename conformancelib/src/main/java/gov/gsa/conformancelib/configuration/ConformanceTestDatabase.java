@@ -10,6 +10,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -68,6 +69,11 @@ public class ConformanceTestDatabase {
             }
         }
         m_conn = conn;
+        try {
+			m_conn.setClientInfo("filename", filename);
+		} catch (SQLClientInfoException e) {
+			s_logger.error("setClientInfo failed for database connection.", e);
+		}
         s_logger.info("Opened conformance test database in {}", filename);
 	}
 	
