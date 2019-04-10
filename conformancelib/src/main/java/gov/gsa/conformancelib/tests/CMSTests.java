@@ -925,8 +925,8 @@ public class CMSTests {
 	//Validate that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field)
 	@DisplayName("CMS.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("CMS_SecurityObjectTestProvider")
-	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_16(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
