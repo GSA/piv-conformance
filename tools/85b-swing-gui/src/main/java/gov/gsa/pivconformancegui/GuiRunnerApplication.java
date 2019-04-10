@@ -47,6 +47,8 @@ public class GuiRunnerApplication {
 	public static void main(String[] args) {
 		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
+			System.out.println("Working Directory = " +
+		              System.getProperty("user.dir"));
 			File logConfigFile = new File("user_log_config.xml");
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();

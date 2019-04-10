@@ -250,7 +250,6 @@ public class SimpleTestExecutionPanel extends JPanel {
 					.addGap(18))
 		);
 		setLayout(groupLayout);
-		m_testProgressBar.setVisible(false);
 		
 		
 		refreshReaderState();
