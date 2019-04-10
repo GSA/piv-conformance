@@ -329,9 +329,14 @@ public class SimpleTestExecutionPanel extends JPanel {
 					dialog.setAlwaysOnTop(true);
 					dialog.setVisible(true);
 				}
+				String status = null;
 				byte[] atr = CardInfoController.getATR();
-				String hexAtr = Hex.encodeHexString(atr);
-				String status = "Card present: " + hexAtr;
+				if(atr != null) {
+					String hexAtr = Hex.encodeHexString(atr);
+					status = "Card present: " + hexAtr;
+				} else {
+					status = "Unable to connect to card";
+				}
 				m_readerStatusField.setText(status);
 			} else {
 				m_readerStatusField.setText("No card present. Insert a card and click refresh.");
