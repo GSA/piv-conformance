@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.utils.PCSCUtils;
@@ -24,10 +27,14 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import javax.swing.JSplitPane;
 
 public class GuiRunnerApplication {
+
+	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
@@ -38,6 +45,24 @@ public class GuiRunnerApplication {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+		try {
+			File logConfigFile = new File("user_log_config.xml");
+			if(logConfigFile.exists() && logConfigFile.canRead()) {
+				JoranConfigurator configurator = new JoranConfigurator();
+				ctx.reset();
+				configurator.setContext(ctx);
+				configurator.doConfigure(logConfigFile.getCanonicalPath());
+			}
+		} catch(JoranException e) {
+				StatusPrinter.printIfErrorsOccured(ctx);
+		} catch (IOException e) {
+			System.err.println("Unable to resolve logging config to a readable file");
+			e.printStackTrace();
+		}
+
+		
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
