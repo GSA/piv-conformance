@@ -27,6 +27,8 @@ public class GuiTestListener implements TestExecutionListener {
 	private static final Logger s_AtomResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testAtomResults");
 	
 	private String m_testCaseIdentifier;
+	private String m_testCaseDescription;
+	private boolean m_testCaseExpectedResult;
 	private JProgressBar m_progressBar;
 	
 	Map<TestIdentifier, TestExecutionResult> m_testStepResults;
@@ -50,7 +52,8 @@ public class GuiTestListener implements TestExecutionListener {
 	public void testPlanExecutionFinished(TestPlan testPlan) {
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
-		s_testResultLogger.info("{},{}", m_testCaseIdentifier, (m_AtomAborted||m_AtomFailed) ? "Fail" : "Pass"); 
+		s_testResultLogger.info("{},{},{},{}", m_testCaseIdentifier, m_testCaseDescription, m_testCaseExpectedResult ? "Pass":"Fail",
+				(m_AtomAborted||m_AtomFailed) ? "Fail" : "Pass"); 
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_progressBar.setString(m_testCaseIdentifier + " Finished.");
@@ -127,6 +130,22 @@ public class GuiTestListener implements TestExecutionListener {
 
 	public void setProgressBar(JProgressBar progressBar) {
 		m_progressBar = progressBar;
+	}
+
+	public String getTestCaseDescription() {
+		return m_testCaseDescription;
+	}
+
+	public void setTestCaseDescription(String testCaseDescription) {
+		m_testCaseDescription = testCaseDescription;
+	}
+
+	public boolean getTestCaseExpectedResult() {
+		return m_testCaseExpectedResult;
+	}
+
+	public void setTestCaseExpectedResult(boolean testCaseExpectedResult) {
+		m_testCaseExpectedResult = testCaseExpectedResult;
 	}
 
 }

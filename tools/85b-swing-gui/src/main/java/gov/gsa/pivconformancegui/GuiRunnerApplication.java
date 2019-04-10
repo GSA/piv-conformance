@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
@@ -46,6 +48,7 @@ public class GuiRunnerApplication {
 	 */
 	public static void main(String[] args) {
 		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+		RollingFileAppender<?> csvAppender = null;
 		try {
 			System.out.println("Working Directory = " +
 		              System.getProperty("user.dir"));
@@ -57,12 +60,22 @@ public class GuiRunnerApplication {
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
 			}
 		} catch(JoranException e) {
-				StatusPrinter.printIfErrorsOccured(ctx);
+			// handled by status printer
 		} catch (IOException e) {
 			System.err.println("Unable to resolve logging config to a readable file");
 			e.printStackTrace();
 		}
-
+		StatusPrinter.printIfErrorsOccured(ctx);
+		Appender<?> a = null;
+		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
+		if(testResultsLogger == null) {
+			s_logger.warn("No logger was configured for test results CSV");
+		} else {
+			a = testResultsLogger.getAppender("CONFORMANCELOG");
+			if(a == null) s_logger.warn("CONFORMANCELOG appender was not configured. No CSV will be produced.");
+			csvAppender = (RollingFileAppender<?>) a;
+		}
+		final RollingFileAppender<?> foundAppender = csvAppender;
 		
 		
 		EventQueue.invokeLater(new Runnable() {
@@ -90,6 +103,7 @@ public class GuiRunnerApplication {
 						errorMessage = ce.getMessage();
 					}
 					c.setTestDatabase(db);
+					c.setConformanceTestCsvAppender(foundAppender);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 					// XXX *** find out why this isn't coming from user info
 					if(opened) window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);

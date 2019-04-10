@@ -5,6 +5,7 @@ import javax.swing.JFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.core.rolling.RollingFileAppender;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 
 public class GuiRunnerAppController {
@@ -15,6 +16,7 @@ public class GuiRunnerAppController {
 	
 	private ConformanceTestDatabase m_testDatabase;
 	private GuiRunnerApplication m_app;
+	private RollingFileAppender m_ConformanceTestCsvAppender;
 	
 	public void reset() {
 		m_testDatabase = null;
@@ -46,6 +48,14 @@ public class GuiRunnerAppController {
 		m_app = app;
 	}
 	
+	public RollingFileAppender getConformanceTestCsvAppender() {
+		return m_ConformanceTestCsvAppender;
+	}
+
+	public void setConformanceTestCsvAppender(RollingFileAppender conformanceTestCsvAppender) {
+		m_ConformanceTestCsvAppender = conformanceTestCsvAppender;
+	}
+
 	public JFrame getMainFrame() {
 		return m_app.getMainFrame();
 	}
@@ -61,5 +71,16 @@ public class GuiRunnerAppController {
 	public void reloadTree() {
 		TestTreePanel tree = m_app.getTreePanel();
 		tree.refresh();
+	}
+	
+	public void rollConformanceCSV() {
+		if(m_ConformanceTestCsvAppender == null) {
+			s_logger.warn("rollConformanceCSV was called without any appender configured.");
+		}
+		m_ConformanceTestCsvAppender.rollover();
+		Logger conformanceLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
+		if(conformanceLogger != null) {
+			conformanceLogger.info("TestId,TestDescription,ExpectedResult,ActualResult");
+		}
 	}
 }
