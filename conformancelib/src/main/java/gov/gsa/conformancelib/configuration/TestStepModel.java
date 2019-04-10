@@ -88,7 +88,7 @@ public class TestStepModel {
 				"where TestSteps.Id = ? and TestsToSteps.TestId = ?";
 								
 		String parametersQuery = "select Id, TestStepId, TestId, Value from TestStepParameters " + 
-                                            "where TestStepParameters.TestStepId = ? and TestStepParameters.TestId = ? " +
+                                            "where TestStepParameters.TestStepId = ? " +
                                             "order by TestStepParameters.ParamOrder";
 		try {
 			Connection conn = m_db.getConnection();
@@ -108,7 +108,7 @@ public class TestStepModel {
 			s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
 			PreparedStatement pparametersQuery = conn.prepareStatement(parametersQuery);
 			pparametersQuery.setInt(1, testStepId);
-			pparametersQuery.setInt(2, testId);
+			//pparametersQuery.setInt(2, testId);
 			ResultSet prs = pparametersQuery.executeQuery();
 			while(prs.next()) {
 				if(m_parameters == null) m_parameters = new ArrayList<String>();

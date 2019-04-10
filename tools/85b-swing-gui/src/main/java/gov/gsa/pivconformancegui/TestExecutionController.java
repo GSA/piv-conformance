@@ -2,6 +2,7 @@ package gov.gsa.pivconformancegui;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
+import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -85,6 +86,7 @@ public class TestExecutionController {
 				progress.setVisible(true);
 				progress.setStringPainted(true);
 				progress.setString("");
+				//progress.setForeground(Color.GREEN);
 			});
 		} catch (InvocationTargetException | InterruptedException e1) {
 			s_logger.error("Unable to launch tests", e1);

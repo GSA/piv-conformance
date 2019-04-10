@@ -27,7 +27,34 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 		
 		// if there's a method supplied in the context, use it as a key to get parameters from the dictionary
 		if(testMethod.isPresent()) {
-			parameters = parameterSource.getNamedParameter(testMethod.get().getName());			
+			Method target = testMethod.get();
+			String methodName = target.getName();
+			String className = target.getDeclaringClass().getName();
+			String fqmn = className;
+			Class<?> testClass;
+			try {
+				testClass = Class.forName(className);
+				for(Method m : testClass.getDeclaredMethods()) {
+					if(m.getName().contentEquals(methodName)) {
+						fqmn += "#" + m.getName() + "(";
+						Class<?>[] methodParameters = m.getParameterTypes();
+						int nMethodParameters = 0;
+						for(Class<?> c : methodParameters) {
+							if(nMethodParameters >= 1) {
+								fqmn += ", ";
+							}
+							fqmn += c.getName();
+							nMethodParameters++;
+						}
+						fqmn += ")";
+					}
+
+				}
+			} catch (ClassNotFoundException e) {
+				s_logger.error("{} was discovered by junit but could not be loaded.", fqmn);
+			}
+
+			parameters = parameterSource.getNamedParameter(fqmn);			
 		} else {
 			s_logger.warn("ParameterizedArgumentsProvider called without named parameters in dictionary. Resorting to stack.");
 			// otherwise pop one off the stack
