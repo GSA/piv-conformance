@@ -304,6 +304,11 @@ public class SimpleTestExecutionPanel extends JPanel {
 		}
 		if(selectedReader != null) {
 			m_readerComboBox.setSelectedItem(selectedReader);
+		} else {
+			String reader = PCSCUtils.GetFirstReaderWithCardPresent();
+			if(reader != null) {
+				m_readerComboBox.setSelectedItem(reader);
+			}
 		}
 	}
 	public JButton getRunButton() {
