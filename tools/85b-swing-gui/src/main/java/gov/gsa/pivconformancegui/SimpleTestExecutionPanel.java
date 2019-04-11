@@ -5,6 +5,8 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
+
 import java.awt.Color;
 import java.awt.HeadlessException;
 import java.sql.Connection;
@@ -35,7 +37,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
 
 public class SimpleTestExecutionPanel extends JPanel {
 	
@@ -179,6 +183,22 @@ public class SimpleTestExecutionPanel extends JPanel {
 				refreshReaderStatus(CardSettingsSingleton.getInstance());
 			}
 		});
+		
+		String lblImageLocation = "/images/gsa_logo.png";
+		URL imageUrl = SimpleTestExecutionPanel.class.getResource(lblImageLocation);
+		ImageIcon imageIcon = null;
+		if(imageUrl == null) {
+			s_logger.error("Unable to get image at classpath location {}", lblImageLocation);
+		} else {
+			imageIcon = new ImageIcon(imageUrl);
+		}
+
+		JLabel lblImage = new JLabel("[GSA Logo]");
+		lblImage.setHorizontalAlignment(SwingConstants.CENTER);
+		if(imageIcon != null) {
+			lblImage.setIcon(imageIcon);
+			lblImage.setText("");
+		}
 		GroupLayout groupLayout = new GroupLayout(this);
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.TRAILING)
@@ -200,20 +220,26 @@ public class SimpleTestExecutionPanel extends JPanel {
 						.addComponent(lblTestDatabase)
 						.addComponent(lblReaderStatus))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
 						.addComponent(m_readerComboBox, 0, 308, Short.MAX_VALUE)
 						.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(m_databaseNameField, GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-							.addComponent(m_readerStatusField, GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(m_readerStatusField, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnOpenOtherDatabase)))
 					.addGap(139))
+				.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+					.addGap(237)
+					.addComponent(lblImage)
+					.addContainerGap(269, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(47)
+					.addContainerGap()
+					.addComponent(lblImage)
+					.addGap(20)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblCardReader)
 						.addComponent(m_readerComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
