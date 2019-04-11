@@ -82,6 +82,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		JLabel lblTestDatabase = new JLabel("Test Database");
 		
 		m_databaseNameField = new JTextField();
+		m_databaseNameField.setEditable(false);
 		m_databaseNameField.setColumns(10);
 		
 		JButton btnOpenOtherDatabase = new JButton("Open Other Database...");
@@ -180,40 +181,32 @@ public class SimpleTestExecutionPanel extends JPanel {
 		});
 		GroupLayout groupLayout = new GroupLayout(this);
 		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(134)
-					.addComponent(m_readerStatusField, GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
-					.addGap(64))
+			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(m_testProgressBar, GroupLayout.DEFAULT_SIZE, 541, Short.MAX_VALUE)
+					.addComponent(m_testProgressBar, GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
 					.addGap(103))
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(12)
-					.addComponent(lblReaderStatus)
-					.addContainerGap(547, Short.MAX_VALUE))
 				.addGroup(groupLayout.createSequentialGroup()
 					.addGap(58)
 					.addComponent(btnRefreshReaders)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(m_runButton)
 					.addGap(12))
-				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(lblCardReader)
-								.addComponent(lblApplicationPin)
-								.addComponent(lblTestDatabase))
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addComponent(m_readerComboBox, 0, 383, Short.MAX_VALUE)
-								.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addComponent(m_databaseNameField, GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap(321, Short.MAX_VALUE)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(lblCardReader)
+						.addComponent(lblApplicationPin)
+						.addComponent(lblTestDatabase)
+						.addComponent(lblReaderStatus))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(m_readerComboBox, 0, 308, Short.MAX_VALUE)
+						.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(m_databaseNameField, GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addComponent(m_readerStatusField, GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnOpenOtherDatabase)))
 					.addGap(139))
 		);
@@ -234,14 +227,15 @@ public class SimpleTestExecutionPanel extends JPanel {
 						.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(49)
+							.addGap(1)
+							.addComponent(btnOpenOtherDatabase))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(27)
 							.addComponent(lblReaderStatus))
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(1)
-							.addComponent(btnOpenOtherDatabase)
-							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGap(25)
 							.addComponent(m_readerStatusField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addPreferredGap(ComponentPlacement.RELATED, 179, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED, 199, Short.MAX_VALUE)
 					.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
@@ -250,9 +244,9 @@ public class SimpleTestExecutionPanel extends JPanel {
 					.addGap(18))
 		);
 		setLayout(groupLayout);
+		
+		
 		m_testProgressBar.setVisible(false);
-		
-		
 		refreshReaderState();
 		refreshDatabaseInfo();
 		refreshReaderStatus(CardSettingsSingleton.getInstance());
@@ -305,6 +299,11 @@ public class SimpleTestExecutionPanel extends JPanel {
 		}
 		if(selectedReader != null) {
 			m_readerComboBox.setSelectedItem(selectedReader);
+		} else {
+			String reader = PCSCUtils.GetFirstReaderWithCardPresent();
+			if(reader != null) {
+				m_readerComboBox.setSelectedItem(reader);
+			}
 		}
 	}
 	public JButton getRunButton() {

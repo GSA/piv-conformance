@@ -2,7 +2,6 @@ package gov.gsa.pivconformancegui;
 
 import java.awt.EventQueue;
 
-import javax.print.attribute.standard.JobMessageFromOperator;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -11,26 +10,26 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
-import javax.swing.JSplitPane;
 
 public class GuiRunnerApplication {
 
@@ -46,7 +45,10 @@ public class GuiRunnerApplication {
 	 */
 	public static void main(String[] args) {
 		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+		RollingFileAppender<?> csvAppender = null;
 		try {
+			System.out.println("Working Directory = " +
+		              System.getProperty("user.dir"));
 			File logConfigFile = new File("user_log_config.xml");
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
@@ -55,12 +57,22 @@ public class GuiRunnerApplication {
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
 			}
 		} catch(JoranException e) {
-				StatusPrinter.printIfErrorsOccured(ctx);
+			// handled by status printer
 		} catch (IOException e) {
 			System.err.println("Unable to resolve logging config to a readable file");
 			e.printStackTrace();
 		}
-
+		StatusPrinter.printIfErrorsOccured(ctx);
+		Appender<?> a = null;
+		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
+		if(testResultsLogger == null) {
+			s_logger.warn("No logger was configured for test results CSV");
+		} else {
+			a = testResultsLogger.getAppender("CONFORMANCELOG");
+			if(a == null) s_logger.warn("CONFORMANCELOG appender was not configured. No CSV will be produced.");
+			csvAppender = (RollingFileAppender<?>) a;
+		}
+		final RollingFileAppender<?> foundAppender = csvAppender;
 		
 		
 		EventQueue.invokeLater(new Runnable() {
@@ -88,6 +100,7 @@ public class GuiRunnerApplication {
 						errorMessage = ce.getMessage();
 					}
 					c.setTestDatabase(db);
+					c.setConformanceTestCsvAppender(foundAppender);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 					// XXX *** find out why this isn't coming from user info
 					if(opened) window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
@@ -132,7 +145,10 @@ public class GuiRunnerApplication {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmOpen = new JMenuItem(new OpenDatabaseAction("Open Database..."));
+		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+		
+		JMenuItem mntmOpen = new JMenuItem(c.getOpenDatabaseAction());
+		mntmOpen.setIcon(null);
 		mnFile.add(mntmOpen);
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
@@ -146,13 +162,16 @@ public class GuiRunnerApplication {
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
 		
-		JMenuItem mntmCut = new JMenuItem("Cut");
+		JMenuItem mntmCut = new JMenuItem(new DefaultEditorKit.CutAction());
+		mntmCut.setText("Cut");
 		mnEdit.add(mntmCut);
 		
-		JMenuItem mntmCopy = new JMenuItem("Copy");
+		JMenuItem mntmCopy = new JMenuItem(new DefaultEditorKit.CopyAction());
+		mntmCopy.setText("Copy");
 		mnEdit.add(mntmCopy);
 		
-		JMenuItem mntmPaste = new JMenuItem("Paste");
+		JMenuItem mntmPaste = new JMenuItem(new DefaultEditorKit.PasteAction());
+		mntmPaste.setText("Paste");
 		mnEdit.add(mntmPaste);
 		
 		JMenu mnView = new JMenu("View");
@@ -170,7 +189,8 @@ public class GuiRunnerApplication {
 		JMenuItem mntmAboutPivCard = new JMenuItem("About PIV Card Conformance Tool");
 		mnHelp.add(mntmAboutPivCard);
 		
-		JMenuItem mntmShowDebugWindow = new JMenuItem(new ShowDebugWindowAction("Show Debugging Tools..."));
+		JMenuItem mntmShowDebugWindow = new JMenuItem(c.getShowDebugWindowAction());
+		mntmShowDebugWindow.setIcon(null);
 		mnHelp.add(mntmShowDebugWindow);
 		
 		m_mainFrame.getContentPane().add(new GuiRunnerToolbar(), BorderLayout.NORTH);

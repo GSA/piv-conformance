@@ -20,19 +20,14 @@ public class GuiRunnerToolbar extends JToolBar {
 	}
 	
 	protected void addButtons() {
-		ImageIcon openIcon = getToolbarIcon("folder", "Open");
-		OpenDatabaseAction openAction = new OpenDatabaseAction("Open Database", openIcon, "Open a conformance test database");
-	    this.add(openAction);
+		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+	    this.add(c.getOpenDatabaseAction());
 	    
 	    this.addSeparator();
-	    ImageIcon runIcon = getToolbarIcon("building_go", "Run");
-	    RunAllTestsAction runAction = new RunAllTestsAction("Run all tests", runIcon, "Run all available tests in database");
-	    //this.add(runAction);
+	    this.add(c.getRunAllTestsAction());
 	    
 	    this.addSeparator();
-	    ImageIcon debugIcon = getToolbarIcon("application_xp_terminal", "Debug");
-	    ShowDebugWindowAction debugAction = new ShowDebugWindowAction("Show Debugging tools", debugIcon, "Show detailed log and debugging tools");
-	    this.add(debugAction);
+	    this.add(c.getShowDebugWindowAction());
 	    
 	}
 	

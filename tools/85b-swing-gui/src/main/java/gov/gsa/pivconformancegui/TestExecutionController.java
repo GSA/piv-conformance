@@ -70,6 +70,7 @@ public class TestExecutionController {
 	
 	void runAllTests(TestCaseTreeNode root) {
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
+		GuiRunnerAppController.getInstance().rollConformanceCSV();
 		if(db == null || db.getConnection() == null) {
 			s_logger.error("Unable to run tests without a valid database");
 			// XXX *** Display message don't just log it
@@ -148,6 +149,8 @@ public class TestExecutionController {
             LauncherDiscoveryRequest ldr = suiteBuilder.build();
             Launcher l = LauncherFactory.create();
             guiListener.setTestCaseIdentifier(testCase.getIdentifier());
+            guiListener.setTestCaseDescription(testCase.getDescription());
+            guiListener.setTestCaseExpectedResult(testCase.getExpectedStatus() == 1);
             List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
             listeners.add(guiListener);
             registerListeners(l, listeners);

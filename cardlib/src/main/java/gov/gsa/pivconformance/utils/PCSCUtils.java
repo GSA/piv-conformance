@@ -65,6 +65,35 @@ public class PCSCUtils {
         s_logger.debug("Found {} readers.", terminalCount);
         return readerList;
     }
+
+    public static String GetFirstReaderWithCardPresent() {
+        ArrayList<String> readerList = new ArrayList<>();
+        TerminalFactory tf = TerminalFactory.getDefault();
+        List<CardTerminal> terminals = null;
+        try {
+            s_logger.debug("About to list connected readers");
+            terminals = tf.terminals().list();
+            s_logger.debug("Done listing connected readers");
+        } catch (CardException e) {
+            s_logger.error("Failed to list card terminals", e);
+            return null;
+        }
+        if(terminals.size() == 0) {
+            s_logger.debug("No readers were connected.");
+            return null;
+        }
+        for(CardTerminal t : terminals) {
+        	try {
+				if(t.isCardPresent()) {
+					return t.getName();
+				}
+			} catch (CardException e) {
+				s_logger.debug("isCardPresent() threw an exception for reader {}", t.getName(), e);
+			}
+        }
+        s_logger.debug("No reader found with card inserted");
+        return null;
+    }
     
     public static CardTerminal TerminalForReaderName(String name) {
     	TerminalFactory tf = TerminalFactory.getDefault();
