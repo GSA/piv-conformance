@@ -2,7 +2,6 @@ package gov.gsa.pivconformancegui;
 
 import java.awt.EventQueue;
 
-import javax.print.attribute.standard.JobMessageFromOperator;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -11,6 +10,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 import org.slf4j.LoggerFactory;
 
@@ -25,14 +25,11 @@ import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.awt.event.ActionEvent;
-import javax.swing.JSplitPane;
 
 public class GuiRunnerApplication {
 
@@ -148,7 +145,10 @@ public class GuiRunnerApplication {
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
 		
-		JMenuItem mntmOpen = new JMenuItem(new OpenDatabaseAction("Open Database..."));
+		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+		
+		JMenuItem mntmOpen = new JMenuItem(c.getOpenDatabaseAction());
+		mntmOpen.setIcon(null);
 		mnFile.add(mntmOpen);
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
@@ -162,13 +162,16 @@ public class GuiRunnerApplication {
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
 		
-		JMenuItem mntmCut = new JMenuItem("Cut");
+		JMenuItem mntmCut = new JMenuItem(new DefaultEditorKit.CutAction());
+		mntmCut.setText("Cut");
 		mnEdit.add(mntmCut);
 		
-		JMenuItem mntmCopy = new JMenuItem("Copy");
+		JMenuItem mntmCopy = new JMenuItem(new DefaultEditorKit.CopyAction());
+		mntmCopy.setText("Copy");
 		mnEdit.add(mntmCopy);
 		
-		JMenuItem mntmPaste = new JMenuItem("Paste");
+		JMenuItem mntmPaste = new JMenuItem(new DefaultEditorKit.PasteAction());
+		mntmPaste.setText("Paste");
 		mnEdit.add(mntmPaste);
 		
 		JMenu mnView = new JMenu("View");
@@ -186,7 +189,8 @@ public class GuiRunnerApplication {
 		JMenuItem mntmAboutPivCard = new JMenuItem("About PIV Card Conformance Tool");
 		mnHelp.add(mntmAboutPivCard);
 		
-		JMenuItem mntmShowDebugWindow = new JMenuItem(new ShowDebugWindowAction("Show Debugging Tools..."));
+		JMenuItem mntmShowDebugWindow = new JMenuItem(c.getShowDebugWindowAction());
+		mntmShowDebugWindow.setIcon(null);
 		mnHelp.add(mntmShowDebugWindow);
 		
 		m_mainFrame.getContentPane().add(new GuiRunnerToolbar(), BorderLayout.NORTH);
