@@ -1,0 +1,37 @@
+The "final" Python script is attached. I finally tested on a smaller virtual environment. The steps to produce the virtual environment (on my Mac) were these:
+
+cwallace $ python3.6 -m venv ~/venvcct
+cwallace $ source ~/venvcct/bin/activate
+(venvcct) cwallace$ pip install --upgrade pip
+
+When I added the virtual environment to PyCharm it installed setuptools. The script itself needs just one other component to run: xlrd. Documentation for the xlrd library is here: https://pypi.org/project/xlrd/. It was installed as follows:
+
+(venvcct) MacBook-Pro-RH-4:Downloads cwallace$ pip install xlrd 
+
+The resulting virtual environment looks lie this:
+
+(venvcct) cwallace$ pip freeze
+xlrd==1.2.0
+(venvcct) cwallace$ pip list installed
+Package    Version
+---------- -------
+pip        19.0.3 
+setuptools 28.8.0 
+xlrd       1.2.0 
+
+The script can be executed from an activated prompt:
+
+(venvcct) cwallace$ python CctDatabasePopulator.py -i ~/Downloads/exploded-cbeff.xlsx -o exploded-cbeff.sql
+
+The script emits a file with SQL commands. The following can be executed to generate a sqlite database.
+
+cwallace$ sqlite3 exploded-cbeff.db < exploded-cbeff.sql 
+
+To interact with the database just load with sqlite3.
+
+cwallace$ sqlite3 exploded-cbeff.db
+SQLite version 3.9.2 2015-11-02 18:31:45
+Enter ".help" for usage hints.
+sqlite> .tables 
+GroupsToTestCases   TestCases           TestStepParameters  TestsToSteps      
+SystemSettings      TestGroups          TestSteps 
