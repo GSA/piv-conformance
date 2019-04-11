@@ -1050,6 +1050,13 @@ public class PKIX_X509DataObjectTests {
 				Arguments.of(cert4, 6),Arguments.of(cert5, 6));
 
 	}
+	// placeholder
+	@DisplayName("PKIX.21 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("pKIX_CardAuthx509TestProvider2")
+    void PKIX_Test_21(String oid, String ekuOid, TestReporter reporter) {
+		assert(false);
+	}
 	
 	private static Stream<Arguments> pKIX_PIVAuthx509TestProvider() {
 

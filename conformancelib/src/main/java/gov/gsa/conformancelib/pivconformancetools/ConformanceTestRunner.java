@@ -257,9 +257,9 @@ public class ConformanceTestRunner {
                     }
                     if(className != null && !className.isEmpty() && testClass != null) {
                         //String testName = testNameFromConfig;
+                        s_logger.debug("Adding {} from config", fqmn);
                         discoverySelectors.add(selectMethod(fqmn));
                         ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
-                        s_logger.debug("Adding {} from config", fqmn);
                     }
                 	
                 }
