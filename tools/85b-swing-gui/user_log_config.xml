@@ -57,7 +57,6 @@
 
     <!-- split test results into a CSV -->
     <logger name="gov.gsa.pivconformance.testResults">
-        <appender-ref ref="CUMULATIVECONFORMANCELOG" />
         <appender-ref ref="CONFORMANCELOG" />
     </logger>
 
