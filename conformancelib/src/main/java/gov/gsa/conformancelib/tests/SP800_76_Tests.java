@@ -1333,7 +1333,7 @@ public class SP800_76_Tests {
         }
 	}
 	
-	//Verify that minutiae type is 01b or 10b
+	//Minutiae Type value shall be 01b, 10b, or 00b.
 	@DisplayName("SP800-76.24 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
@@ -1399,7 +1399,7 @@ public class SP800_76_Tests {
 				
 				int minType = ((biometricDataBlock[offset+4] & 0xC0) >> 6);
 			
-				assertTrue(minType == 1 || minType == 2);
+				assertTrue(minType == 0 || minType == 1 || minType == 2);
 				
 				offset = offset+6;
 			}
