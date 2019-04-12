@@ -587,7 +587,7 @@ public class SP800_76_Tests {
 		assertTrue(Arrays.equals(versionIdentifier, versionIdentifierValueToCheck));
 	}
 	
-	//Extract record length, verify (??)
+	//Extract record length, verify 26 <= L <= 1574
 	@DisplayName("SP800-76.11 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
@@ -632,12 +632,11 @@ public class SP800_76_Tests {
 		
 		//Get bytes 9 and 10 of biometric data block to get record length.
 		byte [] recordLength = Arrays.copyOfRange(biometricDataBlock, 8, 10);
-		
-		//Not sure what we actually need to test for this test case
-		assertNotNull(recordLength);
-		
+	
 		int biometricDataBlockLength  = (((recordLength[0] & 0xFF) << 8) | (recordLength[1] & 0xFF));
-        
+		
+		//BDB length must be between 26 and 1574
+        assertTrue(biometricDataBlockLength >= 26 && biometricDataBlockLength <= 1574);
         //Confirm that the record length value is the same at the length of the leftover buffer
         assertTrue(biometricDataBlockLength == biometricDataBlock.length);
 	}
@@ -842,11 +841,15 @@ public class SP800_76_Tests {
 		
 		byte [] zeroBlock = { 0x00, 0x00 };
 		
-		//CHeck the values are not zero
+		//Check the values are not zero
 		assertTrue(!Arrays.equals(scannedIimageInX, zeroBlock));
 		assertTrue(!Arrays.equals(scannedIimageInY, zeroBlock));
 		
+		//Width of the Size of Scanned Image in x direction is the larger of the widths of the two input
+		assertTrue(true); //TODO: Need to grab both FMRs and ensure that the one with the largest X size matches
 		
+		//Height of the Size of Scanned Image in y direction is the larger of the heights of the two input images.
+		assertTrue(true);//TODO: Need to grab both FMRs and ensure that the one with the largest Y size matches
 	}
 	
 	//Confirm that X and Y resolution is 197
@@ -1330,7 +1333,7 @@ public class SP800_76_Tests {
         }
 	}
 	
-	//Verify that minutiae type is 01b or 10b
+	//Minutiae Type value shall be 01b, 10b, or 00b.
 	@DisplayName("SP800-76.24 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
@@ -1396,7 +1399,7 @@ public class SP800_76_Tests {
 				
 				int minType = ((biometricDataBlock[offset+4] & 0xC0) >> 6);
 			
-				assertTrue(minType == 1 || minType == 2);
+				assertTrue(minType == 0 || minType == 1 || minType == 2);
 				
 				offset = offset+6;
 			}
