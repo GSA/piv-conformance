@@ -20,11 +20,16 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
+import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.SecurityObject;
 import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
+import gov.gsa.pivconformance.card.client.CardholderBiometricData;
+import gov.gsa.pivconformance.card.client.DiscoveryObject;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
@@ -229,7 +234,6 @@ public class SP800_73_4SecurityObjectTests {
 		assertTrue(idList.size() > 0);
 		
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
-            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
 		
             PIVDataObject tmpObj = PIVDataObjectFactory.createDataObjectForOid(entry.getValue());
             assertNotNull(tmpObj);
@@ -238,6 +242,86 @@ public class SP800_73_4SecurityObjectTests {
             assertTrue(result == MiddlewareStatus.PIV_OK);
 		}
 
+    }
+	
+	//For each container listed in the security object, calculate the hash of the data within that container and confirm that the actual 
+	//hashes match those written to the security object
+	@DisplayName("SP800-73-4.37 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    void sp800_73_4_Test_37(String oid, TestReporter reporter) {
+        assertNotNull(oid);
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+        	fail(e);
+        }
+        try {
+        	css.setApplicationPin("123456");
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+        
+        //Get card handle and PIV handle
+        CardHandle ch = css.getCardHandle();
+        AbstractPIVApplication piv = css.getPivHandle();
+        
+        //Created an object corresponding to the OID value
+        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+        assertNotNull(o);
+    	
+        //Get data from the card corresponding to the OID value
+        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+        assertTrue(result == MiddlewareStatus.PIV_OK);
+        	
+        
+        boolean decoded = o.decode();
+		assertTrue(decoded);
+		
+		HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
+		
+		HashMap<Integer, String> idList = ((SecurityObject) o).getContainerIDList();
+		
+		assertTrue(idList.size() > 0);
+		
+		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
+            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
+            PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(entry.getValue());
+            result = piv.pivGetData(ch, entry.getValue(), dataObject);
+            if(result != MiddlewareStatus.PIV_OK) continue;
+            
+            decoded = dataObject.decode();
+    		assertTrue(decoded);
+            
+            if(entry.getValue().equals(APDUConstants.CARD_CAPABILITY_CONTAINER_OID)) {
+        		soDataElements.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, ((CardCapabilityContainer) dataObject).getSignedContent());
+            } else if(entry.getValue().equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
+        		soDataElements.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, ((CardHolderUniqueIdentifier) dataObject).getChuidContainer());            	
+            } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)) {
+        		soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCceffContainer());           	
+            } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
+        		soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCceffContainer());        	
+            } else if(entry.getValue().equals(APDUConstants.PRINTED_INFORMATION_OID)) {
+        		soDataElements.put(APDUConstants.PRINTED_INFORMATION_OID, ((PrintedInformation) dataObject).getSignedContent());       	
+            } else if(entry.getValue().equals(APDUConstants.DISCOVERY_OBJECT_OID)) {
+        		soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, ((DiscoveryObject) dataObject).getSignedContent());       	
+            } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+        		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardholderBiometricData) dataObject).getCceffContainer());        	
+            } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+        		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardholderBiometricData) dataObject).getCceffContainer());        	
+            }  else {
+            	fail("Unrecongnized container");
+            }
+		}
+
+		((SecurityObject) o).setMapOfDataElements(soDataElements);
+		
+		//Confirm that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field) 
+		boolean verified = ((SecurityObject) o).verifyHashes();
+		assertTrue(verified);
     }
 	
 	private static Stream<Arguments> sp800_73_4_SecurityObjectTestProvider() {
