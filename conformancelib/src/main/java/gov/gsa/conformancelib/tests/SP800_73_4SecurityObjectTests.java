@@ -22,7 +22,6 @@ import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.SecurityObject;
-import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardholderBiometricData;
@@ -236,6 +235,8 @@ public class SP800_73_4SecurityObjectTests {
 		
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
 		
+            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
+
             PIVDataObject tmpObj = PIVDataObjectFactory.createDataObjectForOid(entry.getValue());
             assertNotNull(tmpObj);
             
