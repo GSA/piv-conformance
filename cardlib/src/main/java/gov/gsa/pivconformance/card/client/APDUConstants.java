@@ -123,6 +123,106 @@ public class APDUConstants {
     public static final int KEY_HISTORY_OBJECT_ID = 0x6060;
     public static final String KEY_HISTORY_OBJECT_NAME = "Key History Object";
 
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID = "2.16.840.1.101.3.7.2.16.1";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_TAG = {0x5F, (byte) 0xC1, 0x0D};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_ID = 0x1001;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_NAME = "Retired X.509 Certificate for Key Management 1";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_OID = "2.16.840.1.101.3.7.2.16.2";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_TAG = {0x5F, (byte) 0xC1, 0x0E};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_ID = 0x1002;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_NAME = "Retired X.509 Certificate for Key Management 2";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_OID = "2.16.840.1.101.3.7.2.16.3";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_TAG = {0x5F, (byte) 0xC1, 0x0F};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_ID = 0x1003;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_NAME = "Retired X.509 Certificate for Key Management 3";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_OID = "2.16.840.1.101.3.7.2.16.4";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_TAG = {0x5F, (byte) 0xC1, 0x10};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_ID = 0x1004;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_NAME = "Retired X.509 Certificate for Key Management 4";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_OID = "2.16.850.1.101.3.7.2.16.5";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_TAG = {0x5F, (byte) 0xC1, 0x11};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_ID = 0x1005;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_NAME = "Retired X.509 Certificate for Key Management 5";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_OID = "2.16.860.1.101.3.7.2.16.6";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_TAG = {0x5F, (byte) 0xC1, 0x12};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_ID = 0x1006;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_NAME = "Retired X.509 Certificate for Key Management 6";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_OID = "2.16.870.1.101.3.7.2.16.7";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_TAG = {0x5F, (byte) 0xC1, 0x13};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_ID = 0x1007;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_NAME = "Retired X.509 Certificate for Key Management 7";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_OID = "2.16.880.1.101.3.7.2.16.8";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_TAG = {0x5F, (byte) 0xC1, 0x14};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_ID = 0x1008;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_NAME = "Retired X.509 Certificate for Key Management 8";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_OID = "2.16.890.1.101.3.7.2.16.9";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_TAG = {0x5F, (byte) 0xC1, 0x15};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_ID = 0x1009;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_NAME = "Retired X.509 Certificate for Key Management 9";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_OID = "2.16.8100.1.101.3.7.2.16.10";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_TAG = {0x5F, (byte) 0xC1, 0x16};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_ID = 0x10010;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_NAME = "Retired X.509 Certificate for Key Management 10";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_OID = "2.16.840.1.101.3.7.2.16.11";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_TAG = {0x5F, (byte) 0xC1, 0x17};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_ID = 0x1011;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_NAME = "Retired X.509 Certificate for Key Management 11";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_OID = "2.16.840.1.101.3.7.2.16.12";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_TAG = {0x5F, (byte) 0xC1, 0x18};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_ID = 0x1012;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_NAME = "Retired X.509 Certificate for Key Management 12";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_OID = "2.16.840.1.101.3.7.2.16.13";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_TAG = {0x5F, (byte) 0xC1, 0x13};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_ID = 0x1013;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_NAME = "Retired X.509 Certificate for Key Management 13";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_OID = "2.16.840.1.101.3.7.2.16.14";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_TAG = {0x5F, (byte) 0xC1, 0x1a};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_ID = 0x1014;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_NAME = "Retired X.509 Certificate for Key Management 14";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_OID = "2.16.850.1.101.3.7.2.16.15";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_TAG = {0x5F, (byte) 0xC1, 0x15};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_ID = 0x1015;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_NAME = "Retired X.509 Certificate for Key Management 15";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_OID = "2.16.860.1.101.3.7.2.16.16";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_TAG = {0x5F, (byte) 0xC1, 0x1c};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_ID = 0x1016;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_NAME = "Retired X.509 Certificate for Key Management 16";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_OID = "2.16.870.1.101.3.7.2.16.17";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_TAG = {0x5F, (byte) 0xC1, 0x1d};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_ID = 0x1017;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_NAME = "Retired X.509 Certificate for Key Management 17";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_OID = "2.16.880.1.101.3.7.2.16.18";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_TAG = {0x5F, (byte) 0xC1, 0x1e};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_ID = 0x1018;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_NAME = "Retired X.509 Certificate for Key Management 18";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_OID = "2.16.890.1.101.3.7.2.16.19";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_TAG = {0x5F, (byte) 0xC1, 0x1f};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_ID = 0x1019;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_NAME = "Retired X.509 Certificate for Key Management 19";
+
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID = "2.16.8100.1.101.3.7.2.16.10";
+    public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_TAG = {0x5F, (byte) 0xC1, 0x20};
+    public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_ID = 0x10110;
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_NAME = "Retired X.509 Certificate for Key Management 20";
+  
 
     public static final String CARDHOLDER_IRIS_IMAGES_OID = "2.16.840.1.101.3.7.2.16.21";
     public static final byte[] CARDHOLDER_IRIS_IMAGES_TAG = {0x5F, (byte)0xC1, 0x21};
