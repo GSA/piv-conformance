@@ -52,7 +52,7 @@ public class GuiTestListener implements TestExecutionListener {
 	public void testPlanExecutionFinished(TestPlan testPlan) {
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
-		s_testResultLogger.info("{},{},{},{}", m_testCaseIdentifier, m_testCaseDescription, m_testCaseExpectedResult ? "Pass":"Fail",
+		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription, m_testCaseExpectedResult ? "Pass":"Fail",
 				(m_AtomAborted||m_AtomFailed) ? "Fail" : "Pass"); 
 		try {
 			SwingUtilities.invokeAndWait(() -> {
