@@ -3,7 +3,9 @@ package gov.gsa.pivconformancegui;
 import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -20,6 +22,7 @@ public class TestTreePanel extends JPanel {
 	
 	List<TestCaseModel> m_testCases;
 	DefaultTreeModel m_treeModel;
+	Map<String, TestCaseTreeNode> m_testCaseDict;
 
 	public List<TestCaseModel> getTestCases() {
 		return m_testCases;
@@ -43,6 +46,11 @@ public class TestTreePanel extends JPanel {
 				
 	}
 	
+	TestCaseTreeNode getNodeByName(String name) {
+		TestCaseTreeNode rv = m_testCaseDict.get(name);
+		return rv;
+	}
+	
 	TestCaseTreeNode getRootNode() {
 		return (TestCaseTreeNode) m_treeModel.getRoot();
 	}
@@ -59,6 +67,7 @@ public class TestTreePanel extends JPanel {
 		
 		try {
 			m_testCases = db.getTestCases();
+			m_testCaseDict = new HashMap<String, TestCaseTreeNode>();
 		}catch(ConfigurationException e) {
 			m_testCases = null;
 		}
@@ -74,6 +83,7 @@ public class TestTreePanel extends JPanel {
     	}
     	for(TestCaseModel tc : m_testCases) {
     		TestCaseTreeNode tcNode = new TestCaseTreeNode(tc);
+    		m_testCaseDict.put(tc.getIdentifier(), tcNode);
     		top.add(tcNode);
     		for(TestStepModel ts : tc.getSteps()) {
     			TestStepTreeNode tsNode = new TestStepTreeNode(ts);
