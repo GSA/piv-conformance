@@ -188,7 +188,7 @@ public class GuiRunnerApplication {
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 		
-		JMenuItem mntmAboutPivCard = new JMenuItem(c.displayAboutDialogAction());
+		JMenuItem mntmAboutPivCard = new JMenuItem(c.getDisplayAboutDialogAction());
 		mnHelp.add(mntmAboutPivCard);
 		
 		JMenuItem mntmShowDebugWindow = new JMenuItem(c.getShowDebugWindowAction());
@@ -224,5 +224,9 @@ public class GuiRunnerApplication {
 	
 	public boolean isDebugPaneVisible() {
 		return false;
+	}
+
+	public MainWindowContentPane getMainContent() {
+		return m_mainContent;
 	}
 }

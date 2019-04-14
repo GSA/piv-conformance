@@ -24,6 +24,9 @@ public class GuiRunnerAppController {
 	private OpenDatabaseAction m_openDatabaseAction;
 	private ShowDebugWindowAction m_showDebugWindowAction;
 	private RunAllTestsAction m_runAllTestsAction;
+	private ShowOidDialogAction m_showOidDialogAction;
+	private ToggleTestTreeAction m_toggleTreeAction;
+	private DisplayAboutDialogAction m_displayAboutDialogAction;
 	
 	public void reset() {
 		m_testDatabase = null;
@@ -60,11 +63,11 @@ public class GuiRunnerAppController {
 		m_app = app;
 	}
 	
-	public RollingFileAppender getConformanceTestCsvAppender() {
+	public RollingFileAppender<?> getConformanceTestCsvAppender() {
 		return m_ConformanceTestCsvAppender;
 	}
 
-	public void setConformanceTestCsvAppender(RollingFileAppender conformanceTestCsvAppender) {
+	public void setConformanceTestCsvAppender(RollingFileAppender<?> conformanceTestCsvAppender) {
 		m_ConformanceTestCsvAppender = conformanceTestCsvAppender;
 	}
 
@@ -83,6 +86,18 @@ public class GuiRunnerAppController {
 	public RunAllTestsAction getRunAllTestsAction() {
 		return m_runAllTestsAction;
 	}
+	
+	public ShowOidDialogAction getShowOidDialogAction() {
+		return m_showOidDialogAction;
+	}
+
+	public DisplayAboutDialogAction getDisplayAboutDialogAction() {
+		return m_displayAboutDialogAction;
+	}
+
+	public ToggleTestTreeAction getToggleTestTreeAction() {
+		return m_toggleTreeAction;
+	}
 
 	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
 	public void showDebugWindow() {
@@ -90,6 +105,14 @@ public class GuiRunnerAppController {
 		if(!window.isVisible()) {
 			window.setVisible(true);
 		}
+	}
+	
+	public void showOidDialog() {
+		s_logger.error("Stubbed out showOidDialog() is still here");
+	}
+
+	public void showAboutDialog() {
+		s_logger.error("Stubbed out showAboutDialog() is still here");
 	}
 	
 	public void reloadTree() {
@@ -115,6 +138,11 @@ public class GuiRunnerAppController {
 	    m_runAllTestsAction = new RunAllTestsAction("Run all tests", runIcon, "Run all available tests in database");
 	    ImageIcon debugIcon = getActionIcon("application_xp_terminal", "Debug");
 	    m_showDebugWindowAction = new ShowDebugWindowAction("Show Debugging tools", debugIcon, "Show detailed log and debugging tools");
+	    ImageIcon oidIcon = getActionIcon("application_view_list", "Override OIDs");
+	    m_showOidDialogAction = new ShowOidDialogAction("Override test OIDs...", oidIcon, "Use alternative Policy OIDs and EKU OIDs");
+	    ImageIcon toggleIcon = getActionIcon("application_side_tree", "Toggle Tree");
+	    m_toggleTreeAction = new ToggleTestTreeAction("Toggle test tree view", toggleIcon, "Show or hide the test tree");
+	    
 	}
 	
 	protected ImageIcon getActionIcon(String imageName, String altText) {
