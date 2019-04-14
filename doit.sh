@@ -12,8 +12,8 @@ pushd conformancelib >/dev/null 2>&1
 popd >/dev/null 2>&1
 
 pushd tools/85b-swing-gui 2>&1
+	./ensuredeps.sh
 	./gradlew clean
 	./gradlew eclipse
 	./gradlew shadowJar
-	./ensuredeps.sh
 popd >/dev/null 2>&1

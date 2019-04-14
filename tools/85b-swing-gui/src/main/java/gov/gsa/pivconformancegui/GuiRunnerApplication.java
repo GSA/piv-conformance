@@ -174,19 +174,21 @@ public class GuiRunnerApplication {
 		mntmPaste.setText("Paste");
 		mnEdit.add(mntmPaste);
 		
+		mnEdit.addSeparator();
+		
+		JMenuItem mntmChangeOids = new JMenuItem(c.getShowOidDialogAction());
+		mnEdit.add(mntmChangeOids);
+		
 		JMenu mnView = new JMenu("View");
 		menuBar.add(mnView);
 		
-		JRadioButtonMenuItem rdbtnmntmSimplified = new JRadioButtonMenuItem("Simplified");
-		mnView.add(rdbtnmntmSimplified);
-		
-		JRadioButtonMenuItem rdbtnmntmAdvanced = new JRadioButtonMenuItem("Advanced");
-		mnView.add(rdbtnmntmAdvanced);
+		JMenuItem mntmToggleTestTree = new JMenuItem(c.getToggleTestTreeAction());
+		mnView.add(mntmToggleTestTree);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 		
-		JMenuItem mntmAboutPivCard = new JMenuItem("About PIV Card Conformance Tool");
+		JMenuItem mntmAboutPivCard = new JMenuItem(c.getDisplayAboutDialogAction());
 		mnHelp.add(mntmAboutPivCard);
 		
 		JMenuItem mntmShowDebugWindow = new JMenuItem(c.getShowDebugWindowAction());
@@ -222,5 +224,9 @@ public class GuiRunnerApplication {
 	
 	public boolean isDebugPaneVisible() {
 		return false;
+	}
+
+	public MainWindowContentPane getMainContent() {
+		return m_mainContent;
 	}
 }

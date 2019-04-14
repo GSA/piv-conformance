@@ -28,6 +28,7 @@ public class GuiRunnerToolbar extends JToolBar {
 	    
 	    this.addSeparator();
 	    this.add(c.getShowDebugWindowAction());
+	    this.add(c.getShowOidDialogAction());
 	    
 	}
 	
