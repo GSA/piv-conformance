@@ -86,9 +86,12 @@ version.properties
 
 # End of https://www.gitignore.io/api/gradle,intellij
 *.log
-
 bin
 .metadata
 target
 .searchable
-
+# Eclipse
+.classpath
+/cardlib/**/.classpath
+/cardlib/**/.project
+.project

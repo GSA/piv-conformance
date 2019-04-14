@@ -451,6 +451,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                             m_signingCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
                                         }
                                     }
+                                    scos.write(APDUUtils.getTLV(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG, issuerAsymmetricSignature));
                                     super.setSigned(true);
                                 }
 
@@ -474,10 +475,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
             scos2.write(scos.toByteArray());
             m_signedContent = scos.toByteArray();
-
-            scos2.write(APDUUtils.getTLV(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG, issuerAsymmetricSignature));
-            scos2.write(TagConstants.ERROR_DETECTION_CODE_TAG);
-            scos2.write((byte) 0x00);
             m_chuidContainer = scos2.toByteArray();
 
         }catch (Exception ex) {

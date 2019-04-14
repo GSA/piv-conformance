@@ -424,7 +424,7 @@ public class SecurityObject extends PIVDataObject {
                 MessageDigest md = MessageDigest.getInstance(APDUConstants.DEFAULTHASHALG);
                 md.update(bytesToHash);
                 byte[] digest = md.digest();
-
+                
                 if (!Arrays.equals(entry.getValue(), digest)) {
                     rv_result = false;
                 }
