@@ -5,22 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Stream;
 
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.EllipticCurve;
 import java.security.PublicKey;
-import java.security.Security;
 
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.math.ec.ECCurve;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,7 +36,7 @@ import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 
 public class SP800_78_X509DataObjectTests {
 	
-	//Ensure that RSA key has 2048-bit modulus
+	//Table 3-2 RSA Ensure that RSA key has 2048- or 3072-bit modulus
     @DisplayName("SP800-78.1 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
@@ -74,12 +70,12 @@ public class SP800_78_X509DataObjectTests {
 		
 		if(pubKey instanceof RSAPublicKey) {
 			RSAPublicKey pk = (RSAPublicKey) pubKey;
-			assertTrue(pk.getModulus().bitLength() == 2048);
+			int bl = pk.getModulus().bitLength();
+			assertTrue(bl == 2048 || bl == 3072);
 		} 
     }
     
-    
-    //Ensure that ECDSA key is curve P-256 (is >256 allowed? Probably not by current standard)
+    //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
     @DisplayName("SP800-78.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
@@ -138,7 +134,7 @@ public class SP800_78_X509DataObjectTests {
 		}
     }
     
-	//Ensure that signature algorithm is one of 1.2.840.113549.1.1.5, 1.2.840.113549.1.1.11, 1.2.840.113549.1.1.10, 1.2.840.10045.4.3.2, 1.2.840.10045.4.3.3
+	//Table 3-3 Ensure that signature algorithm is one of 1.2.840.113549.1.1.5, 1.2.840.113549.1.1.11, 1.2.840.113549.1.1.10, 1.2.840.10045.4.3.2, 1.2.840.10045.4.3.3
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
