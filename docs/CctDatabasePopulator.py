@@ -1,4 +1,16 @@
+from csv import writer, QUOTE_NONNUMERIC, reader
+from urllib.parse import urlparse, urljoin
+import re
+from subprocess import PIPE, Popen
+import sys
 import argparse
+from os import path
+from shutil import copyfile
+import glob, xlwt, os
+import collections
+from xlsxwriter.workbook import Workbook
+import csv
+from datetime import datetime
 import xlrd
 
 
@@ -110,8 +122,9 @@ def main():
     cms_tab = wb.sheet_by_index(5)
     SP800_78_tab = wb.sheet_by_index(6)
     pkix_tab = wb.sheet_by_index(7)
+    deadbeef_tab = wb.sheet_by_index(8)
 
-    sheets = [ber_tlv_tab, SP800_73_4_tab, SP800_76_tab, cms_tab, SP800_78_tab, pkix_tab]
+    sheets = [ber_tlv_tab, SP800_73_4_tab, SP800_76_tab, cms_tab, SP800_78_tab, pkix_tab, deadbeef_tab]
 
     for cur_sheet in sheets:
         for ii in range(1, cur_sheet.nrows):
@@ -139,6 +152,7 @@ def main():
         test_details = str(step_overview_tab.cell_value(ii, 3)).strip()
         if test_details:
             if ',' in test_details:
+                test_details = test_details.rstrip(',')
                 test_step_ids = test_details.split(',')
                 for test_step_id in test_step_ids:
                     ts = test_step_map[test_step_id.strip()]

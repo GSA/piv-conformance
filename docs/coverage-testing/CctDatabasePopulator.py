@@ -1,4 +1,16 @@
+from csv import writer, QUOTE_NONNUMERIC, reader
+from urllib.parse import urlparse, urljoin
+import re
+from subprocess import PIPE, Popen
+import sys
 import argparse
+from os import path
+from shutil import copyfile
+import glob, xlwt, os
+import collections
+from xlsxwriter.workbook import Workbook
+import csv
+from datetime import datetime
 import xlrd
 
 
@@ -140,6 +152,7 @@ def main():
         test_details = str(step_overview_tab.cell_value(ii, 3)).strip()
         if test_details:
             if ',' in test_details:
+                test_details = test_details.rstrip(',')
                 test_step_ids = test_details.split(',')
                 for test_step_id in test_step_ids:
                     ts = test_step_map[test_step_id.strip()]
