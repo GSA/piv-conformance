@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,9 +103,12 @@ public class Csv2Html {
 		destination.println("<table>");
 		String stdinLine;
 		boolean firstLine = true;
+		
 		try {
-			while ((stdinLine = br.readLine()) != null) {
-				String[] columns = escapeChars(stdinLine).split(",");
+			CSVParser csvParser = new CSVParser(br, CSVFormat.DEFAULT);
+			for(CSVRecord r : csvParser) {
+				String[] columns = { escapeChars(r.get(0)), escapeChars(r.get(1)), escapeChars(r.get(2)),
+						escapeChars(r.get(3)), escapeChars(r.get(4))};
 				if (withTableHeader == true && firstLine == true) {
 					tableHeader(destination, columns);
 					firstLine = false;
@@ -110,6 +116,7 @@ public class Csv2Html {
 					tableRow(destination, columns);
 				}
 			}
+			csvParser.close();
 			br.close();
 		} catch (IOException e) {
 			s_logger.error("Caught exception while writing html", e);
