@@ -65,7 +65,7 @@ public class PIVAuthenticators {
             b.addByte(new BerTag(TagConstants.KEY_REFERENCE_TAG), authenticator.getType());
         }
         rv = b.buildArray();
-        s_logger.debug("Encoded authenticators: {}", Hex.encodeHexString(rv));
+        //s_logger.debug("Encoded authenticators: {}", Hex.encodeHexString(rv));
         return rv;
     }
 
