@@ -111,7 +111,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                 s_logger.error("Failed to populate VERIFY APDU buffer");
             }
             byte[] rawAPDU = baos.toByteArray();
-            s_logger.debug("VERIFY APDU: {}", Hex.encodeHexString(rawAPDU));
+            //s_logger.debug("VERIFY APDU: {}", Hex.encodeHexString(rawAPDU));
             CardChannel channel = cardHandle.getCurrentChannel();
             CommandAPDU verifyApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;

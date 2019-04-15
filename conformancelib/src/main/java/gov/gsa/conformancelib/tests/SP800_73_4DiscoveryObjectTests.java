@@ -254,7 +254,6 @@ public class SP800_73_4DiscoveryObjectTests {
 			s_logger.info("Global PIN is the primary PIN used to satisfy the PIV ACRs for command execution and object access.");
 
 			try {
-				css.setGlobalPin("123456");
 				CardUtils.authenticateInSingleton(true);
 			} catch (ConformanceTestException e) {
 				fail(e);
@@ -263,7 +262,6 @@ public class SP800_73_4DiscoveryObjectTests {
 			s_logger.info("PIV Card Application PIN is the primary PIN used to satisfy the PIV ACRs for command execution and object access.");
 
 			try {
-				css.setApplicationPin("123456");
 				CardUtils.authenticateInSingleton(false);
 			} catch (ConformanceTestException e) {
 				fail(e);
