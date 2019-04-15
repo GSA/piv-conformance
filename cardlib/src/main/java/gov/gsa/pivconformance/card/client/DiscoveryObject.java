@@ -213,6 +213,7 @@ public class DiscoveryObject extends PIVDataObject {
             ByteArrayOutputStream scos = new ByteArrayOutputStream();
             for (BerTlv tlv : outer.getValues()) {
                 byte[] tag = tlv.getTag().bytes;
+            	super.m_tagList.add(tlv.getTag());
                 if (Arrays.equals(tag, TagConstants.PIV_CARD_APPLICATION_AID_TAG)) {
                     m_aid = tlv.getBytesValue();
 
