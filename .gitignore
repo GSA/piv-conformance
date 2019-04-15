@@ -95,3 +95,4 @@ target
 /cardlib/**/.classpath
 /cardlib/**/.project
 .project
+.settings/**
