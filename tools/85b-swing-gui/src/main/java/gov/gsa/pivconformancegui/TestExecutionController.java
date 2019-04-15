@@ -69,6 +69,8 @@ public class TestExecutionController {
 	}
 	
 	void runAllTests(TestCaseTreeNode root) {
+		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
+		display.setEnabled(false);
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
 		GuiRunnerAppController.getInstance().rollConformanceCSV();
 		if(db == null || db.getConnection() == null) {
@@ -167,6 +169,7 @@ public class TestExecutionController {
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
         m_running = false;
+		display.setEnabled(true);
 	}
 	
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

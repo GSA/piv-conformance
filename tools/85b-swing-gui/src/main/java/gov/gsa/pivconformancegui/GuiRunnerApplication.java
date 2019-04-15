@@ -184,6 +184,9 @@ public class GuiRunnerApplication {
 		
 		JMenuItem mntmToggleTestTree = new JMenuItem(c.getToggleTestTreeAction());
 		mnView.add(mntmToggleTestTree);
+
+		JMenuItem mntmDisplayTestReport = new JMenuItem(c.getDisplayTestReportAction());
+		mnView.add(mntmDisplayTestReport);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);

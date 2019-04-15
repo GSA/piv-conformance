@@ -135,7 +135,7 @@ public class TestCaseModel {
 				s_logger.error("Database not configured properly: no test case for id {}", testId);
 				throw new ConfigurationException("Unable to retrieve record for test case id " + testId);
 			}
-			this.setExpectedStatus(rs.getInt("Status"));
+			this.setExpectedStatus(rs.getInt("ExpectedStatus"));
 			this.setDescription(rs.getString("TestCaseDescription"));
 			this.setIdentifier(rs.getString("TestCaseIdentifier"));
 			this.setStatus(rs.getInt("Status"));
