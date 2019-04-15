@@ -30,7 +30,7 @@
                 this triggering policy is necessary to allow logback to append to a log without knowing how to rotate it. -->
         <triggeringPolicy class="gov.gsa.pivconformancegui.ManualTriggeringPolicy" />
         <encoder>
-            <pattern>%date,%msg%n</pattern>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss},%msg%n</pattern>
         </encoder>
     </appender>
 

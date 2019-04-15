@@ -1,5 +1,8 @@
 package gov.gsa.pivconformancegui;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -27,6 +30,7 @@ public class GuiRunnerAppController {
 	private ShowOidDialogAction m_showOidDialogAction;
 	private ToggleTestTreeAction m_toggleTreeAction;
 	private DisplayAboutDialogAction m_displayAboutDialogAction;
+	private DisplayTestReportAction m_displayTestReportAction;
 	
 	public void reset() {
 		m_testDatabase = null;
@@ -35,6 +39,9 @@ public class GuiRunnerAppController {
 		m_openDatabaseAction = null;
 		m_showDebugWindowAction = null;
 		m_runAllTestsAction = null;
+		m_toggleTreeAction = null;
+		m_displayAboutDialogAction = null;
+		m_displayTestReportAction = null;
 		createActions();
 	}
 	
@@ -99,6 +106,10 @@ public class GuiRunnerAppController {
 		return m_toggleTreeAction;
 	}
 
+	public DisplayTestReportAction getDisplayTestReportAction() {
+		return m_displayTestReportAction;
+	}
+
 	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
 	public void showDebugWindow() {
 		DebugWindow window = m_app.getDebugFrame();
@@ -127,7 +138,16 @@ public class GuiRunnerAppController {
 		m_ConformanceTestCsvAppender.rollover();
 		Logger conformanceLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
 		if(conformanceLogger != null) {
-			conformanceLogger.info("TestId,TestDescription,ExpectedResult,ActualResult");
+			File f = new File(m_ConformanceTestCsvAppender.getFile());
+			PrintStream p;
+			try {
+				p = new PrintStream(f);
+				p.println("Date,Test Id,Description,Expected Result,Actual Result");
+				p.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -142,6 +162,8 @@ public class GuiRunnerAppController {
 	    m_showOidDialogAction = new ShowOidDialogAction("Override test OIDs...", oidIcon, "Use alternative Policy OIDs and EKU OIDs");
 	    ImageIcon toggleIcon = getActionIcon("application_side_tree", "Toggle Tree");
 	    m_toggleTreeAction = new ToggleTestTreeAction("Toggle test tree view", toggleIcon, "Show or hide the test tree");
+	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");
+	    m_displayTestReportAction = new DisplayTestReportAction("Display Test Report", displayReportIcon, "Display test report for current log");
 	    
 	}
 	
