@@ -1,8 +1,10 @@
 package gov.gsa.pivconformancegui;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JSplitPane;
 
@@ -23,10 +25,12 @@ public class ToggleTestTreeAction extends AbstractAction {
 		m_testPane = c.getApp().getMainContent().getTestExecutionPanel();
 		if(m_splitPane.isVisible()) {
 			m_splitPane.setVisible(false);
-			c.getApp().getMainFrame().setContentPane(m_testPane);
+			c.getApp().getMainContent().remove(m_splitPane);
+			c.getApp().getMainFrame().add(m_testPane, BorderLayout.CENTER);
 		} else {
 			m_splitPane.setVisible(true);
-			c.getApp().getMainFrame().setContentPane(m_splitPane);
+			c.getApp().getMainFrame().remove(m_testPane);
+			c.getApp().getMainFrame().add(m_splitPane, BorderLayout.CENTER);
 		}
 	}
 
