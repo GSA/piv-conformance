@@ -41,7 +41,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +74,8 @@ public class ConformanceTestRunner {
         System.exit(exitCode);
     }
     public static void main(String[] args) {
+    	URL location = ConformanceTestRunner.class.getProtectionDomain().getCodeSource().getLocation();
+		s_logger.info("current directory: {}", location.getFile());
         s_logger.info("main class: {}", MethodHandles.lookup().lookupClass().getSimpleName());
         s_logger.info("package version: {}", VersionUtils.GetPackageVersionString());
         PCSCUtils.ConfigureUserProperties();
