@@ -27,11 +27,16 @@ public class ToggleTestTreeAction extends AbstractAction {
 			m_splitPane.setVisible(false);
 			c.getApp().getMainContent().remove(m_splitPane);
 			c.getApp().getMainFrame().add(m_testPane, BorderLayout.CENTER);
+			m_testPane.revalidate();
 		} else {
 			m_splitPane.setVisible(true);
 			c.getApp().getMainFrame().remove(m_testPane);
+			m_splitPane.add(m_testPane, 1);
 			c.getApp().getMainFrame().add(m_splitPane, BorderLayout.CENTER);
+			m_splitPane.revalidate();
+			m_testPane.revalidate();
 		}
+		c.getApp().getMainFrame().repaint();
 	}
 
 }
