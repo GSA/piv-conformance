@@ -32,7 +32,7 @@ import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class SP800_73_4CCCTests {
 
-	//CCC blob no larger than 297 bytes
+	//registered data model element is present and has a value of 0x10
 	@DisplayName("SP800-73-4.1 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_CCCTestProvider")
@@ -63,10 +63,14 @@ public class SP800_73_4CCCTests {
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
 		assertTrue(result == MiddlewareStatus.PIV_OK);
 
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		assertTrue(bertlv.length <= 297);
+		boolean decoded = o.decode();
+		assertTrue(decoded);
+		
+		byte[] rdm = ((CardCapabilityContainer) o).getRegisteredDataModelNumber();
+		
+		assertTrue(rdm.length == 1);
+		
+		assertTrue(rdm[0] == 0x10);
 	}
 
 	//CCC BERTLV tag is '5FC107'
