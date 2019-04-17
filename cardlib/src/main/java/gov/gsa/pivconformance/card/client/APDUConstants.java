@@ -19,6 +19,7 @@ public class APDUConstants {
     public static final byte COMMAND_CC = 0x10;
     public static final byte SELECT = (byte)0xa4;
     public static final byte GENERATE = (byte)0x47;
+    public static final byte GENERAL_AUTHENTICATE = (byte)0x87;
     public static final byte GET = (byte)0xcb;
     public static final byte VERIFY = 0x20;
     public static final byte SM = (byte)0x87;

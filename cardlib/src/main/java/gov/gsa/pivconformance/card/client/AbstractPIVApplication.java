@@ -347,7 +347,59 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
      * @return MiddlewareStatus value indicating the result of the function call
      */
     @Override
-    public MiddlewareStatus pivCrypt(CardHandle cardHandle, byte algorithmIdentifier, byte keyReference, PIVDataObject algorithmInput, PIVDataObject algorithmOutput) {
+    public MiddlewareStatus pivCrypt(CardHandle cardHandle, byte algorithmIdentifier, byte keyReference,
+    		PIVDataObject algorithmInput, PIVDataObject algorithmOutput) {
+    	try {
+    		Card card = cardHandle.getCard();
+            if (card == null)
+                return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+            
+            CardChannel channel = card.getBasicChannel();
+            if(channel == null)
+            	return MiddlewareStatus.PIV_INVALID_CARD_HANDLE;
+            
+            byte[] rawAPDU = APDUUtils.PIVGeneralAuthenticateAPDU(keyReference, algorithmIdentifier, algorithmInput.getBytes());
+            s_logger.info("GENERAL AUTHENTICATE APDU: {}", Hex.encodeHexString(rawAPDU));
+            
+            
+            CommandAPDU cmd = new CommandAPDU(rawAPDU);
+            // Transmit command and get response
+            m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
+            ResponseAPDU response = channel.transmit(cmd);
+            m_lastResponseAPDU = response;
+            
+            s_logger.debug("Response to GENERAL AUTHENTICATE command: {} {}", String.format("0x%02X", response.getSW1()), String.format("0x%02X", response.getSW2()));
+
+            //Check for Successful execution status word
+            if(response.getSW() != APDUConstants.SUCCESSFUL_EXEC) {
+
+                if(response.getSW() == APDUConstants.SECURITY_STATUS_NOT_SATISFIED){
+                    s_logger.error("Security condition not satisfied");
+                    return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
+                }
+                else if(response.getSW() == APDUConstants.INCORREECT_PARAMETER){
+                    s_logger.error("Incorrect parameter in command data field");
+                    return MiddlewareStatus.PIV_UNSUPPORTED_CRYPTOGRAPHIC_MECHANISM;
+                }
+                else if(response.getSW() == APDUConstants.FUNCTION_NOT_SUPPORTED){
+                    s_logger.error("Function not supported");
+                    return MiddlewareStatus.PIV_FUNCTION_NOT_SUPPORTED;
+                }
+                else if(response.getSW() == APDUConstants.INCORREECT_PARAMETER_P2){
+                    s_logger.error("Invalid key or key algorithm combination");
+                    return MiddlewareStatus.PIV_INVALID_KEY_OR_KEYALG_COMBINATION;
+                }
+                else {
+                    s_logger.error("Error in GENERAL AUTHENTICATE command, failed with error: {}", Integer.toHexString(response.getSW()));
+                    return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+                }
+            }
+    		algorithmOutput.setBytes(response.getData());
+    		cardHandle.setCurrentChannel(channel);
+    	} catch(Exception e) {
+    		s_logger.error("Failed to complete pivCrypt operation for algorithm {} (key {}",
+    				Hex.encodeHexString(new byte[] {algorithmIdentifier}), Hex.encodeHexString(new byte[] {keyReference}), e);
+    	}
         return null;
     }
 

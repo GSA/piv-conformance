@@ -79,6 +79,50 @@ public class APDUUtils {
 
     /**
      *
+     * Return APDU value for GENERAL AUTHENTICATE
+     *
+     * @param keyReference Byte value identifying key reference of the generated key pair
+     * @param algorithmIdentifier Byte value identifying algorithm to be performed on card
+     * @param parameter Byte array containing the parameter value
+     * @return Byte array with GENERATE APDU
+     */
+    public static byte[] PIVGeneralAuthenticateAPDU(byte keyReference, byte algorithmIdentifier, byte[] parameter) {
+        byte[] rv_pivGeneralAuthenticate = null;
+        if(rv_pivGeneralAuthenticate == null) {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                baos.write(APDUConstants.COMMAND);
+                baos.write(APDUConstants.GENERAL_AUTHENTICATE);
+                byte[] p1 = {algorithmIdentifier};
+                baos.write(p1);
+                baos.write(keyReference);
+
+                //If parameter is present data length will be 1 (Tag 'AC') + length + 1 (cryptographic mechanism tag) + 1 (length) + 1 (cryptographic mechanism) + 1 (parameter tag) + parameter length length+ parameter length .
+                //If parameter is absent data length will be 1 (Tag 'AC') + length + 1 (cryptographic mechanism tag) + 1 (cryptographic mechanism length) + 1 (cryptographic mechanism)
+                if(parameter != null) {
+                    baos.write(parameter.length);
+                }
+                else {
+                    baos.write(0);
+                }
+
+                if(parameter != null)  {
+                    baos.write(parameter);
+                }
+                byte[] Le = {0x00};
+                baos.write(Le);
+                rv_pivGeneralAuthenticate = baos.toByteArray();
+            } catch(IOException ioe) {
+                // if we ever hit this, OOM is coming soon
+                s_logger.error("Unable to populate static PIV Generate APDU field.", ioe);
+                rv_pivGeneralAuthenticate = new byte[0];
+            }
+        }
+        return rv_pivGeneralAuthenticate;
+    }
+
+    /**
+     *
      * Return APDU value for GENERATE card operation based on a specific APP ID value
      *
      * @param keyReference Byte value identifying key reference of the generated key pair
