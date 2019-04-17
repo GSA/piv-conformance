@@ -792,11 +792,11 @@ public class SP800_76_Tests {
 		assertTrue(Byte.compare(biometricDataBlock[15], (byte)0x00) != 0);
 	}
 	
-	//Confirm that scanned image in X and scanned image in Y are non-zero (and obtained from enrollment records??)
-	@DisplayName("SP800-76.15 test")
+	//Confirm that scanned image in X are non-zero (and obtained from enrollment records??)
+	@DisplayName("SP800-76.15a test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_15(String oid, TestReporter reporter) {
+	void sp800_76Test_15a(String oid, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
@@ -843,6 +843,60 @@ public class SP800_76_Tests {
 		
 		//Check the values are not zero
 		assertTrue(!Arrays.equals(scannedIimageInX, zeroBlock));
+		
+		
+	}
+	
+	//Confirm that scanned image in Y are non-zero (and obtained from enrollment records??)
+	@DisplayName("SP800-76.15b test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_FingerprintsTestProvider")
+	void sp800_76Test_15b(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		
+		//Make sure biometric data block is present
+		assertNotNull(biometricDataBlock);
+							
+		//Is it located on the 20th byte?
+		assertTrue(biometricDataBlock.length >= 21);
+
+		byte [] scannedIimageInX  = Arrays.copyOfRange(biometricDataBlock, 16, 18);
+		byte [] scannedIimageInY  = Arrays.copyOfRange(biometricDataBlock, 18, 20);
+		
+		byte [] zeroBlock = { 0x00, 0x00 };
+		
+		//CHeck the values are not zero
 		assertTrue(!Arrays.equals(scannedIimageInY, zeroBlock));
 		
 		//Width of the Size of Scanned Image in x direction is the larger of the widths of the two input
