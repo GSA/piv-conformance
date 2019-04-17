@@ -82,50 +82,6 @@ import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 public class Armen_PlaceholderTests {
 
 	
-	//check expiration date of content signing cert.
-	@DisplayName("Issue.65 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
-    void Issue_65(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
-
-
-		boolean decoded = o.decode();
-		assertTrue(decoded);
-		
-		
-		X509Certificate cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
-		
-		Calendar cal = Calendar.getInstance();
-		Date today = cal.getTime();
-		
-		assertTrue(cert.getNotAfter().compareTo(today) >= 0);
-       
-    }
 	
 	//Confirm that Finger Quality value shall be 20, 40, 60, 80, 100, 254, or 255.
 	@DisplayName("Issue.62 test")
@@ -209,11 +165,6 @@ public class Armen_PlaceholderTests {
 
 	}
 	
-	private static Stream<Arguments> sp800_73_4_CHUIDTestProvider() {
-
-		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
-
-	}
 	
 	private static Stream<Arguments> pKIX_x509TestProvider2() {
 

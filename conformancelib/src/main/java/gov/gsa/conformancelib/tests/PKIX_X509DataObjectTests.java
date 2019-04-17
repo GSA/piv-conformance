@@ -1104,6 +1104,51 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
 	}
+
+	//check expiration date of content signing cert.
+	@DisplayName("PKIX.26 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("pkix_CHUIDTestProvider")
+    void PKIX_Test_26(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+
+		boolean decoded = o.decode();
+		assertTrue(decoded);
+		
+		
+		X509Certificate cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+		
+		Calendar cal = Calendar.getInstance();
+		Date today = cal.getTime();
+		
+		assertTrue(cert.getNotAfter().compareTo(today) >= 0);
+       
+    }
 	
 	private static Stream<Arguments> pKIX_x509TestProvider() {
 
@@ -1354,6 +1399,12 @@ public class PKIX_X509DataObjectTests {
 	private static Stream<Arguments> pKIX_CardAuthx509TestProvider2() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.48.13"));
+
+	}
+
+	private static Stream<Arguments> pkix_CHUIDTestProvider() {
+
+		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
 
 	}
 }
