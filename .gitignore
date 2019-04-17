@@ -92,7 +92,9 @@ target
 .searchable
 # Eclipse
 .classpath
-/cardlib/**/.classpath
-/cardlib/**/.project
-.project
-.settings/**
+**/.classpath
+**/.project
+**/.settings
+**/85b-swing-gui/*.db
+**/85b-swing-gui/*.csv
+**/85b-swing-gui/**/*.jar
