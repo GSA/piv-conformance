@@ -4,10 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.URL;
 import java.security.PublicKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
@@ -17,6 +24,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,17 +35,27 @@ import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERTaggedObject;
+import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
+import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
+import org.bouncycastle.asn1.x509.DistributionPoint;
+import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.PolicyInformation;
+import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.util.Store;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -831,6 +849,261 @@ public class PKIX_X509DataObjectTests {
 	    assertTrue(containsOOID);
 		
     }
+
+	// placeholder
+	@DisplayName("PKIX.21 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("pKIX_CardAuthx509TestProvider2")
+    void PKIX_Test_21(String oid, String ekuOid, TestReporter reporter) {
+		assert(false);
+	}
+
+	//The authorityInfoAccess field contains an id-ad-caIssuers
+	@DisplayName("PKIX.22 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("pKIX_x509TestProvider")
+    void PKIX_Test_22(X509Certificate cert, TestReporter reporter) {
+		assertNotNull(cert);
+				
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+       
+        byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+        assertNotNull(extVal);
+        
+    	try {
+			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+	        assertNotNull(aia);
+			
+	        boolean caIssuersPresent = false;
+			AccessDescription[] descriptions = aia.getAccessDescriptions();
+			for (AccessDescription ad : descriptions) {
+			    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+			    	caIssuersPresent = true;
+			    }
+			}
+			
+			assertTrue(caIssuersPresent);
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+	
+	//The authorityInfoAccess field contains an id-ad-caIssuers
+	@DisplayName("PKIX.23 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("pKIX_x509TestProvider")
+    void PKIX_Test_23(X509Certificate cert, TestReporter reporter) {
+		assertNotNull(cert);
+				
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+       
+        byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+        assertNotNull(extVal);
+        
+    	try {
+			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+	        assertNotNull(aia);
+			
+	        boolean uriOK = false;
+			AccessDescription[] descriptions = aia.getAccessDescriptions();
+			for (AccessDescription ad : descriptions) {
+			    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+			        GeneralName location = ad.getAccessLocation();
+			        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
+			            String url = location.getName().toString();
+			            
+			            if(url.startsWith("http"))
+			            	uriOK = true;
+			        }
+			    }
+			}
+			
+			assertTrue(uriOK);
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+        
+	//Check CRL DP and AIA URI for ".crl" or ".p7c"
+	@DisplayName("PKIX.24 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("pKIX_x509TestProvider2")
+    void PKIX_Test_24(X509Certificate cert, String oid, TestReporter reporter) {
+		assertNotNull(cert);
+		assertNotNull(oid);
+				
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+       
+        byte[] extVal = cert.getExtensionValue(oid);
+        assertNotNull(extVal);
+        
+        if(oid.compareTo("1.3.6.1.5.5.7.1.1") == 0) {
+        	try {
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+		        assertNotNull(aia);
+				
+				AccessDescription[] descriptions = aia.getAccessDescriptions();
+				for (AccessDescription ad : descriptions) {
+				    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+				        GeneralName location = ad.getAccessLocation();
+				        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
+				            String url = location.getName().toString();
+				            
+				            assertTrue(url.endsWith(".p7c"));
+				        }
+				    }
+				}
+			} catch (IOException e) {
+				fail(e);
+			}
+        }
+        
+        if(oid.compareTo("2.5.29.31") == 0) {
+        	try {
+        		
+        		CRLDistPoint crlDP = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+        		assertNotNull(crlDP);
+        		
+        		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
+				for (DistributionPoint dp : descriptions) {
+					DistributionPointName dp_name = dp.getDistributionPoint();
+					 if (dp_name.getType() == DistributionPointName.FULL_NAME)
+			            {
+			                GeneralName[] generalNames = GeneralNames.getInstance(dp_name.getName()).getNames();
+			                for (int j = 0; j < generalNames.length; j++)
+			                {
+			                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
+			                    {
+			                        String url = ((DERIA5String) generalNames[j].getName()).getString();
+			                        assertTrue(url.endsWith(".crl"));
+			                    }
+			                }
+			            }
+				}
+			} catch (IOException e) {
+				fail(e);
+			}
+        }
+    }
+	
+	//The authorityInfoAccess field points to a file that has an extension of ".p7c" containing a
+	//certs-only CMS message
+	@DisplayName("PKIX.25 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("pKIX_x509TestProvider")
+    void PKIX_Test_25(X509Certificate cert, TestReporter reporter) {
+		assertNotNull(cert);
+				
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+       
+        byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+        assertNotNull(extVal);
+        
+    	try {
+			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+	        assertNotNull(aia);
+	        
+			AccessDescription[] descriptions = aia.getAccessDescriptions();
+			for (AccessDescription ad : descriptions) {
+			    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+			        GeneralName location = ad.getAccessLocation();
+			        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
+			            String url = location.getName().toString();
+			            
+			            try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+			            		ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+		            		    byte dataBuffer[] = new byte[1024];
+		            		    int bytesRead;
+		            		    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+		            		    	baos.write(dataBuffer, 0, bytesRead);
+		            		    }
+		            		    
+		            		    ByteArrayInputStream bIn = new ByteArrayInputStream(baos.toByteArray());
+		            		    ASN1InputStream aIn = new ASN1InputStream(bIn);
+		                        ContentInfo contentInfo = ContentInfo.getInstance(aIn.readObject());
+		                        aIn.close();
+		                        try {
+									CMSSignedData sd = new CMSSignedData(contentInfo);
+									
+									Store<X509CertificateHolder> certStore = sd.getCertificates();
+									
+									Collection<X509CertificateHolder> certCollection = certStore.getMatches(null);
+									
+									Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+							        	
+									while(certIt.hasNext()) {
+										
+										X509CertificateHolder certificateHolder = (X509CertificateHolder)certIt.next();
+										byte[] certBuff = certificateHolder.getEncoded();
+										
+										CertificateFactory certFactory;
+										try {
+											certFactory = CertificateFactory.getInstance("X.509");
+										
+											InputStream in2 = new ByteArrayInputStream(certBuff);
+											X509Certificate cert2 = (X509Certificate)certFactory.generateCertificate(in2);
+											
+											assertNotNull(cert2);
+										} catch (CertificateException e) {
+											fail(e);
+										}
+								    }
+									
+								} catch (CMSException e) {
+									fail(e);
+								}
+		                        
+		            		} catch (IOException e) {
+		            		    fail(e);
+		            		}
+			        }
+			    }
+			}
+			
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
 	
 	private static Stream<Arguments> pKIX_x509TestProvider() {
 
@@ -1046,13 +1319,6 @@ public class PKIX_X509DataObjectTests {
 		return Stream.of(Arguments.of(cert1, 6),Arguments.of(cert2, 6),Arguments.of(cert3, 6),
 				Arguments.of(cert4, 6),Arguments.of(cert5, 6));
 
-	}
-	// placeholder
-	@DisplayName("PKIX.21 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_CardAuthx509TestProvider2")
-    void PKIX_Test_21(String oid, String ekuOid, TestReporter reporter) {
-		assert(false);
 	}
 	
 	private static Stream<Arguments> pKIX_PIVAuthx509TestProvider() {
