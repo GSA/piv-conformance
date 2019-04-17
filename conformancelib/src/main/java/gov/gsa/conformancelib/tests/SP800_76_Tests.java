@@ -9,9 +9,11 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -2843,6 +2845,82 @@ public class SP800_76_Tests {
 		//Confirm Reserved field is all zeros
 		assertTrue(Arrays.equals(reserved, zeros));
 		
+	}
+
+	//Confirm that Finger Quality value shall be 20, 40, 60, 80, 100, 254, or 255.
+	@DisplayName("SP800-76.47 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_FingerprintsTestProvider")
+	void sp800_76Test_47(String oid, TestReporter reporter) {
+		assertNotNull(oid);
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		assertNotNull(css);
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+		try {
+			css.setApplicationPin("123456");
+			CardUtils.setUpPivAppHandleInSingleton();
+			CardUtils.authenticateInSingleton(false);
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+		assertNotNull(o);
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+		assertTrue(result == MiddlewareStatus.PIV_OK);
+
+	    boolean decoded = o.decode();
+		assertTrue(decoded);
+			
+		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		
+		//Make sure biometric data block is present
+		assertNotNull(biometricDataBlock);
+		        
+		assertTrue(biometricDataBlock.length >= 27);
+							
+		byte [] numberOfFingerViewsBuff  = Arrays.copyOfRange(biometricDataBlock, 24, 25);
+		assertNotNull(numberOfFingerViewsBuff);
+				
+		BigInteger numberOfFingersBI = new BigInteger(numberOfFingerViewsBuff);
+        int numberOfFingers = numberOfFingersBI.intValue();
+        
+        List<Integer> qList = new ArrayList<Integer>();
+        qList.add(20);
+        qList.add(40);
+        qList.add(60);
+        qList.add(80);
+        qList.add(100);
+        qList.add(254);
+        qList.add(255);
+        
+        int offset = 26;
+        for (int view = 0; view < numberOfFingers; view++) {			
+
+			Byte b1 = new Byte(biometricDataBlock[offset]);
+			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			Byte b3 = new Byte(biometricDataBlock[offset+2]);
+			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			int fingerPosition = b1.intValue();
+			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			int fingerQuality = b3.intValue();
+			int numberOfMinutiae = b4.intValue();
+			
+
+	        assertTrue(qList.contains(fingerQuality));
+        }
 	}
 		
 	
