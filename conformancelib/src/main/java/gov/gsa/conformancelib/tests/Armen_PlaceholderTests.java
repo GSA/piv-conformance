@@ -239,7 +239,7 @@ public class Armen_PlaceholderTests {
         }
     }
 	
-	//The authorityInfoAccess field points to a file that has an extension of “.p7c” containing a
+	//The authorityInfoAccess field points to a file that has an extension of ".p7c" containing a
 	//certs-only CMS message
 	@DisplayName("Issue.63.4 test")
     @ParameterizedTest(name = "{index} => oid = {0}")

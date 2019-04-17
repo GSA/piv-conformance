@@ -436,10 +436,7 @@ public class PKIX_X509DataObjectTests {
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_11(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
-
-		//XXX Placeholder Not sure how to do this test yet
-
-		
+		// XXX *** shelve to do merge
     }
 	
 	//Confirm that the certificate subjectAltName includes FASC-N and that it matches CHUID
