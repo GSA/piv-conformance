@@ -53,6 +53,7 @@ public class CardUtils {
 		CardTerminal reader = css.getTerminal();
 		if(reader == null) {
 			setUpReaderInSingleton();
+			reader = css.getTerminal();
 		}
 		try {
 			if(!reader.isCardPresent()) {
