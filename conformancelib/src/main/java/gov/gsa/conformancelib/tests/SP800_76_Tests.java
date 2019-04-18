@@ -49,7 +49,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_1(String oid, TestReporter reporter) {
-		assertNotNull("NULL oid passed to atom", oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -70,19 +70,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 
@@ -90,13 +90,13 @@ public class SP800_76_Tests {
              byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
              
 
-     		assertNotNull(biometricDataBlockLengthBytes);
+     		assertNotNull(biometricDataBlockLengthBytes, "Biometric data block length bytes is absent in CardholderBiometricData object");
      		
      		//Convert Biometric data block (BDB) Length byte[] value to int
             ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
             int biometricDataBlockLength = wrapped.getInt();
             
-            assertTrue(biometricDataBlockLength > 0);
+            assertTrue(biometricDataBlockLength > 0, "Biometric data block length is not greater than 0");
 		 }
 	}
 
@@ -106,7 +106,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_2(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -128,19 +128,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 
@@ -148,7 +148,7 @@ public class SP800_76_Tests {
              byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
              
 
-     		assertNotNull(biometricDataBlockLengthBytes);
+     		assertNotNull(biometricData, "Biometric data block length is absent in CardholderBiometricData object");
      		
      		//Convert Biometric data block (BDB) Length byte[] value to int
             ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -156,7 +156,7 @@ public class SP800_76_Tests {
             
             assertTrue(biometricDataBlockLength > 0);
             
-            assertTrue(biometricData.length >= (88 + 88 + biometricDataBlockLength));
+            assertTrue(biometricData.length >= (88 + 88 + biometricDataBlockLength),  "Biometric data block length does not matche actual length");
             
 		 }
 	}
@@ -166,7 +166,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_3(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -188,19 +188,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 			 
@@ -208,13 +208,13 @@ public class SP800_76_Tests {
              byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);
              
 
-     		assertNotNull(signatureDataBlockLengthBytes);
+     		assertNotNull(signatureDataBlockLengthBytes, "Signature data block length is absent in CardholderBiometricData object");
      		
      		 //Convert Signature block (SB) Length byte[] value to int
      		ByteBuffer wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
             int signatureDataBlockLength = (int) wrapped.getShort();
             
-            assertTrue(signatureDataBlockLength > 0);
+            assertTrue(signatureDataBlockLength > 0, "Signature data block length is not greater than 0");
 		 }
 	}
 	
@@ -223,7 +223,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_4(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -245,26 +245,26 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 			 
 			//Get Biometric data block (BDB) Length
 			byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
 			
-			assertNotNull(biometricDataBlockLengthBytes);
+			assertNotNull(biometricData, "Biometric data block length  is absent in CardholderBiometricData object");
 			
 			//Convert Biometric data block (BDB) Length byte[] value to int
 			ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -272,13 +272,13 @@ public class SP800_76_Tests {
 			           
 			//Get Signature block (SB) Length
 			byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);	
-			assertNotNull(signatureDataBlockLengthBytes);
+			assertNotNull(signatureDataBlockLengthBytes, "Signature data block length is absent in CardholderBiometricData object");
 			
 			//Convert Signature block (SB) Length byte[] value to int
 			wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
 			int signatureDataBlockLength = (int) wrapped.getShort();
 			
-			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength));
+			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength),  "Signature data block length does not matche actual length");;
 
 		 }
 	}
@@ -288,7 +288,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_5(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -310,24 +310,24 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length > 1);
 		
 		//Check the first byte of biometric data to confirm its is 0x03
-		assertTrue(Byte.compare(biometricData[0], (byte)0x03) == 0);
+		assertTrue(Byte.compare(biometricData[0], (byte)0x03) == 0, "First byte of biometrict data is not 0x03");
 	}
 	
 	//SBH security options field has value b00001101 (0x0D)
@@ -335,7 +335,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_6(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -357,24 +357,24 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length > 2);
 		
 		//Check the second byte of biometric data to confirm its is b00001101 (0x0D)
-		assertTrue(Byte.compare(biometricData[1], (byte)0x0D) == 0);
+		assertTrue(Byte.compare(biometricData[1], (byte)0x0D) == 0, "Second byte of biometric data is not b00001101 (0x0D)" );
 	}
 	
 	//BDB Format Owner field has a value of 0x001B
@@ -382,7 +382,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_7(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -404,25 +404,25 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length >= 10);
 		
 		//Check the 8th and 9th bytes of biometric data to confirm BDB Format Owner field has a value of 0x001B
-		assertTrue(Byte.compare(biometricData[8], (byte)0x00) == 0);
-		assertTrue(Byte.compare(biometricData[9], (byte)0x1B) == 0);
+		assertTrue(Byte.compare(biometricData[8], (byte)0x00) == 0, "BDB Format Owner field has a value is not 0x001B");
+		assertTrue(Byte.compare(biometricData[9], (byte)0x1B) == 0, "BDB Format Owner field has a value is not 0x001B");
 	}
 	
 	//Card Holder Facial Image object length equals sum of CBEFF header length + BDB length + SB length
@@ -430,7 +430,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_8(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -452,26 +452,26 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 			 
 			//Get Biometric data block (BDB) Length
 			byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
 			
-			assertNotNull(biometricDataBlockLengthBytes);
+			assertNotNull(biometricData, "Biometric data block length  is absent in CardholderBiometricData object");
 			
 			//Convert Biometric data block (BDB) Length byte[] value to int
 			ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -479,7 +479,7 @@ public class SP800_76_Tests {
 			           
 			//Get Signature block (SB) Length
 			byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);	
-			assertNotNull(signatureDataBlockLengthBytes);
+			assertNotNull(signatureDataBlockLengthBytes, "Biometric data block length  is absent in CardholderBiometricData object");
 			
 			//Convert Signature block (SB) Length byte[] value to int
 			wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
@@ -487,7 +487,7 @@ public class SP800_76_Tests {
 			
 			
 			//Confirm Card Holder Facial Image object length equals sum of CBEFF header length + BDB length + SB length
-			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength));
+			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength), "Facial Image object length does Not equal sum of CBEFF header length + BDB length + SB length");
 
 		 }
 	}
@@ -497,7 +497,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_9(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -519,19 +519,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 4);
 		
@@ -540,7 +540,7 @@ public class SP800_76_Tests {
 		byte [] formatIdentifierValueToCheck = { 0x46, 0x4D, 0x52, 0x00 };
 		
 		//Check  format identifier value of 0x464D5200
-		assertTrue(Arrays.equals(formatIdentifier, formatIdentifierValueToCheck));
+		assertTrue(Arrays.equals(formatIdentifier, formatIdentifierValueToCheck), "Fingerprint format identifier value is not 0x464D5200");
 	}
 	
 	//Extract contents of version identifier, confirm value 0x20323030
@@ -548,7 +548,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_10(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -570,19 +570,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 8);
 		
@@ -590,7 +590,7 @@ public class SP800_76_Tests {
 		byte [] versionIdentifier = Arrays.copyOfRange(biometricDataBlock, 4, 8);
 		byte [] versionIdentifierValueToCheck = { 0x20, 0x32, 0x30, 0x00 };
 		
-		assertTrue(Arrays.equals(versionIdentifier, versionIdentifierValueToCheck));
+		assertTrue(Arrays.equals(versionIdentifier, versionIdentifierValueToCheck), "Fingerprint version identifie value is not 0x20323030");
 	}
 	
 	//Extract record length, verify 26 <= L <= 1574
@@ -598,7 +598,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_11(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -620,19 +620,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 10);
 		
@@ -642,9 +642,9 @@ public class SP800_76_Tests {
 		int biometricDataBlockLength  = (((recordLength[0] & 0xFF) << 8) | (recordLength[1] & 0xFF));
 		
 		//BDB length must be between 26 and 1574
-        assertTrue(biometricDataBlockLength >= 26 && biometricDataBlockLength <= 1574);
+        assertTrue(biometricDataBlockLength >= 26 && biometricDataBlockLength <= 1574, "Fingerprint recod length is not 26 <= L <= 1574");
         //Confirm that the record length value is the same at the length of the leftover buffer
-        assertTrue(biometricDataBlockLength == biometricDataBlock.length);
+        assertTrue(biometricDataBlockLength == biometricDataBlock.length, "Fingerprint recod length does not match leftover buffer length");
 	}
 	
 	
@@ -653,7 +653,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_12(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -675,19 +675,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 14);
 		
@@ -697,8 +697,8 @@ public class SP800_76_Tests {
 		
 		byte [] zeroBlock = { 0x00, 0x00 };
 		
-		assertTrue(!Arrays.equals(cBEFFProductIdentifierOwner, zeroBlock));
-		assertTrue(!Arrays.equals(cBEFFProductIdentifierBype, zeroBlock));
+		assertTrue(!Arrays.equals(cBEFFProductIdentifierOwner, zeroBlock), "Fingerprint product identifier owner and product identifier type are zero");
+		assertTrue(!Arrays.equals(cBEFFProductIdentifierBype, zeroBlock), "Fingerprint product identifier owner and product identifier type are zero");;
 	}
 	
 	//Confirm that capture equipment compliance has a value of 1000b
@@ -706,7 +706,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_13(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -728,25 +728,25 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 				
 		//Not sure what does the 1000b value indicates that 4 bits and is it located on the 19th byte?
 		assertTrue(biometricDataBlock.length >= 15);
 		
 		//Check the second byte of biometric data to confirm its is 1000b (0x80)
-		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x80) == 0);
+		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x80) == 0, "Fingerprint capture equipment compliance value is not 1000b (0x80)");
 	}
 	
 	
@@ -755,7 +755,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_14(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -777,25 +777,25 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 16);
 		
 		//Confirm that the 20th and 21st is not null
-		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x00) != 0);
-		assertTrue(Byte.compare(biometricDataBlock[15], (byte)0x00) != 0);
+		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x00) != 0, "Fingerprint capture equipment id is NULL");
+		assertTrue(Byte.compare(biometricDataBlock[15], (byte)0x00) != 0, "Fingerprint capture equipment id is NULL");
 	}
 	
 	//Confirm that scanned image in X are non-zero (and obtained from enrollment records??)
@@ -803,7 +803,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15a(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -825,19 +825,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		//Is it located on the 20th byte?
 		assertTrue(biometricDataBlock.length >= 21);
@@ -848,7 +848,7 @@ public class SP800_76_Tests {
 		byte [] zeroBlock = { 0x00, 0x00 };
 		
 		//Check the values are not zero
-		assertTrue(!Arrays.equals(scannedIimageInX, zeroBlock));
+		assertTrue(!Arrays.equals(scannedIimageInX, zeroBlock), "Fingerprint scanned image in X is zero");
 		
 		
 	}
@@ -858,7 +858,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15b(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -880,19 +880,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		//Is it located on the 20th byte?
 		assertTrue(biometricDataBlock.length >= 21);
@@ -903,7 +903,7 @@ public class SP800_76_Tests {
 		byte [] zeroBlock = { 0x00, 0x00 };
 		
 		//CHeck the values are not zero
-		assertTrue(!Arrays.equals(scannedIimageInY, zeroBlock));
+		assertTrue(!Arrays.equals(scannedIimageInY, zeroBlock), "Fingerprint scanned image in Y is zero");
 		
 		//Width of the Size of Scanned Image in x direction is the larger of the widths of the two input
 		assertTrue(true); //TODO: Need to grab both FMRs and ensure that the one with the largest X size matches
@@ -917,7 +917,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_16(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -939,19 +939,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		assertTrue(biometricDataBlock.length >= 25);
 
 		byte [] resolutionXBuff  = Arrays.copyOfRange(biometricDataBlock, 20, 22);
@@ -962,8 +962,8 @@ public class SP800_76_Tests {
 		int resolutionY  = (((resolutionYBuff[0] & 0xFF) << 8) | (resolutionYBuff[1] & 0xFF));
 		
         //Confirm the values are 197
-        assertTrue(resolutionX == 197);     
-        assertTrue(resolutionY == 197);
+        assertTrue(resolutionX == 197, "Fingerprint X resolution is not 197");     
+        assertTrue(resolutionY == 197, "Fingerprint Y resolution is not 197");    
 	}
 	
 	//Confirm that number of finger views is 2
@@ -971,7 +971,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_17(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -993,19 +993,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 26);
 
@@ -1017,7 +1017,7 @@ public class SP800_76_Tests {
 		BigInteger numberOfFingers = new BigInteger(numberOfFingerViewsBuff);
         
         //Confirm nuimber of finger views is 2
-        assertTrue(numberOfFingers.intValue() == 2);
+        assertTrue(numberOfFingers.intValue() == 2, "Number of finger views does not equal 2");
 	}
 	
 	//Confirm that reserved byte is set to 0
@@ -1025,7 +1025,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_18(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1047,24 +1047,24 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 26);
 		
 		//Confirm that reserve byte is 0
-		assertTrue(Byte.compare(biometricDataBlock[25], (byte)0x00) == 0);
+		assertTrue(Byte.compare(biometricDataBlock[25], (byte)0x00) == 0, "Fingerprint reverse byte is not 0");
 	}
 	
 	//Confirm that Finger View Header has value 'A'
@@ -1072,7 +1072,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_19(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1094,19 +1094,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		//This test needs to be removed
 	}
@@ -1116,7 +1116,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_20(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1138,19 +1138,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		        
 		assertTrue(biometricDataBlock.length >= 27);
 							
@@ -1175,8 +1175,8 @@ public class SP800_76_Tests {
 			
 			
 
-	        assertTrue(fingerPosition >= 0);
-	        assertTrue(fingerPosition <= 14);
+	        assertTrue(fingerPosition >= 0, "Finger porition less than 0");
+	        assertTrue(fingerPosition <= 14, "Finger porition greater than 14");
 
 	        offset = offset+6+numberOfMinutiae*6;
         }
@@ -1187,7 +1187,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_21(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1209,19 +1209,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		        
 		assertTrue(biometricDataBlock.length >= 27);
 							
@@ -1247,7 +1247,7 @@ public class SP800_76_Tests {
 			
 			
 			if(numberOfMinutiae == 1)
-	        	assertTrue(viewNumber == 0);
+	        	assertTrue(viewNumber == 0, "View number is not 0");
 
 	        offset = offset+6+numberOfMinutiae*6;
         }
@@ -1258,7 +1258,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_22(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1280,19 +1280,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 
 		assertTrue(biometricDataBlock.length >= 27);
 		
@@ -1317,7 +1317,7 @@ public class SP800_76_Tests {
 			
 			
 			//Confirm impression type is 0 or 2
-	        assertTrue(impressionType == 0 || impressionType == 2);
+	        assertTrue(impressionType == 0 || impressionType == 2, "Fingerprint imprssion is not 0 or 2");
 
 	        offset = offset+6+numberOfMinutiae*6;
         }
@@ -1328,7 +1328,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_23(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1350,19 +1350,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 				
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);		
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");		
 		        
 		assertTrue(biometricDataBlock.length >= 29);
 							
@@ -1386,8 +1386,8 @@ public class SP800_76_Tests {
 			int numberOfMinutiae = b4.intValue();
 	        
 	        //Confirm number of minutiae is between 0 and 128
-	        assertTrue(numberOfMinutiae >= 0);
-	        assertTrue(numberOfMinutiae <= 128);
+	        assertTrue(numberOfMinutiae >= 0, "Number of minutiae is less than 0");
+	        assertTrue(numberOfMinutiae <= 128, "Number of minutiae is greater than 128");
 
 	        offset = offset+6+numberOfMinutiae*6;
         }
@@ -1398,7 +1398,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_24(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1420,19 +1420,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);		
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");		
 		
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1459,7 +1459,7 @@ public class SP800_76_Tests {
 				
 				int minType = ((biometricDataBlock[offset+4] & 0xC0) >> 6);
 			
-				assertTrue(minType == 0 || minType == 1 || minType == 2);
+				assertTrue(minType == 0 || minType == 1 || minType == 2, "Minutiae Type value is not 0, 1 or 2");
 				
 				offset = offset+6;
 			}
@@ -1473,7 +1473,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_25(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1495,19 +1495,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1549,7 +1549,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_26(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1571,19 +1571,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1610,7 +1610,7 @@ public class SP800_76_Tests {
 
 				int angle = biometricDataBlock[offset+8] & 0xFF;
 				
-				assertTrue(angle >= 0 && angle <= 179);
+				assertTrue(angle >= 0 && angle <= 179, "Angle is not between 0 and 179");
 				offset = offset+6;
 			}
 
@@ -1623,7 +1623,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_27(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1645,19 +1645,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1684,7 +1684,7 @@ public class SP800_76_Tests {
 
 				int quality = biometricDataBlock[offset+9] & 0xFF;
 				
-				assertTrue(quality >= 0 && quality <= 100);
+				assertTrue(quality >= 0 && quality <= 100, "Quality is not between 0 and 100");
 				offset = offset+6;
 			}
 
@@ -1697,7 +1697,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_28(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1719,19 +1719,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1758,7 +1758,7 @@ public class SP800_76_Tests {
 			
 			byte [] extendedDataBlockLength  = Arrays.copyOfRange(biometricDataBlock, offset+numberOfMinutiae*6+3, offset+numberOfMinutiae*6+3+2);
 			
-			assertTrue(Arrays.equals(extendedDataBlockLength, zeroBlock));
+			assertTrue(Arrays.equals(extendedDataBlockLength, zeroBlock), "Extended data block length is not 0");
 			
 	        offset = offset+6+numberOfMinutiae*6;
         }
@@ -1769,7 +1769,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_29(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1791,19 +1791,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 4);
 		
@@ -1812,7 +1812,7 @@ public class SP800_76_Tests {
 		byte [] formatIdentifierValueToCheck = { 0x46, 0x41, 0x43, 0x00 };
 		
 		//Check the 8th and 9th bytes of biometric data to confirm BDB Format Owner field has a value of 0x46414300
-		assertTrue(Arrays.equals(formatIdentifier, formatIdentifierValueToCheck));
+		assertTrue(Arrays.equals(formatIdentifier, formatIdentifierValueToCheck), "Facial image format identifier is not 0x46414300");
 	}
 	
 	//Verify that version number is 0x30313000
@@ -1820,7 +1820,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_30(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1842,19 +1842,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 8);
 		
@@ -1863,7 +1863,7 @@ public class SP800_76_Tests {
 		byte [] versionIdentifierValueToCheck = { 0x30, 0x31, 0x30, 0x00 };
 		
 		//Check version identifier value of 0x30313000
-		assertTrue(Arrays.equals(versionIdentifier, versionIdentifierValueToCheck));
+		assertTrue(Arrays.equals(versionIdentifier, versionIdentifierValueToCheck), "Facial image version identifier is not 0x30313000");
 	}
 	
 	//Verify that record length < container size limit
@@ -1871,7 +1871,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_31(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1893,19 +1893,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 12);
 		
@@ -1918,7 +1918,7 @@ public class SP800_76_Tests {
         int biometricDataBlockLength = wrapped.getInt();
         
         //Confirm that the record length value is the same at the length of the leftover buffer
-        assertTrue(biometricDataBlockLength == biometricDataBlock.length);
+        assertTrue(biometricDataBlockLength == biometricDataBlock.length, "Facial image record length value is not the same at the length of the leftover buffer");
 	}
 	
 	//Verify that number of facial images is 1
@@ -1926,7 +1926,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_32(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1948,19 +1948,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 14);
 		
@@ -1971,7 +1971,7 @@ public class SP800_76_Tests {
 		
         BigInteger numberoffaces = new BigInteger(numberoffacesBuf);
         
-		assertTrue(numberoffaces.intValue() == 1);
+		assertTrue(numberoffaces.intValue() == 1, "Number of faces is not 1");
 	}
 	
 	//Verify number of feature points is > 0
@@ -1979,7 +1979,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_33(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2001,18 +2001,18 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 		
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -2023,7 +2023,7 @@ public class SP800_76_Tests {
         int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
 		
         //XXX Find out why test cards have 0 feature points
-		assertTrue(numberOfFeaturePoints > 0);
+		assertTrue(numberOfFeaturePoints > 0, "Number of feature point is not greater than 0");
 	}
 	
 	//Verify that facial image type is 1
@@ -2031,7 +2031,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_34(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2053,19 +2053,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -2079,7 +2079,7 @@ public class SP800_76_Tests {
         
 		int facialImageType  = biometricDataBlock[20 + offset] & 0xFF;
 		
-		assertTrue(facialImageType == 1);
+		assertTrue(facialImageType == 1, "Facial image type is not 1");
 	}
 	
 	//Verify that image data type is 0 or 1
@@ -2087,7 +2087,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_35(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2109,19 +2109,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -2135,7 +2135,7 @@ public class SP800_76_Tests {
         
 		int facialImageDataType  = biometricDataBlock[20 + offset] & 0xFF;
 		
-		assertTrue(facialImageDataType == 1 || facialImageDataType == 0);
+		assertTrue(facialImageDataType == 1 || facialImageDataType == 0, "Facial image data type is not 1 or 0");
 	}
 	
 	//Verify that image color space is 1
@@ -2143,7 +2143,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_36(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2165,19 +2165,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -2191,7 +2191,7 @@ public class SP800_76_Tests {
         
 		int imageColorSpace  = biometricDataBlock[20 + offset] & 0xFF;
 		
-		assertTrue(imageColorSpace == 1);
+		assertTrue(imageColorSpace == 1, "Image color space is not 1");
 	}
 	
 	//Verify that source type is 2 or 6
@@ -2199,7 +2199,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_37(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2221,19 +2221,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -2247,7 +2247,7 @@ public class SP800_76_Tests {
         
 		int sourceType  = biometricDataBlock[20 + offset] & 0xFF;
 		
-		assertTrue(sourceType == 2 || sourceType == 6);
+		assertTrue(sourceType == 2 || sourceType == 6, "Facial image source type is not 2 or 6");
 	}
 	
 	
@@ -2266,7 +2266,7 @@ public class SP800_76_Tests {
 	    	assertNotNull(pair);
 	        String oid = pair.getKey();
 	        String valueStr =  pair.getValue();
-			assertNotNull(oid);
+			assertNotNull(oid, "NULL oid passed to atom");
 			assertNotNull(valueStr);
 			oid = APDUConstants.getStringForFieldNamed(oid);
 			assertNotNull(oid);
@@ -2336,7 +2336,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_39(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2358,19 +2358,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length >= 21);
 		
@@ -2394,7 +2394,7 @@ public class SP800_76_Tests {
         try {
 			Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(str.toString());
 			
-			assertNotNull(date);
+			assertNotNull(date, "Unable to create date object from biometric creation date value " + str.toString());
 		} catch (ParseException e) {
 			fail(e);
 		}
@@ -2406,7 +2406,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_40(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2428,19 +2428,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length >= 37);
 		
@@ -2479,7 +2479,7 @@ public class SP800_76_Tests {
         try {
 			Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(str1.toString());
 			
-			assertNotNull(date);
+			assertNotNull(date, "Unable to create date object from biometric creation date value " + str1.toString());
 		} catch (ParseException e) {
 			fail(e);
 		}
@@ -2488,7 +2488,7 @@ public class SP800_76_Tests {
         try {
 			Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(str2.toString());
 			
-			assertNotNull(date);
+			assertNotNull(date, "Unable to create date object from biometric creation date value " + str2.toString());
 		} catch (ParseException e) {
 			fail(e);
 		}
@@ -2510,7 +2510,7 @@ public class SP800_76_Tests {
 			assertNotNull(pair);
 	        String oid = pair.getKey();
 	        String valueStr =  pair.getValue();
-			assertNotNull(oid);
+			assertNotNull(oid, "NULL oid passed to atom");
 			assertNotNull(valueStr);
 			oid = APDUConstants.getStringForFieldNamed(oid);
 			assertNotNull(oid);
@@ -2542,7 +2542,7 @@ public class SP800_76_Tests {
 	
 			// Created an object corresponding to the OID value
 			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-			assertNotNull(o);
+			assertNotNull(o, "Failed to allocate PIVDataObject");
 	
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
@@ -2554,16 +2554,16 @@ public class SP800_76_Tests {
 				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
 				return;
 			}
-			assertTrue(result == MiddlewareStatus.PIV_OK);
+			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 	
 
 		    boolean decoded = o.decode();
-			assertTrue(decoded);
+			assertTrue(decoded, "Failed to decode object for OID " + oid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
 			//Make sure biometric data is present
-			assertNotNull(biometricData);
+			assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 			
 			assertTrue(biometricData.length >= 40);
 			
@@ -2576,7 +2576,7 @@ public class SP800_76_Tests {
 			
 			int type  = (((biometricType[0] & 0xFF) << 16) | ((biometricType[1] & 0xFF) << 8) | (biometricType[2] & 0xFF));
 			//Check the value of Biometric Type
-			assertTrue(type == value);
+			assertTrue(type == value, "Biometrict data type was the wrong value, expected value " + value);
 	    }
 	}
 	
@@ -2595,7 +2595,7 @@ public class SP800_76_Tests {
 			assertNotNull(pair);
 	        String oid = pair.getKey();
 	        String valueStr =  pair.getValue();
-			assertNotNull(oid);
+			assertNotNull(oid, "NULL oid passed to atom");
 			assertNotNull(valueStr);
 			oid = APDUConstants.getStringForFieldNamed(oid);
 			assertNotNull(oid);
@@ -2627,7 +2627,7 @@ public class SP800_76_Tests {
 
 			// Created an object corresponding to the OID value
 			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-			assertNotNull(o);
+			assertNotNull(o, "Failed to allocate PIVDataObject");
 
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
@@ -2639,22 +2639,22 @@ public class SP800_76_Tests {
 				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
 				return;
 			}
-			assertTrue(result == MiddlewareStatus.PIV_OK);
+			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 		    boolean decoded = o.decode();
-			assertTrue(decoded);
+			assertTrue(decoded, "Failed to decode object for OID " + oid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
 			//Make sure biometric data is present
-			assertNotNull(biometricData);
+			assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 			
 			assertTrue(biometricData.length >= 41);
 			
 			//Check the value of Biometric Data Type			
 			int type  = ((biometricData[39] & 0xFF));
 			//Check the value of Biometric Type
-			assertTrue(type == value);
+			assertTrue(type == value, "Biometrict data type was the wrong value, expected value " + value);
 	    }
 	}
 	
@@ -2664,7 +2664,7 @@ public class SP800_76_Tests {
 	@MethodSource("sp800_76_BiometricParamTestProvider4")
 	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2686,19 +2686,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length >= 42);
 		
@@ -2711,7 +2711,7 @@ public class SP800_76_Tests {
 		int int2 = Integer.parseInt(arrayParams[1]);
 		
 		//Confirm quality is set to a valid number.
-		assertTrue(quality >= int1 && int2 <= 100);
+		assertTrue(quality >= int1 && int2 <= 100, "Biometrict quality has wrong values, expected values are " + int1 + " and " + int2);
 	}
 	
 	//Validate that that the Creator field in the PIV Patron Format contains 18 bytes of which the first K <= 17 bytes shall be ASCII characters, and the first of the remaining 18-K shall be a null terminator (zero)
@@ -2719,7 +2719,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_44(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2741,19 +2741,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length >= 61);
 		
@@ -2765,7 +2765,7 @@ public class SP800_76_Tests {
 		String s = new String(creator);
 		
 		//Check for ASCII
-		assertTrue(s.matches("\\A\\p{ASCII}*\\z"));
+		assertTrue(s.matches("\\A\\p{ASCII}*\\z"), "Creator field is not ASCII");
 	}
 	
 	//Validate that FASC-N field in the PIV Patron Format contains the same 25 bytes as the FASC-N component of the CHUID identifier
@@ -2773,7 +2773,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_45(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2796,27 +2796,27 @@ public class SP800_76_Tests {
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 		assertNotNull(o2);
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 		
 
 		result = piv.pivGetData(ch, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 		
 		decoded = o2.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length >= 85);
 		
@@ -2827,7 +2827,7 @@ public class SP800_76_Tests {
 		assertTrue(fASCN.length == fASCN2.length);
 		
 		//Confirm fascn match
-		assertTrue(Arrays.equals(fASCN, fASCN2));
+		assertTrue(Arrays.equals(fASCN, fASCN2), "FASCN values to not match");
 		
 	}
 	
@@ -2836,7 +2836,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_46(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2858,19 +2858,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData);
+		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 		
 		assertTrue(biometricData.length >= 89);
 		
@@ -2879,7 +2879,7 @@ public class SP800_76_Tests {
 		byte[] zeros = { 0x00, 0x00, 0x00, 0x00};
 		
 		//Confirm Reserved field is all zeros
-		assertTrue(Arrays.equals(reserved, zeros));
+		assertTrue(Arrays.equals(reserved, zeros), "'Reserved for Future Use' field is not equal to 0x00000000");
 		
 	}
 
@@ -2888,7 +2888,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_47(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2910,19 +2910,19 @@ public class SP800_76_Tests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 
 	    boolean decoded = o.decode();
-		assertTrue(decoded);
+		assertTrue(decoded, "Failed to decode object for OID " + oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock);
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		        
 		assertTrue(biometricDataBlock.length >= 27);
 							
@@ -2955,7 +2955,7 @@ public class SP800_76_Tests {
 			int numberOfMinutiae = b4.intValue();
 			
 
-	        assertTrue(qList.contains(fingerQuality));
+	        assertTrue(qList.contains(fingerQuality), "Finger qulity is not the right value " + fingerQuality + " Expected values are " + qList.toString());
         }
 	}
 		
