@@ -2861,7 +2861,7 @@ public class SP800_76_Tests {
 			fail(e);
 		}
 		try {
-			css.setApplicationPin("123456");
+			
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
