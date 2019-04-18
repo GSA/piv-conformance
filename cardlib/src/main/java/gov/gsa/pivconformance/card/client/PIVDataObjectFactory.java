@@ -50,7 +50,7 @@ public class PIVDataObjectFactory {
             rv = new PrintedInformation();
 
         if(rv == null) {
-            s_logger.warn("Unrecognized data object type. Using generic.");
+            s_logger.warn("Unrecognized data object type: {}. Using generic.", OID);
             rv = new PIVDataObject();
             return rv;
         }
