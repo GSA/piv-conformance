@@ -1,61 +1,61 @@
 ### Building the Card Conformance Tool from GitHub
+#### Windows version
 
 ##### Java
 
 - Uninstall all instances of Java.
 - Remove all environment variables: `JAVA_HOME`, `JAVA_BIN`, `JAVA_LIB`.
-- Install JDK 1.8_0_201.  Note where it’s installed (probably `C:\Program Files\Java\jdk1.8_0_201` on Windows).
-- Check your `PATH` variable and clean out any old Java remnants and ensure that it includes the new Java version’s `.\bin`” directory.
+- Install JDK 1.8_0_201.  Note where it's installed (probably `C:\Program Files\Java\jdk1.8_0_201` on Windows).
+- Check your `PATH` variable and clean out any old Java remnants and ensure that it includes the new Java version's `bin` directory.
 - Set your `JAVA_HOME` to the new JDK installation directory.  Add a `JAVA_BIN` set to `%JAVA_HOME%\bin` and `JAVA_HOME` set to `%JAVA_HOME%\lib`.
-- Get a command window and test with “javac -version” and “java -version”.
+- Get a command window and test with `javac -version` and `java -version`.
 
-
-##### Cygwin (recommended)
+##### Cygwin (recommended for Windows users)
 - Install Cygwin from `https://cygwin.com`.
 
 ##### Git (optional)
 
 - Install Git from `https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe`.
 - Get a command window and type `git version`.
-- This optional because your Eclipse will sometimes “lose” things and the command line `git` is more reliable.  You have to know git well because we are creating and merging multiple branches to keep from stepping on each other.
--  Now do this:
+- This optional because your Eclipse will sometimes "lose" things, and the command line `git` is more reliable.  You have to know git well because we are creating and merging multiple branches to keep from stepping on each other.
+-  Now, do this:
 - `cd $HOME #(or cd %HOME%)`
 - `mkdir -p ~/git/ #or whatever you do in DOS to achieve the same effect`
 - `cd git`
-- Make sure that you’ve set up Git to globally store your username and password:
+- Make sure that you've set up Git to globally store your username and password:
 - `git config --global user.name *your-username*`
 - `git config --global user.email *your-email*`
-- The first time you try to clone or push anything, you’ll be asked for a password. Paste in your personal access token from ‘GitHub for the box you are working from.
+- The first time you try to clone or push anything, you'll be asked for a password. Paste in your personal access token from GitHub for the box you are working from.
 - `git clone https://github.com/GSA/piv-conformance.git piv-conformance`
 - `cd piv-conformance`
 - `sh doit.sh #this is where having Cygwin is handy because it uses Gradle to build everything)`
-- If I don’t have Cygwin, simply execute the `gradlew` commands in `doit.sh` in the same order.
+- If you don't have Cygwin, simply execute the `gradlew` commands in `doit.sh` in the same order.
 
 ##### Eclipse (EGit automagically built-in)
 
 - Download the Eclipse desktop for Java (version 2019-03 for Win 64 is fine)
 - Accept all licenses during installation and take all defaults.
 - Accept the default workspace (probably eclipse-workspace) when you load it.
-- Now, if you installed Git and pulled in a clone of the repo, you can import the project from Git by selecting your ~/git/piv-conformance directory (or “folder”).
-- If you didn’t, then you give up some autonomy as to where your repos will be created.  On my system, I want my Git repos to live in “Documents\GitRepos” so that I can just back up Documents and not have to hunt all over the system for places that need to be backed up.  Eclipse will usually allow you to override it, but if you don’t watch what you’re doing, it’ll want to put it in the “eclipse-workspace” directory.  If you are okay with that, then continue forward.
+- Now, if you installed Git and pulled in a clone of the repo, you can import the project from Git by selecting your `~/git/piv-conformance` directory (or folder).
+- If you didn't, then you give up some autonomy as to where your repos will be created.  On my system, I want my Git repos to live in `Documents\GitRepos` so that I can just back up Documents and not have to hunt all over the system for places that need to be backed up.  Eclipse will usually allow you to override it, but if you don't watch what you're doing, it'll want to put it in the `eclipse-workspace` directory.  If you are okay with that, then continue forward.
 - Once you dismiss the Eclipse welcome tab the empty Eclipse appears.
-- Select “Import project…” and Git -> Projects from Git
-- Again, if you’ve got your repo already cloned, the choose existing local repository.
-- If not, then choose “Clone URI” and if you’ve got the URI above in your clipboard, it’l fill in the dialog box except for your GitHub credentials.  Because this is a GSA account, you won’t be able to push anything but can create pull requests.
-- Leave all of the defaults and provide your GitHub username and personal access token for your dev box to Eclipse (Egit plugin) and it will offer to store it.  You are best advised to take Eclipse up on that offer, or you’ll be forever changing your personal access tokens.
-- If you’ve done everything right, you’ll see some 10-11 branches.  Delect all but “swing” and “swing-gui-devel”.
-- After clicking Next, you’ll be offered to choose “swing” as the default branch.  Choose “swing-gui-devel” instead.
-- Clicking Next will clone the repo to wherever you specified on the previous screen.
-- At this point, you don’t have any Eclipse projects.  You’ve made Eclipse aware of a repo and that’s it.
-- Now, you should be able to import the existing Eclipse projects.  There are actualy 4, but only 3 show up temporarily.
-- Choose them all.  Also, select Add project to working sets and create a new working set called “piv-conformance” and add the projects to that working set.
-- You’ll see a lot of red Xs because your local environment hasn’t been pulled into Eclipse. We’ll get to that in a moment.
-- From the Outline window, select Import -> General -> Projects from Folder or Archive and click Next.
-- Click Directory and choose “conformancelib” and Open.
-- You’ll see the conformancelib project greyed out. Click Finish.  You now have all 4 projects in Eclipse.
-- Drop to the command window and ensure you are in the piv-conformance directory (or “folder”). 
-- Now, if you have Cygwin, you can just type “sh doit.sh” and everything will be pulled in and built for you.
-- If not, then look at doit.sh and type the commands in the same order
+- Select *Import project* and *Git -> Projects from Git*
+- Again, if you've got your repo already cloned, then choose existing local repository.
+- If not, then choose *Clone URI* and if you've got the URI above in your clipboard, it'll fill in the dialog box except for your GitHub credentials.  Because this is a GSA account, you won't be able to push anything but can create pull requests.
+- Leave all of the defaults and provide your GitHub username and personal access token for your dev box to Eclipse (Egit plugin) and it will offer to store it.  You are best advised to take Eclipse up on that offer, or you'll be forever changing your personal access tokens.
+- If you've done everything right, you'll see some 10-11 branches.  De-select all but `swing` and `swing-gui-devel`.
+- After clicking Next, you'll be offered to choose `swing` as the default branch.  Choose `swing-gui-devel` instead.
+- Clicking *Next* will clone the repo to wherever you specified on the previous screen.
+- At this point, you don't have any Eclipse projects.  You've made Eclipse aware of a repo and that's all.
+- Now, you should be able to import the existing Eclipse projects.  There are actually 4, but only 3 show up temporarily.
+- Choose them all.  Also, select *Add project to working sets* and create a new working set called `piv-conformance` and add the projects to that working set.
+- You'll see a lot of red X decorators because your local environment hasn't been pulled into Eclipse. We'll get to that in a moment.
+- From the Outline window, select *Import* -> *General* -> *Projects* from Folder or Archive and click Next.
+- Click Directory and choose `conformancelib` and Open.
+- You'll see the *conformancelib* project greyed out. Click *Finish*.  You now have all 4 projects in Eclipse.
+- Drop to the command window and ensure you are in the `piv-conformance` directory (or folder). 
+- Now, if you have Cygwin, you can just type `sh doit.sh` and everything will be pulled in and built for you.
+- If not, then look at `doit.sh` and type the commands in the same order
 - You will see output like this:
 
 ```
@@ -148,11 +148,11 @@ BUILD SUCCESSFUL in 3s
 ```
 	
 - Now, you tell Eclipse to import the Gradle configuration.
-- In this order: `cardlib`, then `85b-swing-gui`, select the project from the explorer, right-click and select *Gradle ->  Refresh Gradle project*. You’ll see the red Xs go away.
+- In this order: `cardlib`, then `85b-swing-gui`, select the project from the explorer, right-click and select *Gradle* ->  *Refresh Gradle project*. You'll see the red decorators go away.
 - For `conformancelib`, right-click and select *Configure -> Add Gradle Nature*.
-- Now, right-click on the `conformancelib` project and you’ll find the *Gradle* option. Take it.
-- Now, all red Xs will be gone, and the project has already been built.
-- The executable `.jar` file is in `./conformancelib/build/libs/conformancelib-all.jar`.  It’s executable in any environment except perhaps your phone or watch.
+- Now, right-click on the `conformancelib` project and you'll find the *Gradle* option. Take it.
+- Now, all red decorators will be gone, and the project has already been built.
+- The executable `.jar` file is in `./conformancelib/build/libs/conformancelib-all.jar`.  It's executable in any environment except perhaps your phone or watch.
 - More importantly, you can start to play with the code.
 - First, from a separate window, copy the file, `85b_test_definitions_PIV_ICAM_Test_Cards.db`, from the `./docs/coverage-testing` to the `./tools/85b-swing-gui` directory.
 - Select the Debug configuration drop down and add a new Debug configuration.
@@ -160,6 +160,6 @@ BUILD SUCCESSFUL in 3s
 - Select the `class gov.gsa.pivconformancegui.GuiRunnerApplication` as the main class.
 - Your choice whether to stop in main. 
 - Select Arguments.  Enter `--config 85b_test_definitions_PIV_ICAM_Test_Cards.db`.
-- Apply and start debugging
+- Apply and start debugging.
 
 This is all how it is supposed to work, although there are currently some hiccups with getting Eclipse to see the `conformancelib` project.
