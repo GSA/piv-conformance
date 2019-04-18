@@ -56,7 +56,7 @@ public class CardUtils {
 			reader = css.getTerminal();
 		}
 		try {
-			if(!reader.isCardPresent()) {
+			if(reader == null || !reader.isCardPresent()) {
 				throw new ConformanceTestException("No card is present");
 			}
 		} catch (CardException e) {

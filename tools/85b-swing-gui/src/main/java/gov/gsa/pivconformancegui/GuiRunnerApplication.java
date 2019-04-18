@@ -206,6 +206,7 @@ public class GuiRunnerApplication {
 		
 
 		m_debugFrame = new DebugWindow("Debugging Tools");
+		m_debugFrame.setTitle("Debugging Tools");
 		m_debugFrame.setBounds(150, 150, 640, 600);
 	}
 
