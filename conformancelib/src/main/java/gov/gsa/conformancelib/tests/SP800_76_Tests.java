@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -23,6 +24,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.platform.commons.logging.LoggerFactory;
+import org.slf4j.Logger;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
@@ -39,6 +42,7 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 
 public class SP800_76_Tests {
+	static Logger s_logger = org.slf4j.LoggerFactory.getLogger(SP800_76_Tests.class);
 
 	//BDB length field is non-zero
 	@DisplayName("SP800-76.1 test")
@@ -2264,6 +2268,9 @@ public class SP800_76_Tests {
 	        String valueStr =  pair.getValue();
 			assertNotNull(oid);
 			assertNotNull(valueStr);
+			oid = APDUConstants.getStringForFieldNamed(oid);
+			assertNotNull(oid);
+
 			int value = 0;
 			try {
 				value = Integer.parseInt(valueStr);
@@ -2296,6 +2303,14 @@ public class SP800_76_Tests {
 	
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+			if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+				return;
+			}
+			if((o.getBytes() == null || o.getBytes().length == 0) && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+				return;
+			}
 			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 	
 		    boolean decoded = o.decode();
@@ -2497,6 +2512,8 @@ public class SP800_76_Tests {
 	        String valueStr =  pair.getValue();
 			assertNotNull(oid);
 			assertNotNull(valueStr);
+			oid = APDUConstants.getStringForFieldNamed(oid);
+			assertNotNull(oid);
 			int value = 0;
 			try {
 				value = Integer.parseInt(valueStr);
@@ -2529,8 +2546,17 @@ public class SP800_76_Tests {
 	
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+			if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+				return;
+			}
+			if((o.getBytes() == null || o.getBytes().length == 0) && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+				return;
+			}
 			assertTrue(result == MiddlewareStatus.PIV_OK);
 	
+
 		    boolean decoded = o.decode();
 			assertTrue(decoded);
 				
@@ -2571,6 +2597,8 @@ public class SP800_76_Tests {
 	        String valueStr =  pair.getValue();
 			assertNotNull(oid);
 			assertNotNull(valueStr);
+			oid = APDUConstants.getStringForFieldNamed(oid);
+			assertNotNull(oid);
 			int value = 0;
 			try {
 				value = Integer.parseInt(valueStr);
@@ -2603,6 +2631,14 @@ public class SP800_76_Tests {
 
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+			if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+				return;
+			}
+			if((o.getBytes() == null || o.getBytes().length == 0) && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+				return;
+			}
 			assertTrue(result == MiddlewareStatus.PIV_OK);
 
 		    boolean decoded = o.decode();
