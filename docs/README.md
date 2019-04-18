@@ -16,8 +16,9 @@
 ##### Git (optional)
 
 - Install Git from `https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe`.
-- Get a command window and type `git version`.
-- This optional because your Eclipse will sometimes "lose" things, and the command line `git` is more reliable.  You have to know git well because we are creating and merging multiple branches to keep from stepping on each other.
+- Ensure that the directory containing git.exe is in your PATH environment 
+- To test, open a command window and type `git version`.
+- This optional because the Buildship plugin in Eclipse will sometimes "lose" things, and the command line `git` is more reliable. 
 -  Now, do this:
 - `cd $HOME #(or cd %HOME%)`
 - `mkdir -p ~/git/ #or whatever you do in DOS to achieve the same effect`
