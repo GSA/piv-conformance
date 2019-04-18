@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
@@ -134,15 +136,35 @@ public class TestExecutionController {
                     	}
                         
                     }
+                    if(fqmn == className) {
+                    	String errorMessage = "Test " + testCase.getIdentifier() + " specifies a test atom " + className + "#" +
+                    			methodName + "()" + " but no such method could be found for the class " + className + "." +
+                    			" (Test atom: " + currentStep.getTestDescription() + ")" +
+                    			" Check that the database matches the included set of test atoms.";
+                    	
+                    	s_logger.error(errorMessage);
+						try {
+							SwingUtilities.invokeAndWait(() -> {			
+								JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
+								JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
+								dialog.setAlwaysOnTop(true);
+								dialog.setVisible(true);
+							});
+						} catch (InvocationTargetException | InterruptedException e) {
+							s_logger.error("Unable to display error dialog.");
+						}
+						break;
+                    }
                 } catch (ClassNotFoundException e) {
                     s_logger.error("{} was configured in the database but could not be found.", fqmn);
                     break;
                 }
                 if(className != null && !className.isEmpty() && testClass != null) {
                     //String testName = testNameFromConfig;
+                    s_logger.debug("Adding {} from config", fqmn);
                     discoverySelectors.add(selectMethod(fqmn));
                     ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
-                    s_logger.debug("Adding {} from config", fqmn);
+                    s_logger.debug("Added {} from config: {}", fqmn, parameters);
                 }
             	
             }

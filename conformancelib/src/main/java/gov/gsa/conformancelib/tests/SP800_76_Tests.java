@@ -45,7 +45,7 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_1(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull("NULL oid passed to atom", oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -2292,27 +2292,27 @@ public class SP800_76_Tests {
 	
 			// Created an object corresponding to the OID value
 			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-			assertNotNull(o);
+			assertNotNull(o, "Failed to allocate PIVDataObject");
 	
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-			assertTrue(result == MiddlewareStatus.PIV_OK);
+			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 	
 		    boolean decoded = o.decode();
-			assertTrue(decoded);
+			assertTrue(decoded, "Failed to decode object for OID " + oid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
 			//Make sure biometric data is present
-			assertNotNull(biometricData);
+			assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
 			
-			assertTrue(biometricData.length >= 12);
+			assertTrue(biometricData.length >= 12, "Biometric data must be at least 12 bytes long");
 			
 			//Check format type field has the right value 
 			
 			int type  = (((biometricData[10] & 0xFF) << 8) | (biometricData[11] & 0xFF));
 			
-			assertTrue(type == value);
+			assertTrue(type == value, "Invalid type in biometric data. Got " + type + ", expected " + value);
 	    }
 	}
 	
@@ -2625,8 +2625,8 @@ public class SP800_76_Tests {
 	//Validate that the biometric quality field carries valid values
 	@DisplayName("SP800-76.43 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	//@MethodSource("sp800_76_BiometricParamTestProvider4")
-	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@MethodSource("sp800_76_BiometricParamTestProvider4")
+	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
