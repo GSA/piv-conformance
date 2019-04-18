@@ -28,7 +28,7 @@
 - The first time you try to clone or push anything, you'll be asked for a password. Paste in your personal access token from GitHub for the box you are working from.
 - `git clone https://github.com/GSA/piv-conformance.git piv-conformance`
 - `cd piv-conformance`
-- `sh doit.sh #this is where having Cygwin is handy because it uses Gradle to build everything)`
+- `sh doit.sh`
 - If you don't have Cygwin, simply execute the `gradlew` commands in `doit.sh` in the same order.
 
 ##### Eclipse (EGit automagically built-in)
