@@ -2625,8 +2625,8 @@ public class SP800_76_Tests {
 	//Validate that the biometric quality field carries valid values
 	@DisplayName("SP800-76.43 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	//@MethodSource("sp800_76_BiometricParamTestProvider4")
-	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@MethodSource("sp800_76_BiometricParamTestProvider4")
+	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
 		assertNotNull(oid);
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
