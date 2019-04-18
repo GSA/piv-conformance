@@ -251,7 +251,6 @@ public class BER_TLVTests {
     @DisplayName("BERTLV.5 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("bertlvTestProvider")
-    @Disabled  //XXX Disabled for now because this test doesn't work.
     void berTLV_Test_5(String oid, TestReporter reporter) {
         assertNotNull(oid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -283,6 +282,8 @@ public class BER_TLVTests {
         assertNotNull(bertlv);
         
         boolean decoded = o.decode();
+        
+        // if the object decoded successfully, this test passed.
         
         //Confirm that we received all the data for the object and are able to decode.
         assertTrue(decoded);
