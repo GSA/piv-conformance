@@ -1,4 +1,4 @@
-###Building the Card Conformance Tool from GitHub
+### Building the Card Conformance Tool from GitHub
 
 ##### Java
 
