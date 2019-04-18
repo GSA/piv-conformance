@@ -192,6 +192,11 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
      */
     @Override
     public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
+    	byte [] oidBytes = APDUConstants.oidMAP.get(OID);
+    	if(oidBytes == null) {
+    		s_logger.error("OID {} is not recognized by oidMAP.", OID);
+    		return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+    	}
 
         try {
             // Establishing channel
@@ -207,8 +212,8 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             //Construct data field based on the data field oid and the tag for the specific oid
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(TagConstants.DATA_FIELD_TAG);
-            baos.write(APDUConstants.oidMAP.get(OID).length);
-            baos.write(APDUConstants.oidMAP.get(OID));
+            baos.write(oidBytes.length);
+            baos.write(oidBytes);
 
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU(baos.toByteArray()));
