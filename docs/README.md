@@ -16,8 +16,9 @@
 ##### Git (optional)
 
 - Install Git from `https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe`.
-- Get a command window and type `git version`.
-- This optional because your Eclipse will sometimes "lose" things, and the command line `git` is more reliable.  You have to know git well because we are creating and merging multiple branches to keep from stepping on each other.
+- Ensure that the directory containing git.exe is in your PATH environment 
+- To test, open a command window and type `git version`.
+- This optional because the Buildship plugin in Eclipse will sometimes "lose" things, and the command line `git` is more reliable. 
 -  Now, do this:
 - `cd $HOME #(or cd %HOME%)`
 - `mkdir -p ~/git/ #or whatever you do in DOS to achieve the same effect`
@@ -55,27 +56,32 @@
 - You'll see the *conformancelib* project greyed out. Click *Finish*.  You now have all 4 projects in Eclipse.
 - Drop to the command window and ensure you are in the `piv-conformance` directory (or folder). 
 - Now, if you have Cygwin, you can just type `sh doit.sh` and everything will be pulled in and built for you.
-- If not, then look at `doit.sh` and type the commands in the same order
+- If not, then look at `doit.sh` and type the commands in the same order, skipping the `endsuredeps.sh` command, as there is no Windows command line equivalent. Things will still work.
 - You will see output like this:
 
 ```
-bf-mbp:piv-conformance $ sh doit.sh
+C:\Users\Developer\git\piv-conformance>cd cardlib
+
+C:\Users\Developer\git\piv-conformance\cardlib>gradlew clean
+Starting a Gradle Daemon (subsequent builds will be faster)
 
 > Configure project :
 target java version: 1.8
 source java version: 1.8
 Runtime dependencies:
 
-BUILD SUCCESSFUL in 4s
-1 actionable task: 1 up-to-date
+BUILD SUCCESSFUL in 8s
+1 actionable task: 1 executed
+C:\Users\Developer\git\piv-conformance\cardlib>gradlew eclipse
 
 > Configure project :
 target java version: 1.8
 source java version: 1.8
 Runtime dependencies:
 
-BUILD SUCCESSFUL in 1s
+BUILD SUCCESSFUL in 2s
 3 actionable tasks: 3 executed
+C:\Users\Developer\git\piv-conformance\cardlib>gradlew install
 
 > Configure project :
 target java version: 1.8
@@ -87,66 +93,61 @@ Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
 
 > Task :jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk15on/1.59/9cef0aab8a4bb849a8476c058ce3ff302aba3fff/bcpkix-jdk15on-1.59.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk15on/1.59/2507204241ab450456bdb8e8c0a8f986e418bd99/bcprov-jdk15on-1.59.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/commons-cli/commons-cli/1.4/c51c00206bb913cd8612b24abd9fa98ae89719b1/commons-cli-1.4.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.11/3acb4705652e16236558f0f4f2192cc33c3bd189/commons-codec-1.11.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/com.payneteasy/ber-tlv/1.0-8/51705ef33704586936446d96768bfee6849db00a/ber-tlv-1.0-8.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.3.0-alpha4/2cd967bc8fbd5e5ebbb93abd0b254b1eaf90e471/logback-classic-1.3.0-alpha4.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.8.0-beta4/83b0359d847ee053d745be7ec0d8e9e8a44304b4/slf4j-api-1.8.0-beta4.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/org.xerial/sqlite-jdbc/3.21.0.1/81a0bcda2f100dc91dc402554f60ed2f696cded5/sqlite-jdbc-3.21.0.1.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/junit/junit/4.11/4e031bb61df09069aeb2bffb4019e7a5034a4ee0/junit-4.11.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.3.0-alpha4/3ec023a0068a02e5d4697fce3435562348d3d478/logback-core-1.3.0-alpha4.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/com.sun.mail/javax.mail/1.6.0/a055c648842c4954c1f7db7254f45d9ad565e278/javax.mail-1.6.0.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar
-/Users/Bob/.gradle/caches/modules-2/files-2.1/javax.activation/activation/1.1/e6cb541461c2834bdea3eb920f1884d1eb508b50/activation-1.1.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\org.bouncycastle\bcpkix-jdk15on\1.59\9cef0aab8a4bb849a8476c058ce3ff302aba3fff\bcpkix-jdk15on-1.59.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\org.bouncycastle\bcprov-jdk15on\1.59\2507204241ab450456bdb8e8c0a8f986e418bd99\bcprov-jdk15on-1.59.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\commons-cli\commons-cli\1.4\c51c00206bb913cd8612b24abd9fa98ae89719b1\commons-cli-1.4.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\commons-codec\commons-codec\1.11\3acb4705652e16236558f0f4f2192cc33c3bd189\commons-codec-1.11.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\com.payneteasy\ber-tlv\1.0-8\51705ef33704586936446d96768bfee6849db00a\ber-tlv-1.0-8.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\ch.qos.logback\logback-classic\1.3.0-alpha4\2cd967bc8fbd5e5ebbb93abd0b254b1eaf90e471\logback-classic-1.3.0-alpha4.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\org.slf4j\slf4j-api\1.8.0-beta4\83b0359d847ee053d745be7ec0d8e9e8a44304b4\slf4j-api-1.8.0-beta4.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\org.xerial\sqlite-jdbc\3.21.0.1\81a0bcda2f100dc91dc402554f60ed2f696cded5\sqlite-jdbc-3.21.0.1.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\junit\junit\4.11\4e031bb61df09069aeb2bffb4019e7a5034a4ee0\junit-4.11.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\ch.qos.logback\logback-core\1.3.0-alpha4\3ec023a0068a02e5d4697fce3435562348d3d478\logback-core-1.3.0-alpha4.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\com.sun.mail\javax.mail\1.6.0\a055c648842c4954c1f7db7254f45d9ad565e278\javax.mail-1.6.0.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\org.hamcrest\hamcrest-core\1.3\42a25dc3219429f0e5d060061f71acb49bf010a0\hamcrest-core-1.3.jar
+C:\Users\Developer\.gradle\caches\modules-2\files-2.1\javax.activation\activation\1.1\e6cb541461c2834bdea3eb920f1884d1eb508b50\activation-1.1.jar
+
+BUILD SUCCESSFUL in 5s
+6 actionable tasks: 6 executed
+C:\Users\Developer\git\piv-conformance\cardlib>cd ..\conformancelib
+
+C:\Users\Developer\git\piv-conformance\conformancelib>gradlew clean
 
 BUILD SUCCESSFUL in 1s
-6 actionable tasks: 6 executed
+1 actionable task: 1 executed
+C:\Users\Developer\git\piv-conformance\conformancelib>gradlew eclipse
 
-BUILD SUCCESSFUL in 0s
-1 actionable task: 1 up-to-date
-
-BUILD SUCCESSFUL in 0s
+BUILD SUCCESSFUL in 1s
 3 actionable tasks: 3 executed
+C:\Users\Developer\git\piv-conformance\conformancelib>gradlew shadowJar
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 5.0.
 Use '--warning-mode all' to show the individual deprecation warnings.
 See https://docs.gradle.org/4.10.3/userguide/command_line_interface.html#sec:command_line_warnings
 
-BUILD SUCCESSFUL in 4s
+BUILD SUCCESSFUL in 8s
 3 actionable tasks: 3 executed
-~/git/piv-conformance/tools/85b-swing-gui ~/git/piv-conformance
-~/git/piv-conformance/cardlib ~/git/piv-conformance/tools/85b-swing-gui
+C:\Users\Developer\git\piv-conformance\conformancelib>cd ../tools/85b-swing-gui
 
-> Configure project :
-target java version: 1.8
-source java version: 1.8
-Runtime dependencies:
+C:\Users\Developer\git\piv-conformance\tools\85b-swing-gui>gradlew clean
 
-BUILD SUCCESSFUL in 0s
-6 actionable tasks: 6 up-to-date
-~/git/piv-conformance/tools/85b-swing-gui
-~/git/piv-conformance/conformancelib ~/git/piv-conformance/tools/85b-swing-gui
+BUILD SUCCESSFUL in 2s
+1 actionable task: 1 executed
+C:\Users\Developer\git\piv-conformance\tools\85b-swing-gui>gradlew eclipse
 
-BUILD SUCCESSFUL in 0s
-6 actionable tasks: 4 executed, 2 up-to-date
-~/git/piv-conformance/tools/85b-swing-gui
-
-BUILD SUCCESSFUL in 0s
-1 actionable task: 1 up-to-date
-
-BUILD SUCCESSFUL in 0s
+BUILD SUCCESSFUL in 1s
 3 actionable tasks: 3 executed
+C:\Users\Developer\git\piv-conformance\tools\85b-swing-gui>gradlew shadowJar
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 5.0.
 Use '--warning-mode all' to show the individual deprecation warnings.
 See https://docs.gradle.org/4.10.3/userguide/command_line_interface.html#sec:command_line_warnings
 
-BUILD SUCCESSFUL in 3s
+BUILD SUCCESSFUL in 6s
 3 actionable tasks: 3 executed
+C:\Users\Developer\git\piv-conformance\tools\85b-swing-gui>
 ```
-	
+
 - Now, you tell Eclipse to import the Gradle configuration.
 - In this order: `cardlib`, then `85b-swing-gui`, select the project from the explorer, right-click and select *Gradle* ->  *Refresh Gradle project*. You'll see the red decorators go away.
 - For `conformancelib`, right-click and select *Configure -> Add Gradle Nature*.
