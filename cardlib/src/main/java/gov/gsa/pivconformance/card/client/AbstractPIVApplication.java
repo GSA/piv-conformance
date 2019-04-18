@@ -240,12 +240,12 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
         }catch (SecurityException ex) {
 
-            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            s_logger.error("Error retrieving data from the card application: {}", ex.getMessage(), ex);
             return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
         }
         catch (Exception ex) {
 
-            s_logger.info("Error retrieving data from the card application: {}", ex.getMessage());
+            s_logger.error("Error retrieving data from the card application: {}", ex.getMessage(), ex);
             return MiddlewareStatus.PIV_CONNECTION_FAILURE;
         }
 
