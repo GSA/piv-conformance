@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.PublicKey;
@@ -254,10 +253,11 @@ public class PKIX_X509DataObjectTests {
 		
     }
 	
-	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID is asserted in certificate policies
+	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
+	// is asserted in certificate policies (parameters required)
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_PIVAuthx509TestProvide2")
+    @MethodSource("pKIX_PIVAuthx509TestProvider2")
     void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(policyOid);
@@ -311,8 +311,9 @@ public class PKIX_X509DataObjectTests {
 	    
 	    //Confirm that oid matches is asserted in certificate policies
 	    assertTrue(containsOOID);
-		
     }
+	
+	/* ******************* Standard stuff for most all certs ************************ */
 	
 	//Confirm that authorityInformationAccess extension is present
 	@DisplayName("PKIX.7 test")
@@ -328,7 +329,7 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(aiaex != null);
 	}
 	
-	//Confirm that an access method containing id-ad-ocsp is present
+	//Confirm that an access method containing id-ad-ocsp is present (only PIV auth requires this)
 	@DisplayName("PKIX.8 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
@@ -338,72 +339,79 @@ public class PKIX_X509DataObjectTests {
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
 		
-		//Confirm authorityInformationAccess extension is present
-		assertTrue(aiaex != null);
-		
-		AuthorityInformationAccess aia = null;
-		try {
-			aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
-		} catch (IOException e) {
+		if (aiaex != null) {
+			AuthorityInformationAccess aia = null;
+			try {
+				aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
+				
+				if (aia != null) {
+					boolean ocsppresent = false;
+					AccessDescription[] ads = aia.getAccessDescriptions();
+			        for (int i = 0; i < ads.length; i++)
+			        {
+			            if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
+			            {
+			            	ocsppresent = true;
+			            }
+			        }
+			        
+			        //Confirm access method containing id-ad-ocsp is present
+			        assertTrue(ocsppresent);
+				}
+			} catch (IOException e) {
+				fail(e);
+			}
+
+	    } else {
+	    	ConformanceTestException e  = new ConformanceTestException("No AIA is present.");
 			fail(e);
-		}
-		
-		assertNotNull(aia);
-		
-		boolean ocsppresent = false;
-		AccessDescription[] ads = aia.getAccessDescriptions();
-        for (int i = 0; i < ads.length; i++)
-        {
-            if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
-            {
-            	ocsppresent = true;
-            }
-        }
-        
-        //Confirm access method containing id-ad-ocsp is present
-        assertTrue(ocsppresent);
-    }
+	    }
+	}
 	
-	//Confirm that the access method is uniformResourceIdentifier and that protocol is http
+	//Confirm that the AIA uniformResourceIdentifier protocol is http
 	@DisplayName("PKIX.9 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_9(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert);
 
+		boolean uriOk = false;
+		
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
 		
-		//Confirm authorityInformationAccess extension is present
-		assertTrue(aiaex != null);
-		
-		AuthorityInformationAccess aia = null;
-		try {
-			aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
-		} catch (IOException e) {
-			fail(e);
+		if (aiaex != null) {
+			AuthorityInformationAccess aia = null;
+			
+			try {
+				aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
+				if (aia != null) {
+					AccessDescription[] ads = aia.getAccessDescriptions();
+			        for (int i = 0; i < ads.length; i++)
+			        {
+			            if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
+			            {
+			            	GeneralName gn = ads[i].getAccessLocation();
+			            	
+			            	if (gn.getTagNo() == GeneralName.uniformResourceIdentifier) {
+				                String url = ((DERIA5String) gn.getName()).getString();
+				
+				                assertTrue(url.startsWith("http:"));
+				            	uriOk = true;
+			            	}
+			            }
+			        }
+				}
+			} catch (IOException e) {
+				fail(e);
+			}
+		} else {
+	    	ConformanceTestException e  = new ConformanceTestException("No AIA is present.");
+			fail(e);			
 		}
-		
-		assertNotNull(aia);
-		
-		boolean ocsppresent = false;
-		AccessDescription[] ads = aia.getAccessDescriptions();
-        for (int i = 0; i < ads.length; i++)
-        {
-            if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
-            {
-            	GeneralName gn = ads[i].getAccessLocation();
-            	
-            	assertTrue (gn.getTagNo() == GeneralName.uniformResourceIdentifier);
-                String url = ((DERIA5String) gn.getName()).getString();
 
-                assertTrue(url.startsWith("http"));
-            	ocsppresent = true;
-            }
-        }
-        
-        //Confirm access method containing id-ad-ocsp is present
-        assertTrue(ocsppresent);
+        //Confirm URI is http
+        assertTrue(uriOk);
     }
 	
 	//Confirm that piv interim "2.16.840.1.101.3.6.9.1" extension is present
@@ -418,34 +426,45 @@ public class PKIX_X509DataObjectTests {
         	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
 			fail(e);
         }
+
         try {
 			CardUtils.setUpPivAppHandleInSingleton();
-			
-			//CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
         
-        boolean decoded = o.decode();
-        assertTrue(decoded);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+       	if (o != null) {
+	        AbstractPIVApplication piv = css.getPivHandle();
+	        CardHandle c = css.getCardHandle();
+	        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+	        result = piv.pivGetData(c, oid, o);
+	        assert(result == MiddlewareStatus.PIV_OK);
+	        
+	        boolean decoded = o.decode();
 
-		assertNotNull(cert);
-		//Get piv interim "2.16.840.1.101.3.6.9.1" extension
-		byte[] aiaex = cert.getExtensionValue("2.16.840.1.101.3.6.9.1");
+	        if (decoded) {
+				X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		
-		//Confirm authorityInformationAccess extension is present
-		assertTrue(aiaex != null);
-		assertTrue(aiaex.length > 0);
-		
+				if (cert != null) {
+					//Get piv interim "2.16.840.1.101.3.6.9.1" extension
+					byte[] pivInterim = cert.getExtensionValue("2.16.840.1.101.3.6.9.1");
+					
+					//Confirm pivInterim extension is present and isn't empty
+					assertTrue(pivInterim != null);
+					assertTrue(pivInterim.length > 0);
+				} else {
+		        	ConformanceTestException e  = new ConformanceTestException("Could not obtain certificate for " + oid);
+					fail(e);
+				}
+	        } else {
+	        	ConformanceTestException e  = new ConformanceTestException("Unable to decode PIVDataObject for " + oid);
+				fail(e);
+	        }
+       	} else {
+        	ConformanceTestException e  = new ConformanceTestException("Error creating object for " + oid);
+			fail(e);
+       	}
     }
 	
 	//Sign arbitrary data using the specified key container and confirm that the certificate can validate it
@@ -483,32 +502,36 @@ public class PKIX_X509DataObjectTests {
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        
-
+ 
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
         assert(result == MiddlewareStatus.PIV_OK);
         boolean decoded = o2.decode();
-        assert(decoded == true);
+        
+        if (decoded) {
                
-		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
-		System.out.println(new String(fascn));
-		
-		try {
-			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-	        if (altNames != null) {
-	            for (List<?> altName : altNames) {
-	                Integer altNameType = (Integer) altName.get(0);
-	                if (altNameType == 0) {
-	                	byte[] otherName = (byte[]) altName.toArray()[1];
-               	
-	                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
-	                	assertTrue(Arrays.equals(fascnFromCert, fascn));
-	                }
-	            }
-	        }
-		} catch (CertificateParsingException e) {
-			fail(e);
-		}
+			byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
+			System.out.println(new String(fascn));
+			
+			try {
+				Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
+		        if (altNames != null) {
+		            for (List<?> altName : altNames) {
+		                Integer altNameType = (Integer) altName.get(0);
+		                if (altNameType == 0) {
+		                	byte[] otherName = (byte[]) altName.toArray()[1];
+	               	
+		                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
+		                	assertTrue(Arrays.equals(fascnFromCert, fascn));
+		                }
+		            }
+		        }
+			} catch (CertificateParsingException e) {
+				fail(e);
+			}
+        } else {
+        	ConformanceTestException e  = new ConformanceTestException("Unable to decode PIVDataObject for " + oid);
+			fail(e);        	
+        }
     }
 	
 	//Confirm that expiration of certificate is not later than expiration of card
@@ -540,16 +563,19 @@ public class PKIX_X509DataObjectTests {
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
         assert(result == MiddlewareStatus.PIV_OK);
         boolean decoded = o2.decode();
-        assert(decoded == true);
-
-        
-		Date notAfter =  cert.getNotAfter();
-		assertNotNull(notAfter);
-		
-		Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
-				
-		//Confirm that expiration of certificate is not later than expiration of card
-		assertTrue(notAfter.compareTo(expirationDate) <= 0);
+         
+        if (decoded) {  
+			Date notAfter =  cert.getNotAfter();
+			assertNotNull(notAfter);
+			
+			Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
+					
+			//Confirm that expiration of certificate is not later than expiration of card
+			assertTrue(notAfter.compareTo(expirationDate) <= 0);
+        } else {
+        	ConformanceTestException e  = new ConformanceTestException("Unable to decode PIVDataObject for " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+			fail(e);        	
+        }
     }
 
 	//For RSA certs, confirm that public exponent >= 65537
@@ -858,7 +884,53 @@ public class PKIX_X509DataObjectTests {
 		assert(false);
 	}
 
-	//The authorityInfoAccess field contains an id-ad-caIssuers
+	void PKIX_Test_22x(X509Certificate cert, TestReporter reporter) {
+		assertNotNull(cert);
+				
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        assertNotNull(css);
+        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
+			fail(e);
+        }
+        try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+       
+        byte[] extVal = cert.getExtensionValue("2.5.29.31");
+        
+        if (extVal != null) {		
+	    	try {		
+	    		CRLDistPoint crlDP = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+	    		assertNotNull(crlDP);
+	    		
+	    		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
+				for (DistributionPoint dp : descriptions) {
+					DistributionPointName dp_name = dp.getDistributionPoint();
+					if (dp_name.getType() == DistributionPointName.FULL_NAME) {
+		                GeneralName[] generalNames = GeneralNames.getInstance(dp_name.getName()).getNames();
+		                for (int j = 0; j < generalNames.length; j++)
+		                {
+		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
+		                    {
+		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
+		                        assertTrue(url.endsWith(".crl"));
+		                    }
+		                }
+		            }
+				}
+			} catch (IOException e) {
+				fail(e);
+			}
+        } else {
+        	ConformanceTestException e  = new ConformanceTestException("No CRL distribution point present.");
+        	fail(e);
+        }
+	}
+	
+	//The authorityInfoAccess field contains an id-ad-caIssuers (1.3.6.1.5.5.7.48.2) accessMethod
 	@DisplayName("PKIX.22 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
@@ -878,27 +950,30 @@ public class PKIX_X509DataObjectTests {
 		}
        
         byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
-        assertNotNull(extVal);
-        
-    	try {
-			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
-	        assertNotNull(aia);
-			
-	        boolean caIssuersPresent = false;
-			AccessDescription[] descriptions = aia.getAccessDescriptions();
-			for (AccessDescription ad : descriptions) {
-			    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
-			    	caIssuersPresent = true;
-			    }
+	    if (extVal != null) {
+	    	try {
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+		        assertNotNull(aia);
+				
+		        boolean caIssuersPresent = false;
+				AccessDescription[] descriptions = aia.getAccessDescriptions();
+				for (AccessDescription ad : descriptions) {
+				    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+				    	caIssuersPresent = true;
+				    }
+				}
+				
+				assertTrue(caIssuersPresent);
+			} catch (IOException e) {
+				fail(e);
 			}
-			
-			assertTrue(caIssuersPresent);
-		} catch (IOException e) {
-			fail(e);
-		}
+        } else {
+        	ConformanceTestException e  = new ConformanceTestException("No AIA present.");
+        	fail(e);
+        }
 	}
 	
-	//The authorityInfoAccess field contains an id-ad-caIssuers
+	//URI scheme is http:
 	@DisplayName("PKIX.23 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
@@ -918,30 +993,34 @@ public class PKIX_X509DataObjectTests {
 		}
        
         byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
-        assertNotNull(extVal);
         
-    	try {
-			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
-	        assertNotNull(aia);
-			
-	        boolean uriOK = false;
-			AccessDescription[] descriptions = aia.getAccessDescriptions();
-			for (AccessDescription ad : descriptions) {
-			    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
-			        GeneralName location = ad.getAccessLocation();
-			        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
-			            String url = location.getName().toString();
-			            
-			            if(url.startsWith("http"))
-			            	uriOK = true;
-			        }
-			    }
+        if (extVal != null) {  
+	    	try {
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+		        assertNotNull(aia);
+				
+		        boolean uriOK = false;
+				AccessDescription[] descriptions = aia.getAccessDescriptions();
+				for (AccessDescription ad : descriptions) {
+				    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+				        GeneralName location = ad.getAccessLocation();
+				        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
+				            String url = location.getName().toString();
+				            
+				            if(url.startsWith("http:"))
+				            	uriOK = true;
+				        }
+				    }
+				}
+				
+				assertTrue(uriOK);
+			} catch (IOException e) {
+				fail(e);
 			}
-			
-			assertTrue(uriOK);
-		} catch (IOException e) {
+        } else {
+        	ConformanceTestException e  = new ConformanceTestException("No AIA extension present.");
 			fail(e);
-		}
+        }
 	}
         
 	//Check CRL DP and AIA URI for ".crl" or ".p7c"
@@ -997,18 +1076,17 @@ public class PKIX_X509DataObjectTests {
         		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
 				for (DistributionPoint dp : descriptions) {
 					DistributionPointName dp_name = dp.getDistributionPoint();
-					 if (dp_name.getType() == DistributionPointName.FULL_NAME)
-			            {
-			                GeneralName[] generalNames = GeneralNames.getInstance(dp_name.getName()).getNames();
-			                for (int j = 0; j < generalNames.length; j++)
-			                {
-			                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
-			                    {
-			                        String url = ((DERIA5String) generalNames[j].getName()).getString();
-			                        assertTrue(url.endsWith(".crl"));
-			                    }
-			                }
-			            }
+					if (dp_name.getType() == DistributionPointName.FULL_NAME) {
+		                GeneralName[] generalNames = GeneralNames.getInstance(dp_name.getName()).getNames();
+		                for (int j = 0; j < generalNames.length; j++)
+		                {
+		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
+		                    {
+		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
+		                        assertTrue(url.endsWith(".crl"));
+		                    }
+		                }
+		            }
 				}
 			} catch (IOException e) {
 				fail(e);
@@ -1390,7 +1468,7 @@ public class PKIX_X509DataObjectTests {
 
 	}
 	
-	private static Stream<Arguments> pKIX_PIVAuthx509TestProvide2() {
+	private static Stream<Arguments> pKIX_PIVAuthx509TestProvider2() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.48.11"));
 
