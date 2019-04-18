@@ -82,7 +82,7 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_x509TestProvider")
 	void PKIX_Test_1(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 
 		PublicKey pubKey = cert.getPublicKey();
 
@@ -114,7 +114,7 @@ public class PKIX_X509DataObjectTests {
 	        }
 	        
 	        //Confirm that the curve in the cert is prime256v1
-	        assertTrue(supportedCurve.compareTo(curveFromCert) == 0);
+	        assertTrue(supportedCurve.compareTo(curveFromCert) == 0, "Curve retrived from the certificate " + curveFromCert +  " does not match acceptable curve " + supportedCurve);
 		}
 
 		List<String> algList = new ArrayList<String>();
@@ -135,7 +135,7 @@ public class PKIX_X509DataObjectTests {
 				break;
 			}
 		}
-		assertTrue(present);
+		assertTrue(present, "Signature algorithm from the certificate " + sigAlgFromCert + " is not in the acceptable list " + algList.toString() );
 		
 	}
 
@@ -144,9 +144,9 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_x509TestProvider")
 	void PKIX_Test_2(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 
-		assertTrue(cert.getKeyUsage() != null);
+		assertTrue(cert.getKeyUsage() != null, "Key usage extension is absent");
 	}
 
 	// Confirm digitalSignature bit is set
@@ -154,7 +154,7 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_PIVAuthx509TestProvider")
 	void PKIX_Test_3(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -168,17 +168,17 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 		AbstractPIVApplication piv = css.getPivHandle();
 		CardHandle c = css.getCardHandle();
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 		boolean decoded = o.decode();
 		assert (decoded == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -187,7 +187,7 @@ public class PKIX_X509DataObjectTests {
 
 		// taken out and placed somewhere else?
 		// Confirm digitalSignature bit is set
-		assertTrue(ku[0] == true);
+		assertTrue(ku[0] == true, "digitalSignature bit is not set");
 
 	}
 
@@ -196,7 +196,7 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_PIVAuthx509TestProvider")
 	void PKIX_Test_4(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -210,31 +210,32 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 		AbstractPIVApplication piv = css.getPivHandle();
 		CardHandle c = css.getCardHandle();
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		result = piv.pivGetData(c, oid, o);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 		boolean decoded = o.decode();
 		assert (decoded == true);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 		boolean[] ku = cert.getKeyUsage();
 
 		// confirm key usage extension is present
 		assertTrue(ku != null);
 
 		// Confirm digitalSignature bit is set
-		assertTrue(ku[0] == true);
-		assertTrue(ku[1] == false);
-		assertTrue(ku[2] == false);
-		assertTrue(ku[3] == false);
-		assertTrue(ku[4] == false);
-		assertTrue(ku[5] == false);
-		assertTrue(ku[6] == false);
-		assertTrue(ku[7] == false);
+		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+		assertTrue(ku[1] == false, "nonRepudiation bit is set");
+		assertTrue(ku[2] == false, "keyEncipherment bit is set");
+		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+		assertTrue(ku[4] == false, "keyAgreement bit is set");
+		assertTrue(ku[5] == false, "keyCertSign bit is set");
+		assertTrue(ku[6] == false, "cRLSign bit is set");
+		assertTrue(ku[7] == false, "encipherOnly bit is set");
+		assertTrue(ku[7] == false, "decipherOnly bit is set");
 
 	}
 
@@ -243,13 +244,13 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_5(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
 		
 		//Confirm certificate policies extension is present
-		assertTrue(cpex != null);
+		assertTrue(cpex != null, "Certificate policies extension is absent");
 		
     }
 	
@@ -259,7 +260,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_PIVAuthx509TestProvider2")
     void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         assertNotNull(policyOid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -273,23 +274,23 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
+        assertNotNull(o, "Failed to allocate PIVDataObject");
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o.decode();
-        assert(decoded == true);
+        assertTrue(decoded, "Failed to decode object for OID " + oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
 		
 		//Confirm certificate policies extension is present
-		assertTrue(cpex != null);
+		assertTrue(cpex != null, "Certificate policies extension is absent");
 		
 		CertificatePolicies policies = null;
 		try {
@@ -310,7 +311,7 @@ public class PKIX_X509DataObjectTests {
 	    }
 	    
 	    //Confirm that oid matches is asserted in certificate policies
-	    assertTrue(containsOOID);
+	    assertTrue(containsOOID, "Policy oid " + policyOid + " is not present in certificate policies");
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
@@ -320,13 +321,13 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_7(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
 		
 		//Confirm authorityInformationAccess extension is present
-		assertTrue(aiaex != null);
+		assertTrue(aiaex != null, "AIA extension is not present");
 	}
 	
 	//Confirm that an access method containing id-ad-ocsp is present (only PIV auth requires this)
@@ -334,7 +335,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_8(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
@@ -356,7 +357,7 @@ public class PKIX_X509DataObjectTests {
 			        }
 			        
 			        //Confirm access method containing id-ad-ocsp is present
-			        assertTrue(ocsppresent);
+			        assertTrue(ocsppresent, "id-ad-ocsp is not present");
 				}
 			} catch (IOException e) {
 				fail(e);
@@ -373,7 +374,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_9(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 
 		boolean uriOk = false;
 		
@@ -396,7 +397,7 @@ public class PKIX_X509DataObjectTests {
 			            	if (gn.getTagNo() == GeneralName.uniformResourceIdentifier) {
 				                String url = ((DERIA5String) gn.getName()).getString();
 				
-				                assertTrue(url.startsWith("http:"));
+				                assertTrue(url.startsWith("http:"), "OCSP url does not start with http " + url);
 				            	uriOk = true;
 			            	}
 			            }
@@ -419,7 +420,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_PIVAuthx509TestProvider")
     void PKIX_Test_10(String oid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -439,7 +440,7 @@ public class PKIX_X509DataObjectTests {
 	        CardHandle c = css.getCardHandle();
 	        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 	        result = piv.pivGetData(c, oid, o);
-	        assert(result == MiddlewareStatus.PIV_OK);
+	        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 	        
 	        boolean decoded = o.decode();
 
@@ -451,8 +452,8 @@ public class PKIX_X509DataObjectTests {
 					byte[] pivInterim = cert.getExtensionValue("2.16.840.1.101.3.6.9.1");
 					
 					//Confirm pivInterim extension is present and isn't empty
-					assertTrue(pivInterim != null);
-					assertTrue(pivInterim.length > 0);
+					assertTrue(pivInterim != null, "pivInterim extension is not present");
+					assertTrue(pivInterim.length > 0, "pivInterim extension is empty");
 				} else {
 		        	ConformanceTestException e  = new ConformanceTestException("Could not obtain certificate for " + oid);
 					fail(e);
@@ -472,7 +473,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_11(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 		// XXX *** shelve to do merge
     }
 	
@@ -481,8 +482,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider2")
     void PKIX_Test_12(X509Certificate cert, String oid, TestReporter reporter) {
-		assertNotNull(cert);
-		assertNotNull(oid);
+		assertNotNull(cert, "NULL certificate passed to atom");
+		assertNotNull(oid, "NULL oid passed to atom");
 		
 		//XXX Not sure what to do with the second parameter
 		
@@ -504,7 +505,7 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
  
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o2.decode();
         
         if (decoded) {
@@ -521,7 +522,7 @@ public class PKIX_X509DataObjectTests {
 		                	byte[] otherName = (byte[]) altName.toArray()[1];
 	               	
 		                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
-		                	assertTrue(Arrays.equals(fascnFromCert, fascn));
+		                	assertTrue(Arrays.equals(fascnFromCert, fascn), "FASCN values do not match");
 		                }
 		            }
 		        }
@@ -539,7 +540,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider3")
     void PKIX_Test_13(X509Certificate cert, int years, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 		assertNotNull(years);
 		
 		//XXX Not sure what to do with years value
@@ -561,7 +562,7 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
        
         result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         boolean decoded = o2.decode();
          
         if (decoded) {  
@@ -571,7 +572,7 @@ public class PKIX_X509DataObjectTests {
 			Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
 					
 			//Confirm that expiration of certificate is not later than expiration of card
-			assertTrue(notAfter.compareTo(expirationDate) <= 0);
+			assertTrue(notAfter.compareTo(expirationDate) <= 0, "Certificate " + notAfter + " expires later than the card " + expirationDate);
         } else {
         	ConformanceTestException e  = new ConformanceTestException("Unable to decode PIVDataObject for " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			fail(e);        	
@@ -583,7 +584,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_14(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 
 		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
 		
@@ -592,7 +593,7 @@ public class PKIX_X509DataObjectTests {
 		
 		if(pubKey instanceof RSAPublicKey) {
 			//confirm that public exponent >= 65537
-			assertTrue(pubKey.getPublicExponent().compareTo(be) >= 0);
+			assertTrue(pubKey.getPublicExponent().compareTo(be) >= 0, "Public exponent is not >= 65537" );
 		} 
     }
 	
@@ -601,7 +602,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_DigSigx509TestProvider")
     void PKIX_Test_15(String oid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -614,17 +615,17 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
+        assertNotNull(o, "Failed to allocate PIVDataObject");
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o.decode();
-        assert(decoded == true);
+        assertTrue(decoded, "Failed to decode object for OID " + oid);
        
         X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -633,8 +634,8 @@ public class PKIX_X509DataObjectTests {
 
 		// taken out and placed somewhere else?
 		// Confirm digitalSignature and nonRepudiation bit is set
-		assertTrue(ku[0] == true);
-		assertTrue(ku[1] == true);
+		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+		assertTrue(ku[1] == true, "nonRepudiation bit is not set");
     }
 	
 	
@@ -643,7 +644,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_KeyMgmtx509TestProvider")
     void PKIX_Test_16(String oid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -656,17 +657,17 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
+        assertNotNull(o, "Failed to allocate PIVDataObject");
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o.decode();
-        assert(decoded == true);
+        assertTrue(decoded, "Failed to decode object for OID " + oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -675,7 +676,7 @@ public class PKIX_X509DataObjectTests {
 
 		// taken out and placed somewhere else?
 		// Confirm keyEncipherment bit is set
-		assertTrue(ku[2] == true);
+		assertTrue(ku[2] == true, "keyEncipherment bit is not set");
     }
 	
 	//Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set 
@@ -683,7 +684,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_KeyMgmtx509TestProvider")
     void PKIX_Test_17(String oid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -696,17 +697,17 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
+        assertNotNull(o, "Failed to allocate PIVDataObject");
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o.decode();
-        assert(decoded == true);
+        assertTrue(decoded, "Failed to decode object for OID " + oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		PublicKey pubKey = cert.getPublicKey();
 
@@ -715,9 +716,9 @@ public class PKIX_X509DataObjectTests {
 			boolean[] ku = cert.getKeyUsage();
 
 			// confirm key usage extension is present
-			assertTrue(ku != null);
+			assertTrue(ku != null, "Key usage extension is absent");
 			// Confirm keyAgreement bit is set
-			assertTrue(ku[4] == true);
+			assertTrue(ku[4] == true, "keyAgreement bit is not set");
 		}
 		
     }
@@ -727,7 +728,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_CardAuthx509TestProvider2")
     void PKIX_Test_18(String oid, String policyOid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -740,23 +741,23 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
+        assertNotNull(o, "Failed to allocate PIVDataObject");
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o.decode();
-        assert(decoded == true);
+        assertTrue(decoded, "Failed to decode object for OID " + oid);
        
         X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
 		
 		//Confirm certificate policies extension is present
-		assertTrue(cpex != null);
+		assertTrue(cpex != null, "Certificate policies extension is absent");
 		
 		CertificatePolicies policies = null;
 		try {
@@ -776,7 +777,7 @@ public class PKIX_X509DataObjectTests {
 	    }
 	    
 	    //Confirm that policy oid is present
-	    assertTrue(containsOOID);
+	    assertTrue(containsOOID, "Certificate policy " + policyOid + " is not present in certificate policies on the certificate");
 		
     }
 	
@@ -785,7 +786,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_CardAuthx509TestProvider")
     void PKIX_Test_19(String oid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
         if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -798,23 +799,23 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
+        assertNotNull(o, "Failed to allocate PIVDataObject");
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o.decode();
-        assert(decoded == true);
+        assertTrue(decoded, "Failed to decode object for OID " + oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		//Get eku extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.37");
 		
 		//Confirm eku extension is present
-		assertTrue(cpex != null);
+		assertTrue(cpex != null, "EKU extension is absent");
     }
 
 	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
@@ -822,7 +823,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_CardAuthx509TestProvider2")
     void PKIX_Test_20(String oid, String ekuOid, TestReporter reporter) {
-        assertNotNull(oid);
+        assertNotNull(oid, "NULL oid passed to atom");
         assertNotNull(ekuOid);
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -836,23 +837,23 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
+        assertNotNull(o, "Failed to allocate PIVDataObject");
         AbstractPIVApplication piv = css.getPivHandle();
         CardHandle c = css.getCardHandle();
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
         result = piv.pivGetData(c, oid, o);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
         boolean decoded = o.decode();
-        assert(decoded == true);
+        assertTrue(decoded, "Failed to decode object for OID " + oid);
         
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
+		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		//Get certificate policies extension
 		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
 		
 		//Confirm certificate policies extension is present
-		assertTrue(ekuex != null);
+		assertTrue(ekuex != null, "Certificate policies extension is absent");
 		
 		ExtendedKeyUsage eku = null;
 		try {
@@ -872,7 +873,7 @@ public class PKIX_X509DataObjectTests {
 	    }
 	    
 	    //Confirm that id-PIV-cardAuth 2.16.840.1.101.3.6.8 OID is present in eku
-	    assertTrue(containsOOID);
+	    assertTrue(containsOOID, "EKU does not contain " + ekuOid);
 		
     }
 
@@ -885,7 +886,7 @@ public class PKIX_X509DataObjectTests {
 	}
 
 	void PKIX_Test_22x(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 				
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -916,7 +917,7 @@ public class PKIX_X509DataObjectTests {
 		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
 		                    {
 		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
-		                        assertTrue(url.endsWith(".crl"));
+		                        assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl");
 		                    }
 		                }
 		            }
@@ -935,7 +936,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_22(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 				
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -963,7 +964,7 @@ public class PKIX_X509DataObjectTests {
 				    }
 				}
 				
-				assertTrue(caIssuersPresent);
+				assertTrue(caIssuersPresent, "id-ad-caIssuers is missing from AIA");
 			} catch (IOException e) {
 				fail(e);
 			}
@@ -978,7 +979,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_23(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 				
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -1013,7 +1014,7 @@ public class PKIX_X509DataObjectTests {
 				    }
 				}
 				
-				assertTrue(uriOK);
+				assertTrue(uriOK, "AIA url does not start with http");
 			} catch (IOException e) {
 				fail(e);
 			}
@@ -1028,8 +1029,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider2")
     void PKIX_Test_24(X509Certificate cert, String oid, TestReporter reporter) {
-		assertNotNull(cert);
-		assertNotNull(oid);
+		assertNotNull(cert, "NULL certificate passed to atom");
+		assertNotNull(oid, "NULL oid passed to atom");
 				
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -1058,7 +1059,7 @@ public class PKIX_X509DataObjectTests {
 				        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
 				            String url = location.getName().toString();
 				            
-				            assertTrue(url.endsWith(".p7c"));
+				            assertTrue(url.endsWith(".p7c"), "AIA caIssuers url does not end with .p7c " + url);
 				        }
 				    }
 				}
@@ -1083,7 +1084,7 @@ public class PKIX_X509DataObjectTests {
 		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
 		                    {
 		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
-		                        assertTrue(url.endsWith(".crl"));
+		                        assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl " + url);
 		                    }
 		                }
 		            }
@@ -1100,7 +1101,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_25(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert);
+		assertNotNull(cert, "NULL certificate passed to atom");
 				
         CardSettingsSingleton css = CardSettingsSingleton.getInstance();
         assertNotNull(css);
@@ -1161,7 +1162,7 @@ public class PKIX_X509DataObjectTests {
 											InputStream in2 = new ByteArrayInputStream(certBuff);
 											X509Certificate cert2 = (X509Certificate)certFactory.generateCertificate(in2);
 											
-											assertNotNull(cert2);
+											assertNotNull(cert2, "Unable to parse certificate contained in the " + url);
 										} catch (CertificateException e) {
 											fail(e);
 										}
@@ -1188,7 +1189,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pkix_CHUIDTestProvider")
     void PKIX_Test_26(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "NULL oid passed to atom");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		assertNotNull(css);
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
@@ -1208,7 +1209,7 @@ public class PKIX_X509DataObjectTests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Failed to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
@@ -1224,7 +1225,7 @@ public class PKIX_X509DataObjectTests {
 		Calendar cal = Calendar.getInstance();
 		Date today = cal.getTime();
 		
-		assertTrue(cert.getNotAfter().compareTo(today) >= 0);
+		assertTrue(cert.getNotAfter().compareTo(today) >= 0, "Signing certificate expired " + cert.getNotAfter());
        
     }
 	
@@ -1258,44 +1259,44 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
 		boolean  decoded = o1.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
 		decoded  = o2.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
 		decoded  = o3.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
 		decoded  = o4.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
 			
 		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 		decoded  = o5.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
-		assertNotNull(cert1);
+		assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
-		assertNotNull(cert2);
+		assertNotNull(cert2, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
-		assertNotNull(cert3);
+		assertNotNull(cert3, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
-		assertNotNull(cert4);
+		assertNotNull(cert4, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getSigningCertificate();
-		assertNotNull(cert5);
+		assertNotNull(cert5, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		return Stream.of(Arguments.of(cert1),Arguments.of(cert2),Arguments.of(cert3),Arguments.of(cert4),Arguments.of(cert5));
 
@@ -1331,39 +1332,39 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
 		assert (o1.decode() == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
 		assert (o2.decode() == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
 		assert (o3.decode() == true);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
 		assert (o4.decode() == true);
 			
 		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 		assert (o5.decode() == true);
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
-		assertNotNull(cert1);
+		assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
-		assertNotNull(cert2);
+		assertNotNull(cert2, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
-		assertNotNull(cert3);
+		assertNotNull(cert3, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
-		assertNotNull(cert4);
+		assertNotNull(cert4, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getSigningCertificate();
-		assertNotNull(cert5);
+		assertNotNull(cert5, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		return Stream.of(Arguments.of(cert1, "1.3.6.1.1.16.4"),Arguments.of(cert2, "1.3.6.1.1.16.4"),Arguments.of(cert3, "1.3.6.1.1.16.4"),
 				Arguments.of(cert4, "1.3.6.1.1.16.4"),Arguments.of(cert5, "1.3.6.1.1.16.4"));
@@ -1400,44 +1401,44 @@ public class PKIX_X509DataObjectTests {
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
 		boolean decoded = o1.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " +  APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
 		decoded = o2.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
 		decoded = o3.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
 		decoded = o4.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
 			
 		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
-		assert (result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 		decoded = o5.decode();
-		assert ( decoded == true);
+		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
-		assertNotNull(cert1);
+		assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
-		assertNotNull(cert2);
+		assertNotNull(cert2, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
-		assertNotNull(cert3);
+		assertNotNull(cert3, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
-		assertNotNull(cert4);
+		assertNotNull(cert4, "Certificate retrived from X509CertificateDataObject object is NULL");
 		
 		X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getSigningCertificate();
-		assertNotNull(cert5);
+		assertNotNull(cert5, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		return Stream.of(Arguments.of(cert1, 6),Arguments.of(cert2, 6),Arguments.of(cert3, 6),
 				Arguments.of(cert4, 6),Arguments.of(cert5, 6));

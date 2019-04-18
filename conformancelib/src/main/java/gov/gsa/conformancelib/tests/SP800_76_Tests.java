@@ -2464,7 +2464,7 @@ public class SP800_76_Tests {
         try {
 			Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(str1.toString());
 			
-			assertNotNull(date, "Unable to create date object from biometric creation date value " + str.toString());
+			assertNotNull(date, "Unable to create date object from biometric creation date value " + str1.toString());
 		} catch (ParseException e) {
 			fail(e);
 		}
