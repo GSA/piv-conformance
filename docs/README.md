@@ -1,6 +1,6 @@
 ###Building the Card Conformance Tool from GitHub
 
-#####Java
+##### Java
 
 - Uninstall all instances of Java.
 - Remove all environment variables: `JAVA_HOME`, `JAVA_BIN`, `JAVA_LIB`.
@@ -10,10 +10,10 @@
 - Get a command window and test with “javac -version” and “java -version”.
 
 
-#####Cygwin (recommended)
+##### Cygwin (recommended)
 - Install Cygwin from `https://cygwin.com`.
 
-#####Git (optional)
+##### Git (optional)
 
 - Install Git from `https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe`.
 - Get a command window and type `git version`.
@@ -31,7 +31,7 @@
 - `sh doit.sh #this is where having Cygwin is handy because it uses Gradle to build everything)`
 - If I don’t have Cygwin, simply execute the `gradlew` commands in `doit.sh` in the same order.
 
-#####Eclipse (EGit automagically built-in)
+##### Eclipse (EGit automagically built-in)
 
 - Download the Eclipse desktop for Java (version 2019-03 for Win 64 is fine)
 - Accept all licenses during installation and take all defaults.
@@ -59,7 +59,7 @@
 - You will see output like this:
 
 ```
-bf-mbp:piv-conformance bfontana$ sh doit.sh
+bf-mbp:piv-conformance $ sh doit.sh
 
 > Configure project :
 target java version: 1.8
