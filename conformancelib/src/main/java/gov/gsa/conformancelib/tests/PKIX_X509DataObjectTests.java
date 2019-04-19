@@ -58,6 +58,7 @@ import org.bouncycastle.util.Store;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -1331,25 +1332,32 @@ public class PKIX_X509DataObjectTests {
 		CardHandle c = css.getCardHandle();
 		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 		
+		boolean decoded = false;
+		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
 		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		assert (o1.decode() == true);
+		decoded = o1.decode();
+		assertTrue(decoded == true, "Failed to decode PIV authentication certificate");
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
 		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		assert (o2.decode() == true);
+		decoded = o2.decode();
+		assertTrue(decoded == true, "Failed to decode Digital Signature certificate");
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
 		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		assert (o3.decode() == true);
+		decoded = o3.decode();
+		assertTrue(decoded == true, "Failed to decode Key Management certificate");
 		
 		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
 		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-		assert (o4.decode() == true);
+		decoded = o4.decode();
+		assertTrue(decoded == true, "Failed to decode Card Authentication certificate");
 			
 		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
 		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		assert (o5.decode() == true);
+		decoded = o5.decode();
+		assertTrue(decoded == true, "Failed to decode CHUID container");
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
 		assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
