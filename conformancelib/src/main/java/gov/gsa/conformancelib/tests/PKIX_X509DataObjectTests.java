@@ -23,8 +23,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.Hex;
@@ -63,6 +65,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
@@ -77,6 +81,9 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 
 public class PKIX_X509DataObjectTests {
+	
+	
+	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
 
 	// Verify signature algorithm conforms to 78.1, 78.2, 78.3
 	@DisplayName("PKIX.1 test")
@@ -1028,7 +1035,7 @@ public class PKIX_X509DataObjectTests {
 	//Check CRL DP and AIA URI for ".crl" or ".p7c"
 	@DisplayName("PKIX.24 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_x509TestProvider2")
+    @MethodSource("pKIX_x509TestProvider_aia_crldp")
     void PKIX_Test_24(X509Certificate cert, String oid, TestReporter reporter) {
 		assertNotNull(cert, "NULL certificate passed to atom");
 		assertNotNull(oid, "NULL oid passed to atom");
@@ -1230,6 +1237,56 @@ public class PKIX_X509DataObjectTests {
        
     }
 	
+	private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {
+		HashMap<String, X509Certificate> rv = new HashMap<String, X509Certificate>();
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		if(css == null) s_logger.error("Failed to retrieve card settings singleton while constructing test parameters");
+		assertNotNull(css, "Failed to get instance of Card Settings Singleton");
+		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			ConformanceTestException e = new ConformanceTestException(
+					"Login has already been attempted and failed. Not trying again.");
+			fail(e);
+		}
+
+		try {
+			CardUtils.setUpPivAppHandleInSingleton();
+		} catch (ConformanceTestException e) {
+			fail(e);
+		}
+
+		AbstractPIVApplication piv = css.getPivHandle();
+		CardHandle c = css.getCardHandle();
+		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
+		
+		assertNotNull(piv, "Invalid PIV application handle in singleton");
+		assertNotNull(c, "Invalid card handle in singleton");
+		
+		for(String oid : oids) {
+			s_logger.debug("Retrieving certificate for oid {}", oid);
+			PIVDataObject obj = PIVDataObjectFactory.createDataObjectForOid(oid);
+			assertNotNull(obj, "Failed to allocate PIV data object");
+			result = piv.pivGetData(c, oid, obj);
+			if(result != MiddlewareStatus.PIV_OK) {
+				// this is only a warning here because it is up to the consumer of this function to decide
+				// whether a missing cert constitutes an assertion failure
+				s_logger.warn("pivGetData() for {} returned {}", oid, result);
+				rv.put(oid, null);
+			}
+			boolean  decoded = obj.decode();
+			assertTrue(decoded, "Failed to decode object for OID " + oid);
+			X509Certificate cert = null;
+			if(oid.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
+				CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) obj;
+				cert = chuid.getSigningCertificate();
+			} else {
+				X509CertificateDataObject certObject = (X509CertificateDataObject) obj;
+				cert = certObject.getCertificate();
+			}
+			rv.put(oid, cert);
+		}
+		return rv;
+	}
+	
 	private static Stream<Arguments> pKIX_x509TestProvider() {
 
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
@@ -1301,6 +1358,29 @@ public class PKIX_X509DataObjectTests {
 
 		return Stream.of(Arguments.of(cert1),Arguments.of(cert2),Arguments.of(cert3),Arguments.of(cert4),Arguments.of(cert5));
 
+	}
+	
+	private static Stream<Arguments> pKIX_x509TestProvider_aia_crldp() {
+		ArrayList<String> certContainersToTest = new ArrayList<String>();
+		certContainersToTest.add(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+		certContainersToTest.add(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+		certContainersToTest.add(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+		certContainersToTest.add(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+		certContainersToTest.add(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		
+		Map<String, X509Certificate> certificates = getCertificatesForOids(certContainersToTest);
+		
+		String aiaOid = "1.3.6.1.5.5.7.1.1";
+		String crldpOid = "2.5.29.31";
+		
+		Stream.Builder<Arguments> generator = Stream.builder();
+		for(String oid : certContainersToTest) {
+			X509Certificate cert = certificates.get(oid);
+			assertNotNull(cert, "Certificate for container " + oid + " was not found.");
+			generator.add(Arguments.of(cert, aiaOid));
+			generator.add(Arguments.of(cert, crldpOid));
+		}
+		return generator.build();
 	}
 	
 	private static Stream<Arguments> pKIX_x509TestProvider2() {
