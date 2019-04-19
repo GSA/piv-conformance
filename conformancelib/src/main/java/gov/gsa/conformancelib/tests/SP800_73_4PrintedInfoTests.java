@@ -66,7 +66,8 @@ public class SP800_73_4PrintedInfoTests {
 		byte[] bertlv = o.getBytes();
 		assertNotNull(bertlv, "No data returned from PIVDataObject");
 
-		//Confirm blob is not larger than 120
+		//was: Confirm blob is not larger than 120
+		// see issue #72
 		assertTrue(bertlv.length <= 245, "Printed object length must be no larger than 245 bytes: got " + bertlv.length);
 	}
 
