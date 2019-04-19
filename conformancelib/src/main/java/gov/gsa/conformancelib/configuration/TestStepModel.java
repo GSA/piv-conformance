@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ public class TestStepModel {
 	
 	public TestStepModel(ConformanceTestDatabase db) {
 		m_db = db;
+		m_status = -1;
 	}
 	
 	public ConformanceTestDatabase getDb() {
@@ -64,6 +66,16 @@ public class TestStepModel {
 	public void setStatus(int status) {
 		m_status = status;
 	}
+	
+	public TestStatus getTestStatus() {
+		Optional<TestStatus> result = TestStatus.valueOf(m_status);
+		if(!result.isPresent()) return TestStatus.NONE;
+		return result.get();
+	}
+	
+	public void setTestStatus(TestStatus s) {
+		m_status = s.getValue();
+	}
 
 	private ConformanceTestDatabase m_db;
 	String m_testDescription;
@@ -103,7 +115,11 @@ public class TestStepModel {
 			this.setTestClassName(rs.getString("Class"));
 			this.setTestMethodName(rs.getString("Method"));
 			this.setTestDescription(rs.getString("Description"));
-			this.setStatus(rs.getInt("Status"));
+			if(rs.getObject("Status") != null) {
+				this.setStatus(rs.getInt("Status"));
+			} else {
+				this.setStatus(-1);
+			}
 			int nParameters = rs.getInt("NumParameters");
 			s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
 			PreparedStatement pparametersQuery = conn.prepareStatement(parametersQuery);

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +89,16 @@ public class TestCaseModel {
 	public void setStatus(int status) {
 		m_status = status;
 	}
-
+	
+	public TestStatus getTestStatus() {
+		Optional<TestStatus> result = TestStatus.valueOf(m_status);
+		if(!result.isPresent()) return TestStatus.NONE;
+		return result.get();
+	}
+	
+	public void setTestStatus(TestStatus s) {
+		m_status = s.getValue();
+	}
 
 	public int getExpectedStatus() {
 		return m_expectedStatus;
@@ -138,7 +148,11 @@ public class TestCaseModel {
 			this.setExpectedStatus(rs.getInt("ExpectedStatus"));
 			this.setDescription(rs.getString("TestCaseDescription"));
 			this.setIdentifier(rs.getString("TestCaseIdentifier"));
-			this.setStatus(rs.getInt("Status"));
+			if(rs.getObject("Status") != null) {
+				this.setStatus(rs.getInt("Status"));
+			} else {
+				this.setStatus(-1);
+			}
 			this.setEnabled(1 == rs.getInt("Enabled"));
 			this.setTestGroupName(rs.getString("TestGroup"));
 			

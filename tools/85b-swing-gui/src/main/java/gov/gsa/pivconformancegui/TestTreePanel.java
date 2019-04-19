@@ -40,6 +40,7 @@ public class TestTreePanel extends JPanel {
 		m_treeModel = new DefaultTreeModel(root);
 		JTree treeControl = new JTree(m_treeModel);
 		treeControl.setRootVisible(false);
+		treeControl.setCellRenderer(new TestCaseTreeCellRenderer());
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.getViewport().add(treeControl);
 		this.add(scrollPane, BorderLayout.CENTER);
@@ -76,7 +77,15 @@ public class TestTreePanel extends JPanel {
 		m_treeModel.nodeStructureChanged(root);
 	}
 	
-    private void createNodes(DefaultMutableTreeNode top) {
+    public DefaultTreeModel getTreeModel() {
+		return m_treeModel;
+	}
+
+	public void setTreeModel(DefaultTreeModel treeModel) {
+		m_treeModel = treeModel;
+	}
+
+	private void createNodes(DefaultMutableTreeNode top) {
     	top.removeAllChildren();
     	if(m_testCases == null) {
     		return;
