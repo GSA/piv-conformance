@@ -36,9 +36,9 @@ public class SP800_73_4PrintedInfoTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
 	void sp800_73_4_Test_27(String oid, TestReporter reporter) {
-		assertNotNull(oid);
+		assertNotNull(oid, "Invalid oid passed to test case");
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
+		assertNotNull(css, "Failed to get card settings singleton instance");
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
 			ConformanceTestException e = new ConformanceTestException(
 					"Login has already been attempted and failed. Not trying again.");
@@ -57,17 +57,17 @@ public class SP800_73_4PrintedInfoTests {
 
 		// Created an object corresponding to the OID value
 		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
+		assertNotNull(o, "Unable to allocate PIVDataObject");
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData returned " + result);
 
 		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
+		assertNotNull(bertlv, "No data returned from PIVDataObject");
 
 		//Confirm blob is not larger than 120
-		assertTrue(bertlv.length <= 120);
+		assertTrue(bertlv.length <= 120, "Printed object length must be no larger than 120: got " + bertlv.length);
 	}
 
 	//Tags 0x01, 0x02, 0x05, 0x06 are present in that order

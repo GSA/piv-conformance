@@ -47,7 +47,6 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer {
 				}
 				default:
 				{
-					s_logger.error("Setting {} to page", s);
 					ImageIcon icon = getStatusIcon("page");
 					s_statusIcons.put(s, icon);
 					break;
@@ -78,7 +77,7 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer {
 		ImageIcon icon = s_statusIcons.get(status);
 		if(icon != null) {
 			setIcon(icon);
-			s_logger.info("Got {} for {}", icon.getDescription(), status);
+			//s_logger.info("Got {} for {}", icon.getDescription(), status);
 		} else {
 			s_logger.error("icon was null for tree node");
 		}
