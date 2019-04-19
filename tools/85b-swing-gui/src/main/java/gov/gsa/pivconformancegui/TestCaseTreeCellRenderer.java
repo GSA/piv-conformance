@@ -47,7 +47,6 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer {
 				}
 				default:
 				{
-					s_logger.error("Setting {} to page", s);
 					ImageIcon icon = getStatusIcon("page");
 					s_statusIcons.put(s, icon);
 					break;
