@@ -2,6 +2,7 @@ package gov.gsa.pivconformancegui;
 
 import java.awt.EventQueue;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
@@ -195,7 +196,8 @@ public class GuiRunnerApplication {
 		mnHelp.add(mntmAboutPivCard);
 		
 		JMenuItem mntmShowDebugWindow = new JMenuItem(c.getShowDebugWindowAction());
-		mntmShowDebugWindow.setIcon(null);
+		ImageIcon debugIcon = c.getActionIcon("application_xp_terminal", "Debug");
+		mntmShowDebugWindow.setIcon(debugIcon);
 		mnHelp.add(mntmShowDebugWindow);
 		
 		m_mainFrame.getContentPane().add(new GuiRunnerToolbar(), BorderLayout.NORTH);
