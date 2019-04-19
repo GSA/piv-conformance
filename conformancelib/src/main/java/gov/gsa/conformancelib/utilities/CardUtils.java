@@ -11,6 +11,7 @@ import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.ApplicationAID;
 import gov.gsa.pivconformance.card.client.ApplicationProperties;
+import gov.gsa.pivconformance.card.client.CachingDefaultPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.ConnectionDescription;
 import gov.gsa.pivconformance.card.client.DefaultPIVApplication;
@@ -71,7 +72,7 @@ public class CardUtils {
 				throw new ConformanceTestException("pivConnect() failed");
 			}
 			css.setCardHandle(ch); css.setPivHandle(null);
-			DefaultPIVApplication piv = new DefaultPIVApplication();
+			DefaultPIVApplication piv = new CachingDefaultPIVApplication();
 			ApplicationProperties cardAppProperties = new ApplicationProperties();
 			ApplicationAID aid = new ApplicationAID();
 			connectResult = piv.pivSelectCardApplication(ch, aid, cardAppProperties);
