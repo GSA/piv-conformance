@@ -2546,13 +2546,24 @@ public class SP800_76_Tests {
 	
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-			if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-				return;
-			}
-			if((o.getBytes() == null || o.getBytes().length == 0) && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-				return;
+			if(oid.contentEquals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND) {
+					s_logger.info("Optional object {} was not found on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+					return;
+				}
+				if(o.getBytes() == null || o.getBytes().length == 0) {
+					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+					return;
+				}
+				if(o.getBytes() == null || o.getBytes().length == 0) {
+					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+					return;
+				}
+				byte[] buf = o.getBytes();
+				if(buf.length == 2 && buf[0] == (byte)0x53 && buf[1] == 0x00) {
+					s_logger.info("Optional object {} was returned as a container of length 0", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID );
+					return;
+				}
 			}
 			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 	
@@ -2631,9 +2642,24 @@ public class SP800_76_Tests {
 
 			// Get data from the card corresponding to the OID value
 			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-			if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-				return;
+			if(oid.contentEquals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
+				if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND) {
+					s_logger.info("Optional object {} was not found on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+					return;
+				}
+				if(o.getBytes() == null || o.getBytes().length == 0) {
+					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+					return;
+				}
+				if(o.getBytes() == null || o.getBytes().length == 0) {
+					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
+					return;
+				}
+				byte[] buf = o.getBytes();
+				if(buf.length == 2 && buf[0] == (byte)0x53 && buf[1] == 0x00) {
+					s_logger.info("Optional object {} was returned as a container of length 0", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID );
+					return;
+				}
 			}
 			if((o.getBytes() == null || o.getBytes().length == 0) && oid.equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
 				s_logger.info("Optional object {} was missing", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
