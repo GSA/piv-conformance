@@ -42,6 +42,10 @@ public class OpenDatabaseAction extends AbstractAction {
 				ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 				db.openDatabaseInFile(fullPath);
 				GuiRunnerAppController.getInstance().setTestDatabase(db);
+
+				//GuiRunnerAppController.getInstance().getApp().getMainContent().getTestExecutionPanel().refreshDatabaseInfo();
+				if(db != null) GuiRunnerAppController.getInstance().getApp().getMainContent().getTestExecutionPanel().getDatabaseNameField().setText(fullPath);
+				
 			} catch(ConfigurationException ce) {
 				s_logger.error("Failed to open conformance test database from {}", fullPath);
 				JOptionPane.showMessageDialog(mainFrame, "Unable to open test database");
