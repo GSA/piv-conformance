@@ -45,6 +45,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
             // Establishing channel
             CardChannel channel = card.getBasicChannel();
+            cardHandle.setCurrentChannel(channel);
 
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU(applicationAID.getBytes()));
@@ -67,8 +68,8 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             }
 
             // Populated the response in ApplicationProperties
-            applicationProperties.setBytes(response.getData());
-            cardHandle.setCurrentChannel(channel);
+            byte[] properties = response.getData();
+            if(properties != null) applicationProperties.setBytes(properties);
 
         }
         catch (Exception ex) {
@@ -105,13 +106,13 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                 baos.write(APDUConstants.VERIFY);
                 baos.write((byte) 0x00); // logging in
                 baos.write(authenticator.getType());
-                baos.write((byte) 0x08); // PIN
+                baos.write(authenticator.getData().length == 0 ? 0x00 : (byte) 0x08); // PIN
                 baos.write(authenticator.getData());
             } catch(IOException ioe) {
                 s_logger.error("Failed to populate VERIFY APDU buffer");
             }
             byte[] rawAPDU = baos.toByteArray();
-            //s_logger.debug("VERIFY APDU: {}", Hex.encodeHexString(rawAPDU));
+            //s_logger.error("VERIFY APDU: {}", Hex.encodeHexString(rawAPDU));
             CardChannel channel = cardHandle.getCurrentChannel();
             CommandAPDU verifyApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
@@ -120,7 +121,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                 resp = channel.transmit(verifyApdu);
                 m_lastResponseAPDU = resp;
             } catch (CardException e) {
-                s_logger.error("Failed to transmit VERIFY APDU to card", e);
+            	s_logger.error("Failed to transmit VERIFY APDU to card", e);
                 return MiddlewareStatus.PIV_CARD_READER_ERROR;
             }
             if(resp.getSW() == 0x9000) {
@@ -128,6 +129,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
                 s_logger.debug("Successfully logged into card application");
             } else {
                 s_logger.error("Login failed: {}", Hex.encodeHexString(resp.getBytes()));
+                s_logger.error("Card: {}", cardHandle.getCard());
+                //s_logger.error("Last command APDU: {}", Hex.encodeHexString(m_lastCommandAPDU.getBytes()));
+                s_logger.error("Last response APDU: {}", Hex.encodeHexString(m_lastResponseAPDU.getBytes()));
                 return MiddlewareStatus.PIV_AUTHENTICATION_FAILURE;
             }
 
