@@ -15,5 +15,5 @@ python36 CctDatabasePopulator.py -i filename.xlsx -o filename.sql
 sqlite3 filename.db < filename.sql
 ```
 
-That will product the .sql and .db files for the profile *filename*.
+That will produce the .sql and .db files for the profile *filename*.
 
