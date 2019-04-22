@@ -34,8 +34,8 @@
         </encoder>
     </appender>
 
-    <!-- This is the appender that produces the conformance results CSV.
-        In order to get test reports, it **MUST** be called CONFORMANCELOG -->
+    <!-- This is the appender that produces the APDU traces.
+        In order to get traces, it **MUST** be called APDULOG -->
     <appender name="APDULOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>apdu_transmission_log.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
