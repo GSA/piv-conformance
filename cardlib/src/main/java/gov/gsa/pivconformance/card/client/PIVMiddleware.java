@@ -45,16 +45,19 @@ public class PIVMiddleware {
 
         try {
 
-            Card card = card = t.connect("*");
+            Card card = t.connect("*");
+            /*card.disconnect(true);
+            card = t.connect("T=0");*/
 
             if(card != null) {
                 cardHandle.setConnectionDescription(connectionDescription);
                 cardHandle.setCard(card);
                 cardHandle.setValid(true);
+                cardHandle.setCurrentChannel(card.getBasicChannel());
             }
 
         }catch (Exception ex) {
-            s_logger.error("Unable to establish connection to the card : ", ex.getMessage());
+            s_logger.error("Unable to establish connection to the card : ", ex.getMessage(), ex);
             return MiddlewareStatus.PIV_CONNECTION_FAILURE;
         }
 

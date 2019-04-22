@@ -69,7 +69,7 @@ public class CardUtils {
 			ch = new CardHandle();
 			MiddlewareStatus connectResult = PIVMiddleware.pivConnect(false, cd, ch);
 			if(connectResult != MiddlewareStatus.PIV_OK) {
-				throw new ConformanceTestException("pivConnect() failed");
+				throw new ConformanceTestException("pivConnect() failed: " + connectResult);
 			}
 			css.setCardHandle(ch); css.setPivHandle(null);
 			DefaultPIVApplication piv = new CachingDefaultPIVApplication();
