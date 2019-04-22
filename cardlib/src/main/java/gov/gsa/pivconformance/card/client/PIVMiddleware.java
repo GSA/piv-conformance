@@ -3,6 +3,8 @@ package gov.gsa.pivconformance.card.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.pivconformance.utils.PCSCWrapper;
+
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.Card;
 
@@ -44,10 +46,10 @@ public class PIVMiddleware {
             return MiddlewareStatus.PIV_CONNECTION_DESCRIPTION_MALFORMED;
 
         try {
+        	
+        	PCSCWrapper pcsc = PCSCWrapper.getInstance();
 
-            Card card = t.connect("*");
-            /*card.disconnect(true);
-            card = t.connect("T=0");*/
+            Card card = pcsc.connect(t);
 
             if(card != null) {
                 cardHandle.setConnectionDescription(connectionDescription);

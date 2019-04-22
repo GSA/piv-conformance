@@ -34,6 +34,23 @@
         </encoder>
     </appender>
 
+    <!-- This is the appender that produces the conformance results CSV.
+        In order to get test reports, it **MUST** be called CONFORMANCELOG -->
+    <appender name="APDULOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>apdu_transmission_log.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+          <fileNamePattern>apdu_transmission_log.%i.log</fileNamePattern>
+              <minIndex>1</minIndex>
+              <maxIndex>999999</maxIndex>
+        </rollingPolicy>
+        <!-- the application will search out this appender by name and manually rotate it at the beginning of each conformance run.
+                this triggering policy is necessary to allow logback to append to a log without knowing how to rotate it. -->
+        <triggeringPolicy class="gov.gsa.pivconformancegui.ManualTriggeringPolicy" />
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <!-- this is fully optional and probably only desirable during development -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -58,6 +75,11 @@
     <!-- split test results into a CSV -->
     <logger name="gov.gsa.pivconformance.testResults">
         <appender-ref ref="CONFORMANCELOG" />
+    </logger>
+
+    <!-- APDUs into a separate log -->
+    <logger name="gov.gsa.pivconformance.apdu">
+        <appender-ref ref="APDULOG" />
     </logger>
 
 </configuration>

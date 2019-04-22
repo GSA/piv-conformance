@@ -1,6 +1,8 @@
 package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.TagConstants;
+import gov.gsa.pivconformance.utils.PCSCWrapper;
+
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,17 +48,25 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             // Establishing channel
             CardChannel channel = card.getBasicChannel();
             cardHandle.setCurrentChannel(channel);
+            
+            PCSCWrapper pcsc = PCSCWrapper.getInstance();
 
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVSelectAPDU(applicationAID.getBytes()));
             m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
             // Transmit command and get response
-            ResponseAPDU response = channel.transmit(cmd);
+            ResponseAPDU response = pcsc.transmit(channel, cmd);
             m_lastResponseAPDU = response;
             s_logger.debug("Response to SELECT command: {} {}", String.format("0x%02X", response.getSW1()), String.format("0x%02X", response.getSW2()));
 
             //Check for Successful execution status word
             if(response.getSW() != APDUConstants.SUCCESSFUL_EXEC) {
+            	
+            	// XXX *** TODO: handle 61XX
+            	if(response.getSW1() == 0x61) {
+            		s_logger.info("SW1 == 61");
+            		return MiddlewareStatus.PIV_OK;
+            	}
 
                 if(response.getSW() == APDUConstants.APP_NOT_FOUND){
                     s_logger.info("Card application not found");
@@ -117,8 +127,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU verifyApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
             try {
+            	PCSCWrapper pcsc = PCSCWrapper.getInstance();
                 m_lastCommandAPDU = verifyApdu; m_lastResponseAPDU = null;
-                resp = channel.transmit(verifyApdu);
+                resp = pcsc.transmit(channel, verifyApdu);
                 m_lastResponseAPDU = resp;
             } catch (CardException e) {
             	s_logger.error("Failed to transmit VERIFY APDU to card", e);
@@ -222,9 +233,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU(baos.toByteArray()));
 
+            PCSCWrapper pcsc = PCSCWrapper.getInstance();
             // Transmit command and get response
             m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
-            ResponseAPDU response = channel.transmit(cmd);
+            ResponseAPDU response = pcsc.transmit(channel, cmd);
             m_lastResponseAPDU = response;
 
             //Check for Successful execution status word
@@ -291,9 +303,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
             CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU(baos.toByteArray()));
 
+            PCSCWrapper pcsc = PCSCWrapper.getInstance();
             // Transmit command and get response
             m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
-            ResponseAPDU response = channel.transmit(cmd);
+            ResponseAPDU response = pcsc.transmit(channel, cmd);
             m_lastResponseAPDU = response;
 
             //Check for Successful execution status word
@@ -386,9 +399,10 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
             CommandAPDU cmd = new CommandAPDU(rawAPDU);
 
+            PCSCWrapper pcsc = PCSCWrapper.getInstance();
             // Transmit command and get response
             m_lastCommandAPDU = cmd; m_lastResponseAPDU = null;
-            ResponseAPDU response = channel.transmit(cmd);
+            ResponseAPDU response = pcsc.transmit(channel, cmd);
             m_lastResponseAPDU = response;
             
             s_logger.debug("Response to GENERATE command: {} {}", String.format("0x%02X", response.getSW1()), String.format("0x%02X", response.getSW2()));
@@ -468,8 +482,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU smApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
             try {
+            	PCSCWrapper pcsc = PCSCWrapper.getInstance();
             	m_lastCommandAPDU = smApdu; m_lastResponseAPDU = null;
-                resp = channel.transmit(smApdu);
+                resp = pcsc.transmit(channel, smApdu);
                 m_lastResponseAPDU = resp;
             } catch (CardException e) {
                 s_logger.error("Failed to transmit SM APDU to card", e);
@@ -547,8 +562,9 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             CommandAPDU smApdu = new CommandAPDU(rawAPDU);
             ResponseAPDU resp = null;
             try {
+            	PCSCWrapper pcsc = PCSCWrapper.getInstance();
             	m_lastCommandAPDU = smApdu; m_lastResponseAPDU = null;
-                resp = channel.transmit(smApdu);
+                resp = pcsc.transmit(channel, smApdu);
                 m_lastResponseAPDU = resp;
             } catch (CardException e) {
                 s_logger.error("Failed to transmit PUT DATA APDU to card", e);

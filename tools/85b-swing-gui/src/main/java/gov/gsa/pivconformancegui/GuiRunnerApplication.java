@@ -14,6 +14,7 @@ import javax.swing.text.DefaultEditorKit;
 
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -29,6 +30,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.security.Security;
 import java.awt.event.ActionEvent;
 
 public class GuiRunnerApplication {
@@ -73,6 +75,19 @@ public class GuiRunnerApplication {
 			csvAppender = (RollingFileAppender<?>) a;
 		}
 		final RollingFileAppender<?> foundAppender = csvAppender;
+		RollingFileAppender<?> apduAppender = null;
+		Logger apduLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
+		if(apduLogger == null) {
+			s_logger.info("No APDU logger is available");
+		} else {
+			apduAppender = (RollingFileAppender<?>) apduLogger.getAppender("APDULOG");
+			if(apduAppender == null) {
+				s_logger.info("No APDU log appender was configured. Disabling APDU logs.");
+				apduLogger.setLevel(Level.OFF);
+			}
+			apduAppender.rollover();
+		}
+		//Security.insertProviderAt(new de.intarsys.security.smartcard.smartcardio.SmartcardioProvider(), 1);
 		
 		
 		EventQueue.invokeLater(new Runnable() {

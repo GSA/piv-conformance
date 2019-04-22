@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.utils.PCSCUtils;
+import gov.gsa.pivconformance.utils.PCSCWrapper;
 
 public class AuthTest {
 	
@@ -35,7 +36,8 @@ public class AuthTest {
 		s_logger.info("Using {}", reader.getName());
 		Card piv = null;
 		try {
-			piv = reader.connect("*");
+			PCSCWrapper pcsc = PCSCWrapper.getInstance();
+			piv = pcsc.connect(reader);
 		} catch (CardException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
