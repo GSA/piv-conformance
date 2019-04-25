@@ -12,6 +12,7 @@ public class PlaceHolderTests {
 	}
 
 	@Test @DisplayName("DeadBeef.1 Test")
+	// To be renamed PlaceholderTest.1 Test
 	void DeadBeef_1(TestReporter reporter) {
 		assertNotNull(null);
 	}
