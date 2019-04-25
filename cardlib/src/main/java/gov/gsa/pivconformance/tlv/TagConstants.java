@@ -198,25 +198,25 @@ public class TagConstants {
 
 
     public static final byte[] Three_Key_Triple_DES_ECB_ID =  { 0x00 };
-    public static final String Three_Key_Triple_DES_ECB = "3 Key Triple DES – ECB";
+    public static final String Three_Key_Triple_DES_ECB = "3 Key Triple DES ECB";
 
     public static final byte[] Three_Key_Triple_DES_ECB2_ID =  { 0x03 };
-    public static final String Three_Key_Triple_DES_ECB2 = "3 Key Triple DES – ECB";
+    public static final String Three_Key_Triple_DES_ECB2 = "3 Key Triple DES ECB";
 
     public static final byte[] RSA_1024_bit_ID =  { 0x06 };
-    public static final String RSA_1024_bit = "RSA 1024 bit modulus, 65 537 ≤ exponent ≤ 2256 - 1";
+    public static final String RSA_1024_bit = "RSA 1024 bit modulus, 65 537 exponent 2256 - 1";
 
     public static final byte[] RSA_2048_bit_ID =  { 0x07 };
-    public static final String RSA_2048_bit = "RSA 2048 bit modulus, 65 537 ≤ exponent ≤ 2256 - 1";
+    public static final String RSA_2048_bit = "RSA 2048 bit modulus, 65 537 exponent 2256 - 1";
 
     public static final byte[] AES_128_ID =  { 0x08 };
-    public static final String AES_128 = "AES-128 – ECB";
+    public static final String AES_128 = "AES-128 ECB";
 
     public static final byte[] AES_192_ID =  { 0x0A };
-    public static final String AES_192 = "AES-192 – ECB";
+    public static final String AES_192 = "AES-192 ECB";
 
     public static final byte[] AES_256_ID =  { 0x0C };
-    public static final String AES_256 = "AES-256 – ECB";
+    public static final String AES_256 = "AES-256 ECB";
 
     public static final byte[] ECC_Curve_P_256_ID =  { 0x11 };
     public static final String ECC_Curve_P_256 = "ECC: Curve P-256";

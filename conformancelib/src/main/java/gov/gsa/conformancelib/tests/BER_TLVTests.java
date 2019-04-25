@@ -68,7 +68,7 @@ public class BER_TLVTests {
     	
         //Get data from the card corresponding to the OID value
         MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "Expected pivGetData to return results for " + oid + " but got " + result);
         	
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
@@ -165,7 +165,7 @@ public class BER_TLVTests {
     	
         //Get data from the card corresponding to the OID value
         MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
+        assertTrue(result == MiddlewareStatus.PIV_OK, "Expected success from pivGetData for " + oid + " but got " + result);
 
         byte[] bertlv = o.getBytes();
         
