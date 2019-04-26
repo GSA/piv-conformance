@@ -258,7 +258,7 @@ public class SP800_73_4SecurityObjectTests {
         	fail(e);
         }
         try {
-        	//css.setApplicationPin("123456");
+        	css.setApplicationPin("123456");
 			CardUtils.setUpPivAppHandleInSingleton();
 			CardUtils.authenticateInSingleton(false);
 		} catch (ConformanceTestException e) {
