@@ -96,7 +96,7 @@ public class ApplicationProperties {
 
         }catch (Exception ex) {
 
-            s_logger.info("Unable to parse application properties data structure: {}", ex.getMessage());
+            s_logger.error("Unable to parse application properties data structure: {}", ex.getMessage(), ex);
         }
     }
 

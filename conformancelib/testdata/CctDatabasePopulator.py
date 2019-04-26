@@ -122,9 +122,9 @@ def main():
     cms_tab = wb.sheet_by_index(5)
     SP800_78_tab = wb.sheet_by_index(6)
     pkix_tab = wb.sheet_by_index(7)
-    deadbeef_tab = wb.sheet_by_index(8)
+    placeholder_tab = wb.sheet_by_index(8)
 
-    sheets = [ber_tlv_tab, SP800_73_4_tab, SP800_76_tab, cms_tab, SP800_78_tab, pkix_tab, deadbeef_tab]
+    sheets = [ber_tlv_tab, SP800_73_4_tab, SP800_76_tab, cms_tab, SP800_78_tab, pkix_tab, placeholder_tab]
 
     for cur_sheet in sheets:
         for ii in range(1, cur_sheet.nrows):

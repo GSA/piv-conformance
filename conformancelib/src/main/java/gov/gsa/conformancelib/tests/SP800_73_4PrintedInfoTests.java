@@ -66,8 +66,9 @@ public class SP800_73_4PrintedInfoTests {
 		byte[] bertlv = o.getBytes();
 		assertNotNull(bertlv, "No data returned from PIVDataObject");
 
-		//Confirm blob is not larger than 120
-		assertTrue(bertlv.length <= 120, "Printed object length must be no larger than 120: got " + bertlv.length);
+		//was: Confirm blob is not larger than 120
+		// see issue #72
+		assertTrue(bertlv.length <= 245, "Printed object length must be no larger than 245 bytes: got " + bertlv.length);
 	}
 
 	//Tags 0x01, 0x02, 0x05, 0x06 are present in that order
