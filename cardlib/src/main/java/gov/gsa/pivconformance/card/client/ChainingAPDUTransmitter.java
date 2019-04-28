@@ -1,5 +1,8 @@
 package gov.gsa.pivconformance.card.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import javax.smartcardio.CardChannel;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CommandAPDU;
@@ -74,10 +77,23 @@ public class ChainingAPDUTransmitter {
 			response = this.basicTransmit(fixedRequest);
 		}
 		if (response.getSw1() == 0x61) {
-			// "GET RESPONSE" command
-			RequestAPDUWrapper fixedRequest = new RequestAPDUWrapper(0, 0xC0, 0, 0,
-					response.getSw2());
-			response = this.basicTransmit(fixedRequest);
+			s_logger.debug("Using GET RESPONSE to retrieve large object");
+			ByteArrayOutputStream dataBaos = new ByteArrayOutputStream();
+			try {
+				dataBaos.write(response.getData());
+			} catch (IOException e) {
+				s_logger.error("Failed to write data to byte array.", e);
+				throw new CardClientException("Failed to write data to byte array.", e);
+			}
+			do {
+				// "GET RESPONSE" command
+				RequestAPDUWrapper fixedRequest = new RequestAPDUWrapper(0, 0xC0, 0, 0,
+						response.getSw2());
+				response = this.basicTransmit(fixedRequest);
+			} while(response.getSw1() == 0x61);
+
+			ResponseAPDUWrapper fixedResponse = new ResponseAPDUWrapper(dataBaos.toByteArray(), response.getSw1(), response.getSw2());
+			s_logger.debug("Returning status {}{} following GET RESPONSE", response.getSw1(), response.getSw2());
 		}
 		if (request.isChainedRequest() && request.getNextRequest() != null) {
 			response = transmit(request.getNextRequest());

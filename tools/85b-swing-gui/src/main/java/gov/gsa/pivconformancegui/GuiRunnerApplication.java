@@ -87,6 +87,8 @@ public class GuiRunnerApplication {
 			}
 			apduAppender.rollover();
 		}
+		//Security.insertProviderAt(new jnasmartcardio.Smartcardio(), 1);
+
 		//Security.insertProviderAt(new de.intarsys.security.smartcard.smartcardio.SmartcardioProvider(), 1);
 		
 		

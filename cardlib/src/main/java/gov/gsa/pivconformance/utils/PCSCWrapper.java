@@ -43,7 +43,8 @@ public class PCSCWrapper {
     
     public ResponseAPDU transmit(CardChannel channel, CommandAPDU cmd) throws CardException {
     	s_logger.debug("transmit() wrapper called");
-/*    	ResponseAPDU rsp = null;
+    	/*
+    	ResponseAPDU rsp = null;
     	s_apduLogger.info("Sending Command APDU: {}", Hex.encodeHexString(cmd.getBytes()).replaceAll("..(?=.)", "$0 "));
     	try {
 			rsp = channel.transmit(cmd);
@@ -53,7 +54,7 @@ public class PCSCWrapper {
 			throw e;
 		}
     	return rsp;
-*/
+    	*/
     	ChainingAPDUTransmitter ct = new ChainingAPDUTransmitter(channel);
     	RequestAPDUWrapper req = new RequestAPDUWrapper(cmd.getBytes());
     	ResponseAPDUWrapper rsp = null;
