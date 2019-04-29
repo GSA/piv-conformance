@@ -37,13 +37,12 @@ public class ChainingAPDUTransmitter {
 	
 	ResponseAPDUWrapper nativeTransmit(RequestAPDUWrapper request) throws CardException, CardClientException {
 		CommandAPDU cmd = new CommandAPDU(request.getBytes());
-    	s_apduLogger.info("Sending Command APDU: {}", Hex.encodeHexString(cmd.getBytes()).replaceAll("..(?=.)", "$0 "));
     	ResponseAPDU rsp = null;
     	try {
-			rsp = m_channel.transmit(cmd);
+    		
 			String apduTrace;
+			// Mask PIN
 	    	if (cmd.getINS() == APDUConstants.VERIFY) {
-	    		// Pretty this up later
 	    		byte[] maskedPin = cmd.getBytes();
 	    		for (int i = 5, end = i + cmd.getNc(); i < end; i++) {
 	    			maskedPin[i] = (byte) 0xAA;
@@ -53,7 +52,10 @@ public class ChainingAPDUTransmitter {
 	    	else {
 	    		apduTrace = String.format("Sending Command APDU %s", Hex.encodeHexString((cmd.getBytes())).replaceAll("..(?=.)", "$0 "));
 	    	}
-    		s_apduLogger.debug("Sending Command APDU: {}", apduTrace);
+    		s_apduLogger.debug(apduTrace);
+    		
+			rsp = m_channel.transmit(cmd);
+
 		} catch (CardException e) {
 			s_logger.error("Caught CardException {} transmitting APDU.", e.getMessage(), e);
 			throw e;

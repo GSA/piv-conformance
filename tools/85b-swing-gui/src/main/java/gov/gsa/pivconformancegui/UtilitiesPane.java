@@ -2,7 +2,6 @@ package gov.gsa.pivconformancegui;
 
 import javax.swing.JPanel;
 import gov.gsa.pivconformance.card.client.*;
-import gov.gsa.pivconformance.utils.PCSCUtils;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 
@@ -10,21 +9,22 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.intarsys.security.smartcard.smartcardio.SmartcardioProvider;
 import gov.gsa.conformancelib.configuration.CardInfoController;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
-import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.ConnectionDescription;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
-import java.security.Provider;
-import java.security.Security;
+
 import java.awt.event.ActionEvent;
 
 public class UtilitiesPane extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final Logger s_logger = LoggerFactory.getLogger(UtilitiesPane.class);
 	public UtilitiesPane() {
 		
