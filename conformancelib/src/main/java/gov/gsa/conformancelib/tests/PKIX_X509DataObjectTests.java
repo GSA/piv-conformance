@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -449,8 +450,8 @@ public class PKIX_X509DataObjectTests {
 	//Confirm that expiration of certificate is not later than expiration of card
 	@DisplayName("PKIX.13 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("pKIX_x509TestProvider3")
-    void PKIX_Test_13(X509Certificate cert, int years, TestReporter reporter) {
+    @MethodSource("pKIX_x509TestProvider")
+    void PKIX_Test_13(X509Certificate cert, TestReporter reporter) {
 		
 		//Check that the oid passed in is not null
 		if (cert == null) {
@@ -466,9 +467,15 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(notAfter);
 		
 		Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
+                GregorianCalendar gc = new GregorianCalendar();
+                gc.setTime(expirationDate);
+                gc.add(Calendar.HOUR, 23);
+                gc.add(Calendar.MINUTE, 59);
+                gc.add(Calendar.SECOND, 59);
+                Date exactDateTime = gc.getTime();
 				
 		//Confirm that expiration of certificate is not later than expiration of card
-		assertTrue(notAfter.compareTo(expirationDate) <= 0, "Certificate " + notAfter + " expires later than the card " + expirationDate);
+                assertTrue(notAfter.compareTo(exactDateTime) <= 0, "Certificate " + notAfter + " expires later than the card " + exactDateTime);
 
     }
 
