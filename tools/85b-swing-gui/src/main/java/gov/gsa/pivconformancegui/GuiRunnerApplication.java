@@ -87,6 +87,8 @@ public class GuiRunnerApplication {
 			}
 			apduAppender.rollover();
 		}
+		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
+		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
 		//Security.insertProviderAt(new jnasmartcardio.Smartcardio(), 1);
 
 		//Security.insertProviderAt(new de.intarsys.security.smartcard.smartcardio.SmartcardioProvider(), 1);
