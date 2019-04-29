@@ -65,7 +65,7 @@ public class UtilitiesPane extends JPanel {
 				result = piv.pivSelectCardApplication(ch, aid, cardAppProperties);
 				PIVAuthenticators authenticators = new PIVAuthenticators();
 				//authenticators.addApplicationPin(css.getApplicationPin());
-				authenticators.addApplicationPin("INVALID");
+				authenticators.addApplicationPin("123456");
 				result = piv.pivLogIntoCardApplication(ch, authenticators.getBytes());
 				//2.16.840.1.101.3.7.2.96.48
 				PIVDataObject obj =
