@@ -16,17 +16,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
-import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
-import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
-import gov.gsa.pivconformance.card.client.CardHandle;
-import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
@@ -37,31 +30,8 @@ public class SP800_73_4CHUIDTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_8(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
 		byte[] bertlv = o.getBytes();
 		assertNotNull(bertlv);
@@ -74,34 +44,8 @@ public class SP800_73_4CHUIDTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_CHUIDTestProvider")
     void sp800_73_4_Test_9(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
-        
-        boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		
@@ -117,35 +61,8 @@ public class SP800_73_4CHUIDTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_10(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
-
-
-		boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		
@@ -163,36 +80,8 @@ public class SP800_73_4CHUIDTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_11(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
-
-
-		boolean decoded = o.decode();
 		
-		assertTrue(decoded);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		
@@ -235,34 +124,8 @@ public class SP800_73_4CHUIDTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_12(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
-
-		boolean decoded = o.decode();		
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		
@@ -335,35 +198,8 @@ public class SP800_73_4CHUIDTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_13(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
-
-
-		boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		
@@ -436,35 +272,8 @@ public class SP800_73_4CHUIDTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_CHUIDTestProvider")
 	void sp800_73_4_Test_14(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
-
-
-		boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		
@@ -544,34 +353,8 @@ public class SP800_73_4CHUIDTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_CHUIDTestProvider")
     void sp800_73_4_Test_15(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
-        
-        boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		Date expirationDate = ((CardHolderUniqueIdentifier) o).getExpirationDate();
 		
@@ -586,8 +369,12 @@ public class SP800_73_4CHUIDTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_CHUIDTestProvider2")
     void sp800_73_4_Test_16(String oid, String yearsStr, TestReporter reporter) {
-        assertNotNull(oid);
-        assertNotNull(yearsStr);
+        
+		//Check that the yearsStr passed in is not null
+		if (yearsStr == null) {
+			ConformanceTestException e  = new ConformanceTestException("OID is null");
+			fail(e);
+		}
         
 		int years = 0;
 		try {
@@ -595,34 +382,8 @@ public class SP800_73_4CHUIDTests {
 		} catch(NumberFormatException e) {
 			fail(e);
 		}
-        
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
-        
-        boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		Date expirationDate = ((CardHolderUniqueIdentifier) o).getExpirationDate();
 		
@@ -642,34 +403,8 @@ public class SP800_73_4CHUIDTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_CHUIDTestProvider")
     void sp800_73_4_Test_17(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
-        
-        boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 				
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		

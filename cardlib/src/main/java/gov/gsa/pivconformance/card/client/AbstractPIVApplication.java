@@ -231,7 +231,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             baos.write(oidBytes);
 
             //Construct APDU command using APDUUtils and applicationAID that was passed in.
-            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU(baos.toByteArray()));
+            CommandAPDU cmd = new CommandAPDU(APDUUtils.PIVGetDataAPDU_Broken(baos.toByteArray()));
 
             PCSCWrapper pcsc = PCSCWrapper.getInstance();
             // Transmit command and get response

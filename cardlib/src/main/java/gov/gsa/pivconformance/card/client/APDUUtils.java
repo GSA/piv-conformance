@@ -174,6 +174,35 @@ public class APDUUtils {
 
         return rv_pivGetData;
     }
+    /**
+     * 
+     * @param data
+     * @return
+     */
+    public static byte[] PIVGetDataAPDU_Broken(byte[] data) {
+
+        byte[] rv_pivGetData = null;
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            baos.write(APDUConstants.COMMAND);
+            baos.write(APDUConstants.GET);
+            byte[] p1p2 = {0x3f, (byte) 0xff};
+            baos.write(p1p2);
+            byte[] Lc = {(byte)(data.length & 0xff)};
+            baos.write(Lc);
+            baos.write(data);
+            byte[] Le = {0x08};
+            baos.write(Le);
+            rv_pivGetData = baos.toByteArray();
+        } catch(IOException ioe) {
+            // if we ever hit this, OOM is coming soon
+            s_logger.error("Unable to populate PIV get data APDU field.", ioe);
+            rv_pivGetData = new byte[0];
+        }
+
+        return rv_pivGetData;
+    }
 
     /**
      *

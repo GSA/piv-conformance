@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
+import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
@@ -44,31 +45,8 @@ public class BER_TLVTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("bertlvTestProvider")
     void berTLV_Test_1(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "Expected pivGetData to return results for " + oid + " but got " + result);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
         	
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
@@ -141,31 +119,8 @@ public class BER_TLVTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("bertlvTestProvider")
     void berTLV_Test_2(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "Expected success from pivGetData for " + oid + " but got " + result);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 
         byte[] bertlv = o.getBytes();
         
@@ -178,32 +133,9 @@ public class BER_TLVTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("bertlvTestProvider")
     void berTLV_Test_3(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        
-        assertTrue(result == MiddlewareStatus.PIV_OK);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		
         byte[] bertlv = o.getBytes();           
         assertNotNull(bertlv);
     }
@@ -213,31 +145,8 @@ public class BER_TLVTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("bertlvTestProvider")
     void berTLV_Test_4(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
@@ -302,10 +211,10 @@ public class BER_TLVTests {
                 Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID),
                 Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID),
-                Arguments.of(APDUConstants.DISCOVERY_OBJECT_OID),
+                Arguments.of(APDUConstants.DISCOVERY_OBJECT_OID)
                 //Arguments.of(APDUConstants.KEY_HISTORY_OBJECT_OID),
                 //Arguments.of(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID),
-                Arguments.of(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID)
+                //Arguments.of(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID)
                 //Arguments.of(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID),
                 //Arguments.of(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID)
                 );

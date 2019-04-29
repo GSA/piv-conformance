@@ -11,6 +11,11 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.pivconformance.card.client.CardClientException;
+import gov.gsa.pivconformance.card.client.ChainingAPDUTransmitter;
+import gov.gsa.pivconformance.card.client.RequestAPDUWrapper;
+import gov.gsa.pivconformance.card.client.ResponseAPDUWrapper;
+
 public class PCSCWrapper {
     private static final Logger s_logger = LoggerFactory.getLogger(PCSCWrapper.class);
     private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
@@ -38,16 +43,27 @@ public class PCSCWrapper {
     
     public ResponseAPDU transmit(CardChannel channel, CommandAPDU cmd) throws CardException {
     	s_logger.debug("transmit() wrapper called");
-    	ResponseAPDU rsp = null;
+/*    	ResponseAPDU rsp = null;
     	s_apduLogger.info("Sending Command APDU: {}", Hex.encodeHexString(cmd.getBytes()).replaceAll("..(?=.)", "$0 "));
     	try {
 			rsp = channel.transmit(cmd);
-			s_apduLogger.info("Received Response APDU: {}", Hex.encodeHexString(rsp.getBytes()).replaceAll("..(?=.)", "$0 "));
+			s_apduLogger.debug("Received Response APDU: {}", Hex.encodeHexString(rsp.getBytes()).replaceAll("..(?=.)", "$0 "));
 		} catch (CardException e) {
 			s_logger.error("Caught CardException {} transmitting APDU.", e.getMessage(), e);
 			throw e;
 		}
     	return rsp;
+*/
+    	ChainingAPDUTransmitter ct = new ChainingAPDUTransmitter(channel);
+    	RequestAPDUWrapper req = new RequestAPDUWrapper(cmd.getBytes());
+    	ResponseAPDUWrapper rsp = null;
+		try {
+			rsp = ct.transmit(req);
+		} catch (CardClientException e) {
+			s_logger.error("Failed to receive response APDU", e);
+			return null;
+		}
+    	return new ResponseAPDU(rsp.getBytes());
     }
     
     private PCSCWrapper() {

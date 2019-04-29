@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
+import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
@@ -162,28 +163,8 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_PIVAuthx509TestProvider")
 	void PKIX_Test_3(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-		AbstractPIVApplication piv = css.getPivHandle();
-		CardHandle c = css.getCardHandle();
-		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-		result = piv.pivGetData(c, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-		boolean decoded = o.decode();
-		assert (decoded == true);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -204,28 +185,8 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("pKIX_PIVAuthx509TestProvider")
 	void PKIX_Test_4(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-		AbstractPIVApplication piv = css.getPivHandle();
-		CardHandle c = css.getCardHandle();
-		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-		result = piv.pivGetData(c, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-		boolean decoded = o.decode();
-		assert (decoded == true);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -268,28 +229,14 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_PIVAuthx509TestProvider2")
     void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        assertNotNull(policyOid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
+		
+		//Check that the oid passed in is not null
+		if (policyOid == null) {
+			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o, "Failed to allocate PIVDataObject");
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o.decode();
-        assertTrue(decoded, "Failed to decode object for OID " + oid);
+				
+		PIVDataObject o = AtomHelper.getDataObject(oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -428,52 +375,23 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_PIVAuthx509TestProvider")
     void PKIX_Test_10(String oid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
+		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+
+		if (cert != null) {
+			//Get piv interim "2.16.840.1.101.3.6.9.1" extension
+			byte[] pivInterim = cert.getExtensionValue("2.16.840.1.101.3.6.9.1");
+			
+			//Confirm pivInterim extension is present and isn't empty
+			assertTrue(pivInterim != null, "pivInterim extension is not present");
+			assertTrue(pivInterim.length > 0, "pivInterim extension is empty");
+		} else {
+        	ConformanceTestException e  = new ConformanceTestException("Could not obtain certificate for " + oid);
 			fail(e);
 		}
-        
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-       	if (o != null) {
-	        AbstractPIVApplication piv = css.getPivHandle();
-	        CardHandle c = css.getCardHandle();
-	        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-	        result = piv.pivGetData(c, oid, o);
-	        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-	        
-	        boolean decoded = o.decode();
 
-	        if (decoded) {
-				X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		
-				if (cert != null) {
-					//Get piv interim "2.16.840.1.101.3.6.9.1" extension
-					byte[] pivInterim = cert.getExtensionValue("2.16.840.1.101.3.6.9.1");
-					
-					//Confirm pivInterim extension is present and isn't empty
-					assertTrue(pivInterim != null, "pivInterim extension is not present");
-					assertTrue(pivInterim.length > 0, "pivInterim extension is empty");
-				} else {
-		        	ConformanceTestException e  = new ConformanceTestException("Could not obtain certificate for " + oid);
-					fail(e);
-				}
-	        } else {
-	        	ConformanceTestException e  = new ConformanceTestException("Unable to decode PIVDataObject for " + oid);
-				fail(e);
-	        }
-       	} else {
-        	ConformanceTestException e  = new ConformanceTestException("Error creating object for " + oid);
-			fail(e);
-       	}
     }
 	
 	//Sign arbitrary data using the specified key container and confirm that the certificate can validate it
@@ -490,57 +408,42 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider2")
     void PKIX_Test_12(X509Certificate cert, String oid, TestReporter reporter) {
-		assertNotNull(cert, "NULL certificate passed to atom");
-		assertNotNull(oid, "NULL oid passed to atom");
+		
+		//Check that the oid passed in is not null
+		if (cert == null) {
+			ConformanceTestException e  = new ConformanceTestException("certificate is null");
+			fail(e);
+		}
+		
+		//Check that the oid passed in is not null
+		if (oid == null) {
+			ConformanceTestException e  = new ConformanceTestException("OID is null");
+			fail(e);
+		}
 		
 		//XXX Not sure what to do with the second parameter
 		
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
+		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+
+               
+		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
+		
+		try {
+			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
+	        if (altNames != null) {
+	            for (List<?> altName : altNames) {
+	                Integer altNameType = (Integer) altName.get(0);
+	                if (altNameType == 0) {
+	                	byte[] otherName = (byte[]) altName.toArray()[1];
+               	
+	                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
+	                	assertTrue(Arrays.equals(fascnFromCert, fascn), "FASCN values do not match");
+	                }
+	            }
+	        }
+		} catch (CertificateParsingException e) {
 			fail(e);
 		}
-        PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-        assertNotNull(o2);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
- 
-        result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o2.decode();
-        
-        if (decoded) {
-               
-			byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
-			System.out.println(new String(fascn));
-			
-			try {
-				Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-		        if (altNames != null) {
-		            for (List<?> altName : altNames) {
-		                Integer altNameType = (Integer) altName.get(0);
-		                if (altNameType == 0) {
-		                	byte[] otherName = (byte[]) altName.toArray()[1];
-	               	
-		                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
-		                	assertTrue(Arrays.equals(fascnFromCert, fascn), "FASCN values do not match");
-		                }
-		            }
-		        }
-			} catch (CertificateParsingException e) {
-				fail(e);
-			}
-        } else {
-        	ConformanceTestException e  = new ConformanceTestException("Unable to decode PIVDataObject for " + oid);
-			fail(e);        	
-        }
     }
 	
 	//Confirm that expiration of certificate is not later than expiration of card
@@ -548,43 +451,25 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_x509TestProvider3")
     void PKIX_Test_13(X509Certificate cert, int years, TestReporter reporter) {
-		assertNotNull(cert, "NULL certificate passed to atom");
-		assertNotNull(years);
 		
-		//XXX Not sure what to do with years value
-
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
+		//Check that the oid passed in is not null
+		if (cert == null) {
+			ConformanceTestException e  = new ConformanceTestException("certificate is null");
 			fail(e);
 		}
-        PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-       
-        result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-        boolean decoded = o2.decode();
-         
-        if (decoded) {  
-			Date notAfter =  cert.getNotAfter();
-			assertNotNull(notAfter);
-			
-			Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
-					
-			//Confirm that expiration of certificate is not later than expiration of card
-			assertTrue(notAfter.compareTo(expirationDate) <= 0, "Certificate " + notAfter + " expires later than the card " + expirationDate);
-        } else {
-        	ConformanceTestException e  = new ConformanceTestException("Unable to decode PIVDataObject for " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-			fail(e);        	
-        }
+		
+		//XXX Not sure what to do with the second parameter
+		
+		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+
+		Date notAfter =  cert.getNotAfter();
+		assertNotNull(notAfter);
+		
+		Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
+				
+		//Confirm that expiration of certificate is not later than expiration of card
+		assertTrue(notAfter.compareTo(expirationDate) <= 0, "Certificate " + notAfter + " expires later than the card " + expirationDate);
+
     }
 
 	//For RSA certs, confirm that public exponent >= 65537
@@ -610,27 +495,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_DigSigx509TestProvider")
     void PKIX_Test_15(String oid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o, "Failed to allocate PIVDataObject");
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o.decode();
-        assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
        
         X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -652,27 +518,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_KeyMgmtx509TestProvider")
     void PKIX_Test_16(String oid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o, "Failed to allocate PIVDataObject");
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o.decode();
-        assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -692,27 +539,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_KeyMgmtx509TestProvider")
     void PKIX_Test_17(String oid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o, "Failed to allocate PIVDataObject");
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o.decode();
-        assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -736,27 +564,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_CardAuthx509TestProvider2")
     void PKIX_Test_18(String oid, String policyOid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o, "Failed to allocate PIVDataObject");
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o.decode();
-        assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
        
         X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -794,27 +603,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_CardAuthx509TestProvider")
     void PKIX_Test_19(String oid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o, "Failed to allocate PIVDataObject");
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o.decode();
-        assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
        
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -831,28 +621,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pKIX_CardAuthx509TestProvider2")
     void PKIX_Test_20(String oid, String ekuOid, TestReporter reporter) {
-        assertNotNull(oid, "NULL oid passed to atom");
-        assertNotNull(ekuOid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o, "Failed to allocate PIVDataObject");
-        AbstractPIVApplication piv = css.getPivHandle();
-        CardHandle c = css.getCardHandle();
-        MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-        result = piv.pivGetData(c, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-        boolean decoded = o.decode();
-        assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
         
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -1039,19 +809,7 @@ public class PKIX_X509DataObjectTests {
     void PKIX_Test_24(X509Certificate cert, String oid, TestReporter reporter) {
 		assertNotNull(cert, "NULL certificate passed to atom");
 		assertNotNull(oid, "NULL oid passed to atom");
-				
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-       
+				 
         byte[] extVal = cert.getExtensionValue(oid);
         assertNotNull(extVal);
         
@@ -1110,19 +868,7 @@ public class PKIX_X509DataObjectTests {
     @MethodSource("pKIX_x509TestProvider")
     void PKIX_Test_25(X509Certificate cert, TestReporter reporter) {
 		assertNotNull(cert, "NULL certificate passed to atom");
-				
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-       
+				      
         byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
         assertNotNull(extVal);
         
@@ -1197,35 +943,8 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("pkix_CHUIDTestProvider")
     void PKIX_Test_26(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
-
-
-		boolean decoded = o.decode();
-		assertTrue(decoded);
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		
 		X509Certificate cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
@@ -1288,58 +1007,12 @@ public class PKIX_X509DataObjectTests {
 	}
 	
 	private static Stream<Arguments> pKIX_x509TestProvider() {
-
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-		PIVDataObject o1 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		PIVDataObject o3 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		PIVDataObject o4 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-		PIVDataObject o5 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		assertNotNull(o1);
-		assertNotNull(o2);
-		assertNotNull(o3);
-		assertNotNull(o4);
-		assertNotNull(o5);
 		
-		AbstractPIVApplication piv = css.getPivHandle();
-		CardHandle c = css.getCardHandle();
-		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		boolean  decoded = o1.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		decoded  = o2.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		decoded  = o3.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-		decoded  = o4.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-			
-		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		decoded  = o5.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		PIVDataObject o1 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+		PIVDataObject o3 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+		PIVDataObject o4 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);		
+		PIVDataObject o5 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
 		assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -1384,60 +1057,13 @@ public class PKIX_X509DataObjectTests {
 	}
 	
 	private static Stream<Arguments> pKIX_x509TestProvider2() {
+		
+		PIVDataObject o1 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+		PIVDataObject o3 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+		PIVDataObject o4 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);		
+		PIVDataObject o5 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-		PIVDataObject o1 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		PIVDataObject o3 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		PIVDataObject o4 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-		PIVDataObject o5 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		assertNotNull(o1);
-		assertNotNull(o2);
-		assertNotNull(o3);
-		assertNotNull(o4);
-		assertNotNull(o5);
-		
-		AbstractPIVApplication piv = css.getPivHandle();
-		CardHandle c = css.getCardHandle();
-		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-		
-		boolean decoded = false;
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		decoded = o1.decode();
-		assertTrue(decoded == true, "Failed to decode PIV authentication certificate");
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		decoded = o2.decode();
-		assertTrue(decoded == true, "Failed to decode Digital Signature certificate");
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		decoded = o3.decode();
-		assertTrue(decoded == true, "Failed to decode Key Management certificate");
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-		decoded = o4.decode();
-		assertTrue(decoded == true, "Failed to decode Card Authentication certificate");
-			
-		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		decoded = o5.decode();
-		assertTrue(decoded == true, "Failed to decode CHUID container");
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
 		assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
@@ -1461,57 +1087,12 @@ public class PKIX_X509DataObjectTests {
 	
 	private static Stream<Arguments> pKIX_x509TestProvider3() {
 
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-		PIVDataObject o1 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		PIVDataObject o3 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		PIVDataObject o4 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-		PIVDataObject o5 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		assertNotNull(o1);
-		assertNotNull(o2);
-		assertNotNull(o3);
-		assertNotNull(o4);
-		assertNotNull(o5);
-		
-		AbstractPIVApplication piv = css.getPivHandle();
-		CardHandle c = css.getCardHandle();
-		MiddlewareStatus result = MiddlewareStatus.PIV_OK;
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, o1);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		boolean decoded = o1.decode();
-		assertTrue(decoded, "Failed to decode object for OID " +  APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, o2);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		decoded = o2.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, o3);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		decoded = o3.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
-		
-		result = piv.pivGetData(c, APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, o4);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-		decoded = o4.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
-			
-		result = piv.pivGetData(c, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o5);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		decoded = o5.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		PIVDataObject o1 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
+		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
+		PIVDataObject o3 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
+		PIVDataObject o4 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);		
+		PIVDataObject o5 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+
 
 		X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
 		assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");

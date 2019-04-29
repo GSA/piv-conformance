@@ -37,9 +37,9 @@
     <!-- This is the appender that produces the APDU traces.
         In order to get traces, it **MUST** be called APDULOG -->
     <appender name="APDULOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>apdu_transmission_log.log</file>
+        <file>apdu_transmission.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-          <fileNamePattern>apdu_transmission_log.%i.log</fileNamePattern>
+          <fileNamePattern>apdu_transmission.%i.log</fileNamePattern>
               <minIndex>1</minIndex>
               <maxIndex>999999</maxIndex>
         </rollingPolicy>
@@ -78,7 +78,7 @@
     </logger>
 
     <!-- APDUs into a separate log -->
-    <logger name="gov.gsa.pivconformance.apdu">
+    <logger name="gov.gsa.pivconformance.apdu" level="DEBUG">
         <appender-ref ref="APDULOG" />
     </logger>
 
