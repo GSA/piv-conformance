@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.card.client.APDUConstants;
 
+// based on logic from the intarsys PCSC wrapper library, adapted to run directly on top of
+// javax.smartcardio.pcsc
 public class ChainingAPDUTransmitter {
 	
 	private CardChannel m_channel = null;

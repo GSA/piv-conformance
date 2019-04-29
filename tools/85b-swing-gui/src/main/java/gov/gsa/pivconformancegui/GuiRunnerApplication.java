@@ -1,15 +1,19 @@
 package gov.gsa.pivconformancegui;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JMenuBar;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
@@ -26,13 +30,6 @@ import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.utils.PCSCUtils;
-
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.security.Security;
-import java.awt.event.ActionEvent;
 
 public class GuiRunnerApplication {
 
