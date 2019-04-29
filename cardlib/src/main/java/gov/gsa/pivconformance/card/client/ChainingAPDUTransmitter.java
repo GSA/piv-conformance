@@ -9,11 +9,14 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.pivconformance.card.client.APDUConstants;
+
 public class ChainingAPDUTransmitter {
 	
 	private CardChannel m_channel = null;
     private static final Logger s_logger = LoggerFactory.getLogger(ChainingAPDUTransmitter.class);
     private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
+	private static final Object logMessage = null;
 	
 	public ChainingAPDUTransmitter(CardChannel c) {
 		m_channel = c;
@@ -38,7 +41,19 @@ public class ChainingAPDUTransmitter {
     	ResponseAPDU rsp = null;
     	try {
 			rsp = m_channel.transmit(cmd);
-			s_apduLogger.info("Received Response APDU: {}", Hex.encodeHexString(rsp.getBytes()).replaceAll("..(?=.)", "$0 "));
+			String apduTrace;
+	    	if (cmd.getINS() == APDUConstants.VERIFY) {
+	    		// Pretty this up later
+	    		byte[] maskedPin = cmd.getBytes();
+	    		for (int i = 5, end = i + cmd.getNc(); i < end; i++) {
+	    			maskedPin[i] = (byte) 0xAA;
+	    		}
+	    		apduTrace = String.format("Sending Command APDU %s", Hex.encodeHexString(maskedPin).replaceAll("..(?=.)", "$0 "));
+	    	}
+	    	else {
+	    		apduTrace = String.format("Sending Command APDU %s", Hex.encodeHexString((cmd.getBytes())).replaceAll("..(?=.)", "$0 "));
+	    	}
+    		s_apduLogger.debug("Sending Command APDU: {}", apduTrace);
 		} catch (CardException e) {
 			s_logger.error("Caught CardException {} transmitting APDU.", e.getMessage(), e);
 			throw e;
