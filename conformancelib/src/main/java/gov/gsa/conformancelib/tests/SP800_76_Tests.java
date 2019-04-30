@@ -31,6 +31,7 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
+import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
@@ -49,35 +50,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_1(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -106,36 +80,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_2(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -166,36 +112,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_3(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -223,36 +141,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_4(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -288,36 +178,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_5(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -335,36 +197,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_6(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -382,36 +216,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_7(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -430,36 +236,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_8(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -497,36 +275,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_9(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -548,36 +298,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_10(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -598,36 +320,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_11(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -653,36 +347,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_12(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -706,36 +372,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_13(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -755,36 +393,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_14(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -803,36 +413,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15a(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -858,36 +440,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15b(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -917,36 +471,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_16(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -971,36 +497,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_17(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1025,36 +523,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_18(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1072,36 +542,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_19(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1116,36 +558,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_20(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1187,36 +601,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_21(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1258,36 +644,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_22(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1328,36 +686,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_23(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 				
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1398,36 +728,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_24(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1473,36 +775,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_25(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1549,36 +823,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_26(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1623,36 +869,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_27(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1697,36 +915,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_28(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1769,36 +959,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_29(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1820,36 +982,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_30(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1871,36 +1005,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_31(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1926,36 +1032,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_32(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1979,36 +1057,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_33(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 		
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		//Make sure biometric data block is present
@@ -2031,36 +1081,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_34(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -2087,36 +1109,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_35(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -2143,36 +1137,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_36(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -2199,36 +1165,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_37(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -2278,54 +1216,7 @@ public class SP800_76_Tests {
 				fail(e);
 			}
 			
-			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-			assertNotNull(css);
-			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-				ConformanceTestException e = new ConformanceTestException(
-						"Login has already been attempted and failed. Not trying again.");
-				fail(e);
-			}
-			try {
-				
-				CardUtils.setUpPivAppHandleInSingleton();
-				CardUtils.authenticateInSingleton(false);
-			} catch (ConformanceTestException e) {
-				fail(e);
-			}
-	
-			// Get card handle and PIV handle
-			CardHandle ch = css.getCardHandle();
-			AbstractPIVApplication piv = css.getPivHandle();
-	
-			// Created an object corresponding to the OID value
-			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-			assertNotNull(o, "Failed to allocate PIVDataObject");
-	
-			// Get data from the card corresponding to the OID value
-			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-			if(oid.contentEquals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-				if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND) {
-					s_logger.info("Optional object {} was not found on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				if(o.getBytes() == null || o.getBytes().length == 0) {
-					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				if(o.getBytes() == null || o.getBytes().length == 0) {
-					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				byte[] buf = o.getBytes();
-				if(buf.length == 2 && buf[0] == (byte)0x53 && buf[1] == 0x00) {
-					s_logger.info("Optional object {} was returned as a container of length 0", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID );
-					return;
-				}
-			}
-			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-	
-		    boolean decoded = o.decode();
-			assertTrue(decoded, "Failed to decode object for OID " + oid);
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
@@ -2347,36 +1238,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_39(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -2417,36 +1280,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_40(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -2532,55 +1367,7 @@ public class SP800_76_Tests {
 				fail(e);
 			}
 			
-			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-			assertNotNull(css);
-			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-				ConformanceTestException e = new ConformanceTestException(
-						"Login has already been attempted and failed. Not trying again.");
-				fail(e);
-			}
-			try {
-				
-				CardUtils.setUpPivAppHandleInSingleton();
-				CardUtils.authenticateInSingleton(false);
-			} catch (ConformanceTestException e) {
-				fail(e);
-			}
-	
-			// Get card handle and PIV handle
-			CardHandle ch = css.getCardHandle();
-			AbstractPIVApplication piv = css.getPivHandle();
-	
-			// Created an object corresponding to the OID value
-			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-			assertNotNull(o, "Failed to allocate PIVDataObject");
-	
-			// Get data from the card corresponding to the OID value
-			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-			if(oid.contentEquals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-				if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND) {
-					s_logger.info("Optional object {} was not found on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				if(o.getBytes() == null || o.getBytes().length == 0) {
-					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				if(o.getBytes() == null || o.getBytes().length == 0) {
-					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				byte[] buf = o.getBytes();
-				if(buf.length == 2 && buf[0] == (byte)0x53 && buf[1] == 0x00) {
-					s_logger.info("Optional object {} was returned as a container of length 0", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID );
-					return;
-				}
-			}
-			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-	
-
-		    boolean decoded = o.decode();
-			assertTrue(decoded, "Failed to decode object for OID " + oid);
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
@@ -2628,54 +1415,7 @@ public class SP800_76_Tests {
 				fail(e);
 			}
 			
-			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-			assertNotNull(css);
-			if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-				ConformanceTestException e = new ConformanceTestException(
-						"Login has already been attempted and failed. Not trying again.");
-				fail(e);
-			}
-			try {
-				
-				CardUtils.setUpPivAppHandleInSingleton();
-				CardUtils.authenticateInSingleton(false);
-			} catch (ConformanceTestException e) {
-				fail(e);
-			}
-
-			// Get card handle and PIV handle
-			CardHandle ch = css.getCardHandle();
-			AbstractPIVApplication piv = css.getPivHandle();
-
-			// Created an object corresponding to the OID value
-			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-			assertNotNull(o, "Failed to allocate PIVDataObject");
-
-			// Get data from the card corresponding to the OID value
-			MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-			if(oid.contentEquals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-				if(result == MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND) {
-					s_logger.info("Optional object {} was not found on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				if(o.getBytes() == null || o.getBytes().length == 0) {
-					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				if(o.getBytes() == null || o.getBytes().length == 0) {
-					s_logger.info("Optional object {} was found but empty on the card", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
-					return;
-				}
-				byte[] buf = o.getBytes();
-				if(buf.length == 2 && buf[0] == (byte)0x53 && buf[1] == 0x00) {
-					s_logger.info("Optional object {} was returned as a container of length 0", APDUConstants.CARDHOLDER_IRIS_IMAGES_OID );
-					return;
-				}
-			}
-			assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-		    boolean decoded = o.decode();
-			assertTrue(decoded, "Failed to decode object for OID " + oid);
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
@@ -2697,36 +1437,8 @@ public class SP800_76_Tests {
 	@MethodSource("sp800_76_BiometricParamTestProvider4")
 	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -2752,36 +1464,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_44(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -2806,45 +1490,9 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_45(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        PIVDataObject o2 = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-		assertNotNull(o2);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
 		
-
-		result = piv.pivGetData(ch, APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, o2);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
-		
-		decoded = o2.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -2869,36 +1517,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_46(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -2921,36 +1541,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_47(String oid, TestReporter reporter) {
-		assertNotNull(oid, "NULL oid passed to atom");
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o, "Failed to allocate PIVDataObject");
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK, "pivGetData() returned " + result + " for OID " + oid);
-
-	    boolean decoded = o.decode();
-		assertTrue(decoded, "Failed to decode object for OID " + oid);
+		
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
