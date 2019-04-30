@@ -1,14 +1,19 @@
 package gov.gsa.pivconformancegui;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JMenuBar;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
@@ -25,13 +30,6 @@ import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.utils.PCSCUtils;
-
-import java.awt.BorderLayout;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.security.Security;
-import java.awt.event.ActionEvent;
 
 public class GuiRunnerApplication {
 
@@ -87,6 +85,10 @@ public class GuiRunnerApplication {
 			}
 			apduAppender.rollover();
 		}
+		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
+		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
+		//Security.insertProviderAt(new jnasmartcardio.Smartcardio(), 1);
+
 		//Security.insertProviderAt(new de.intarsys.security.smartcard.smartcardio.SmartcardioProvider(), 1);
 		
 		
@@ -210,7 +212,8 @@ public class GuiRunnerApplication {
 		mnHelp.add(mntmAboutPivCard);
 		
 		JMenuItem mntmShowDebugWindow = new JMenuItem(c.getShowDebugWindowAction());
-		mntmShowDebugWindow.setIcon(null);
+		ImageIcon debugIcon = c.getActionIcon("application_xp_terminal", "Debug");
+		mntmShowDebugWindow.setIcon(debugIcon);
 		mnHelp.add(mntmShowDebugWindow);
 		
 		m_mainFrame.getContentPane().add(new GuiRunnerToolbar(), BorderLayout.NORTH);

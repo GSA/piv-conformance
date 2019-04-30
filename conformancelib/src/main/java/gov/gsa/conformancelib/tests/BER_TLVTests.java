@@ -45,36 +45,8 @@ public class BER_TLVTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("bertlvTestProvider")
     void berTLV_Test_1(String oid, TestReporter reporter) {
-<<<<<<< HEAD
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "Expected pivGetData to return results for " + oid + " but got " + result);
-=======
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
->>>>>>> refs/heads/swing-gui-devel
         	
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
@@ -147,36 +119,8 @@ public class BER_TLVTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("bertlvTestProvider")
     void berTLV_Test_2(String oid, TestReporter reporter) {
-<<<<<<< HEAD
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK, "Expected success from pivGetData for " + oid + " but got " + result);
-=======
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
->>>>>>> refs/heads/swing-gui-devel
 
         byte[] bertlv = o.getBytes();
         
