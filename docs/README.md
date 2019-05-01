@@ -163,6 +163,8 @@ C:\Users\Developer\git\piv-conformance\tools\85b-swing-gui>
 - Select the `class gov.gsa.pivconformancegui.GuiRunnerApplication` as the main class.
 - Your choice whether to stop in main. 
 - Select Arguments.  Enter `--config 85b_test_definitions_PIV_ICAM_Test_Cards.db`.
-- Apply and start debugging.
+- Apply and start debugging.  See the next section for details about Junit testing.
 
-This is all how it is supposed to work, although there are currently some hiccups with getting Eclipse to see the `conformancelib` project.
+### Junit tests
+
+This project uses Junit in two distinctly separate ways. The most obvious and, arguably the more important of the two is the unit testing of our code itself. The second, and less obvious way Junit is used is in the unit testing of individual 85B test cases. CCT invokes Junit tests against the card and data itself, making assertions that each 85B requirement is met.  It makes those assertions by extracting the data and analyzing it in individual "atoms" -- tiny methods that make at most, two assertions.  This gives us the granularity needed to test the PIV card data and most of the read-only behavior required by PIV.
