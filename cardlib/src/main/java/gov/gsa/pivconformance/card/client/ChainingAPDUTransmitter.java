@@ -109,10 +109,25 @@ public class ChainingAPDUTransmitter {
 				RequestAPDUWrapper fixedRequest = new RequestAPDUWrapper(0, 0xC0, 0, 0,
 						response.getSw2());
 				response = this.basicTransmit(fixedRequest);
+				try {
+					dataBaos.write(response.getData());
+				} catch (IOException e) {
+					s_logger.error("Caught exception appending to byte array", e);
+					throw new CardClientException("Unable to append to byte array", e);
+				}
 			} while(response.getSw1() == 0x61);
 
-			ResponseAPDUWrapper fixedResponse = new ResponseAPDUWrapper(dataBaos.toByteArray(), response.getSw1(), response.getSw2());
+			try {
+				dataBaos.flush();
+			} catch (IOException e) {
+				s_logger.error("Unable to flush byte array output stream", e);
+				throw new CardClientException("Unable to flush byte array output stream for GET RESPONSE handling.", e);
+			}
+			byte[] dataBytes = dataBaos.toByteArray();
+			s_logger.debug("GET RESPONSE: final size: {}", dataBytes.length);
+			ResponseAPDUWrapper fixedResponse = new ResponseAPDUWrapper(dataBytes, response.getSw1(), response.getSw2());
 			s_logger.debug("Returning status {}{} following GET RESPONSE", response.getSw1(), response.getSw2());
+			response = fixedResponse;
 		}
 		if (request.isChainedRequest() && request.getNextRequest() != null) {
 			response = transmit(request.getNextRequest());
