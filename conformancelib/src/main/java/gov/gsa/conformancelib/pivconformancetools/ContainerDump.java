@@ -77,8 +77,11 @@ public class ContainerDump {
         	System.exit(0);
         }
         if(!cmd.hasOption("defaultGetResponse")) {
+        	s_logger.info("Using cardlib GET RESPONSE instead of java default");
 			System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 			System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
+        } else {
+        	s_logger.info("Using java's default GET RESPONSE handling");
         }
         PCSCUtils.ConfigureUserProperties();
         if(cmd.hasOption("listReaders")) {
