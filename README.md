@@ -35,8 +35,8 @@ Cryptographic Modules](https://doi.org/10.6028/NIST.FIPS.140-2)
 
 ### Other Publications, Memoranda, or Documents ###
 - [HSPD-12 Policy for a Common Identification Standard for Federal Employees and Contractors, August 2004](http://www.dhs.gov/homeland-security-presidential-directive-12)
-- [OMB 11-11 Mandatory Use of Personal Identity Verification \(PIV\) Credentials](https://www.whitehouse.gov/sites/whitehouse.gov/files/omb/memoranda/2011/m11-11.pdf)
+- [OMB 11-11 Mandatory Use of Personal Identity Verification (PIV) Credentials](https://www.whitehouse.gov/sites/whitehouse.gov/files/omb/memoranda/2011/m11-11.pdf)
 - [X.509 Certificate Policy For The U.S. Federal PKI Common Policy Framework](http://www.idmanagement.gov/fpki-x509-cert-policy-common/)
-- [X.509 Certificate and Certificate Revocation List \(CRL\) Extensions Profile for the Shared Service Providers \(SSP\) Program](https://www.idmanagement.gov/fpki-cert-profile-ssp/)
-- [Certificate Policy for the Federal Bridge Certification Authority \(FBCA\)](https://www.idmanagement.gov/fpki-x509-cert-policy-fbca/)
-- [PIV Interoperability for Issuers \(PIV-I\)](https://www.idmanagement.gov/piv-i-for-issuers/)
+- [X.509 Certificate and Certificate Revocation List (CRL) Extensions Profile for the Shared Service Providers (SSP) Program](https://www.idmanagement.gov/fpki-cert-profile-ssp/)
+- [Certificate Policy for the Federal Bridge Certification Authority (FBCA)](https://www.idmanagement.gov/fpki-x509-cert-policy-fbca/)
+- [PIV Interoperability for Issuers (PIV-I)](https://www.idmanagement.gov/piv-i-for-issuers/)
