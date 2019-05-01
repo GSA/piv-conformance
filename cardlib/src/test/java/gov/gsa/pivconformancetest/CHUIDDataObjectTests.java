@@ -1,6 +1,8 @@
 package gov.gsa.pivconformancetest;
 
 import gov.gsa.pivconformance.card.client.*;
+import gov.gsa.pivconformance.utils.OSUtils;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +26,7 @@ public class CHUIDDataObjectTests {
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get("/tmp", file);
+        Path filePath = Paths.get(OSUtils.getTempDir(), file);
         byte[] fileData = null;
         try {
             fileData = Files.readAllBytes(filePath);
