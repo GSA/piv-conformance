@@ -1,6 +1,8 @@
 ### Building the Card Conformance Tool from GitHub
 #### Windows version
 
+Note: This page will be updated as the project winds down.
+
 ##### Java
 
 - Uninstall all instances of Java.
@@ -13,19 +15,19 @@
 ##### Cygwin (recommended for Windows users)
 - Install Cygwin from `https://cygwin.com`.
 
-##### Git
+##### Git (optional)
 
 - Install Git from `https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe`.
 - Ensure that the directory containing git.exe is in your PATH environment 
-
-- Make sure that you've set up Git to globally store your username, password, and not to convert line endings from LF to CRLF:
-- `git config --global user.name *your-username*`
-- `git config --global user.email *your-email*`
-- `git config --global core.autocrlf false`
+- To test, open a command window and type `git version`.
+- This optional because the Buildship plugin in Eclipse will sometimes "lose" things, and the command line `git` is more reliable. 
 -  Now, do this:
 - `cd $HOME #(or cd %HOME%)`
-- `mkdir -p ~/git/ #make a special directory that holds all repos`
+- `mkdir -p ~/git/ #or whatever you do in DOS to achieve the same effect`
 - `cd git`
+- Make sure that you've set up Git to globally store your username and password:
+- `git config --global user.name *your-username*`
+- `git config --global user.email *your-email*`
 - The first time you try to clone or push anything, you'll be asked for a password. Paste in your personal access token from GitHub for the box you are working from.
 - `git clone https://github.com/GSA/piv-conformance.git piv-conformance`
 - `cd piv-conformance`
