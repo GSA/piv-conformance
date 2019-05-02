@@ -22,6 +22,7 @@ public class TestCaseModel {
 	private int m_expectedStatus;
     private String m_testGroupName;
     private boolean m_bEnabled;
+    private String m_container;
 	
 	public TestCaseModel(ConformanceTestDatabase db) {
 		setDb(db);
@@ -68,6 +69,16 @@ public class TestCaseModel {
 
 	public void setIdentifier(String identifier) {
 		m_identifier = identifier;
+	}
+
+
+	public String getContainer() {
+		return m_container;
+	}
+
+
+	public void setContainer(String container) {
+		m_container = container;
 	}
 
 
@@ -133,6 +144,7 @@ public class TestCaseModel {
 		String query = "select Id, TestCaseIdentifier, TestCaseDescription, Status, ExpectedStatus, " +
 				"TestGroup, Enabled " +
 				"from TestCases where TestCases.Id = ?";
+		String containerQuery = "select TestCaseContainer from TestCases where TestCases.Id = ?";
 										
 		String stepsQuery = "select Id, TestStepId from TestsToSteps where TestsToSteps.TestId = ? order by ExecutionOrder";
 		try {
@@ -166,6 +178,14 @@ public class TestCaseModel {
 				ts.retrieveForId(prs.getInt("TestStepId"), testId);
 				m_steps.add(ts);
 			}
+			PreparedStatement pContainerQuery = conn.prepareStatement(containerQuery);
+			pContainerQuery.setInt(1, testId);
+			ResultSet crs = pContainerQuery.executeQuery();
+			if(!crs.next()) {
+				s_logger.warn("Test case database does not return anything for container. This is an old format database and should be updated.");
+				this.setContainer(null);
+			}
+			this.setContainer(rs.getString("TestCaseContainer"));
 		} catch(Exception e) {
 			// XXX *** TODO: more granular exception handling		
 			s_logger.error("Database error procesing test case id " + testId + ": caught unexpected exception", e);
