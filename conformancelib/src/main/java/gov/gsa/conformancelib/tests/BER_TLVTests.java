@@ -102,7 +102,8 @@ public class BER_TLVTests {
     //Tag encoded as 3 bytes
     @DisplayName("BERTLV.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("bertlvTestProvider")
+    //@MethodSource("bertlvTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_2(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -117,7 +118,8 @@ public class BER_TLVTests {
     //Each data object returned with 2 byte status word (90 00)
     @DisplayName("BERTLV.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("bertlvTestProvider")
+    //@MethodSource("bertlvTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_3(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -129,7 +131,8 @@ public class BER_TLVTests {
     //If a variable length field has length of 0, tag length is followed immediately by next tag if applicable
     @DisplayName("BERTLV.4 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("bertlvTestProvider")
+    //@MethodSource("bertlvTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_4(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -144,7 +147,8 @@ public class BER_TLVTests {
     //Setting final byte of command string to 0x00 retrieves entire data object regardless of size
     @DisplayName("BERTLV.5 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("bertlvTestProvider")
+    //@MethodSource("bertlvTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_5(String oid, TestReporter reporter) {
 
     	PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -157,6 +161,7 @@ public class BER_TLVTests {
 
     }
     
+    /* only use to test mods to the atoms... no longer needed now that containers are in the database */
     private static Stream<Arguments> bertlvTestProvider() {
     	
     	return Stream.of(
