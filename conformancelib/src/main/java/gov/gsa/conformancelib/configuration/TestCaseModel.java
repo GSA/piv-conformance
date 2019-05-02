@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sqlite.SQLiteException;
 
 public class TestCaseModel {
 	private static Logger s_logger = LoggerFactory.getLogger(TestCaseModel.class);
@@ -178,14 +179,20 @@ public class TestCaseModel {
 				ts.retrieveForId(prs.getInt("TestStepId"), testId);
 				m_steps.add(ts);
 			}
-			PreparedStatement pContainerQuery = conn.prepareStatement(containerQuery);
-			pContainerQuery.setInt(1, testId);
-			ResultSet crs = pContainerQuery.executeQuery();
-			if(!crs.next()) {
-				s_logger.warn("Test case database does not return anything for container. This is an old format database and should be updated.");
+			try {
+				PreparedStatement pContainerQuery = conn.prepareStatement(containerQuery);
+				pContainerQuery.setInt(1, testId);
+				ResultSet crs = pContainerQuery.executeQuery();
+				if(!crs.next()) {
+					s_logger.warn("Test case database does not return anything for container. This is an old format database and should be updated.");
+					this.setContainer(null);
+				}
+				this.setContainer(rs.getString("TestCaseContainer"));
+			} catch(SQLiteException e) {
 				this.setContainer(null);
+				s_logger.warn("Test case database does not contain test case container column. This is an old format database and must be regenerated.",
+						e);
 			}
-			this.setContainer(rs.getString("TestCaseContainer"));
 		} catch(Exception e) {
 			// XXX *** TODO: more granular exception handling		
 			s_logger.error("Database error procesing test case id " + testId + ": caught unexpected exception", e);
