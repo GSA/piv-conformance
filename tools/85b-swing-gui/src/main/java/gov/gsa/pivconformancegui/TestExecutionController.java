@@ -27,6 +27,7 @@ import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
+import gov.gsa.pivconformance.utils.PCSCWrapper;
 
 public class TestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(TestExecutionController.class);
@@ -81,6 +82,8 @@ public class TestExecutionController {
 			return;
 		}
 		m_running = true;
+		PCSCWrapper pcsc = PCSCWrapper.getInstance();
+		pcsc.resetCounters();
 		int atomCount = 0;
 		JProgressBar progress = m_testExecutionPanel.getTestProgressBar();
 		try {
@@ -164,6 +167,10 @@ public class TestExecutionController {
                     s_logger.debug("Adding {} from config", fqmn);
                     discoverySelectors.add(selectMethod(fqmn));
                     ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
+                    String containerName = testCase.getContainer();
+                    if(containerName != null && !containerName.isEmpty()) {
+                    	ParameterProviderSingleton.getInstance().addContainer(fqmn, containerName);
+                    }
                     s_logger.debug("Added {} from config: {}", fqmn, parameters);
                 }
             	
@@ -190,6 +197,8 @@ public class TestExecutionController {
 		}
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
+		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
+				pcsc.getConnectCount(), pcsc.getTransmitCount());
         m_running = false;
 		display.setEnabled(true);
 	}

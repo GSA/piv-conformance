@@ -31,6 +31,7 @@ public class PCSCWrapper {
     
     public Card connect(CardTerminal t, String protocol) throws CardException {
     	s_logger.debug("Connecting to card in {} using protocol: \"{}\"", t.getName(), protocol);
+    	m_connectCount++;
     	Card rv = null;
     	try {
 			rv = t.connect(protocol);
@@ -46,6 +47,7 @@ public class PCSCWrapper {
     
     public ResponseAPDU transmit(CardChannel channel, CommandAPDU cmd) throws CardException {
     	s_logger.debug("transmit() wrapper called");
+    	m_transmitCount++;
     	/*
     	ResponseAPDU rsp = null;
     	s_apduLogger.info("Sending Command APDU: {}", Hex.encodeHexString(cmd.getBytes()).replaceAll("..(?=.)", "$0 "));
@@ -84,6 +86,11 @@ public class PCSCWrapper {
 
 	public int getConnectCount() {
 		return m_connectCount;
+	}
+	
+	public void resetCounters() {
+		m_connectCount = 0;
+		m_transmitCount = 0;
 	}
 
 }
