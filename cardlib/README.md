@@ -3,7 +3,7 @@
 
 To run the container dumper utility, run the ContainerDump class from the full jar:
 
-`java -cp 85b-swing-gui-all.jar gov.gsa.conformancelib.pivconformancetools.ContainerDump -o` (whatever directory you'd like to dump into) -l
+`java -cp 85b-swing-gui-all.jar gov.gsa.conformancelib.pivconformancetools.ContainerDump -l -o `(whatever directory you'd like to dump into)
 ```
 usage: ContainerDump <options>
  -a,--appPin <arg>     PIV application PIN
