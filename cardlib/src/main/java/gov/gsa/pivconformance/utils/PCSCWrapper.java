@@ -21,6 +21,9 @@ public class PCSCWrapper {
     private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
     private static PCSCWrapper INSTANCE = new PCSCWrapper();
     
+    private int m_connectCount = 0;
+    private int m_transmitCount = 0;
+    
     public Card connect(CardTerminal t) throws CardException {
     	s_logger.debug("Connecting to card in {} using the default protocol", t.getName());
     	return connect(t, "*");
@@ -74,5 +77,13 @@ public class PCSCWrapper {
     public static PCSCWrapper getInstance() {
     	return INSTANCE;
     }
-    
+
+	public int getTransmitCount() {
+		return m_transmitCount;
+	}
+
+	public int getConnectCount() {
+		return m_connectCount;
+	}
+
 }
