@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.card.client.APDUConstants;
+import gov.gsa.pivconformance.utils.ITransmitCounter;
+import gov.gsa.pivconformance.utils.PCSCWrapper;
 
 // based on logic from the intarsys PCSC wrapper library, adapted to run directly on top of
 // javax.smartcardio.pcsc
@@ -22,9 +24,11 @@ public class ChainingAPDUTransmitter {
     private static final Logger s_logger = LoggerFactory.getLogger(ChainingAPDUTransmitter.class);
     private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
 	private static final Object logMessage = null;
+	private ITransmitCounter m_counter;
 	
 	public ChainingAPDUTransmitter(CardChannel c) {
 		m_channel = c;
+		m_counter = PCSCWrapper.getInstance();
 	}
 	
 	protected RequestAPDUWrapper fixLengthExpected(RequestAPDUWrapper request, int correctLE) {
@@ -59,6 +63,7 @@ public class ChainingAPDUTransmitter {
 	    	}
     		s_apduLogger.debug(apduTrace);
     		
+    		m_counter.incrementTransmitCount();
 			rsp = m_channel.transmit(cmd);
 
 		} catch (CardException e) {
