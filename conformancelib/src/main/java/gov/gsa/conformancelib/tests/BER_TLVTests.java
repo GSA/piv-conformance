@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -19,13 +20,15 @@ import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.tlv.BerTlvParser;
 import gov.gsa.pivconformance.tlv.CCTTlvLogger;
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 
 public class BER_TLVTests {
 	
 	//Length field encoded as shown in SP800-85B Table 1
     @DisplayName("BERTLV.1 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("bertlvTestProvider")
+    //@MethodSource("bertlvTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_1(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);

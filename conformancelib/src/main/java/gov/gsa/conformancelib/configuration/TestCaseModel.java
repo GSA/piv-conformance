@@ -187,7 +187,7 @@ public class TestCaseModel {
 					s_logger.warn("Test case database does not return anything for container. This is an old format database and should be updated.");
 					this.setContainer(null);
 				}
-				this.setContainer(rs.getString("TestCaseContainer"));
+				this.setContainer(crs.getString("TestCaseContainer"));
 			} catch(SQLiteException e) {
 				this.setContainer(null);
 				s_logger.warn("Test case database does not contain test case container column. This is an old format database and must be regenerated.",
