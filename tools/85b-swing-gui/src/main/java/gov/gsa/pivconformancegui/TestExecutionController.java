@@ -83,7 +83,7 @@ public class TestExecutionController {
 		}
 		m_running = true;
 		PCSCWrapper pcsc = PCSCWrapper.getInstance();
-		pcsc.resetCounters();
+		//pcsc.resetCounters();
 		int atomCount = 0;
 		JProgressBar progress = m_testExecutionPanel.getTestProgressBar();
 		try {
