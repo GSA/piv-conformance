@@ -253,9 +253,37 @@ public class SP800_73_4PrintedInfoTests {
 			assertTrue(present);
 			
 		}
+	}
 		
+	// Tags 0x01, 0x02, 0x05, 0x06 are in that order (split from 73-4.28)
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+	@DisplayName("SP800-73-4.52 test")
+	void sp800_73_4_Test_52 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
 
-    }
+	// Tag 0xFE follows Tag 0x06, or optional Tags 0x07 or 0x08 (split from 73-4.30)
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+	@DisplayName("SP800-73-4.53 test")
+	void sp800_73_4_Test_53 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
 	
 	private static Stream<Arguments> sp800_73_4_PrintedInfoTestProvider() {
 

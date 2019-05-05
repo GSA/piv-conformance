@@ -42,7 +42,6 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -50,19 +49,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
-import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardholderBiometricData;
-import gov.gsa.pivconformance.card.client.CardHandle;
-import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.card.client.SecurityObject;
 
 public class CMSTests {
@@ -749,12 +741,118 @@ public class CMSTests {
 		}	
     }
 	
+	// Verify digest algorithm is present (extended from CMS.4)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	@DisplayName("CMS.24 Test")
+	void CMS_Test_24 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
+	// Verify that digest algorithm is consistent with the signature algorithm (split from CMS.4)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	@DisplayName("CMS.25 Test")
+	void CMS_Test_25 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
+	// Ensure eContentType is id-piv-CHUIDSecurityContent in encapContentInfo (split from CMS.5)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	@DisplayName("CMS.26 Test")
+	void CMS_Test_26 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+
+	// Ensure that the Serial in the signer info corresponds to the serial value in the signer certificate (split from CMS.9)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	@DisplayName("CMS.27 Test")
+	void CMS_Test_27 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
+	// Validate that signed attribute pivSigner-DN matches the one asserted in signing certificate (split from CMS.12)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	@DisplayName("CMS.28 Test")
+	void CMS_Test_28 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
+	// Confirm that signed attribute pivFASC-N matches FASC-N read from CHUID container (split from CMS.17)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	@DisplayName("CMS.29 Test")
+	void CMS_Test_29 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
+	// Confirm that signed attribute entryUUID matches GUID read from CHUID container (split form CMS.17)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
+	@DisplayName("CMS.30 Test")
+	void CMS_Test_30 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
 	private static Stream<Arguments> CMS_TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> CMS_TestProvider2() {
 
 		List<String> oids = Arrays.asList("2.16.840.1.101.3.6.6", "1.3.6.1.1.16.4");

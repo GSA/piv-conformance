@@ -47,44 +47,22 @@ public class SP800_73_4DiscoveryObjectTests {
 		assertTrue(bertlv[bertlv.length-1] == 0x00);
 	}
 
-	//Discovery Object BERTLV tag is FE
-	@DisplayName("SP800-73-4.39 test")
+	//Tag 0x4F is present
+	@DisplayName("SP800-73-4.40 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
-	void sp800_73_4_Test_39(String oid, TestReporter reporter) {
+	void sp800_73_4_Test_40(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		List<BerTag> tagList = ((DiscoveryObject) o).getTagList();		
+		BerTag cardAppAIDTag = new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG);
 
-		//Confirm that we were able to successfully retrieve and decode Discovery Object using tag 0xFE
-		assertNotNull(o);
+		//Confirm Tag 0x4F is present
+		assertTrue(tagList.contains(cardAppAIDTag));	
 	}
 	
-	//Discovery Object Tags 0x4F, 0x5F2F present in that order
-	@DisplayName("SP800-73-4.40 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
-    void sp800_73_4_Test_40(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		List<BerTag> tagList = ((DiscoveryObject) o).getTagList();
-		
-		BerTag cardAppAIDTag = new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG);
-		BerTag pinUsagePolicyTag = new BerTag(TagConstants.PIN_USAGE_POLICY_TAG);
-		
-		//Confirm (0x4F, 0x5F2F) are present 
-		assertTrue(tagList.contains(cardAppAIDTag));
-		assertTrue(tagList.contains(pinUsagePolicyTag));
-		
-		int tagIndex = tagList.indexOf(cardAppAIDTag);
-		
-		//Confirm (0x4F, 0x5F2F) tag order
-		assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.PIV_CARD_APPLICATION_AID_TAG));
-		assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.PIN_USAGE_POLICY_TAG));
-
-    }
-
-	//Discovery Object no tags other than (0x4F, 0x5F2F) are present
+	// Tag 0x5F2F is present
 	@DisplayName("SP800-73-4.41 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
@@ -94,16 +72,9 @@ public class SP800_73_4DiscoveryObjectTests {
 		
 		List<BerTag> tagList = ((DiscoveryObject) o).getTagList();
 		
-		BerTag cardAppAIDTag = new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG);
 		BerTag pinUsagePolicyTag = new BerTag(TagConstants.PIN_USAGE_POLICY_TAG);
-		
-		//Confirm only two tags are present
-		assertTrue(tagList.size() == 2);
-		
-		//Confirm (0x4F, 0x5F2F) are present 
-		assertTrue(tagList.contains(cardAppAIDTag));
-		assertTrue(tagList.contains(pinUsagePolicyTag));
-			
+
+		assertTrue(tagList.contains(pinUsagePolicyTag));			
 	}
 	
 	//Discovery Object The PIN usage policy matches the card capabilities provided by the vendor documentation. 
@@ -135,6 +106,25 @@ public class SP800_73_4DiscoveryObjectTests {
 			}
 		}
 			
+	}
+	
+	// Tags 0x4F, 0x5F2F are in that order (split from 73-4.40)
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+	@DisplayName("SP800-73-4.55 test")
+	void sp800_73_4_Test_55 (String oid, TestReporter reporter) {
+				
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		List<BerTag> tagList = ((DiscoveryObject) o).getTagList();
+		
+		BerTag cardAppAIDTag = new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG);
+		
+		int tagIndex = tagList.indexOf(cardAppAIDTag);
+		
+		//Confirm (0x4F, 0x5F2F) tag order
+		assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.PIV_CARD_APPLICATION_AID_TAG));
+		assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.PIN_USAGE_POLICY_TAG));
 	}
 	
 	private static Stream<Arguments> sp800_73_4_DiscoveryObjectTestProvider() {

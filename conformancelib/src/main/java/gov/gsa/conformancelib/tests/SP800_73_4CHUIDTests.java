@@ -424,6 +424,141 @@ public class SP800_73_4CHUIDTests {
 		}
     }
 	
+	// Tag 0x30 is the first tag or the first tag following 0xEE (split from 73-4.10)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.43 test")
+	void sp800_73_4_Test_43 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+	
+	// Tag 0x34 is present (split from 73-4.12)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.44 test")
+	void sp800_73_4_Test_44 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
+    // Tag 0x34 follows Tag 0x30, 32, or 0x33
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.45 test")
+	void sp800_73_4_Test_45 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
+	// Tag 0x35 is present (split from 73-4.12)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.46 test")
+	void sp800_73_4_Test_46 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+       
+	// Tag 0x35 follows Tag 0x34 (split from 73-4.12)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.47 test")
+	void sp800_73_4_Test_47 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+	
+	// Tag 0x3E is present (split from 73-4.14)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.48 test")
+	void sp800_73_4_Test_48 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+ 	
+    // Tag 0x3E follows Tag 0x35 or 0x36 (split from 73-4.14)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.49 test")
+	void sp800_73_4_Test_49 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+ 	
+	// Tag 0xFE is present (split from 73-4.14)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.49 test")
+	void sp800_73_4_Test_50 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+
+	// Tag 0xFE follows Tag 0x3E (split from 73-4.14)
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_73_4_CHUIDTestProvider")
+	@DisplayName("SP800-73-4.51 test")
+	void sp800_73_4_Test_51 (String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+    
 	private static Stream<Arguments> sp800_73_4_CHUIDTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
