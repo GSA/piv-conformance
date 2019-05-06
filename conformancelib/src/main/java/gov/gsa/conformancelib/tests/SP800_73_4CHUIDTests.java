@@ -14,8 +14,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
@@ -28,7 +30,8 @@ public class SP800_73_4CHUIDTests {
 	//CHUID blob no larger than 3395 bytes
 	@DisplayName("SP800-73-4.8 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CHUIDTestProvider")
+	//@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_8(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -42,7 +45,8 @@ public class SP800_73_4CHUIDTests {
 	//If CHUID tag 0xEE is present, it is the first tag in the blob
 	@DisplayName("SP800-73-4.9 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_9(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -59,7 +63,8 @@ public class SP800_73_4CHUIDTests {
 	//Tag 0x30 is present and is the first tag or the first tag following 0xEE
 	@DisplayName("SP800-73-4.10 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CHUIDTestProvider")
+	//@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_10(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -78,7 +83,8 @@ public class SP800_73_4CHUIDTests {
 	//Tags 0x32 and 0x33 are optionally present and must follow 0x30 in that order
 	@DisplayName("SP800-73-4.11 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CHUIDTestProvider")
+	//@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_11(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -122,7 +128,8 @@ public class SP800_73_4CHUIDTests {
 	//Tags 0x34 and 0x35 are present and follow tags from 73-4.10, 73-4.11
 	@DisplayName("SP800-73-4.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CHUIDTestProvider")
+	//@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_12(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -196,7 +203,8 @@ public class SP800_73_4CHUIDTests {
 	//Tag 0x36 is optionally present and follows tags from 73-4.10, 73-4.11, 73-4.12
 	@DisplayName("SP800-73-4.13 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CHUIDTestProvider")
+	//@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_13(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -270,7 +278,8 @@ public class SP800_73_4CHUIDTests {
 	//Tags 0x3E and 0xFE are present and follow tags from 73-4.10, 73-4.11, 73-4.12, 73-4.13 in that order
 	@DisplayName("SP800-73-4.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CHUIDTestProvider")
+	//@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_14(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -351,7 +360,8 @@ public class SP800_73_4CHUIDTests {
 	//Expiration Date is formatted YYYYMMDD
 	@DisplayName("SP800-73-4.15 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_15(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -367,7 +377,8 @@ public class SP800_73_4CHUIDTests {
 	//Expiration Date is with in 5 years
 	@DisplayName("SP800-73-4.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider2")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider2")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_16(String oid, String yearsStr, TestReporter reporter) {
         
 		//Check that the yearsStr passed in is not null
@@ -401,7 +412,8 @@ public class SP800_73_4CHUIDTests {
 	//No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are present
 	@DisplayName("SP800-73-4.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_17(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -426,7 +438,8 @@ public class SP800_73_4CHUIDTests {
 	
 	// Tag 0x30 is the first tag or the first tag following 0xEE (split from 73-4.10)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.43 test")
 	void sp800_73_4_Test_43 (String oid, TestReporter reporter) {
 		
@@ -441,7 +454,8 @@ public class SP800_73_4CHUIDTests {
 	
 	// Tag 0x34 is present (split from 73-4.12)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.44 test")
 	void sp800_73_4_Test_44 (String oid, TestReporter reporter) {
 		
@@ -456,7 +470,8 @@ public class SP800_73_4CHUIDTests {
     
     // Tag 0x34 follows Tag 0x30, 32, or 0x33
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.45 test")
 	void sp800_73_4_Test_45 (String oid, TestReporter reporter) {
 		
@@ -471,7 +486,8 @@ public class SP800_73_4CHUIDTests {
     
 	// Tag 0x35 is present (split from 73-4.12)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.46 test")
 	void sp800_73_4_Test_46 (String oid, TestReporter reporter) {
 		
@@ -486,7 +502,8 @@ public class SP800_73_4CHUIDTests {
        
 	// Tag 0x35 follows Tag 0x34 (split from 73-4.12)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.47 test")
 	void sp800_73_4_Test_47 (String oid, TestReporter reporter) {
 		
@@ -501,7 +518,8 @@ public class SP800_73_4CHUIDTests {
 	
 	// Tag 0x3E is present (split from 73-4.14)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.48 test")
 	void sp800_73_4_Test_48 (String oid, TestReporter reporter) {
 		
@@ -516,7 +534,8 @@ public class SP800_73_4CHUIDTests {
  	
     // Tag 0x3E follows Tag 0x35 or 0x36 (split from 73-4.14)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.49 test")
 	void sp800_73_4_Test_49 (String oid, TestReporter reporter) {
 		
@@ -531,7 +550,8 @@ public class SP800_73_4CHUIDTests {
  	
 	// Tag 0xFE is present (split from 73-4.14)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.49 test")
 	void sp800_73_4_Test_50 (String oid, TestReporter reporter) {
 		
@@ -546,7 +566,8 @@ public class SP800_73_4CHUIDTests {
 
 	// Tag 0xFE follows Tag 0x3E (split from 73-4.14)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CHUIDTestProvider")
+    //@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.51 test")
 	void sp800_73_4_Test_51 (String oid, TestReporter reporter) {
 		
