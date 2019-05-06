@@ -580,12 +580,14 @@ public class SP800_73_4CHUIDTests {
 		assertTrue(o.getBytes().length >= 0, "Length is < 0");
 	}
     
+	// this is now used only to test changes to atoms
 	private static Stream<Arguments> sp800_73_4_CHUIDTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
 
 	}
 	
+	// this is now used only to test changes to atoms
 	private static Stream<Arguments> sp800_73_4_CHUIDTestProvider2() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, "14"));
