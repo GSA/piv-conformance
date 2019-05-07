@@ -11,7 +11,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.PrintedInformation;
@@ -24,7 +27,8 @@ public class SP800_73_4PrintedInfoTests {
 	//Printed Information blob is no larger than 120 bytes
 	@DisplayName("SP800-73-4.27 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_27(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -40,7 +44,8 @@ public class SP800_73_4PrintedInfoTests {
 	//Tags 0x01, 0x02, 0x05, 0x06 are present in that order
 	@DisplayName("SP800-73-4.28 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    //@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_28(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -74,7 +79,8 @@ public class SP800_73_4PrintedInfoTests {
 	//Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28
 	@DisplayName("SP800-73-4.29 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_29(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -132,7 +138,8 @@ public class SP800_73_4PrintedInfoTests {
 	//Tag 0xFE is present and follows tags from 73-4.28, 73-4.29
 	@DisplayName("SP800-73-4.30 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_30(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -231,7 +238,8 @@ public class SP800_73_4PrintedInfoTests {
 	//No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present
 	@DisplayName("SP800-73-4.31 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    //@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_31(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -257,7 +265,8 @@ public class SP800_73_4PrintedInfoTests {
 		
 	// Tags 0x01, 0x02, 0x05, 0x06 are in that order (split from 73-4.28)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.52 test")
 	void sp800_73_4_Test_52 (String oid, TestReporter reporter) {
 		
@@ -272,7 +281,8 @@ public class SP800_73_4PrintedInfoTests {
 
 	// Tag 0xFE follows Tag 0x06, or optional Tags 0x07 or 0x08 (split from 73-4.30)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.53 test")
 	void sp800_73_4_Test_53 (String oid, TestReporter reporter) {
 		
