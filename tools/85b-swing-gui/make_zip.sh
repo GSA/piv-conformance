@@ -11,6 +11,6 @@ if [[ -d 85b-swing-gui ]]; then
 fi
 mkdir -p 85b-swing-gui
 cp ./build/libs/85b-swing-gui-all.jar 85b-swing-gui
-cp ./user_log_config.xml 85b-swing-gui/
+cp -i ./user_log_config.xml 85b-swing-gui/
 zip -r 85b-swing-gui-$(date +'%Y%m%d').zip 85b-swing-gui
 
