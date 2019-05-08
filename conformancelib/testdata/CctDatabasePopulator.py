@@ -14,54 +14,6 @@ from datetime import datetime
 import xlrd
 
 
-schema = 'CREATE TABLE "TestSteps" (\n\
-	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,\n\
-	`Description`	TEXT,\n\
-        `Class`         TEXT,\n\
-        `Method`        TEXT,\n\
-	`NumParameters`	INTEGER\n\
-);\n\
-CREATE TABLE "TestsToSteps" (\n\
-	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,\n\
-	`TestStepId`	INTEGER,\n\
-	`TestId`	INTEGER,\n\
-        `ExecutionOrder`         INTEGER,\n\
-        `Status`        INTEGER\n\
-);\n\
-CREATE TABLE "TestStepParameters" (\n\
-	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,\n\
-	`TestStepId`	INTEGER,\n\
-	`TestId`	INTEGER,\n\
-        `Value`         TEXT,\n\
-        `ParamOrder`    TEXT\n\
-);\n\
-CREATE TABLE "TestCases" (\n\
-	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,\n\
-        `TestGroup`         TEXT,\n\
-	`TestCaseIdentifier`	TEXT,\n\
-        `TestCaseDescription`   TEXT,\n\
-        `Status`        INTEGER,\n\
-        `ExpectedStatus` INTEGER,\n\
-        `Enabled`   INTEGER\n\
-);\n\
-CREATE TABLE "TestGroups" (\n\
-	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,\n\
-        `GroupDescription`   TEXT\n\
-);\n\
-CREATE TABLE "GroupsToTestCases" (\n\
-	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,\n\
-	`TestGroupId`	INTEGER,\n\
-	`TestCaseId`	INTEGER\n\
-);\n\
-CREATE TABLE "SystemSettings" (\n\
-	`Id`	INTEGER PRIMARY KEY AUTOINCREMENT,\n\
-	`ReaderName`	TEXT,\n\
-	`ApplicationPIN`	TEXT,\n\
-	`OutputDirectory`	TEXT,\n\
-	`SettingsGroup`	TEXT,\n\
-	`GPMasterKey`	TEXT\n\
-);\n\
-'
 
 class test_step:
     m_id = ""
@@ -87,6 +39,7 @@ class test_case:
     m_expected_status = 1
     m_enabled = 1
     m_test_steps = []
+    m_test_case_container = ""
 
     def __init__(self):
         self.m_omitted_testGroup = ""
@@ -96,6 +49,7 @@ class test_case:
         self.m_expected_status = 1
         self.m_enabled = 1
         self.m_test_steps = []
+        self.m_test_case_container = ""
 
 test_step_map = {}
 test_cases = []
@@ -109,6 +63,8 @@ def main():
         "-i", "--input", action="store", help="Full path and filename of XLSX file containing test definifions")
     parser.add_argument(
         "-o", "--output", action="store", help="Full path and filename of sqlite database file to receive information")
+    parser.add_argument(
+        "-s", "--schema", action="store", help="Full path and filename to sqlite database schema")
 
     # User ID	Device UUID	IMEI	Model	Model Name	OS Version	Serial Number
     args = parser.parse_args()
@@ -122,9 +78,9 @@ def main():
     cms_tab = wb.sheet_by_index(5)
     SP800_78_tab = wb.sheet_by_index(6)
     pkix_tab = wb.sheet_by_index(7)
-    deadbeef_tab = wb.sheet_by_index(8)
+    placeholder_tab = wb.sheet_by_index(8)
 
-    sheets = [ber_tlv_tab, SP800_73_4_tab, SP800_76_tab, cms_tab, SP800_78_tab, pkix_tab, deadbeef_tab]
+    sheets = [ber_tlv_tab, SP800_73_4_tab, SP800_76_tab, cms_tab, SP800_78_tab, pkix_tab, placeholder_tab]
 
     for cur_sheet in sheets:
         for ii in range(1, cur_sheet.nrows):
@@ -145,11 +101,14 @@ def main():
 
             test_step_map[ts.m_id] = ts
 
+    # step overview tab should contain columns in the following order:
+    # Document,Test Id,Test Case Description,Atoms,Comments,Container ID,Steps
     for ii in range(1, step_overview_tab.nrows):
         tc = test_case()
         tc.m_test_case_identifier = str(step_overview_tab.cell_value(ii, 1)).strip()
         tc.m_test_case_description = str(step_overview_tab.cell_value(ii, 2)).strip()
         test_details = str(step_overview_tab.cell_value(ii, 3)).strip()
+        tc.m_test_case_container = str(step_overview_tab.cell_value(ii, 5))
         if test_details:
             if ',' in test_details:
                 test_details = test_details.rstrip(',')
@@ -162,6 +121,15 @@ def main():
                 tc.m_test_steps.append(ts)
 
         test_cases.append(tc)
+
+    schema = open(sys.path[0] + '/conformance-schema.sql', 'r').read()
+    if(args.schema):
+        try:
+            schemafh = open(args.schema, 'r')
+            schema = schemafh.read()
+        except Exception as e:
+            print("Error reading schema: " + str(e))
+            sys.exit(1)
 
     file = open(args.output, "w")
     file.write(schema)
@@ -199,6 +167,7 @@ def main():
         sql = "INSERT INTO \"TestCases\" VALUES(" + str(id) + ", NULL,"
         sql = sql + "'" + tc.m_test_case_identifier  + "',"
         sql = sql + "'" + tc.m_test_case_description + "',"
+        sql = sql + "'" + tc.m_test_case_container + "',"
         sql = sql + "NULL, 1, 1);\n"
         file.write(sql)
         id_to_case[tc.m_test_case_identifier] = id

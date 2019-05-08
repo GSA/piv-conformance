@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.lang.IllegalArgumentException;
+import java.lang.reflect.Field;
 
 /**
  * Helper class that containes helper variables and functions for APDU generation
@@ -561,6 +562,20 @@ public class APDUConstants {
         String oid = firstPart + Integer.toString(number);
 
         return oid;
+    }
+    
+    public static final String getStringForFieldNamed(String fieldName) {
+    	String rv = null;
+		Field oidField = null;
+		try {
+			oidField = APDUConstants.class.getField(fieldName);
+			rv = (String) oidField.get(APDUConstants.class);
+
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e1) {
+			//e1.printStackTrace();
+			return null;
+		}
+    	return rv;
     }
 
     /**

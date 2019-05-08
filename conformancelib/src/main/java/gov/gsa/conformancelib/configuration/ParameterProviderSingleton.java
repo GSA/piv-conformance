@@ -8,6 +8,7 @@ import java.util.Map;
 public class ParameterProviderSingleton {
 	List< List<String> > m_parameterStack;
 	Map<String, List<String>> m_parametersDict;
+	Map<String, String> m_containerMap;
 
     private ParameterProviderSingleton() {
     	reset();
@@ -25,6 +26,8 @@ public class ParameterProviderSingleton {
     	m_parameterStack = new ArrayList< List<String> >();
     	m_parametersDict = null;
     	m_parametersDict = new HashMap<String, List<String>>();
+    	m_containerMap = null;
+    	m_containerMap = new HashMap<String,String>();
     }
     
     public List<String> getNextParameter() {
@@ -42,5 +45,13 @@ public class ParameterProviderSingleton {
     
     public List<String> getNamedParameter(String name) {
     	return m_parametersDict.get(name);
+    }
+    
+    public void addContainer(String test, String oid) {
+    	m_containerMap.put(test, oid);
+    }
+    
+    public String getContainer(String test) {
+    	return m_containerMap.getOrDefault(test, null);
     }
 }

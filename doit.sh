@@ -2,6 +2,7 @@
 pushd cardlib >/dev/null 2>&1
 	./gradlew clean
 	./gradlew eclipse
+	./gradlew installSource
 	./gradlew install
 popd >/dev/null 2>&1
 

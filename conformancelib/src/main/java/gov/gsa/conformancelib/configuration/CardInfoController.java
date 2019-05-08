@@ -70,6 +70,7 @@ public class CardInfoController {
 		ConnectionDescription cd = ConnectionDescription.createFromTerminal(reader);
 		CardHandle ch = css.getCardHandle();
 		MiddlewareStatus result = PIVMiddleware.pivConnect(false, cd, ch);
+		s_logger.info("{}", ch.getCard());
 
 		try {
 			if(result != MiddlewareStatus.PIV_OK)
@@ -80,7 +81,7 @@ public class CardInfoController {
 				ch.getCard().disconnect(true);
 				result = PIVMiddleware.pivConnect(false, cd, ch);
 			} catch (CardException e) {
-				s_logger.debug("Attempt at card reset failed. Trying to proceed.");
+				s_logger.debug("Attempt at card reset failed. Trying to proceed.", e);
 			}
 		
 			DefaultPIVApplication piv = new DefaultPIVApplication();
@@ -101,7 +102,7 @@ public class CardInfoController {
 
 			return rv;
 		} catch (Exception ex) {
-			s_logger.error("Error: {}", ex.getLocalizedMessage());
+			s_logger.error("Error: {}", ex.getLocalizedMessage(), ex);
 		}
 		return rv;
 	}

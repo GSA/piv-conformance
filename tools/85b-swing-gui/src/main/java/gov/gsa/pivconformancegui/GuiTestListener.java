@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.net.ssl.SSLEngineResult.Status;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import javax.swing.tree.DefaultTreeModel;
 
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.reporting.ReportEntry;
@@ -16,6 +17,9 @@ import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.TestPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gov.gsa.conformancelib.configuration.TestCaseModel;
+import gov.gsa.conformancelib.configuration.TestStatus;
 
 
 public class GuiTestListener implements TestExecutionListener {
@@ -57,10 +61,19 @@ public class GuiTestListener implements TestExecutionListener {
 		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription,
 				m_testCaseExpectedResult ? "Pass" : "Fail",
 				(m_AtomAborted||m_AtomFailed) ? "Fail" : "Pass"); 
+		TestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
+		if(tcNode != null) {
+			TestCaseModel tcModel = tcNode.getTestCase();
+			if(tcModel != null) {
+				tcModel.setTestStatus(m_AtomAborted || m_AtomFailed ? TestStatus.FAIL : TestStatus.PASS);
+			}
+		}
+		DefaultTreeModel model = GuiRunnerAppController.getInstance().getApp().getTreePanel().getTreeModel();
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_progressBar.setString(m_testCaseIdentifier + " Finished.");
 				m_progressBar.setValue(m_progressBar.getValue()+1);
+				if(model != null && tcNode != null) model.nodeChanged(tcNode);
 			});
 		} catch (InterruptedException | InvocationTargetException e) {
 			s_logger.error("Failed to update progress bar on secondary thread", e);

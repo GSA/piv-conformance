@@ -35,6 +35,11 @@ dependencies {
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
     compile files('lib/cardlib.jar')
     compile files('lib/conformancelib.jar')
+    //compile files('lib/intarsys-smartcardio.jar')
+    //compile files('lib/is-native-c.jar')
+    //compile files('lib/is-runtime.jar')
+    //compile files('lib/jna.jar')
+    //compile group: 'io.github.jnasmartcardio', name: 'jnasmartcardio', version: '0.2.7'
     //compile project(':cardlib')
     //compile project(':conformancelib')
     compile 'org.junit.jupiter:junit-jupiter-api:5.1.0'

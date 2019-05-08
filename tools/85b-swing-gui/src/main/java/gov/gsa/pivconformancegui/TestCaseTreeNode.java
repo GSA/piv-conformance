@@ -35,5 +35,6 @@ public class TestCaseTreeNode extends DefaultMutableTreeNode {
 		if(m_testCase != null) return m_testCase.getIdentifier();
 		return new String("(null)");
 	}
+	
 
 }

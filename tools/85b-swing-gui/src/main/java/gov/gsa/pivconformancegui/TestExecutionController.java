@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
@@ -25,6 +27,7 @@ import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
+import gov.gsa.pivconformance.utils.PCSCWrapper;
 
 public class TestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(TestExecutionController.class);
@@ -79,6 +82,8 @@ public class TestExecutionController {
 			return;
 		}
 		m_running = true;
+		PCSCWrapper pcsc = PCSCWrapper.getInstance();
+		//pcsc.resetCounters();
 		int atomCount = 0;
 		JProgressBar progress = m_testExecutionPanel.getTestProgressBar();
 		try {
@@ -134,15 +139,39 @@ public class TestExecutionController {
                     	}
                         
                     }
+                    if(fqmn == className) {
+                    	String errorMessage = "Test " + testCase.getIdentifier() + " specifies a test atom " + className + "#" +
+                    			methodName + "()" + " but no such method could be found for the class " + className + "." +
+                    			" (Test atom: " + currentStep.getTestDescription() + ")" +
+                    			" Check that the database matches the included set of test atoms.";
+                    	
+                    	s_logger.error(errorMessage);
+						try {
+							SwingUtilities.invokeAndWait(() -> {			
+								JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
+								JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
+								dialog.setAlwaysOnTop(true);
+								dialog.setVisible(true);
+							});
+						} catch (InvocationTargetException | InterruptedException e) {
+							s_logger.error("Unable to display error dialog.");
+						}
+						break;
+                    }
                 } catch (ClassNotFoundException e) {
                     s_logger.error("{} was configured in the database but could not be found.", fqmn);
                     break;
                 }
                 if(className != null && !className.isEmpty() && testClass != null) {
                     //String testName = testNameFromConfig;
+                    s_logger.debug("Adding {} from config", fqmn);
                     discoverySelectors.add(selectMethod(fqmn));
                     ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
-                    s_logger.debug("Adding {} from config", fqmn);
+                    String containerName = testCase.getContainer();
+                    if(containerName != null && !containerName.isEmpty()) {
+                    	ParameterProviderSingleton.getInstance().addContainer(fqmn, containerName);
+                    }
+                    s_logger.debug("Added {} from config: {}", fqmn, parameters);
                 }
             	
             }
@@ -168,6 +197,8 @@ public class TestExecutionController {
 		}
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
+		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
+				pcsc.getConnectCount(), pcsc.getTransmitCount());
         m_running = false;
 		display.setEnabled(true);
 	}

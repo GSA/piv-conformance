@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS "TestCases" (
         `TestGroup`         TEXT, -- can be filled in to allow selective execution by the runner. not in spreadsheet
 	`TestCaseIdentifier`	TEXT, -- section column on step overview tab
         `TestCaseDescription`   TEXT, -- description column on step overview tab
+        `TestCaseContainer` TEXT, -- ID of the container the test case applies to, if necessary
         `Status`        INTEGER, -- to be populated by runner
         `ExpectedStatus` INTEGER, -- everything on the spreadsheet should get 1 here - primarily present to give runners a way to mark tests that should fail
         `Enabled`   INTEGER -- allows the runner to enable/disable test cases. default to 1

@@ -15,20 +15,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
-import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.SecurityObject;
-import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.DiscoveryObject;
-import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
@@ -40,39 +34,14 @@ public class SP800_73_4SecurityObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_73_4_SecurityObjectTestProvider")
 	void sp800_73_4_Test_33(String oid, TestReporter reporter) {
-		assertNotNull(oid);
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		assertNotNull(css);
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
 
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		assertNotNull(o);
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-		assertTrue(result == MiddlewareStatus.PIV_OK);
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 
 		byte[] bertlv = o.getBytes();
 		assertNotNull(bertlv);
 
 		//Confirm Security object blob is not larger than 120
-		assertTrue(bertlv.length <= 1008);
+		assertTrue(bertlv.length <= 1008); // TODO: https://github.com/GSA/piv-conformance/issues/90
 	}
 
 	//Tags 0xBA, 0xBB, 0XFE are present in that order
@@ -80,52 +49,27 @@ public class SP800_73_4SecurityObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_34(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
+
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
         
         boolean decoded = o.decode();
 		assertTrue(decoded);
 		
-		//Get tag list
+		// Get tag list
 		List<BerTag> tagList = ((SecurityObject) o).getTagList();
 		
 		BerTag berMappingTag = new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG);
 		BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);
 		BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 		
-		//Confirm tags 0xBA, 0xBB, 0XFE are present
+		// Confirm tags 0xBA, 0xBB, 0XFE are present
 		assertTrue(tagList.contains(berMappingTag));
 		assertTrue(tagList.contains(berSecurityObjectTag));
 		assertTrue(tagList.contains(berEDCTag));
 		
 		int orgMappingTagIndex = tagList.indexOf(berMappingTag);
 		
-		//Confirm tags 0xBA, 0xBB, 0XFE are in right order
+		// Confirm tags 0xBA, 0xBB, 0XFE are in right order
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex).bytes,TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+1).bytes,TagConstants.SECURITY_OBJECT_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+2).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
@@ -136,56 +80,31 @@ public class SP800_73_4SecurityObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_35(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
-        
+
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+
         boolean decoded = o.decode();
 		assertTrue(decoded);
 				
-		//Get tag list
+		// Get tag list
 		List<BerTag> tagList = ((SecurityObject) o).getTagList();
 		
 		BerTag berMappingTag = new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG);
 		BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);
 		BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 		
-		//Confirm tags 0x01, 0x02, 0x05, 0x06 are present
+		// Confirm tags 0x01, 0x02, 0x05, 0x06 are present
 		assertTrue(tagList.contains(berMappingTag));
 		assertTrue(tagList.contains(berSecurityObjectTag));
 		assertTrue(tagList.contains(berEDCTag));
 		
 		
-		//Confirm only 3 tags are present
+		// Confirm only 3 tags are present
 		assertTrue(tagList.size() == 3);
 		
 		int orgMappingTagIndex = tagList.indexOf(berMappingTag);
 		
-		//Confirm tags 0x01, 0x02, 0x05, 0x06 are in right order
+		// Confirm tags 0x01, 0x02, 0x05, 0x06 are in right order
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex).bytes,TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+1).bytes,TagConstants.SECURITY_OBJECT_TAG));
 		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+2).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
@@ -196,34 +115,9 @@ public class SP800_73_4SecurityObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_36(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-			
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
-        
+
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+
         boolean decoded = o.decode();
 		assertTrue(decoded);
 		
@@ -235,13 +129,9 @@ public class SP800_73_4SecurityObjectTests {
 		
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
 
-            PIVDataObject tmpObj = PIVDataObjectFactory.createDataObjectForOid(entry.getValue());
-            assertNotNull(tmpObj);
-            
-            result = piv.pivGetData(ch, entry.getValue(), tmpObj);
-            assertTrue(result == MiddlewareStatus.PIV_OK);
+            PIVDataObject tmpObj = AtomHelper.getDataObjectWithAuth(entry.getValue());
+            assertNotNull(tmpObj);;
 		}
-
     }
 	
 	//For each container listed in the security object, calculate the hash of the data within that container and confirm that the actual 
@@ -250,33 +140,8 @@ public class SP800_73_4SecurityObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_37(String oid, TestReporter reporter) {
-        assertNotNull(oid);
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-        	fail(e);
-        }
-        try {
-        	css.setApplicationPin("123456");
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
-        
-        //Get card handle and PIV handle
-        CardHandle ch = css.getCardHandle();
-        AbstractPIVApplication piv = css.getPivHandle();
-        
-        //Created an object corresponding to the OID value
-        PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-        assertNotNull(o);
-    	
-        //Get data from the card corresponding to the OID value
-        MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-        assertTrue(result == MiddlewareStatus.PIV_OK);
-        	
+
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
         
         boolean decoded = o.decode();
 		assertTrue(decoded);
@@ -289,9 +154,7 @@ public class SP800_73_4SecurityObjectTests {
 		
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
-            PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(entry.getValue());
-            result = piv.pivGetData(ch, entry.getValue(), dataObject);
-            if(result != MiddlewareStatus.PIV_OK) continue;
+            PIVDataObject dataObject = AtomHelper.getDataObjectWithAuth(entry.getValue());
             
             decoded = dataObject.decode();
     		assertTrue(decoded);
@@ -375,6 +238,5 @@ public class SP800_73_4SecurityObjectTests {
 	private static Stream<Arguments> sp800_73_4_SecurityObjectTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));
-
 	}
 }

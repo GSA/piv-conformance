@@ -12,6 +12,8 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.pivconformance.card.client.APDUConstants;
+
 public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 	private static Logger s_logger = LoggerFactory.getLogger(ParameterUtils.class);
 	
@@ -24,6 +26,7 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 		List<Arguments> argList = new ArrayList<Arguments>();
 		Optional<Method> testMethod = context.getTestMethod();
 		List<String> parameters;
+		String container = null;
 		
 		// if there's a method supplied in the context, use it as a key to get parameters from the dictionary
 		if(testMethod.isPresent()) {
@@ -55,6 +58,7 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 			}
 
 			parameters = parameterSource.getNamedParameter(fqmn);			
+			container = parameterSource.getContainer(fqmn);
 		} else {
 			s_logger.warn("ParameterizedArgumentsProvider called without named parameters in dictionary. Resorting to stack.");
 			// otherwise pop one off the stack
@@ -62,8 +66,21 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 		}
 		
 		if(parameters != null) {
+			/* it is feasible that we need to add a block like this... leaving for reference:
+			if(container != null && !container.isEmpty()) {
+				for(String p : parameters) {
+					argList.add( Arguments.of(container,p));
+				}
+			}*/
 			for(String p : parameters) {
 				argList.add(Arguments.of(p));
+			}
+		} else if(container != null && !container.isEmpty()) {
+			String containerOid = APDUConstants.getStringForFieldNamed(container);
+			if(containerOid != null) {
+				argList.add(Arguments.of(containerOid));
+			} else {
+				argList.add(Arguments.of(container));
 			}
 		}
 		

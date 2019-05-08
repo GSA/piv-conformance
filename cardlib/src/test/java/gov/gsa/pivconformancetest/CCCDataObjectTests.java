@@ -1,6 +1,8 @@
 package gov.gsa.pivconformancetest;
 
 import gov.gsa.pivconformance.card.client.*;
+import gov.gsa.pivconformance.utils.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,7 +17,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CCCDataObjectTests {
@@ -25,7 +26,9 @@ public class CCCDataObjectTests {
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get("/tmp", file);
+        
+        Path filePath = Paths.get(OSUtils.getTempDir(), file);
+        
         byte[] fileData = null;
         try {
             fileData = Files.readAllBytes(filePath);

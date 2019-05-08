@@ -80,6 +80,7 @@ public class BerTlv {
         }
 
         if(isConstructed()) {
+        	if(theList == null) return null;
             for (BerTlv tlv : theList) {
                 BerTlv ret = tlv.find(aTag);
                 if(ret!=null) {
