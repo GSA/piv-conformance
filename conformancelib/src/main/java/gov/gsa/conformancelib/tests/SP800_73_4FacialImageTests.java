@@ -14,10 +14,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -36,7 +38,8 @@ public class SP800_73_4FacialImageTests {
 	//Card Holder Facial Image blob no larger than 12710 bytes
 	@DisplayName("SP800-73-4.32 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_FacialImageTestProvider")
+	//@MethodSource("sp800_73_4_FacialImageTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_32(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);

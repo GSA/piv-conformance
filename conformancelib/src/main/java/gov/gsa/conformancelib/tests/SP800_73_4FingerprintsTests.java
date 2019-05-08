@@ -14,10 +14,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -35,7 +37,8 @@ public class SP800_73_4FingerprintsTests {
 	//Fingerprints container blob no larger than 4006 bytes
 	@DisplayName("SP800-73-4.24 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_FingerprintsTestProvider")
+	//@MethodSource("sp800_73_4_FingerprintsTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_24(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -50,7 +53,8 @@ public class SP800_73_4FingerprintsTests {
 	//Tags 0xBC and 0xFE are present in that order
 	@DisplayName("SP800-73-4.25 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_FingerprintsTestProvider")
+    //@MethodSource("sp800_73_4_FingerprintsTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_25(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -75,7 +79,8 @@ public class SP800_73_4FingerprintsTests {
 	//No tags other than (0xBC, 0xFE) are present
 	@DisplayName("SP800-73-4.26 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_FingerprintsTestProvider")
+	//@MethodSource("sp800_73_4_FingerprintsTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_26(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);

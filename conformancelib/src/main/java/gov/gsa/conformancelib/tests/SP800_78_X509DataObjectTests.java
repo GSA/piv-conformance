@@ -21,10 +21,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -40,7 +42,8 @@ public class SP800_78_X509DataObjectTests {
 	//Table 3-2 RSA Ensure that RSA key has 2048- or 3072-bit modulus
     @DisplayName("SP800-78.1 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_78_x509TestProvider")
+    //@MethodSource("sp800_78_x509TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_1(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -60,7 +63,8 @@ public class SP800_78_X509DataObjectTests {
     //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
     @DisplayName("SP800-78.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_78_x509TestProvider")
+    //@MethodSource("sp800_78_x509TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_2(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -100,7 +104,8 @@ public class SP800_78_X509DataObjectTests {
 	//Table 3-3 Ensure that signature algorithm is one of 1.2.840.113549.1.1.5, 1.2.840.113549.1.1.11, 1.2.840.113549.1.1.10, 1.2.840.10045.4.3.2, 1.2.840.10045.4.3.3
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_78_x509TestProvider")
+    //@MethodSource("sp800_78_x509TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_3(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);

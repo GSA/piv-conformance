@@ -12,8 +12,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -33,7 +35,8 @@ public class SP800_73_4DiscoveryObjectTests {
 	//Discovery Object blob no larger than 19 bytes
 	@DisplayName("SP800-73-4.38 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+	//@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_38(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -50,7 +53,8 @@ public class SP800_73_4DiscoveryObjectTests {
 	//Tag 0x4F is present
 	@DisplayName("SP800-73-4.40 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+	//@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_40(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -65,7 +69,8 @@ public class SP800_73_4DiscoveryObjectTests {
 	// Tag 0x5F2F is present
 	@DisplayName("SP800-73-4.41 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+	//@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_41(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -81,7 +86,8 @@ public class SP800_73_4DiscoveryObjectTests {
 	//Associated optional data objects are present when the PIN usage policy asserts an optional capability (i.e., OCC, global PIN and pairing code)
 	@DisplayName("SP800-73-4.42 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+	//@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_42(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -110,7 +116,8 @@ public class SP800_73_4DiscoveryObjectTests {
 	
 	// Tags 0x4F, 0x5F2F are in that order (split from 73-4.40)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+	//@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.55 test")
 	void sp800_73_4_Test_55 (String oid, TestReporter reporter) {
 				
@@ -127,6 +134,7 @@ public class SP800_73_4DiscoveryObjectTests {
 		assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.PIN_USAGE_POLICY_TAG));
 	}
 	
+	// this is now only used to test changes to the atoms
 	private static Stream<Arguments> sp800_73_4_DiscoveryObjectTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.DISCOVERY_OBJECT_OID));

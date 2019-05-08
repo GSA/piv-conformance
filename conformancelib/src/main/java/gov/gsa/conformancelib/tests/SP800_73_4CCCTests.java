@@ -12,8 +12,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
@@ -26,7 +28,8 @@ public class SP800_73_4CCCTests {
 	//registered data model element is present and has a value of 0x10
 	@DisplayName("SP800-73-4.1 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CCCTestProvider")
+	//@MethodSource("sp800_73_4_CCCTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_1(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -41,7 +44,8 @@ public class SP800_73_4CCCTests {
 	//CCC BERTLV tag is '5FC107'
 	@DisplayName("SP800-73-4.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_CCCTestProvider")
+    //@MethodSource("sp800_73_4_CCCTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_2(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -55,7 +59,8 @@ public class SP800_73_4CCCTests {
 	//CCC Tags 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xFA, 0xFB, 0xFC, 0xFD present in that order
 	@DisplayName("SP800-73-4.3 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CCCTestProvider")
+	//@MethodSource("sp800_73_4_CCCTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_3(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -82,7 +87,8 @@ public class SP800_73_4CCCTests {
 	//CCC Optional Tags 0xE3 and 0xE4 may be present or absent; if present are after tags listed in 73-4.3and are in that order
 	@DisplayName("SP800-73-4.4 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CCCTestProvider")
+	//@MethodSource("sp800_73_4_CCCTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_4(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -133,7 +139,8 @@ public class SP800_73_4CCCTests {
 	//CCC Tag 0xFE present and after any tags from 73-4.3 and 73-4.4
 	@DisplayName("SP800-73-4.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CCCTestProvider")
+	//@MethodSource("sp800_73_4_CCCTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_5(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -154,7 +161,8 @@ public class SP800_73_4CCCTests {
 	//Values of tags present conform to vendor-supplied data
 	@DisplayName("SP800-73-4.6 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CCCTestProvider")
+	//@MethodSource("sp800_73_4_CCCTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@Disabled //DIsabled for now because we really don't know how to test that now.
 	void sp800_73_4_Test_6(String oid, TestReporter reporter) {
 		
@@ -166,7 +174,8 @@ public class SP800_73_4CCCTests {
 	//No tags other than (0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xFA, 0xFB, 0xFC, 0xFD, 0xE3, 0xE4, 0xFE) are present
 	@DisplayName("SP800-73-4.7 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_CCCTestProvider")
+	//@MethodSource("sp800_73_4_CCCTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_7(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -189,6 +198,7 @@ public class SP800_73_4CCCTests {
 		}
 	}
 	
+	// this is now used only to test changes to atoms
 	private static Stream<Arguments> sp800_73_4_CCCTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_CAPABILITY_CONTAINER_OID));
