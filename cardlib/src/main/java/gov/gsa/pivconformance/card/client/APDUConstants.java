@@ -220,7 +220,7 @@ public class APDUConstants {
     public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_ID = 0x1019;
     public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_NAME = "Retired X.509 Certificate for Key Management 19";
 
-    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID = "2.16.8100.1.101.3.7.2.16.10";
+    public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID = "2.16.8100.1.101.3.7.2.16.20";
     public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_TAG = {0x5F, (byte) 0xC1, 0x20};
     public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_ID = 0x10110;
     public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_NAME = "Retired X.509 Certificate for Key Management 20";
