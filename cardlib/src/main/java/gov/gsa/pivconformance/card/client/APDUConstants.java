@@ -501,6 +501,34 @@ public class APDUConstants {
             put(PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, PAIRING_CODE_REFERENCE_DATA_CONTAINER_NAME);
         }
     };
+    
+    public static final HashMap<Integer, ContainerPurpose> containerPurposeMap = new HashMap<Integer, ContainerPurpose>() {
+		{
+			put(new Integer(DIGITAL_SIGNATURE_KEY_ID), ContainerPurpose.SIGNATURE);
+			put(new Integer(KEY_MANAGEMENT_KEY_ID), ContainerPurpose.ENCRYPTION);
+			put(new Integer(CARD_AUTHENTICATION_KEY_ID), ContainerPurpose.SIGNATURE);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_1), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_2), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_3), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_4), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_5), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_6), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_7), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_8), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_9), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_10), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_11), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_12), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_13), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_14), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_15), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_16), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_17), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_18), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_19), ContainerPurpose.ENCRYPTION);
+			put(new Integer(RETIRED_KEY_MANAGEMENT_KEY_ID_20), ContainerPurpose.ENCRYPTION);
+		}
+    };
 
 
     /**
