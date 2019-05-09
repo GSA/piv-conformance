@@ -309,7 +309,7 @@ INSERT INTO "TestCases" VALUES(37, NULL,'8.2.3','Expiration Date is formatted YY
 INSERT INTO "TestCases" VALUES(38, NULL,'8.2.4','Expiration Date is within the next 5 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(39, NULL,'8.2.5','If the CHUID contains the optional Cardholder UUID, then the data element shall be in accordance with 800 73-4 Part 1 Section 3.4.2.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(40, NULL,'8.2.6','The retired key map is not present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(41, NULL,'8.2.101','Tag 0xFE has length of 0','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(41, NULL,'8.2.7','Tag 0xFE has length of 0','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(42, NULL,'8.3','X.509 Certificate for PIV Authentication','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(43, NULL,'8.3.0','SP 800-73-4 Data Model','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(44, NULL,'8.3.0.1','X509 Certificate for PIV Authentication in PIV card applet conforms to SP800-73 Appendix A','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
@@ -356,7 +356,7 @@ INSERT INTO "TestCases" VALUES(84, NULL,'8.6.0.4','Each data object returned wit
 INSERT INTO "TestCases" VALUES(85, NULL,'8.6.1.1','Card Holder Facial Image blob no larger than 12710 bytes','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(86, NULL,'8.6.1.2','Position is one of the valid x,y coordinate types in the original image','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(87, NULL,'8.6.1.3','No tags other than (0xBC, 0xFE) are present','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(88, NULL,'8.6.1.101','Tag 0xFE has length of 0','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(88, NULL,'8.6..4','Tag 0xFE has length of 0','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(89, NULL,'8.7','X.509 Certificate for Digital Signature','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(90, NULL,'8.7.0','SP 800-73-4 Data Model','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(91, NULL,'8.7.0.1','X509 Cert for Digital Signature in PIV card applet conforms to SP800-73 Appendix A','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
@@ -368,7 +368,7 @@ INSERT INTO "TestCases" VALUES(96, NULL,'8.7.1.2','Tags 0x70 and 0x71 are presen
 INSERT INTO "TestCases" VALUES(97, NULL,'8.7.1.3','Tag 0x72 is optionally present and follows tags from 73-4.19','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(98, NULL,'8.7.1.4','No tags other than (0x70, 0x71, 0x72, 0xFE) are present','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(99, NULL,'8.7.1.5','Tag 0xFE is present and follows tags from 73-4.19, 73-4.20','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(100, NULL,'8.7.101','Tag 0xFE has length of 0','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(100, NULL,'8.7.1.6','Tag 0xFE has length of 0','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(101, NULL,'8.8','X.509 Certificate for Key Management','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(102, NULL,'8.8.0','SP 800-73-4 Data Model','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(103, NULL,'8.8.0.1','X509 Cert for Key Management in PIV card applet conforms to SP800-73 Appendix A','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
@@ -380,7 +380,7 @@ INSERT INTO "TestCases" VALUES(108, NULL,'8.8.1.2','Tags 0x70 and 0x71 are prese
 INSERT INTO "TestCases" VALUES(109, NULL,'8.8.1.3','Tag 0x72 is optionally present and follows tags from 73-4.19','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(110, NULL,'8.8.1.4','Tag 0xFE is present and follows tags from 73-4.19, 73-4.20','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(111, NULL,'8.8.1.5','No tags other than (0x70, 0x71, 0x72, 0xFE) are present','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(112, NULL,'8.8.101','Tag 0xFE has length of 0','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(112, NULL,'8.8.1.6','Tag 0xFE has length of 0','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(113, NULL,'8.9','X.509 Certificate for Card Authentication','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(114, NULL,'8.9.0','SP 800-73-4 Data Model','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(115, NULL,'8.9.0.1','Confirm that X509 Cert for Card Authentication in PIV card applet conforms to SP800-73 Appendix A','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
@@ -392,7 +392,7 @@ INSERT INTO "TestCases" VALUES(120, NULL,'8.9.1.2','Tags 0x70 and 0x71 are prese
 INSERT INTO "TestCases" VALUES(121, NULL,'8.9.1.3','Tag 0x72 is optionally present and follows tags from 73-4.19','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(122, NULL,'8.9.1.4','Tag 0xFE is present and follows tags from 73-4.19, 73-4.20','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(123, NULL,'8.9.1.5','No tags other than (0x70, 0x71, 0x72, 0xFE) are present','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(124, NULL,'8.9.101','Tag 0xFE has length of 0','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(124, NULL,'8.9.1.6','Tag 0xFE has length of 0','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(125, NULL,'8.10','Security Object','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(126, NULL,'8.10.0','SP 800-73-4 Data Model','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(127, NULL,'8.10.0.1','Security Object in PIV card applet conforms to SP800-73 Appendix A','SECURITY_OBJECT_OID',NULL, 1, 1);
