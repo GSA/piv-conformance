@@ -1072,6 +1072,7 @@ public class CMSTests {
 		}
 	}
     
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> CMS_TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
@@ -1086,6 +1087,7 @@ public class CMSTests {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> CMS_SecurityObjectTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));

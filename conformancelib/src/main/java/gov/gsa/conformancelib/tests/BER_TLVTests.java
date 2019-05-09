@@ -3,24 +3,22 @@ package gov.gsa.conformancelib.tests;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.stream.Stream;
-import java.util.Arrays;
-
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.tlv.BerTlvParser;
 import gov.gsa.pivconformance.tlv.CCTTlvLogger;
-import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 
 public class BER_TLVTests {
 	
@@ -162,7 +160,8 @@ public class BER_TLVTests {
     }
     
     /* only use to test mods to the atoms... no longer needed now that containers are in the database */
-    private static Stream<Arguments> bertlvTestProvider() {
+    @SuppressWarnings("unused")
+	private static Stream<Arguments> bertlvTestProvider() {
     	
     	return Stream.of(
                 Arguments.of(APDUConstants.CARD_CAPABILITY_CONTAINER_OID),

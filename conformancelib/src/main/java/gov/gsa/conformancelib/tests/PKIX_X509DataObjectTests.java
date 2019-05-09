@@ -30,13 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DERTaggedObject;
+import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
@@ -59,9 +55,7 @@ import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -75,12 +69,12 @@ import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
-import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
-import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 
 public class PKIX_X509DataObjectTests {
 	
@@ -1013,6 +1007,8 @@ public class PKIX_X509DataObjectTests {
 		return rv;
 	}
 	
+	// The local provider methods are now only used to test the atoms... they are no longer operative in the conformance tool
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_x509TestProvider() {
 		
 		PIVDataObject o1 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
@@ -1040,6 +1036,7 @@ public class PKIX_X509DataObjectTests {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_x509TestProvider_aia_crldp() {
 		ArrayList<String> certContainersToTest = new ArrayList<String>();
 		certContainersToTest.add(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
@@ -1063,6 +1060,7 @@ public class PKIX_X509DataObjectTests {
 		return generator.build();
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_x509TestProvider2() {
 		
 		PIVDataObject o1 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
@@ -1092,6 +1090,7 @@ public class PKIX_X509DataObjectTests {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_x509TestProvider3() {
 
 		PIVDataObject o1 = AtomHelper.getDataObject(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
@@ -1121,42 +1120,49 @@ public class PKIX_X509DataObjectTests {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_PIVAuthx509TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID),
 				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID));
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_DigSigx509TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID));
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_KeyMgmtx509TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID));
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_CardAuthx509TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID));
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_PIVAuthx509TestProvider2() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.48.11"));
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_CardAuthx509TestProvider2() {
 
 		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "2.16.840.1.101.3.2.1.48.13"));
 
 	}
 
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> pkix_CHUIDTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));

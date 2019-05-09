@@ -3,9 +3,9 @@ package gov.gsa.conformancelib.tests;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -167,6 +166,9 @@ public class SP800_73_4CCCTests {
 	void sp800_73_4_Test_6(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		// XXX *** until vendor supplied data tests are defined, the only test here is to
+		// make sure the object parsed
+		assertNotNull(o);
 		
 		//XXX Not sure what vendor supplied data is to check values of tags	
 	}
@@ -199,6 +201,7 @@ public class SP800_73_4CCCTests {
 	}
 	
 	// this is now used only to test changes to atoms
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_73_4_CCCTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_CAPABILITY_CONTAINER_OID));

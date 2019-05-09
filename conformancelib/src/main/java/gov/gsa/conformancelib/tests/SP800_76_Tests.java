@@ -1,11 +1,9 @@
 package gov.gsa.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.stream.Stream;
-import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
@@ -17,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -24,23 +23,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.platform.commons.logging.LoggerFactory;
 import org.slf4j.Logger;
 
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.utilities.AtomHelper;
-import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
-import gov.gsa.pivconformance.card.client.CardholderBiometricData;
-import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
-import gov.gsa.pivconformance.card.client.MiddlewareStatus;
+import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 
 public class SP800_76_Tests {
 	static Logger s_logger = org.slf4j.LoggerFactory.getLogger(SP800_76_Tests.class);
@@ -425,7 +416,8 @@ public class SP800_76_Tests {
 		assertTrue(biometricDataBlock.length >= 21);
 
 		byte [] scannedIimageInX  = Arrays.copyOfRange(biometricDataBlock, 16, 18);
-		byte [] scannedIimageInY  = Arrays.copyOfRange(biometricDataBlock, 18, 20);
+		// moved due to atom splitting
+		// byte [] scannedIimageInY  = Arrays.copyOfRange(biometricDataBlock, 18, 20);
 		
 		byte [] zeroBlock = { 0x00, 0x00 };
 		
@@ -451,7 +443,8 @@ public class SP800_76_Tests {
 		//Is it located on the 20th byte?
 		assertTrue(biometricDataBlock.length >= 21);
 
-		byte [] scannedIimageInX  = Arrays.copyOfRange(biometricDataBlock, 16, 18);
+		// removed due to atom splitting
+		//byte [] scannedIimageInX  = Arrays.copyOfRange(biometricDataBlock, 16, 18);
 		byte [] scannedIimageInY  = Arrays.copyOfRange(biometricDataBlock, 18, 20);
 		
 		byte [] zeroBlock = { 0x00, 0x00 };
@@ -1585,6 +1578,9 @@ public class SP800_76_Tests {
 	}
 		
 	
+	// methods below are no longer used in conformance test tool and are only retained because they are sometimes useful for
+	// testing the atoms themselves
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_76_BiometricTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID),
@@ -1592,12 +1588,14 @@ public class SP800_76_Tests {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_76_FacialImageTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID));
 
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_76_FingerprintsTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID));
@@ -1605,24 +1603,28 @@ public class SP800_76_Tests {
 	}
 
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_76_BiometricParamTestProvider1() {
 
 		String param = APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID + ":"+"1281"+","+APDUConstants.CARDHOLDER_FINGERPRINTS_OID+":"+"513";
 			return Stream.of(Arguments.of(param));
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_76_BiometricParamTestProvider2() {
 
 		String param = APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID + ":"+"2"+","+APDUConstants.CARDHOLDER_FINGERPRINTS_OID+":"+"8";
 			return Stream.of(Arguments.of(param));
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_76_BiometricParamTestProvider3() {
 
 		String param = APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID + ":"+"32"+","+APDUConstants.CARDHOLDER_FINGERPRINTS_OID+":"+"128";
 			return Stream.of(Arguments.of(param));
 	}
 	
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_76_BiometricParamTestProvider4() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, "-2,100"),

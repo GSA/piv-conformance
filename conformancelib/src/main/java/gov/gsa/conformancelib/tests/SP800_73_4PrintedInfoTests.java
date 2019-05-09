@@ -3,22 +3,21 @@ package gov.gsa.conformancelib.tests;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
+import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
@@ -295,6 +294,8 @@ public class SP800_73_4PrintedInfoTests {
 		assertTrue(o.getBytes().length >= 0, "Length is < 0");
 	}
 	
+	// this is only used to test the atom now... it is no longer operative in the conformance tester
+	@SuppressWarnings("unused")
 	private static Stream<Arguments> sp800_73_4_PrintedInfoTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.PRINTED_INFORMATION_OID));
