@@ -242,6 +242,22 @@ public class SP800_73_4SecurityObjectTests {
 		assertTrue(verified);
     }
 	
+	// No tags other than (0xBA, 0xBB, 0xFE) are present
+	@DisplayName("SP800-73-4.43 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_73_4_Test_43(String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+	}
+	
 	private static Stream<Arguments> sp800_73_4_SecurityObjectTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));
