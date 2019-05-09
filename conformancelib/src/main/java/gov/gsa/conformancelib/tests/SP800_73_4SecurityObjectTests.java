@@ -243,11 +243,11 @@ public class SP800_73_4SecurityObjectTests {
     }
 	
 	// No tags other than (0xBA, 0xBB, 0xFE) are present
-	@DisplayName("SP800-73-4.43 test")
+	@DisplayName("SP800-73-4.54 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void sp800_73_4_Test_43(String oid, TestReporter reporter) {
+    void sp800_73_4_Test_54(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
