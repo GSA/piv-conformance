@@ -210,13 +210,6 @@ public class CertDump {
         		s_logger.error("pivGetData() returned {} for container {}", result, container);
         		continue;
         	}
-        	FileOutputStream outFile;
-			try {
-				outFile = new FileOutputStream(new File(outDir + "/" + container + ".bin"));
-			} catch (FileNotFoundException e) {
-				s_logger.error("Unable to create file for writing", e);
-				continue;
-			}
         	try {
         		X509CertificateDataObject certObj = null;
         		try {
@@ -233,6 +226,13 @@ public class CertDump {
         		if(cert == null) {
         			s_logger.error("No certificate available in {}", container);
         		}
+				FileOutputStream outFile;
+				try {
+					outFile = new FileOutputStream(new File(outDir + "/" + container + ".bin"));
+				} catch (FileNotFoundException e) {
+					s_logger.error("Unable to create file for writing", e);
+					continue;
+				}
 				try {
 					outFile.write(cert.getEncoded());
 				} catch (CertificateEncodingException e) {
