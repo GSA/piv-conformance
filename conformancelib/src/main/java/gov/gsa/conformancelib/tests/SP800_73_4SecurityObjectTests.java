@@ -13,8 +13,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
@@ -32,7 +34,8 @@ public class SP800_73_4SecurityObjectTests {
 	//Security Object blob no larger than 1008 bytes
 	@DisplayName("SP800-73-4.33 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+	//@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_33(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -47,7 +50,8 @@ public class SP800_73_4SecurityObjectTests {
 	//Tags 0xBA, 0xBB, 0XFE are present
 	@DisplayName("SP800-73-4.34 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_34(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -72,7 +76,8 @@ public class SP800_73_4SecurityObjectTests {
 	//No tags other than (0xBA, 0xBB, 0xFE) are present
 	@DisplayName("SP800-73-4.35 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_35(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -107,7 +112,8 @@ public class SP800_73_4SecurityObjectTests {
 	//Parse data at tag 0xBA and for each data container found ensure that performing a select returns status words 0x90, 0x00
 	@DisplayName("SP800-73-4.36 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_36(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -132,7 +138,8 @@ public class SP800_73_4SecurityObjectTests {
 	//hashes match those written to the security object
 	@DisplayName("SP800-73-4.37 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_37(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
@@ -271,6 +278,22 @@ public class SP800_73_4SecurityObjectTests {
 		catch (Exception e) {
 			fail(e);
 		}
+	}
+	
+	// No tags other than (0xBA, 0xBB, 0xFE) are present
+	@DisplayName("SP800-73-4.54 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_73_4_Test_54(String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		// The first of up to 2 allowed assertions
+		assertTrue(o.decode(), "Couldn't decode " + oid);
+		
+		// TODO: Assert something meaningful here
+		assertTrue(o.getBytes().length >= 0, "Length is < 0");
 	}
 	
 	private static Stream<Arguments> sp800_73_4_SecurityObjectTestProvider() {
