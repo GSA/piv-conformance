@@ -49,9 +49,7 @@ public class APDUConstants {
     public static final byte CRYPTO_MECHANISM_ECC_P286 = 0x11;
     public static final byte CRYPTO_MECHANISM_ECC_P384 = 0x14;
 
-
     public static final byte CONTROL_REFERENCE_TEMPLATE_TAG = (byte) 0xAC;
-
 
     public static final int APP_NOT_FOUND = 0x6A82;
     public static final int SECURITY_STATUS_NOT_SATISFIED = 0x6982;
@@ -79,7 +77,6 @@ public class APDUConstants {
     public static final int CARDHOLDER_FINGERPRINTS_ID = 0x6010;
     public static final String CARDHOLDER_FINGERPRINTS_NAME = "Cardholder Fingerprints";
 
-
     public static final String SECURITY_OBJECT_OID = "2.16.840.1.101.3.7.2.144.0";
     public static final byte[] SECURITY_OBJECT_TAG = {0x5F, (byte)0xC1, 0x06};
     public static final int SECURITY_OBJECT_ID = 0x9000;
@@ -100,24 +97,20 @@ public class APDUConstants {
     public static final int X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_ID = 0x0100;
     public static final String X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_NAME = "X.509 Certificate for Digital Signature (Key Reference '9C')";
 
-
     public static final String X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID = "2.16.840.1.101.3.7.2.1.2";
     public static final byte[] X509_CERTIFICATE_FOR_KEY_MANAGEMENT_TAG = {0x5F, (byte)0xC1, 0x0B};
     public static final int X509_CERTIFICATE_FOR_KEY_MANAGEMENT_ID = 0x0102;
     public static final String X509_CERTIFICATE_FOR_KEY_MANAGEMENT_NAME = "X.509 Certificate for Key Management (Key Reference '9D')";
-
 
     public static final String PRINTED_INFORMATION_OID = "2.16.840.1.101.3.7.2.48.1";
     public static final byte[] PRINTED_INFORMATION_TAG = {0x5F, (byte)0xC1, 0x09};
     public static final int PRINTED_INFORMATION_ID = 0x3001;
     public static final String PRINTED_INFORMATION_NAME = "Printed Information";
 
-
     public static final String DISCOVERY_OBJECT_OID = "2.16.840.1.101.3.7.2.96.80";
     public static final byte[] DISCOVERY_OBJECT_TAG = {0x7E};
     public static final int DISCOVERY_OBJECT_ID = 0x6050;
     public static final String DISCOVERY_OBJECT_NAME = "Discovery Object";
-
 
     public static final String KEY_HISTORY_OBJECT_OID = "2.16.840.1.101.3.7.2.96.96";
     public static final byte[] KEY_HISTORY_OBJECT_TAG = {0x5F, (byte)0xC1, 0x0C};
@@ -223,31 +216,28 @@ public class APDUConstants {
     public static final byte[] RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_TAG = {0x5F, (byte) 0xC1, 0x20};
     public static final int RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_ID = 0x10110;
     public static final String RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_NAME = "Retired X.509 Certificate for Key Management 20";
-  
 
     public static final String CARDHOLDER_IRIS_IMAGES_OID = "2.16.840.1.101.3.7.2.16.21";
     public static final byte[] CARDHOLDER_IRIS_IMAGES_TAG = {0x5F, (byte)0xC1, 0x21};
     public static final int CARDHOLDER_IRIS_IMAGES_ID = 0x1015;
     public static final String CARDHOLDER_IRIS_IMAGES_NAME = "Cardholder Iris Images";
 
-
     public static final String BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID = "2.16.840.1.101.3.7.2.16.22";
     public static final byte[] BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_TAG = {0x7F, 0x61};
     public static final int BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_ID = 0x1016;
     public static final String BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_NAME = "Biometric Information Templates Group Template";
-
 
     public static final String SECURE_MESSAGING_CERTIFICATE_SIGNER_OID = "2.16.840.1.101.3.7.2.16.23";
     public static final byte[] SECURE_MESSAGING_CERTIFICATE_SIGNER_TAG = {0x5F, (byte)0xC1, 0x22};
     public static final int SECURE_MESSAGING_CERTIFICATE_SIGNER_ID = 0x1017;
     public static final String SECURE_MESSAGING_CERTIFICATE_SIGNER_NAME = "Secure Messaging Certificate Signer";
 
-
     public static final String PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID = "2.16.840.1.101.3.7.2.16.24";
     public static final byte[] PAIRING_CODE_REFERENCE_DATA_CONTAINER_TAG = {0x5F, (byte)0xC1, 0x23};
     public static final int PAIRING_CODE_REFERENCE_DATA_CONTAINER_ID = 0x1018;
     public static final String PAIRING_CODE_REFERENCE_DATA_CONTAINER_NAME = "Pairing Code Reference Data Container";
-    
+     
+    // Key reference IDs
     public static final int PIV_SECURE_MESSAGING_KEY_ID = 0x04;
     public static final int PIV_AUTHENTICATION_KEY_ID = 0x9A;
     public static final int PIV_CARD_APPLICATION_ADMINISTRATION_KEY_ID = 0x9B;
@@ -274,7 +264,6 @@ public class APDUConstants {
     public static final int RETIRED_KEY_MANAGEMENT_KEY_ID_18 = 0x93;
     public static final int RETIRED_KEY_MANAGEMENT_KEY_ID_19 = 0x94;
     public static final int RETIRED_KEY_MANAGEMENT_KEY_ID_20 = 0x95;
-
 
     /**
      *
@@ -350,7 +339,12 @@ public class APDUConstants {
      *
      */
     public static final HashMap<String, byte[]> oidMAP = new HashMap<String, byte[]>(){
-        {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		{
             put(CARD_CAPABILITY_CONTAINER_OID, CARD_CAPABILITY_CONTAINER_TAG);
             put(CARD_HOLDER_UNIQUE_IDENTIFIER_OID, CARD_HOLDER_UNIQUE_IDENTIFIER_TAG);
             put(X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_TAG);
@@ -387,7 +381,6 @@ public class APDUConstants {
             put(BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_TAG);
             put(SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, SECURE_MESSAGING_CERTIFICATE_SIGNER_TAG);
             put(PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, PAIRING_CODE_REFERENCE_DATA_CONTAINER_TAG);
-            
         }
     };
     
@@ -396,7 +389,13 @@ public class APDUConstants {
      * 
      */
     public static final HashMap<Integer, String> containerIdOidMap = new HashMap<Integer, String>() {
-    	{
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		{
+    		put(new Integer(PIV_AUTHENTICATION_KEY_ID), X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
     		put(new Integer(DIGITAL_SIGNATURE_KEY_ID), X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID);
     		put(new Integer(KEY_MANAGEMENT_KEY_ID), X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID);
     		put(new Integer(CARD_AUTHENTICATION_KEY_ID), X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
@@ -424,11 +423,17 @@ public class APDUConstants {
     };
 
     /**
-     * HashMap for lookup of container id given an OID
+     * HashMap for lookup of a PIV card key reference id given a container OID
      * 
      */
     public static final HashMap<String, Integer> oidToContainerIdMap = new HashMap<String, Integer>() {
-    	{
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		{
+    		put(X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, new Integer(PIV_AUTHENTICATION_KEY_ID));
     		put(X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, new Integer(DIGITAL_SIGNATURE_KEY_ID));
     		put(X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, new Integer(KEY_MANAGEMENT_KEY_ID));
     		put(X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, new Integer(CARD_AUTHENTICATION_KEY_ID));
@@ -461,7 +466,12 @@ public class APDUConstants {
      *
      */
     public static final HashMap<String, String> oidNameMAP = new HashMap<String, String>(){
-        {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		{
             put(CARD_CAPABILITY_CONTAINER_OID, CARD_CAPABILITY_CONTAINER_NAME);
             put(CARD_HOLDER_UNIQUE_IDENTIFIER_OID, CARD_HOLDER_UNIQUE_IDENTIFIER_NAME);
             put(X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_NAME);
@@ -508,7 +518,12 @@ public class APDUConstants {
      *
      */
     public static final HashMap<Integer, String> idMAP = new HashMap<Integer, String>(){
-        {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		{
             put(CARD_CAPABILITY_CONTAINER_ID, CARD_CAPABILITY_CONTAINER_OID);
             put(CARD_HOLDER_UNIQUE_IDENTIFIER_ID, CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
             put(X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_ID, X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID);
@@ -550,9 +565,9 @@ public class APDUConstants {
 
     /**
      *
-     * Helper function to get key management certificate oid based on a number
+     * Helper function to get retired key management certificate oid based on a number
      *
-     * @param number Integer value identifying key management certificate
+     * @param number Integer value identifying retired key management certificate
      * @return String value containing oid of the key management certificate
      */
     public static final String getKeyManagmentCertOID(int number){
@@ -579,7 +594,7 @@ public class APDUConstants {
 
     /**
      *
-     * Helper function to get key managment certificate name based on a number
+     * Helper function to get key management certificate name based on a number
      *
      * @param number Integer value identifying key management certificate
      * @return String value containing name of the key management certificate
@@ -594,7 +609,7 @@ public class APDUConstants {
 
     /**
      *
-     * Helper function to get key managment certificate tag based on a number
+     * Helper function to get retired key managrment certificate tag based on a number
      *
      * @param number Integer value identifying key management certificate
      * @return Byte value containing tag of the key management certificate

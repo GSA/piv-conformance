@@ -51,7 +51,6 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 						}
 						fqmn += ")";
 					}
-
 				}
 			} catch (ClassNotFoundException e) {
 				s_logger.error("{} was discovered by junit but could not be loaded.", fqmn);
@@ -65,13 +64,34 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 			parameters = parameterSource.getNextParameter();
 		}
 		
+		String containerOid = null;
+		
+		if(container != null && !container.isEmpty())
+			containerOid = APDUConstants.getStringForFieldNamed(container);
+
+		String containerObj = (containerOid != null) ? containerOid : container;
+		
 		if(parameters != null) {
-			/* it is feasible that we need to add a block like this... leaving for reference:
-			if(container != null && !container.isEmpty()) {
-				for(String p : parameters) {
-					argList.add( Arguments.of(container,p));
-				}
-			}*/
+			argList.add(Arguments.of(containerObj));
+			for(String p : parameters) {
+				argList.add(Arguments.of(containerObj, p));
+			}
+		} else {
+			argList.add(Arguments.of(containerObj));
+		}
+		
+		return argList.stream();
+	}
+
+	/*
+	 * 
+	 * 		if(parameters != null) {
+			// it is feasible that we need to add a block like this... leaving for reference:
+			// if(container != null && !container.isEmpty()) {
+			// for(String p : parameters) {
+			//		argList.add( Arguments.of(container,p));
+			//	}
+			// }
 			for(String p : parameters) {
 				argList.add(Arguments.of(p));
 			}
@@ -84,7 +104,5 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 			}
 		}
 		
-		return argList.stream();
-	}
-
+	 */
 }
