@@ -73,9 +73,12 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 		
 		if(parameters != null) {
 			argList.add(Arguments.of(containerObj));
+			StringBuffer sb = new StringBuffer("");
 			for(String p : parameters) {
-				argList.add(Arguments.of(containerObj, p));
+				if (sb.length() > 0) sb.append(",");
+				sb.append(p);
 			}
+			argList.add(Arguments.of(containerObj, sb.toString()));
 		} else {
 			argList.add(Arguments.of(containerObj));
 		}
