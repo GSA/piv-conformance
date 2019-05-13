@@ -195,7 +195,7 @@ public class SP800_78_X509DataObjectTests {
 			} catch (NoSuchAlgorithmException e) {
 				// Certs with legit RSA with SHA256 will end up here, so as
 				// long as the specified parameter is "null" it's a pass.
-				assertTrue(databaseSigAlgParam != null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
+				assertTrue(databaseSigAlgParam == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
 			}
 		}
 	}
