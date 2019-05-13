@@ -1196,14 +1196,14 @@ public class SP800_76_Tests {
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_38(String paramsString , TestReporter reporter) {
 		
-		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
+		Map<String, Object> mp = ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
-		Iterator<Entry<String, String>> it = mp.entrySet().iterator();
+		Iterator<Entry<String,Object>> it = mp.entrySet().iterator();
 	    while (it.hasNext()) {
-	    	Map.Entry<String, String> pair = (Map.Entry<String, String>)it.next();
+	    	Map.Entry<String,Object> pair = (Map.Entry<String,Object>)it.next();
 	    	assertNotNull(pair);
 	        String oid = pair.getKey();
-	        String valueStr =  pair.getValue();
+	        Object valueStr =  pair.getValue();
 			assertNotNull(oid, "NULL oid passed to atom");
 			assertNotNull(valueStr);
 			oid = APDUConstants.getStringForFieldNamed(oid);
@@ -1211,7 +1211,7 @@ public class SP800_76_Tests {
 
 			int value = 0;
 			try {
-				value = Integer.parseInt(valueStr);
+				value = Integer.parseInt((String) valueStr);
 			} catch(NumberFormatException e) {
 				fail(e);
 			}
@@ -1348,21 +1348,21 @@ public class SP800_76_Tests {
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_41(String paramsString, TestReporter reporter) {
 		
-		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
+		Map<String, Object> mp = ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
-		Iterator<Entry<String, String>> it = mp.entrySet().iterator();
+		Iterator<Entry<String,Object>> it = mp.entrySet().iterator();
 	    while (it.hasNext()) {
-	    	Map.Entry<String, String> pair = (Map.Entry<String, String>)it.next();
+	    	Map.Entry<String,Object> pair = (Map.Entry<String,Object>)it.next();
 			assertNotNull(pair);
 	        String oid = pair.getKey();
-	        String valueStr =  pair.getValue();
+	        Object valueStr =  pair.getValue();
 			assertNotNull(oid, "NULL oid passed to atom");
 			assertNotNull(valueStr);
 			oid = APDUConstants.getStringForFieldNamed(oid);
 			assertNotNull(oid);
 			int value = 0;
 			try {
-				value = Integer.parseInt(valueStr);
+				value = Integer.parseInt((String) valueStr);
 			} catch(NumberFormatException e) {
 				fail(e);
 			}
@@ -1396,21 +1396,21 @@ public class SP800_76_Tests {
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_42(String paramsString, TestReporter reporter) {
 		
-		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
+		Map<String, Object> mp = ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
-		Iterator<Entry<String, String>> it = mp.entrySet().iterator();
+		Iterator<Entry<String,Object>> it = mp.entrySet().iterator();
 	    while (it.hasNext()) {
-	    	Map.Entry<String, String> pair = (Map.Entry<String, String>)it.next();
+	    	Map.Entry<String, Object> pair = it.next();
 			assertNotNull(pair);
 	        String oid = pair.getKey();
-	        String valueStr =  pair.getValue();
+	        Object valueObj =  pair.getValue();
 			assertNotNull(oid, "NULL oid passed to atom");
-			assertNotNull(valueStr);
+			assertNotNull(valueObj);
 			oid = APDUConstants.getStringForFieldNamed(oid);
 			assertNotNull(oid);
 			int value = 0;
 			try {
-				value = Integer.parseInt(valueStr);
+				value = Integer.parseInt((String) valueObj);
 			} catch(NumberFormatException e) {
 				fail(e);
 			}

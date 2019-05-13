@@ -75,7 +75,7 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 			StringBuffer sb = new StringBuffer("");
 			for(String p : parameters) {
 				if (sb.length() > 0) sb.append(",");
-				sb.append(p);
+				sb.append(p.replaceAll("[\n\r\b\t]", ""));
 			}
 			argList.add(Arguments.of(containerObj, sb.toString()));
 		} else {

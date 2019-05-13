@@ -50,9 +50,23 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 
 public class SP800_78_X509DataObjectTests {
+	/*
+X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7,
+X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7,
+X509_CERTIFICATE_FOR_DIGITAL_CERTIFICATE_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34,
+X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34
+
+Gets converted to:
+
+Map<String, List<String, String>>
+add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113549.1.1.1+NULL","1.2.840.10045.2.1+1.2.840.10045.3.1.7");
+
+
 	
-	// The key sizes used are in accordance with Table 3-1 of SP80078.
-	// Expect to see paramsString contain an algorithm:parameter
+
+	*/
+	// The key size and types used are in accordance with Table 3-1 of SP80078.
+	// Expect to see paramsString contain an containerOid:keyAlgorithmOid
     @DisplayName("SP800-78.1 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_78_x509TestProvider")
@@ -61,54 +75,32 @@ public class SP800_78_X509DataObjectTests {
     	
 		PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
-		int keyRef = APDUConstants.oidToContainerIdMap.get(oid);
+		Map<String,Object> mp = ParameterUtils.MapFromString(paramsString);
 		
 		// Process the map if non-empty.  If the map is empty, an exception will
 		// have already been thrown and caught by MapFromString(), so we can safely
 		// drop through.
 		
 		if (!mp.isEmpty()) {
-
-			// Depending on the cert type, only mp->key and optional mp->value are allowed
-
-			switch(keyRef) {
+			// Look for the matching certificate (by container OID) in the list
 			
-			case APDUConstants.PIV_AUTHENTICATION_KEY_ID:
-			case APDUConstants.CARD_AUTHENTICATION_KEY_ID:
-			case APDUConstants.DIGITAL_SIGNATURE_KEY_ID:			
+			Iterator<String> it = mp.keySet().iterator();
+			boolean allowable = false;
+			
+			while (it.hasNext()) {
+				String containerKey = it.next(); // will be an oid for a certificate container
+				if (containerKey.compareTo(oid) == 0) { // matches this certificate container we're inspecting
 					PublicKey pubKey = cert.getPublicKey();
-					String algorithmOid = pubKey.getAlgorithm();
-					String algorithmName = cert.getSigAlgName();
-					int actualKeyLength, claimedKeyLength = 0;
-					
-					if(pubKey instanceof RSAPublicKey) {				
-						RSAPublicKey pk = (RSAPublicKey) pubKey;
-						claimedKeyLength = (algorithmName.indexOf("2048") >= 0) ? 2048 : (algorithmName.indexOf("3072") >= 0) ? 3072 : -1;
-						actualKeyLength = pk.getModulus().bitLength();
-						
-						assertTrue(mp.containsValue(actualKeyLength), 
-								"Key length of " + actualKeyLength + " for RSA doesn't comply with Table 3-1 SP 800-73-4");
-						assertTrue(mp.containsKey(algorithmOid), 
-								"Key algorithm for OID " + algorithmOid + " doesn't comply with Table 3-1 SP 800-73-4");
-						assertTrue(actualKeyLength == claimedKeyLength, 
-								"Actual key length (" + actualKeyLength + ") doesn't match algorithm (" + algorithmName + ")");
-						
-					} else if (pubKey instanceof ECPublicKey) {
-						ECDSAPublicKey pk = (ECDSAPublicKey) pubKey;	    
-					    claimedKeyLength = (cert.getSigAlgName().indexOf("256") >= 0) ? 256 : (cert.getSigAlgName().indexOf("384") >= 0) ? 384 : -1;
-						actualKeyLength = Integer.parseInt(pk.getPrimeModulusP().toString());
-						assertTrue(mp.containsValue(actualKeyLength), 
-								"Key length of " + actualKeyLength + " for ECDSA doesn't comply with Table 3-1 SP 800-73-4");
-						assertTrue(mp.containsKey(algorithmOid), 
-								"Key algorithm for OID " + algorithmOid + " doesn't comply with Table 3-1 SP 800-73-4");
-						assertTrue(actualKeyLength == claimedKeyLength, 
-								"Actual key length (" + actualKeyLength + ") doesn't match algorithm (" + algorithmName + ")");
-					}
-					break;
-				default:
-					break;
+					String certAlgorithmOid = pubKey.getAlgorithm();
+					Object allowedOids = mp.get(containerKey); // Could be a String, or could be a List (of String)
+					if (allowedOids instanceof Map) {
+						allowable = (((Map) allowedOids).get(certAlgorithmOid) != null);
+					} else {
+						allowable = (((String) allowedOids).compareTo(certAlgorithmOid) == 0);
+					}						
+				}
 			}
+			assertTrue(allowable);
 		}
     }
     
@@ -171,7 +163,7 @@ public class SP800_78_X509DataObjectTests {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		Map<String, String> mp = ParameterUtils.MapFromString(paramsString);
+		Map<String,Object> mp = ParameterUtils.MapFromString(paramsString);
 		int keyRef = APDUConstants.oidToContainerIdMap.get(oid);
 
 		// Process the map if non-empty. If the map is empty, an exception will
@@ -183,7 +175,7 @@ public class SP800_78_X509DataObjectTests {
 
 			boolean found = mp.containsKey(sigAlgOid);
 			assertTrue(found == true, "Signature algorithm (" + sigAlgOid + ") is not an allowable algorithm");
-			String databaseSigAlgParam = mp.get(sigAlgOid);
+			String databaseSigAlgParam = (String) mp.get(sigAlgOid);
 			try {
 				AlgorithmParameters ap = AlgorithmParameters.getInstance(cert.getSigAlgName());
 				// RSA-PSS or ECDSA in this block
