@@ -3,16 +3,20 @@ package gov.gsa.conformancelib.configuration;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
+import java.security.Provider.Service;
+import java.security.Security;
 import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,11 +31,9 @@ public class ParameterUtils {
 		return String.join(",", parameters);
 	}
 	
-	public static List<String> CreateFromString(String parameters, String delimiter)
+	public static String[] CreateFromString(String parameters, String delimiter)
 	{
-		List<String> rv;
-		String[] arrayParams = parameters.split(delimiter);
-		rv = Arrays.asList(arrayParams);
+		String[] rv = parameters.split(delimiter);
 		return rv;
 	}
 
@@ -53,7 +55,7 @@ public class ParameterUtils {
 	 * 
 	 * Values themselves can have their own parameters, shown in the following parameter snippet:
 	 * 
-	 *   {@code X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1|1.2.840.10045.2.1+1.2.840.10045.3.1.7,}.
+	 *  X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1|1.2.840.10045.2.1+1.2.840.10045.3.1.7,
 	 * 
 	 * 1. Duplicate OID keys are not allowed
 	 * 2. Split the keys:value pairs into a List
@@ -66,18 +68,18 @@ public class ParameterUtils {
 	 */
 	public static Map<String,List<String>> MapFromString(String parameters, String delimiter) {
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
-		List<String> parameterList = ParameterUtils.CreateFromString(parameters, ",");
+		String[] parameterList = ParameterUtils.CreateFromString(parameters, ",");
 		String logMessage = "";
 		
 		try {	
-			if (parameterList.size() == 0) {
+			if (parameterList.length == 0) {
 				logMessage = "Parameter list expected but none found";
 				s_logger.error(logMessage);
 				throw new ConformanceTestException(logMessage);
 			}
 			
 			for(String p : parameterList) {
-				List<String> value = new ArrayList<String>();
+				ArrayList<String> value = new ArrayList<String>();
 				if(p.contains(":")) {
 					// Type 3, with ":" separating key and value
 					System.out.println("Type 3, with \":\" separating key and value\n");
@@ -103,17 +105,15 @@ public class ParameterUtils {
 					}
 					// Print out for debugging
 					if (value != null) {
-						ListIterator<String> li = value.listIterator();
+						Iterator<String> li = value.iterator();
 						while (li.hasNext()) {
 							String listItem = li.next();
 							if (listItem.contains("|")) {
 								// A list of allowable values - nothing too fancy
 								System.out.println("****************** A list of allowable values: " + listItem  + "\n");
-								List subParamList = ParameterUtils.CreateFromString(parameters, "|");
-								ListIterator<String> sLi = subParamList.listIterator();
-								while (sLi.hasNext()) {
-									String subParameterListItem = sLi.next();
-									System.out.println("****************** An allowable sub-parameter: " + subParameterListItem  + "\n");
+								String[] subParamList = ParameterUtils.CreateFromString(listItem, "\\|");
+								for (String si : subParamList) {
+									System.out.println("****************** An allowable sub-parameter: " + si  + "\n");
 								}
 							} else {
 								System.out.println("****************** An allowable value: " + listItem  + "\n");
@@ -142,9 +142,9 @@ public class ParameterUtils {
 	public static void main(String[] args) {
 		String csvParams1 = "CARDHOLDER_FINGERPRINTS_OID:513,CARDHOLDER_FACIAL_IMAGE_OID:1281";
 		String csvParams2 = 
-				"X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7,\n" + 
-				"X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7,\n" + 
-				"X509_CERTIFICATE_FOR_DIGITAL_CERTIFICATE_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34,\n" + 
+				"X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7," + 
+				"X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7," + 
+				"X509_CERTIFICATE_FOR_DIGITAL_CERTIFICATE_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34," + 
 				"X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34";
 		Map<String, List<String>> map1 = MapFromString(csvParams1);
 		Map<String, List<String>> map2 = MapFromString(csvParams2);
@@ -153,36 +153,24 @@ public class ParameterUtils {
   
         try { 
             // creating the object of  SecureRandom 
-            Signature sr;
-			try {
-				sr = Signature.getInstance("RSAEncryption", "SUN");
-				  
-	            // getting the Provider of the SecureRandom sr 
-	            // by using method getProvider() 
-	            Provider provider = sr.getProvider(); 
-	  
-	            // Declaring the variable of set<Map> type 
-	            Set<Provider.Service> servicelist; 
-	  
-	            // getting the service of the provider using getServices() method 
-	            servicelist = provider.getServices(); 
-	  
-	            // Creating the object of iterator to iterate set 
-	            Iterator<Provider.Service> iter = servicelist.iterator(); 
-	  
-	            // printing the set elements 
-	            System.out.println("Provider servicelist : \n "); 
-	            while (i > 0) { 
-	                System.out.println("Value is : " + iter.next()); 
-	                i--; 
-	            } 
-			} catch (NoSuchProviderException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			ASN1ObjectIdentifier oid = null;
+			String digestAlgorithmName = "SHA-224";
+			Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
+			Service service = provider.getService("MessageDigest", digestAlgorithmName);
+			if (service != null) {
+			    String string = service.toString();
+			    String array[] = string.split("\n");
+			    if (array.length > 1) {
+			        string = array[array.length - 1];
+			        array = string.split("[\\[\\]]");
+			        if (array.length > 2) {
+			            string = array[array.length - 2];
+			            array = string.split(", ");
+			            Arrays.sort(array);
+			            oid =  new ASN1ObjectIdentifier(array[0]);
+			        }
+			    }
 			}
-        } 
-        catch (NoSuchAlgorithmException e) { 
-            System.out.println("Exception thrown : " + e); 
         } 
         catch (NullPointerException e) { 
             System.out.println("Exception thrown : " + e); 

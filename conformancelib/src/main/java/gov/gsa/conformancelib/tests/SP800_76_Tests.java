@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -1195,11 +1196,10 @@ public class SP800_76_Tests {
 	//@MethodSource("sp800_76_BiometricParamTestProvider1")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_38(String oid, String paramsString, TestReporter reporter) {
-		Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
+		HashMap<String, List<String>> mp = (HashMap) ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
-		Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
-	    while (it.hasNext()) {
-	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+		for (Map.Entry<String,List<String>> entry : mp.entrySet()) {
+	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>) entry;	    	
 	        String containerName = pair.getKey();
 	        Object valueStr =  pair.getValue();
 			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
