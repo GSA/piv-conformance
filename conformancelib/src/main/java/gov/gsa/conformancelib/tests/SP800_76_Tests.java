@@ -1446,7 +1446,7 @@ public class SP800_76_Tests {
 		int int2 = Integer.parseInt(arrayParams[1]);
 		
 		//Confirm quality is set to a valid number.
-		assertTrue(quality >= int1 && int2 <= 100, "Biometrict quality has wrong values, expected values are " + int1 + " and " + int2);
+		assertTrue(quality >= int1 && int2 <= 100, "Biometric quality has wrong values, expected values are " + int1 + " and " + int2);
 	}
 	
 	//Validate that that the Creator field in the PIV Patron Format contains 18 bytes of which the first K <= 17 bytes shall be ASCII characters, and the first of the remaining 18-K shall be a null terminator (zero)
