@@ -19,8 +19,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
 import org.bouncycastle.asn1.eac.ECDSAPublicKey;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
@@ -75,7 +77,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     	
 		PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		Map<String,Object> mp = ParameterUtils.MapFromString(paramsString);
+		Map<String,List<String>> mp = ParameterUtils.MapFromString(paramsString);
 		
 		// Process the map if non-empty.  If the map is empty, an exception will
 		// have already been thrown and caught by MapFromString(), so we can safely
@@ -90,14 +92,12 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			while (it.hasNext()) {
 				String containerKey = it.next(); // will be an oid for a certificate container
 				if (containerKey.compareTo(oid) == 0) { // matches this certificate container we're inspecting
+					//AlgorithmIdentifier ai = new DefaultAlgorithmIdentifierFinder().find(( cert.getPublicKey().getAlgorithm() );
+
 					PublicKey pubKey = cert.getPublicKey();
 					String certAlgorithmOid = pubKey.getAlgorithm();
-					Object allowedOids = mp.get(containerKey); // Could be a String, or could be a List (of String)
-					if (allowedOids instanceof Map) {
-						allowable = (((Map) allowedOids).get(certAlgorithmOid) != null);
-					} else {
-						allowable = (((String) allowedOids).compareTo(certAlgorithmOid) == 0);
-					}						
+					List<String> allowedOids = mp.get(containerKey); // sub-parameters
+					allowable = (allowedOids.contains(certAlgorithmOid));
 				}
 			}
 			assertTrue(allowable);
@@ -163,8 +163,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		Map<String,Object> mp = ParameterUtils.MapFromString(paramsString);
-		int keyRef = APDUConstants.oidToContainerIdMap.get(oid);
+		Map<String,List<String>> mp = ParameterUtils.MapFromString(paramsString);
 
 		// Process the map if non-empty. If the map is empty, an exception will
 		// have already been thrown and caught by MapFromString(), so we can safely
@@ -175,19 +174,19 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 
 			boolean found = mp.containsKey(sigAlgOid);
 			assertTrue(found == true, "Signature algorithm (" + sigAlgOid + ") is not an allowable algorithm");
-			String databaseSigAlgParam = (String) mp.get(sigAlgOid);
+			List<String> databaseSigAlgParams = mp.get(sigAlgOid);
 			try {
 				AlgorithmParameters ap = AlgorithmParameters.getInstance(cert.getSigAlgName());
-				// RSA-PSS or ECDSA in this block
-				if (databaseSigAlgParam.length() > 0) { // RSASSA-PSS
-					assertTrue(databaseSigAlgParam.compareTo(sigAlgOid) == 0, "Non-conformant signature algorithm OID");
+				// RSA-PSS or ECDSA in this block at least for FIPS 201-2
+				if (!databaseSigAlgParams.isEmpty()) { // RSASSA-PSS
+					assertTrue(databaseSigAlgParams.contains(sigAlgOid), "Non-conformant signature algorithm OID");
 				} else {
-					assertTrue(databaseSigAlgParam.compareTo("") == 0, "Non-conformant signature algorithm OID");
+					assertTrue(databaseSigAlgParams.contains(""), "Non-conformant signature algorithm OID");
 				}
 			} catch (NoSuchAlgorithmException e) {
 				// Certs with legit RSA with SHA256 will end up here, so as
 				// long as the specified parameter is "null" it's a pass.
-				assertTrue(databaseSigAlgParam == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
+				assertTrue(databaseSigAlgParams == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
 			}
 		}
 	}

@@ -1,5 +1,9 @@
 package gov.gsa.conformancelib.configuration;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Provider;
+import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,49 +77,61 @@ public class ParameterUtils {
 			}
 			
 			for(String p : parameterList) {
-				List<String> value = null;
+				List<String> value = new ArrayList<String>();
 				if(p.contains(":")) {
 					// Type 3, with ":" separating key and value
 					System.out.println("Type 3, with \":\" separating key and value\n");
 					String[] kv = p.split(":");
-					boolean okayToPut = false;
+
 					if(kv.length == 2) {
 						// Could be an inner key:value pair, or just a key
 						if (kv[1].toLowerCase().compareTo("null") == 0) {
 							System.out.println("***************** sub-parameter is null\n");
-							okayToPut = value.add(null));
+							value.add(null);
 						} else {
-							
-							okayToPut = value.add(kv[1]);
+							value.add(kv[1]);
 							System.out.println("***************** sub-parameter is NOT null:" + kv[1] + "\n");
 						}
 					} else if (kv.length == 1) {
 						// Empty string == absent
 						System.out.println("****************** sub-parameter is the empty string (absent)\n");
-						okayToPut = value.add("");
+						value.add("");
 					} else {
 						logMessage = "Unexpected format in parameter string (" +  p + ")";
 						s_logger.error(logMessage);
 						throw new ConformanceTestException(logMessage);
 					}
-					
+					// Print out for debugging
 					if (value != null) {
 						ListIterator<String> li = value.listIterator();
 						while (li.hasNext()) {
-							if (li.next().toString().contains("|")) {
+							String listItem = li.next();
+							if (listItem.contains("|")) {
 								// A list of allowable values - nothing too fancy
-								System.out.println("****************** An allowable value of: " + li.toString()  + "\n");
+								System.out.println("****************** A list of allowable values: " + listItem  + "\n");
 								List subParamList = ParameterUtils.CreateFromString(parameters, "|");
+								ListIterator<String> sLi = subParamList.listIterator();
+								while (sLi.hasNext()) {
+									String subParameterListItem = sLi.next();
+									System.out.println("****************** An allowable sub-parameter: " + subParameterListItem  + "\n");
+								}
+							} else {
+								System.out.println("****************** An allowable value: " + listItem  + "\n");
 							}
 						}
 					}
-					rv.put(kv[0], value);
+					rv.put(p, value);
 				} else {
-					// Type 2 with comma separated values - just put them into the map
-					// and let the duplicates filter out.
-					System.out.println("*Type 2 with comma-separated values\n");
-					rv.put(kv[0], ;
+					// Type 2 with comma-separated values.  Put them into the map with a null List.
+					System.out.println("***************** Type 2 with comma-separated values\n");
+					rv.putIfAbsent(p, null);
 				}
+			}
+			if (rv.isEmpty()) {
+				logMessage = "Return HashMap<String, List<String>> is empty";
+				System.out.println("***************** Type 2 with comma-separated values\n");
+				s_logger.error(logMessage);
+				throw new ConformanceTestException(logMessage);
 			}
 		} catch (ConformanceTestException e) {
 			s_logger.error(logMessage);
@@ -131,6 +148,45 @@ public class ParameterUtils {
 				"X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34";
 		Map<String, List<String>> map1 = MapFromString(csvParams1);
 		Map<String, List<String>> map2 = MapFromString(csvParams2);
+        // Declaring int variable 
+        int i = 5; 
+  
+        try { 
+            // creating the object of  SecureRandom 
+            Signature sr;
+			try {
+				sr = Signature.getInstance("RSAEncryption", "SUN");
+				  
+	            // getting the Provider of the SecureRandom sr 
+	            // by using method getProvider() 
+	            Provider provider = sr.getProvider(); 
+	  
+	            // Declaring the variable of set<Map> type 
+	            Set<Provider.Service> servicelist; 
+	  
+	            // getting the service of the provider using getServices() method 
+	            servicelist = provider.getServices(); 
+	  
+	            // Creating the object of iterator to iterate set 
+	            Iterator<Provider.Service> iter = servicelist.iterator(); 
+	  
+	            // printing the set elements 
+	            System.out.println("Provider servicelist : \n "); 
+	            while (i > 0) { 
+	                System.out.println("Value is : " + iter.next()); 
+	                i--; 
+	            } 
+			} catch (NoSuchProviderException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        } 
+        catch (NoSuchAlgorithmException e) { 
+            System.out.println("Exception thrown : " + e); 
+        } 
+        catch (NullPointerException e) { 
+            System.out.println("Exception thrown : " + e); 
+        } 
 		System.out.println("Done\n");
 	}
 }

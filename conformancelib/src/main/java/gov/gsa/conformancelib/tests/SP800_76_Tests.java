@@ -1194,20 +1194,16 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_76_BiometricParamTestProvider1")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_76Test_38(String paramsString , TestReporter reporter) {
-		
-		Map<String, Object> mp = ParameterUtils.MapFromString(paramsString);
+	void sp800_76Test_38(String oid, String paramsString, TestReporter reporter) {
+		Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
-		Iterator<Entry<String,Object>> it = mp.entrySet().iterator();
+		Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
 	    while (it.hasNext()) {
-	    	Map.Entry<String,Object> pair = (Map.Entry<String,Object>)it.next();
-	    	assertNotNull(pair);
-	        String oid = pair.getKey();
+	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+	        String containerName = pair.getKey();
 	        Object valueStr =  pair.getValue();
-			assertNotNull(oid, "NULL oid passed to atom");
-			assertNotNull(valueStr);
-			oid = APDUConstants.getStringForFieldNamed(oid);
-			assertNotNull(oid);
+			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+			assertNotNull(containerOid);
 
 			int value = 0;
 			try {
@@ -1216,7 +1212,7 @@ public class SP800_76_Tests {
 				fail(e);
 			}
 			
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
@@ -1347,27 +1343,24 @@ public class SP800_76_Tests {
 	//@MethodSource("sp800_76_BiometricParamTestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_41(String paramsString, TestReporter reporter) {
-		
-		Map<String, Object> mp = ParameterUtils.MapFromString(paramsString);
+		Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
-		Iterator<Entry<String,Object>> it = mp.entrySet().iterator();
+		Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
 	    while (it.hasNext()) {
-	    	Map.Entry<String,Object> pair = (Map.Entry<String,Object>)it.next();
-			assertNotNull(pair);
-	        String oid = pair.getKey();
+	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+	        String containerName = pair.getKey();
 	        Object valueStr =  pair.getValue();
-			assertNotNull(oid, "NULL oid passed to atom");
-			assertNotNull(valueStr);
-			oid = APDUConstants.getStringForFieldNamed(oid);
-			assertNotNull(oid);
+			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+			assertNotNull(containerOid);
+
 			int value = 0;
 			try {
 				value = Integer.parseInt((String) valueStr);
 			} catch(NumberFormatException e) {
 				fail(e);
 			}
-			
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
@@ -1395,27 +1388,24 @@ public class SP800_76_Tests {
 	//@MethodSource("sp800_76_BiometricParamTestProvider3")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_42(String paramsString, TestReporter reporter) {
-		
-		Map<String, Object> mp = ParameterUtils.MapFromString(paramsString);
+		Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
-		Iterator<Entry<String,Object>> it = mp.entrySet().iterator();
+		Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
 	    while (it.hasNext()) {
-	    	Map.Entry<String, Object> pair = it.next();
-			assertNotNull(pair);
-	        String oid = pair.getKey();
-	        Object valueObj =  pair.getValue();
-			assertNotNull(oid, "NULL oid passed to atom");
-			assertNotNull(valueObj);
-			oid = APDUConstants.getStringForFieldNamed(oid);
-			assertNotNull(oid);
+	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+	        String containerName = pair.getKey();
+	        Object valueStr =  pair.getValue();
+			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+			assertNotNull(containerOid);
+
 			int value = 0;
 			try {
-				value = Integer.parseInt((String) valueObj);
+				value = Integer.parseInt((String) valueStr);
 			} catch(NumberFormatException e) {
 				fail(e);
 			}
-			
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
