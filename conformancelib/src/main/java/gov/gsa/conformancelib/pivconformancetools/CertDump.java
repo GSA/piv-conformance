@@ -21,6 +21,10 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.x509.Certificate;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +54,7 @@ public class CertDump {
         s_options.addOption("o", "outDir", true, "Directory to receive certificates");
         s_options.addOption("","reader", true, "Use the specified reader instead of the first one with a card");
         s_options.addOption("v","verify", false, "verify container pairwise consistency when dumping");
+        s_options.addOption("", "printAlgs", false, "print algorithm OIDs for certificate public keys");
     }
 
     private static void PrintHelpAndExit(int exitCode) {
@@ -233,12 +238,34 @@ public class CertDump {
 					s_logger.error("Unable to create file for writing", e);
 					continue;
 				}
+				byte[] certBytes = null;
 				try {
-					outFile.write(cert.getEncoded());
+					certBytes = cert.getEncoded();
+					outFile.write(certBytes);
 				} catch (CertificateEncodingException e) {
 					s_logger.error("Failed to write encoded X.509 certificate", e);
+					continue;
 				}
 				outFile.close();
+				if(cmd.hasOption("printAlgs")) {
+					ASN1InputStream bcAis = new ASN1InputStream(certBytes);
+					ASN1Sequence certSeq = (ASN1Sequence) bcAis.readObject();
+					if(certSeq == null) {
+						s_logger.error("Bouncy castle's ASN1 decoder failed to parse the certificate bytes produced by java 8's ASN1 encoder");
+						continue;
+					}
+					bcAis.close();
+					Certificate bcCert = Certificate.getInstance(certSeq);
+					if(bcCert == null) {
+						s_logger.error("Bouncy castle failed to decode certificate from java");
+						continue;
+					}
+					SubjectPublicKeyInfo spki = bcCert.getSubjectPublicKeyInfo();
+					String pubKeyAlg = spki.getAlgorithm().getAlgorithm().toString();
+					s_logger.info("Key from container {} has algorithm {}", container, pubKeyAlg);
+					String sigAlg = bcCert.getSignatureAlgorithm().getAlgorithm().toString();
+					s_logger.info("Cert from container {} was signed with algorithm {}", container, sigAlg);
+				}
 			} catch (IOException e) {
 				s_logger.error("Caught exception while writing data for container {} to file", container, e);
 			}
