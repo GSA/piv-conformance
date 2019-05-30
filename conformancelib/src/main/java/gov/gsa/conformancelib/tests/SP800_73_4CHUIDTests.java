@@ -59,24 +59,16 @@ public class SP800_73_4CHUIDTests {
 		}
     }
 
-	//Tag 0x30 is present and is the first tag or the first tag following 0xEE
+	//Tag 0x30 is present
 	@DisplayName("SP800-73-4.10 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_CHUIDTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_10(String oid, TestReporter reporter) {
-		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
-		
 		BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG);
 		assertTrue(tagList.contains(berFASCTag));
-		
-		int tagIndex = tagList.indexOf(berFASCTag);
-		
-		assertTrue(tagIndex == 0 || tagIndex == 1);
-			
 	}
 	
 	//Tags 0x32 and 0x33 are optionally present and must follow 0x30 in that order
@@ -124,79 +116,17 @@ public class SP800_73_4CHUIDTests {
 		
 	}
 	
-	//Tags 0x34 and 0x35 are present and follow tags from 73-4.10, 73-4.11
+	//Tags 0x34 and 0x35 are present
 	@DisplayName("SP800-73-4.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_CHUIDTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_12(String oid, TestReporter reporter) {
-		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
-		
-		BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG);
-		BerTag berDUNSTag = new BerTag(TagConstants.DUNS_TAG);
-		BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG);
 		BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG);
 		BerTag berExpirationDateTag = new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG);
-		
-		
-		
 		assertTrue(tagList.contains(berGUIDTag) && tagList.contains(berExpirationDateTag)); 
-		
-		assertTrue(tagList.size() >= 3);
-		
-		int orgFASCNTagIndex = tagList.indexOf(berFASCTag);
-		assertTrue(orgFASCNTagIndex >= 0);
-		
-		boolean optionalTagsPresent = false;
-		
-		if(tagList.contains(berOrgIDTag)) {
-
-			optionalTagsPresent = true;			
-			assertTrue(tagList.size() >= 4);
-			
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.GUID_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
-		}
-		
-		
-		if(tagList.contains(berDUNSTag)) {
-
-			optionalTagsPresent = true;
-
-			if(tagList.contains(berOrgIDTag)) {
-				
-				assertTrue(tagList.size() >= 5);
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.DUNS_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.GUID_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+4).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
-			
-			} else {
-			
-				assertTrue(tagList.size() >= 4);
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.DUNS_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.GUID_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));				
-			
-			}
-		}
-		
-		if(optionalTagsPresent == false) {
-			
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.GUID_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
-			
-		}
-		
-		
 	}
 	
 	//Tag 0x36 is optionally present and follows tags from 73-4.10, 73-4.11, 73-4.12
@@ -274,7 +204,7 @@ public class SP800_73_4CHUIDTests {
 		}
 	}
 	
-	//Tags 0x3E and 0xFE are present and follow tags from 73-4.10, 73-4.11, 73-4.12, 73-4.13 in that order
+	//Tags 0x3E and 0xFE are present
 	@DisplayName("SP800-73-4.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_CHUIDTestProvider")
@@ -285,75 +215,10 @@ public class SP800_73_4CHUIDTests {
 		
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		
-		BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG);
-		BerTag berDUNSTag = new BerTag(TagConstants.DUNS_TAG);
-		BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG);
 		BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG);
 		BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 			
 		assertTrue(tagList.contains(berIssuerAssymSigTag) && tagList.contains(berErrorDetectionCodeTag)); 
-			
-		assertTrue(tagList.size() >= 6);
-		
-		int orgFASCNTagIndex = tagList.indexOf(berFASCTag);
-		assertTrue(orgFASCNTagIndex >= 0);
-		
-		boolean optionalTagsPresent = false;
-		
-		if(tagList.contains(berOrgIDTag)) {
-
-			optionalTagsPresent = true;			
-			assertTrue(tagList.size() >= 7);
-			
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.GUID_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+4).bytes,TagConstants.CARDHOLDER_UUID_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+5).bytes,TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+6).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
-		}
-		
-		if(tagList.contains(berDUNSTag)) {
-
-			optionalTagsPresent = true;
-
-			if(tagList.contains(berOrgIDTag)) {
-				
-				assertTrue(tagList.size() >= 8);
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.DUNS_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.GUID_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+4).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+5).bytes,TagConstants.CARDHOLDER_UUID_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+6).bytes,TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+7).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
-			
-			} else {
-			
-				assertTrue(tagList.size() >= 7);
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.DUNS_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.GUID_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+4).bytes,TagConstants.CARDHOLDER_UUID_TAG));	
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+5).bytes,TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+6).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));			
-			
-			}
-		}
-		
-		if(optionalTagsPresent == false) {
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.GUID_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.CARDHOLDER_UUID_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+4).bytes,TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+5).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
-			
-		}	
-		
 	}
 	
 	//Expiration Date is formatted YYYYMMDD
@@ -441,14 +306,20 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.43 test")
 	void sp800_73_4_Test_43 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG);
+			if (tagList.contains(berFASCTag) == false) {
+				Exception e = new Exception("0x30 tag is missing");
+				throw e;
+			}
+			int tagIndex = tagList.indexOf(berFASCTag);
+			assertTrue(tagIndex == 0 || tagIndex == 1);
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
 	
 	// Tag 0x34 is present (split from 73-4.12)
@@ -457,14 +328,15 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.44 test")
 	void sp800_73_4_Test_44 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG);
+			assertTrue(tagList.contains(berGUIDTag)); 
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
     
     // Tag 0x34 follows Tag 0x30, 32, or 0x33
@@ -473,14 +345,104 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.45 test")
 	void sp800_73_4_Test_45 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			
+			BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG); //0x32
+			BerTag berDUNSTag = new BerTag(TagConstants.DUNS_TAG); // 0x33
+			BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG); // 0x30
+			BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG); // 0x34
+			
+			
+			
+			if (tagList.contains(berGUIDTag)== false) {
+				Exception e = new Exception("0x34 tag is missing");
+				throw e;
+			}
+			
+			if (!(tagList.size() >= 3)) {
+				Exception e = new Exception("tagList.size() < 3");
+				throw e;
+			}
+			
+			int orgFASCNTagIndex = tagList.indexOf(berFASCTag);
+			if (!(orgFASCNTagIndex >= 0)) {
+				Exception e = new Exception("orgFASCNTagIndex is not >= 0");
+				throw e;
+			}
+			
+			boolean optionalTagsPresent = false;
+			
+			if(tagList.contains(berDUNSTag)) {
+
+				optionalTagsPresent = true;
+
+				if(tagList.contains(berOrgIDTag)) {
+					
+					assertTrue(tagList.size() >= 5);
+					if ((Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG)) == false) {
+						Exception e = new Exception("tagList.get(orgFASCNTagIndex).bytes != TagConstants.FASC_N_TAG");
+						throw e;
+					}
+					if ((Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG)) == false) {
+						Exception e = new Exception("tagList.get(orgFASCNTagIndex+1).bytes != TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG");
+						throw e;
+					}
+					if ((Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.DUNS_TAG)) == false) {
+						Exception e = new Exception("tagList.get(orgFASCNTagIndex+2).bytes != TagConstants.DUNS_TAG");
+						throw e;
+					}
+					assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+3).bytes,TagConstants.GUID_TAG));
+				
+				} else {
+				
+					assertTrue(tagList.size() >= 4);
+					if ((Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG)) == false) {
+						Exception e = new Exception("tagList.get(orgFASCNTagIndex).bytes != TagConstants.FASC_N_TAG");
+						throw e;
+					}
+					if ((Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.DUNS_TAG)) == false) {
+						Exception e = new Exception("tagList.get(orgFASCNTagIndex+1).bytes != TagConstants.DUNS_TAG");
+						throw e;
+					}
+					assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.GUID_TAG));
+				
+				}
+			} else if(tagList.contains(berOrgIDTag)) {
+				optionalTagsPresent = true;			
+				if (!(tagList.size() >= 4)) {
+					Exception e = new Exception("tagList.size() < 4");
+					throw e;
+				}
+				
+				if (Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG) == false) {
+					Exception e = new Exception("tagList.get(orgFASCNTagIndex).bytes != TagConstants.FASC_N_TAG");
+					throw e;
+				}
+				if (Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG) == false) {
+					Exception e = new Exception("orgFASCNTagIndex+1).bytes != TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG");
+					throw e;
+				}
+				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+2).bytes,TagConstants.GUID_TAG));
+			}
+			
+			
+			
+			if(optionalTagsPresent == false) {
+				
+				if (Arrays.equals(tagList.get(orgFASCNTagIndex).bytes,TagConstants.FASC_N_TAG) == false) {
+					Exception e = new Exception("tagList.get(orgFASCNTagIndex).bytes != TagConstants.FASC_N_TAG");
+					throw e;
+				}
+				assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex+1).bytes,TagConstants.GUID_TAG));
+				
+			}
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
     
 	// Tag 0x35 is present (split from 73-4.12)
@@ -489,14 +451,15 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.46 test")
 	void sp800_73_4_Test_46 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			BerTag berExpirationDateTag = new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG);
+			assertTrue(tagList.contains(berExpirationDateTag)); 
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
        
 	// Tag 0x35 follows Tag 0x34 (split from 73-4.12)
@@ -505,14 +468,37 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.47 test")
 	void sp800_73_4_Test_47 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			
+			BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG);
+			BerTag berExpirationDateTag = new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG);
+			if ((tagList.contains(berGUIDTag) && tagList.contains(berExpirationDateTag)) == false) {
+				Exception e = new Exception("(tagList.contains(berGUIDTag) && tagList.contains(berExpirationDateTag)) == false");
+				throw e;
+			}
+			if ((tagList.size() >= 3) == false) {
+				Exception e = new Exception("(tagList.size() >= 3) == false");
+				throw e;
+			}
+			
+			int orgGuidTagIndex = tagList.indexOf(berGUIDTag);
+			if ((orgGuidTagIndex >= 0) == false) {
+				Exception e = new Exception("(orgGuidTagIndex >= 0) == false");
+				throw e;
+			}
+			if ((Arrays.equals(tagList.get(orgGuidTagIndex).bytes,TagConstants.GUID_TAG)) == false) {
+				Exception e = new Exception("(Arrays.equals(tagList.get(orgGuidTagIndex).bytes,TagConstants.GUID_TAG)) == false");
+				throw e;
+			}
+			assertTrue(Arrays.equals(tagList.get(orgGuidTagIndex+1).bytes,TagConstants.CHUID_EXPIRATION_DATE_TAG));
+				
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
 	
 	// Tag 0x3E is present (split from 73-4.14)
@@ -521,14 +507,15 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.48 test")
 	void sp800_73_4_Test_48 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG);
+			assertTrue(tagList.contains(berIssuerAssymSigTag)); 
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
  	
     // Tag 0x3E follows Tag 0x35 or 0x36 (split from 73-4.14)
@@ -537,14 +524,30 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.49 test")
 	void sp800_73_4_Test_49 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			
+			BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG); //0x3E
+			if (tagList.contains(berIssuerAssymSigTag) == false) {
+				Exception e = new Exception("ISSUER_ASYMMETRIC_SIGNATURE_TAG not found");
+				fail(e);
+			}
+				
+			assertTrue(tagList.size() >= 6);
+			
+			int berIssuerAssymSigTagIndex = tagList.indexOf(berIssuerAssymSigTag);
+			if ((berIssuerAssymSigTagIndex >= 0) == false) {
+				Exception e = new Exception("ISSUER_ASYMMETRIC_SIGNATURE_TAG not found");
+				fail(e);
+			}
+			assertTrue(Arrays.equals(tagList.get(berIssuerAssymSigTagIndex-1).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG) || 
+					Arrays.equals(tagList.get(berIssuerAssymSigTagIndex-1).bytes, TagConstants.CARDHOLDER_UUID_TAG));
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
  	
 	// Tag 0xFE is present (split from 73-4.14)
@@ -553,14 +556,18 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.49 test")
 	void sp800_73_4_Test_50 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			
+			BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
+				
+			assertTrue(tagList.contains(berErrorDetectionCodeTag));
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
 
 	// Tag 0xFE follows Tag 0x3E (split from 73-4.14)
@@ -569,14 +576,39 @@ public class SP800_73_4CHUIDTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.51 test")
 	void sp800_73_4_Test_51 (String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			
+			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			
+			BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG);
+			BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
+				
+			if ((tagList.contains(berIssuerAssymSigTag) && tagList.contains(berErrorDetectionCodeTag)) == false) {
+				Exception e = new Exception("Either tag ISSUER_ASYMMETRIC_SIGNATURE_TAG or ERROR_DETECTION_CODE_TAG or both are missing");
+				fail(e);
+			}
+				
+			if ((tagList.size() >= 6) == false) {
+				Exception e = new Exception("tagList size is less than 6");
+				fail(e);
+			}
+			
+			int berIssuerAssymSigTagIndex = tagList.indexOf(berIssuerAssymSigTag);
+			if ((berIssuerAssymSigTagIndex >= 0) == false) {
+				Exception e = new Exception("Index of ISSUER_ASYMMETRIC_SIGNATURE_TAG tag was not found");
+				fail(e);
+			}
+			
+			if ((Arrays.equals(tagList.get(berIssuerAssymSigTagIndex).bytes,TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)) == false) {
+				Exception e = new Exception("The byte array at berIssuerAssymSigTagIndex != ISSUER_ASYMMETRIC_SIGNATURE_TAG");
+				fail(e);
+			}
+			assertTrue(Arrays.equals(tagList.get(berIssuerAssymSigTagIndex+1).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
     
 	// this is now used only to test changes to atoms

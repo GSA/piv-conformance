@@ -1,4 +1,6 @@
 #!/usr/bin/bash
+. ./tools/85b-swing-gui/ensuredeps.sh
+
 pushd cardlib >/dev/null 2>&1
 	./gradlew clean
 	./gradlew eclipse

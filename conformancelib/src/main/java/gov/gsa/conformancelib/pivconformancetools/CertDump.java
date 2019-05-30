@@ -21,10 +21,13 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+<<<<<<< HEAD
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+=======
+>>>>>>> origin/database-work
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +57,10 @@ public class CertDump {
         s_options.addOption("o", "outDir", true, "Directory to receive certificates");
         s_options.addOption("","reader", true, "Use the specified reader instead of the first one with a card");
         s_options.addOption("v","verify", false, "verify container pairwise consistency when dumping");
+<<<<<<< HEAD
         s_options.addOption("", "printAlgs", false, "print algorithm OIDs for certificate public keys");
+=======
+>>>>>>> origin/database-work
     }
 
     private static void PrintHelpAndExit(int exitCode) {
@@ -238,6 +244,7 @@ public class CertDump {
 					s_logger.error("Unable to create file for writing", e);
 					continue;
 				}
+<<<<<<< HEAD
 				byte[] certBytes = null;
 				try {
 					certBytes = cert.getEncoded();
@@ -266,6 +273,14 @@ public class CertDump {
 					String sigAlg = bcCert.getSignatureAlgorithm().getAlgorithm().toString();
 					s_logger.info("Cert from container {} was signed with algorithm {}", container, sigAlg);
 				}
+=======
+				try {
+					outFile.write(cert.getEncoded());
+				} catch (CertificateEncodingException e) {
+					s_logger.error("Failed to write encoded X.509 certificate", e);
+				}
+				outFile.close();
+>>>>>>> origin/database-work
 			} catch (IOException e) {
 				s_logger.error("Caught exception while writing data for container {} to file", container, e);
 			}

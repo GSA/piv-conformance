@@ -46,7 +46,7 @@ public class SP800_73_4SecurityObjectTests {
 		assertTrue(bertlv.length <= 1008); // TODO: https://github.com/GSA/piv-conformance/issues/90
 	}
 
-	//Tags 0xBA, 0xBB, 0XFE are present in that order
+	//Tags 0xBA, 0xBB, 0XFE are present
 	@DisplayName("SP800-73-4.34 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
@@ -70,12 +70,6 @@ public class SP800_73_4SecurityObjectTests {
 		assertTrue(tagList.contains(berSecurityObjectTag));
 		assertTrue(tagList.contains(berEDCTag));
 		
-		int orgMappingTagIndex = tagList.indexOf(berMappingTag);
-		
-		// Confirm tags 0xBA, 0xBB, 0XFE are in right order
-		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex).bytes,TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
-		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+1).bytes,TagConstants.SECURITY_OBJECT_TAG));
-		assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+2).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
     }
 	
 	//No tags other than (0xBA, 0xBB, 0xFE) are present
@@ -240,21 +234,49 @@ public class SP800_73_4SecurityObjectTests {
 		boolean verified = ((SecurityObject) o).verifyHashes();
 		assertTrue(verified);
     }
-	
-	// No tags other than (0xBA, 0xBB, 0xFE) are present
+
+	//Tags 0xBA, 0xBB, 0XFE are in that order
 	@DisplayName("SP800-73-4.54 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
     void sp800_73_4_Test_54(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
+		try {
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+	        
+	        boolean decoded = o.decode();
+			assertTrue(decoded);
+			
+			// Get tag list
+			List<BerTag> tagList = ((SecurityObject) o).getTagList();
+			
+			BerTag berMappingTag = new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG);
+			BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);
+			BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
+			
+			// Confirm tags 0xBA, 0xBB, 0XFE are present
+			if (tagList.contains(berMappingTag) == false) {
+				Exception e = new Exception("MAPPING_OF_DG_TO_CONTAINER_ID_TAG is missing");
+				throw e;
+			}
+			if (tagList.contains(berSecurityObjectTag) == false) {
+				Exception e = new Exception("SECURITY_OBJECT_TAG is missing");
+				throw e;
+			}
+			if (tagList.contains(berEDCTag) == false) {
+				Exception e = new Exception("ERROR_DETECTION_CODE_TAG is missing");
+				throw e;
+			}
+			
+			int orgMappingTagIndex = tagList.indexOf(berMappingTag);
+			
+			// Confirm tags 0xBA, 0xBB, 0XFE are in right order
+			assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex).bytes,TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
+			assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+1).bytes,TagConstants.SECURITY_OBJECT_TAG));
+			assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex+2).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
+		}
+		catch (Exception e) {
+			fail(e);
+		}
 	}
 	
 	// this is only used to test the atom now... it is no longer operative in the conformance tester

@@ -120,16 +120,20 @@ public class TestStepModel {
 			} else {
 				this.setStatus(-1);
 			}
-			int nParameters = rs.getInt("NumParameters");
-			s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
+			//int nParameters = rs.getInt("NumParameters");
+			//s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
 			PreparedStatement pparametersQuery = conn.prepareStatement(parametersQuery);
 			pparametersQuery.setInt(1, testStepId);
 			//pparametersQuery.setInt(2, testId);
+
 			ResultSet prs = pparametersQuery.executeQuery();
+			int nParameters = 0;
 			while(prs.next()) {
 				if(m_parameters == null) m_parameters = new ArrayList<String>();
 				m_parameters.add(prs.getString("Value"));
+				nParameters++;
 			}
+			s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
 		} catch(Exception e) {
 			// XXX *** TODO: more granular exception handling
 			s_logger.error("Database error procesing test step id " + testStepId + ": caught unexpected exception", e);
