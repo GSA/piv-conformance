@@ -238,7 +238,8 @@ public class SP800_73_4SecurityObjectTests {
 	//Tags 0xBA, 0xBB, 0XFE are in that order
 	@DisplayName("SP800-73-4.54 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_54(String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
