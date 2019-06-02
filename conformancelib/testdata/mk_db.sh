@@ -11,9 +11,10 @@ if [ $(expr $(uname) : "^.*CYG") -eq 3 ]; then
         echo "Please run CMD /c mk_db.bat for Cygwin environments"
         exit 1
 fi
+PYTHON=${PYTHON:-$(which python)}
 
 # Don't try to parse $PS1, just go for it
-python -mvenv venv-xlrd
+$PYTHON -mvenv venv-xlrd
 source ./venv-xlrd/bin/activate
 pip install --upgrade pip
 pip install xlrd
