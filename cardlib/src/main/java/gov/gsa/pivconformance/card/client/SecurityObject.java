@@ -208,7 +208,7 @@ public class SecurityObject extends PIVDataObject {
 
         try {
             byte[] rawBytes = this.getBytes();
-            //s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
             BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
             BerTlvs outer = tlvp.parse(rawBytes);
             List<BerTlv> outerTlvs = outer.getList();
@@ -278,7 +278,7 @@ public class SecurityObject extends PIVDataObject {
         }
         catch (Exception e)
         {
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage(), e);
             return false;
         }
 
