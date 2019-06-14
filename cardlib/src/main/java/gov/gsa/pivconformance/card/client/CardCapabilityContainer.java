@@ -35,7 +35,6 @@ public class CardCapabilityContainer extends PIVDataObject {
     private boolean m_nextCCC;
     private List<byte[]> m_extendedApplicationCardURL;
     private byte[] m_securityObjectBuffer;
-    private boolean m_errorDetectionCode;
     private byte[] m_signedContent;
 
 
@@ -58,7 +57,8 @@ public class CardCapabilityContainer extends PIVDataObject {
         m_nextCCC = false;
         m_extendedApplicationCardURL = null;
         m_securityObjectBuffer = null;
-        m_errorDetectionCode = false;
+        setErrorDetectionCode(false);
+        setErrorDetectionCodeHasData(false);
     }
 
     /**
@@ -235,15 +235,6 @@ public class CardCapabilityContainer extends PIVDataObject {
         return m_securityObjectBuffer;
     }
 
-    /**
-     * Returns boolean value indicating if error detection code is present
-     *
-     * @return Boolean value indicating if error detection code is present
-     */
-    public boolean getErrorDetectionCode() {
-
-        return m_errorDetectionCode;
-    }
 
     /**
      *
@@ -378,8 +369,7 @@ public class CardCapabilityContainer extends PIVDataObject {
                                 scos.write(APDUUtils.getTLV(TagConstants.SECURITY_OBJECT_BUFFER_TAG, tlv2.getBytesValue()));
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
-                                m_errorDetectionCode = true;
-                                
+                            	setErrorDetectionCode(true);
                                 scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
                                 scos.write((byte) 0x00);
                             }

@@ -23,18 +23,8 @@ public class X509CertificateDataObject extends PIVDataObject {
     private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateDataObject.class);
 
     private X509Certificate m_pivAuthCert;
-    private boolean m_error_Detection_Code;
-    private boolean m_error_Detection_Code_Has_Data;
 
     
-    /**
-     * Returns boolean value indicating if error detection code had any bytes
-     *
-     * @return Boolean value indicating if error detection code had any bytes
-     */
-    public boolean getErrorDetectionCodeHasData() {
-		return m_error_Detection_Code_Has_Data;
-	}
 
 	/**
      * CardCapabilityContainer class constructor, initializes all the class fields.
@@ -42,18 +32,10 @@ public class X509CertificateDataObject extends PIVDataObject {
     public X509CertificateDataObject() {
 
         m_pivAuthCert = null;
-        m_error_Detection_Code = false;
+        setErrorDetectionCode(false);
+        setErrorDetectionCodeHasData(false);
     }
 
-    /**
-     * Returns boolean value indicating if error detection code is present
-     *
-     * @return Boolean value indicating if error detection code is present
-     */
-    public boolean getErrorDetectionCode() {
-
-        return m_error_Detection_Code;
-    }
 
     /**
      *
@@ -117,10 +99,10 @@ public class X509CertificateDataObject extends PIVDataObject {
                                     }
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
-                                    m_error_Detection_Code = true;
+                                	setErrorDetectionCode(true);
 
                                     if (tlv2.getBytesValue().length > 0) {
-                                    	m_error_Detection_Code_Has_Data = true;
+                                    	setErrorDetectionCodeHasData(true);
                                     }
                                 }
                                                                 

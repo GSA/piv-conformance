@@ -168,13 +168,13 @@ public class X509DataObjectTests {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
         
         
-		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 		
 		assertTrue(tagList.contains(berEDCTag));
 
-		boolean ecHasData =  ((X509CertificateDataObject) o).getErrorDetectionCodeHasData();
+		boolean ecHasData =  o.getErrorDetectionCodeHasData();
 		
 		assertTrue(ecHasData == false);
     }
