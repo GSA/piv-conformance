@@ -120,8 +120,13 @@ public class GuiRunnerApplication {
 					c.setConformanceTestCsvAppender(foundAppender);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 					// XXX *** find out why this isn't coming from user info
-					if(opened) window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
 					window.m_mainFrame.setVisible(true);
+					if(opened) {
+						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
+					} else {
+						OpenDatabaseAction dbAction = new OpenDatabaseAction("startup database");
+						dbAction.actionPerformed(new ActionEvent(window, ActionEvent.ACTION_PERFORMED, "open startup database"));
+					}
 					if(errorMessage != null) {
 						JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
 						JDialog dialog = msgBox.createDialog(window.m_mainFrame, "Error");
