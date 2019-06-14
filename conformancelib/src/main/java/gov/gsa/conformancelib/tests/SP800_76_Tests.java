@@ -1194,13 +1194,14 @@ public class SP800_76_Tests {
 		for (Map.Entry<String,List<String>> entry : mp.entrySet()) {
 	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>) entry;	    	
 	        String containerName = pair.getKey();
-	        Object valueStr =  pair.getValue();
+	        List<String> valueStr =  pair.getValue();
 			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
 			assertNotNull(containerOid, "Unable to resolve container name: " + containerName);
+			assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.38 test: " + valueStr.size());
 
 			int value = 0;
 			try {
-				value = Integer.parseInt((String) valueStr);
+				value = Integer.parseInt(valueStr.get(0));
 			} catch(NumberFormatException e) {
 				fail(e);
 			}
