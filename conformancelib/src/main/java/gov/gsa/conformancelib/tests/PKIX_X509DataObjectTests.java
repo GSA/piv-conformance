@@ -896,7 +896,7 @@ public class PKIX_X509DataObjectTests {
     void PKIX_Test_24(String containerOid, String oid, TestReporter reporter) {
 		assertNotNull(containerOid, "NULL certificate passed to atom");
 		assertNotNull(oid, "NULL oid passed to atom");
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		PIVDataObject o = AtomHelper.getDataObject(containerOid);
         
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
