@@ -1196,7 +1196,7 @@ public class SP800_76_Tests {
 	        String containerName = pair.getKey();
 	        Object valueStr =  pair.getValue();
 			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
-			assertNotNull(containerOid);
+			assertNotNull(containerOid, "Unable to resolve container name: " + containerName);
 
 			int value = 0;
 			try {
