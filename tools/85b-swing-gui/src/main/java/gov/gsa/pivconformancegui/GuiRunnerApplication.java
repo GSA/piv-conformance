@@ -124,8 +124,8 @@ public class GuiRunnerApplication {
 					if(opened) {
 						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
 					} else {
-						OpenDatabaseAction dbAction = new OpenDatabaseAction("startup database");
-						dbAction.actionPerformed(new ActionEvent(window, ActionEvent.ACTION_PERFORMED, "open startup database"));
+						//OpenDatabaseAction dbAction = new OpenDatabaseAction("startup database");
+						//dbAction.actionPerformed(new ActionEvent(window, ActionEvent.ACTION_PERFORMED, "open startup database"));
 					}
 					/*if(errorMessage != null) {
 						JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
