@@ -127,12 +127,12 @@ public class GuiRunnerApplication {
 						OpenDatabaseAction dbAction = new OpenDatabaseAction("startup database");
 						dbAction.actionPerformed(new ActionEvent(window, ActionEvent.ACTION_PERFORMED, "open startup database"));
 					}
-					if(errorMessage != null) {
+					/*if(errorMessage != null) {
 						JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
 						JDialog dialog = msgBox.createDialog(window.m_mainFrame, "Error");
 						dialog.setAlwaysOnTop(true);
 						dialog.setVisible(true);
-					}
+					}*/
 					TestExecutionController tc = TestExecutionController.getInstance();
 					tc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
 					tc.setTestTreePanel(window.m_mainContent.getTreePanel());

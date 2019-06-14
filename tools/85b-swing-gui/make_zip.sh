@@ -16,6 +16,7 @@ fi
 mkdir -p $DESTDIR
 cp ./build/libs/85b-swing-gui-all.jar $DESTDIR/
 cp -i ./user_log_config.xml $DESTDIR/
+[[ -z $CLEANLOGS ]] && rm $DESTDIR/*.log $DESTDIR/*.csv
 #cp -i ../../conformancelib/testdata/85b_test_definitions_PIV_ICAM_Test_Cards.db $DESTDIR/
 [[ -z $DONTZIP ]] && zip -r 85b-swing-gui-$STAMP.zip $DESTDIR
 echo "File to upload: 85b-swing-gui-$STAMP.zip"
