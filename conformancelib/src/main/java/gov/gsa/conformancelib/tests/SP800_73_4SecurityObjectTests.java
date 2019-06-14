@@ -14,6 +14,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -29,6 +31,7 @@ import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class SP800_73_4SecurityObjectTests {
+	static Logger s_logger = LoggerFactory.getLogger(SP800_73_4SecurityObjectTests.class);
 
 	//Security Object blob no larger than 1008 bytes
 	@DisplayName("SP800-73-4.33 test")
@@ -78,18 +81,20 @@ public class SP800_73_4SecurityObjectTests {
     //@MethodSource("sp800_73_4_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_35(String oid, TestReporter reporter) {
+		String logTag = "SP800-73-4.35: " + oid;
 
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 
-        boolean decoded = o.decode();
-		assertTrue(decoded);
-				
 		// Get tag list
 		List<BerTag> tagList = ((SecurityObject) o).getTagList();
 		
 		BerTag berMappingTag = new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG);
 		BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);
 		BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
+		
+		for(BerTag t : tagList) {
+			s_logger.debug("{}: got tag {}", logTag, t.toString());
+		}
 		
 		// Confirm tags 0x01, 0x02, 0x05, 0x06 are present
 		assertTrue(tagList.contains(berMappingTag));
