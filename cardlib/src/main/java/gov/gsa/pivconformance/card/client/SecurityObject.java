@@ -207,6 +207,7 @@ public class SecurityObject extends PIVDataObject {
     public boolean decode() {
 
         try {
+        	super.m_tagList.clear();
             byte[] rawBytes = this.getBytes();
             s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
             BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
@@ -217,6 +218,7 @@ public class SecurityObject extends PIVDataObject {
                 outer = tlvp.parse(tlvBuf);
             }
             for (BerTlv tlv : outer.getList()) {
+            	s_logger.debug("SecurityObject: processing tag {}", tlv.getTag().toString());
                 byte[] tag = tlv.getTag().bytes;
 
             	super.m_tagList.add(tlv.getTag());
