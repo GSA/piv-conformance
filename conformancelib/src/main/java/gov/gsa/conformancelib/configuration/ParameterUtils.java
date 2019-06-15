@@ -68,6 +68,7 @@ public class ParameterUtils {
 	 */
 	public static Map<String,List<String>> MapFromString(String parameters, String delimiter) {
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
+		final Logger methodLogger = LoggerFactory.getLogger(ParameterUtils.class.getName() + ".MapFromString");
 		String[] parameterList = ParameterUtils.CreateFromString(parameters, ",");
 		String logMessage = "";
 		
@@ -82,21 +83,21 @@ public class ParameterUtils {
 				ArrayList<String> value = new ArrayList<String>();
 				if(p.contains(":")) {
 					// Type 3, with ":" separating key and value
-					System.out.println("Type 3, with \":\" separating key and value\n");
+					methodLogger.debug("Type 3, with \":\" separating key and value\n");
 					String[] kv = p.split(":");
 
 					if(kv.length == 2) {
 						// Could be an inner key:value pair, or just a key
 						if (kv[1].toLowerCase().compareTo("null") == 0) {
-							System.out.println("***************** sub-parameter is null\n");
+							methodLogger.debug("***************** sub-parameter is null\n");
 							value.add(null);
 						} else {
 							value.add(kv[1]);
-							System.out.println("***************** sub-parameter is NOT null:" + kv[1] + "\n");
+							methodLogger.debug("***************** sub-parameter is NOT null:" + kv[1] + "\n");
 						}
 					} else if (kv.length == 1) {
 						// Empty string == absent
-						System.out.println("****************** sub-parameter is the empty string (absent)\n");
+						methodLogger.debug("****************** sub-parameter is the empty string (absent)\n");
 						value.add("");
 					} else {
 						logMessage = "Unexpected format in parameter string (" +  p + ")";
@@ -110,26 +111,28 @@ public class ParameterUtils {
 							String listItem = li.next();
 							if (listItem.contains("|")) {
 								// A list of allowable values - nothing too fancy
-								System.out.println("****************** A list of allowable values: " + listItem  + "\n");
+								methodLogger.debug("****************** A list of allowable values: " + listItem  + "\n");
 								String[] subParamList = ParameterUtils.CreateFromString(listItem, "\\|");
 								for (String si : subParamList) {
-									System.out.println("****************** An allowable sub-parameter: " + si  + "\n");
+									methodLogger.debug("****************** An allowable sub-parameter: " + si  + "\n");
 								}
 							} else {
-								System.out.println("****************** An allowable value: " + listItem  + "\n");
+								methodLogger.debug("****************** An allowable value: " + listItem  + "\n");
 							}
 						}
 					}
-					rv.put(p, value);
+					// in this case, p is no longer the key; it's the first element of the kv pair we just split
+					rv.put(kv[0], value);
 				} else {
 					// Type 2 with comma-separated values.  Put them into the map with a null List.
-					System.out.println("***************** Type 2 with comma-separated values\n");
+					methodLogger.debug("***************** Type 2 with comma-separated values\n");
 					rv.putIfAbsent(p, null);
 				}
 			}
 			if (rv.isEmpty()) {
 				logMessage = "Return HashMap<String, List<String>> is empty";
-				System.out.println("***************** Type 2 with comma-separated values\n");
+				methodLogger.debug("***************** Type 2 with comma-separated values\n");
+				methodLogger.error(logMessage);
 				s_logger.error(logMessage);
 				throw new ConformanceTestException(logMessage);
 			}

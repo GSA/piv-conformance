@@ -131,7 +131,7 @@ public class ChainingAPDUTransmitter {
 			byte[] dataBytes = dataBaos.toByteArray();
 			s_logger.debug("GET RESPONSE: final size: {}", dataBytes.length);
 			ResponseAPDUWrapper fixedResponse = new ResponseAPDUWrapper(dataBytes, response.getSw1(), response.getSw2());
-			s_logger.debug("Returning status {}{} following GET RESPONSE", response.getSw1(), response.getSw2());
+			s_logger.debug("Returning status {} following GET RESPONSE", String.format("%1$02X %2$02X", response.getSw1(), response.getSw2()));
 			response = fixedResponse;
 		}
 		if (request.isChainedRequest() && request.getNextRequest() != null) {

@@ -21,6 +21,8 @@ public class PIVDataObject {
     private String m_OID;
     private boolean m_signed;
     protected List<BerTag> m_tagList;
+    private boolean m_error_Detection_Code;
+    private boolean m_error_Detection_Code_Has_Data;
 
     /**
      * Initialize an invalid PIV data object
@@ -178,4 +180,31 @@ public class PIVDataObject {
 	public void setTagList(List<BerTag> tagList) {
 		this.m_tagList = tagList;
 	}
+
+    /**
+     * Returns boolean value indicating if error detection code had any bytes
+     *
+     * @return Boolean value indicating if error detection code had any bytes
+     */
+    public boolean getErrorDetectionCodeHasData() {
+		return m_error_Detection_Code_Has_Data;
+	}
+    
+    public void setErrorDetectionCodeHasData(boolean hasData) {
+		m_error_Detection_Code_Has_Data = hasData;
+    }
+    
+    public void setErrorDetectionCode(boolean present) {
+    	m_error_Detection_Code = present;
+    }
+
+    /**
+     * Returns boolean value indicating if error detection code is present
+     *
+     * @return Boolean value indicating if error detection code is present
+     */
+    public boolean getErrorDetectionCode() {
+
+        return m_error_Detection_Code;
+    }
 }

@@ -389,7 +389,7 @@ public class CardholderBiometricData extends PIVDataObject {
             }
         }catch (Exception ex) {
 
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error parsing {}", APDUConstants.oidNameMAP.get(super.getOID()), ex);
             return false;
         }
 

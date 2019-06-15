@@ -2,15 +2,22 @@
 
 bash ./ensuredeps.sh
 ./gradlew shadowJar
-if [[ -d 85b-swing-gui ]]; then
-    echo "!!! warning: existing 85b-swing-gui directory is in the way."
+
+DESTDIR=${DESTDIR:-85b-swing-gui}
+STAMP=$(date +'%Y%m%d%H%M')
+
+if [[ -d ${DESTDIR} ]]; then
+    echo "!!! warning: existing $DESTDIR directory is in the way."
     echo "!!! to clean up, run the following commands then re-run this script"
-    for f in $(find 85b-swing-gui -type f -print); do
+    for f in $(find $DESTDIR -type f -print); do
         echo "/bin/rm ${f}"
     done
 fi
-mkdir -p 85b-swing-gui
-cp ./build/libs/85b-swing-gui-all.jar 85b-swing-gui
-cp -i ./user_log_config.xml 85b-swing-gui/
-zip -r 85b-swing-gui-$(date +'%Y%m%d').zip 85b-swing-gui
+mkdir -p $DESTDIR
+cp ./build/libs/85b-swing-gui-all.jar $DESTDIR/
+cp -i ./user_log_config.xml $DESTDIR/
+[[ -z $CLEANLOGS ]] && rm $DESTDIR/*.log $DESTDIR/*.csv $DESTDIR/*.csv.html
+#cp -i ../../conformancelib/testdata/85b_test_definitions_PIV_ICAM_Test_Cards.db $DESTDIR/
+[[ -z $DONTZIP ]] && zip -r 85b-swing-gui-$STAMP.zip $DESTDIR
+echo "File to upload: 85b-swing-gui-$STAMP.zip"
 

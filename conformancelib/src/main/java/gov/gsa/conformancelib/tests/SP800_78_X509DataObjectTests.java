@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
-<<<<<<< HEAD
-=======
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.security.AlgorithmParameters;
@@ -24,7 +22,6 @@ import java.security.PublicKey;
 
 import org.bouncycastle.asn1.eac.ECDSAPublicKey;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
->>>>>>> origin/database-work
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
@@ -40,23 +37,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
-<<<<<<< HEAD
-=======
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
->>>>>>> origin/database-work
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-<<<<<<< HEAD
-=======
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
->>>>>>> origin/database-work
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 
@@ -171,28 +162,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 	void sp800_78_Test_3(String oid, String paramsString, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-<<<<<<< HEAD
-                
-        List<String> algList = new ArrayList<String>();
-        
-        algList.add("1.2.840.113549.1.1.5");
-        algList.add("1.2.840.113549.1.1.10");
-        algList.add("1.2.840.113549.1.1.11");
-        algList.add("1.2.840.10045.4.3.2");
-        algList.add("1.2.840.10045.4.3.3");
-        
-        X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);        
-        
-        String sigAlgFromCert = cert.getSigAlgOID();
-        
-        assertTrue(algList.contains(sigAlgFromCert));
-    }    	
     
-	// methods below are no longer used in conformance test tool and are only retained because they are sometimes useful for
-	// testing the atoms themselves
-	@SuppressWarnings("unused")
-=======
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		Map<String,List<String>> mp = ParameterUtils.MapFromString(paramsString);
 
@@ -222,7 +192,9 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		}
 	}
 
->>>>>>> origin/database-work
+	// methods below are no longer used in conformance test tool and are only retained because they are sometimes useful for
+	// testing the atoms themselves
+	@SuppressWarnings("unused")
     private static Stream<Arguments> sp800_78_x509TestProvider() {
     	
     	return Stream.of(

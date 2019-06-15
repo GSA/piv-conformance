@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.PolicyInformation;
@@ -18,12 +20,18 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
 
 public class PlaceholderTests {
 
@@ -40,7 +48,7 @@ public class PlaceholderTests {
 	// The cat shall jump over the moon...
 	// CCT parameter Type 1 (no parameters - single purpose)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProvider")
+	@MethodSource("placeholderTestProviderType1")
 	@DisplayName("PlaceholderTestParamType1Model.1 Test")
 	void PlaceholderTestParamType1Model_1 (String oid, TestReporter reporter) {
 		
@@ -56,7 +64,7 @@ public class PlaceholderTests {
 	// Only if it's a cat, dog, or elephant, shall it jump over the moon 
 	// CCT parameter Type 2 model (one parameter, which could be a comma-separated list, multi-select [OR])
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProvider")
+	@MethodSource("placeholderTestProviderType2")
 	@DisplayName("PlaceholderTestParamType1Model.2 Test")
 	void PlaceholderTestParamType2Model_1(String oid, String params, TestReporter reporter) {
 		
@@ -78,7 +86,7 @@ public class PlaceholderTests {
 	// If it's a cat, it must be:sleepy, if it's a dog, it must be:hungry, if it's an elephant:sad
 	// Model for CCT test parameter type 3 (comma-separated list of parameters, with each parameter being a name:value pair)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProvider")
+	@MethodSource("placeholderTestProviderType2")
 	@DisplayName("PlaceholderTestParamType1Model.2 Test")
 	void PlaceholderTestParamType3Model_1(String oid, String params, TestReporter reporter) {
 		
@@ -107,7 +115,7 @@ public class PlaceholderTests {
 	// CCT parameter Type 1 (no parameters - single purpose)
 	@DisplayName("PlaceholderTest.1 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProvider")
+	@MethodSource("placeholderTestProviderType1")
 	void PlaceholderTest_1(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -123,7 +131,7 @@ public class PlaceholderTests {
 	// CCT parameter Type 2 model (one parameter, which could be a comma-separated list, multi-select [OR])
 	@DisplayName("PlaceholderTest.2 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProvider")
+	@MethodSource("placeholderTestProviderType2")
 	void PlaceholderTest_2(String oid, String params, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -143,7 +151,7 @@ public class PlaceholderTests {
 	
 	// Model for CCT test parameter type 3 (comma-separated list of parameters, with each parameter being a name:value pair)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProvider")
+	@MethodSource("placeholderTestProviderType2")
 	@DisplayName("PlaceholderTest.3 Test")
 	void PlaceholderTest_3(String oid, String params, TestReporter reporter) {
 		
@@ -163,4 +171,17 @@ public class PlaceholderTests {
 	}
 
 	// TODO: @Geoff, need a generic provider or two so that we can unit test this
+	@SuppressWarnings("unused")
+	private static Stream<Arguments> placeholderTestProviderType2() {
+
+		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, "-2,100"),
+						Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "-2,100"));
+	}
+
+	@SuppressWarnings("unused")
+	private static Stream<Arguments> placeholderTestProviderType1() {
+
+		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID),
+						Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID));
+	}
 }

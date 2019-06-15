@@ -284,6 +284,11 @@ public class APDUConstants {
         };
         return rv;
     }
+    
+    public static boolean isContainerMandatory(String oid) {
+    	final List<String> mandatoryContainers = Arrays.asList(MandatoryContainers());
+    	return mandatoryContainers.contains(oid);
+    }
 
     /**
      *
