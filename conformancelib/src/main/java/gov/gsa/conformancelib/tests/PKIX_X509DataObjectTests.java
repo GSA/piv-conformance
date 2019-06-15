@@ -61,8 +61,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
@@ -81,7 +81,7 @@ import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 public class PKIX_X509DataObjectTests {
 	
 	
-	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
+	//private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
 
 	// Verify signature algorithm conforms to 78.1, 78.2, 78.3
 	@DisplayName("PKIX.1 test")
@@ -435,9 +435,10 @@ public class PKIX_X509DataObjectTests {
 	
 	//Confirm that the certificate subjectAltName includes FASC-N and that it matches CHUID
 	@DisplayName("PKIX.12 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ParameterizedTest(/*name = "{index} => oid = {0}"*/)
     //@MethodSource("pKIX_x509TestProvider2")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
     void PKIX_Test_12(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -1054,7 +1055,7 @@ public class PKIX_X509DataObjectTests {
 	private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {
 		HashMap<String, X509Certificate> rv = new HashMap<String, X509Certificate>();
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		if(css == null) s_logger.error("Failed to retrieve card settings singleton while constructing test parameters");
+		//if(css == null) s_logger.error("Failed to retrieve card settings singleton while constructing test parameters");
 		assertNotNull(css, "Failed to get instance of Card Settings Singleton");
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
 			ConformanceTestException e = new ConformanceTestException(
@@ -1076,14 +1077,14 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(c, "Invalid card handle in singleton");
 		
 		for(String oid : oids) {
-			s_logger.debug("Retrieving certificate for oid {}", oid);
+			//s_logger.debug("Retrieving certificate for oid {}", oid);
 			PIVDataObject obj = PIVDataObjectFactory.createDataObjectForOid(oid);
 			assertNotNull(obj, "Failed to allocate PIV data object");
 			result = piv.pivGetData(c, oid, obj);
 			if(result != MiddlewareStatus.PIV_OK) {
 				// this is only a warning here because it is up to the consumer of this function to decide
 				// whether a missing cert constitutes an assertion failure
-				s_logger.warn("pivGetData() for {} returned {}", oid, result);
+				//s_logger.warn("pivGetData() for {} returned {}", oid, result);
 				rv.put(oid, null);
 			}
 			boolean  decoded = obj.decode();

@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
@@ -37,12 +36,24 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 public class SP800_76_Tests {
 	static Logger s_logger = org.slf4j.LoggerFactory.getLogger(SP800_76_Tests.class);
 
+	
+	
+	
+	
 	//BDB length field is non-zero
 	@DisplayName("SP800-76.1 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_1(String oid, TestReporter reporter) {
 		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -72,7 +83,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_2(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -104,7 +122,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_3(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -133,7 +158,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_4(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -170,7 +202,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_5(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -189,7 +228,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_6(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -208,7 +254,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_7(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -228,7 +281,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_8(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -267,7 +327,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_9(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -290,7 +357,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_10(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -312,7 +386,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_11(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -339,7 +420,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_12(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -364,7 +452,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_13(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -385,7 +480,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_14(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -405,7 +507,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15a(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -433,7 +542,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15b(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -465,7 +581,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_16(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -491,7 +614,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_17(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -517,7 +647,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_18(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -536,7 +673,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_19(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -552,7 +696,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_20(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -595,7 +746,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_21(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -638,7 +796,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_22(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -680,7 +845,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_23(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 				
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -722,7 +894,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_24(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -769,7 +948,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_25(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -817,7 +1003,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_26(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -863,7 +1056,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_27(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -909,7 +1109,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_28(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -953,7 +1160,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_29(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -976,7 +1190,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_30(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -999,7 +1220,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_31(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -1026,7 +1254,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_32(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -1051,7 +1286,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_33(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 		
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -1075,7 +1317,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_34(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -1103,7 +1352,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_35(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -1131,7 +1387,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_36(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -1159,7 +1422,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_37(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -1194,10 +1464,19 @@ public class SP800_76_Tests {
 		for (Map.Entry<String,List<String>> entry : mp.entrySet()) {
 	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>) entry;	    	
 	        String containerName = pair.getKey();
+	        s_logger.debug("called with oid parameter {} and container name {}", oid, containerName);
 	        List<String> valueStr =  pair.getValue();
 			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
 			assertNotNull(containerOid, "Unable to resolve container name: " + containerName);
 			assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.38 test: " + valueStr.size());
+			boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
+			// if the object is not mandatory and is not present, the test is done
+			if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
+				s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
+				continue;
+			} else {
+				s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
+			}
 
 			int value = 0;
 			try {
@@ -1228,7 +1507,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_39(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -1270,7 +1556,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_40(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -1330,90 +1623,112 @@ public class SP800_76_Tests {
 		}
 	}
 	
-	
 	//Validate that that Biometric Type has the right value
-	@DisplayName("SP800-76.41 test")
-	@ParameterizedTest(name = "{index} => oid = {0}")
-	//@MethodSource("sp800_76_BiometricParamTestProvider2")
-	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_76Test_41(String paramsString, TestReporter reporter) {
-		Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
-		assertNotNull(mp);
-		Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
-	    while (it.hasNext()) {
-	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
-	        String containerName = pair.getKey();
-	        Object valueStr =  pair.getValue();
-			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
-			assertNotNull(containerOid);
-
-			int value = 0;
-			try {
-				value = Integer.parseInt((String) valueStr);
-			} catch(NumberFormatException e) {
-				fail(e);
-			}
-
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+		@DisplayName("SP800-76.41 test")
+		//@ParamterizedTest(name = "{index} => oid = {0}")
+		//@ParameterizedTest(name = "{index}foo")
+		//@MethodSource("sp800_76_BiometricParamTestProvider2")
+		// for some tests, this seems to need to be fully qualified to avoid a conflict with the TestReporter arguments provider
+		@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
+		void sp800_76Test_41(String paramsString, TestReporter reporter) {
+			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
+			assertNotNull(mp);
+			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
+		    while (it.hasNext()) {
+		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+		        String containerName = pair.getKey();
+		        List<String> valueStr =  pair.getValue();
+				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.41 test: " + valueStr.size());
+				String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+				assertNotNull(containerOid);
 				
-			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
-			
-			//Make sure biometric data is present
-			assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
-			
-			assertTrue(biometricData.length >= 40);
-			
-			
-			byte[] biometricType = Arrays.copyOfRange(biometricData, 36, 39);
-			
-			assertNotNull(biometricType);
-			
-			assertTrue(biometricType.length >= 3);
-			
-			int type  = (((biometricType[0] & 0xFF) << 16) | ((biometricType[1] & 0xFF) << 8) | (biometricType[2] & 0xFF));
-			//Check the value of Biometric Type
-			assertTrue(type == value, "Biometrict data type was the wrong value, expected value " + value);
-	    }
-	}
-	
-	//Validate that that Biometric Type has the right value
-	@DisplayName("SP800-76.42 test")
-	@ParameterizedTest(name = "{index} => oid = {0}")
-	//@MethodSource("sp800_76_BiometricParamTestProvider3")
-	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_76Test_42(String paramsString, TestReporter reporter) {
-		Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
-		assertNotNull(mp);
-		Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
-	    while (it.hasNext()) {
-	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
-	        String containerName = pair.getKey();
-	        Object valueStr =  pair.getValue();
-			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
-			assertNotNull(containerOid);
+				boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
+				// if the object is not mandatory and is not present, the test is done
+				if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
+					s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
+					continue;
+				} else {
+					s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
+				}
 
-			int value = 0;
-			try {
-				value = Integer.parseInt((String) valueStr);
-			} catch(NumberFormatException e) {
-				fail(e);
-			}
+				int value = 0;
+				try {
+					value = Integer.parseInt((String) valueStr.get(0));
+				} catch(NumberFormatException e) {
+					fail(e);
+				}
 
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+				PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+					
+				byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 				
-			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
-			
-			//Make sure biometric data is present
-			assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
-			
-			assertTrue(biometricData.length >= 41);
-			
-			//Check the value of Biometric Data Type			
-			int type  = ((biometricData[39] & 0xFF));
-			//Check the value of Biometric Type
-			assertTrue(type == value, "Biometrict data type was the wrong value, expected value " + value);
-	    }
-	}
+				//Make sure biometric data is present
+				assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+				
+				assertTrue(biometricData.length >= 40);
+				
+				
+				byte[] biometricType = Arrays.copyOfRange(biometricData, 36, 39);
+				
+				assertNotNull(biometricType);
+				
+				assertTrue(biometricType.length >= 3);
+				
+				int type  = (((biometricType[0] & 0xFF) << 16) | ((biometricType[1] & 0xFF) << 8) | (biometricType[2] & 0xFF));
+				//Check the value of Biometric Type
+				assertTrue(type == value, "Biometrict data type was the wrong value, expected value " + value);
+		    }
+		}
+		
+		//Validate that that Biometric Type has the right value
+		@DisplayName("SP800-76.42 test")
+		@ParameterizedTest(name = "{index} => oid = {0}")
+		//@MethodSource("sp800_76_BiometricParamTestProvider3")
+		@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
+		//@ArgumentsSource(ParameterizedArgumentsProvider.class)
+		void sp800_76Test_42(String paramsString, TestReporter reporter) {
+			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
+			assertNotNull(mp);
+			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
+		    while (it.hasNext()) {
+		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+		        String containerName = pair.getKey();
+		        List<String> valueStr =  pair.getValue();
+				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.42 test: " + valueStr.size());
+				String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+				assertNotNull(containerOid);
+				boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
+				// if the object is not mandatory and is not present, the test is done
+				if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
+					s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
+					continue;
+				} else {
+					s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
+				}
+
+				int value = 0;
+				try {
+					value = Integer.parseInt(valueStr.get(0));
+				} catch(NumberFormatException e) {
+					fail(e);
+				}
+
+				PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+					
+				byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+				
+				//Make sure biometric data is present
+				assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+				
+				assertTrue(biometricData.length >= 41);
+				
+				//Check the value of Biometric Data Type			
+				int type  = ((biometricData[39] & 0xFF));
+				//Check the value of Biometric Type
+				assertTrue(type == value, "Biometric data type was the wrong value, expected value " + value);
+		    }
+		}
+
 	
 	//Validate that the biometric quality field carries valid values
 	@DisplayName("SP800-76.43 test")
@@ -1421,7 +1736,14 @@ public class SP800_76_Tests {
 	@MethodSource("sp800_76_BiometricParamTestProvider4")
 	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -1448,7 +1770,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_44(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -1474,7 +1803,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_45(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
@@ -1501,7 +1837,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_46(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -1525,7 +1868,14 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_47(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
