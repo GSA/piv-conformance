@@ -1,5 +1,9 @@
 package gov.gsa.pivconformance.card.client;
 
+import gov.gsa.pivconformance.tlv.BerTag;
+import gov.gsa.pivconformance.tlv.BerTlvParser;
+import gov.gsa.pivconformance.tlv.BerTlvs;
+import gov.gsa.pivconformance.tlv.CCTTlvLogger;
 import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.utils.PCSCWrapper;
 
@@ -253,6 +257,17 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
                 s_logger.error("Error getting object {}, failed with error: {}", OID, Integer.toHexString(response.getSW()));
                 return MiddlewareStatus.PIV_CONNECTION_FAILURE;
+            }
+            byte[] responseData = response.getData();
+            BerTlvParser lengthCheckTlvParser = new BerTlvParser(new CCTTlvLogger(this.getClass()));
+            BerTlvs outer = lengthCheckTlvParser.parse(response.getData());
+            if(outer != null) {
+            	BerTag t = outer.getList().get(0).getTag();
+            	if(t.bytes.length == 1 && t.bytes[0] == 0x53 && responseData.length == 2 && responseData[1] == 0x00) {
+            		s_logger.debug("GET DATA returned status of 90 00 but a tag of 0x53 with a length of 0." +
+            				" Per SP800-73-4, PIV middleware should return PIV_DATA_OBJECT_NOT_FOUND." );
+            		return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+            	}
             }
 
             // Populate the response in PIVDataObject
