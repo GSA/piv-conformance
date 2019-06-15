@@ -177,4 +177,79 @@ public class AtomHelper {
 		
 		return o;		
 	}
+	
+	/**
+	 * 
+	 * Helper function that checks whether a data object is present based on
+	 * container OID, possibly authenticating to the card along the way.
+	 * 
+	 * This function will only throw RuntimeErrors and will not cause an atom to fail
+	 * 
+	 * @param OID  String containing OID value identifying data object whose data
+	 *             content is to be retrieved
+	 * @param authenticate controls whether the helper will attempt to log in
+	 * @return true if the object was found, false otherwise
+	 */
+	public static boolean isDataObjectPresent(String oid, boolean authenticate) {
+		// Check that the oid passed in is not null
+		if (oid == null) {
+			throw new IllegalArgumentException("isDataObjectPresent called with null oid");
+		}
+
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+
+		// Check that CardSettingsSingleton
+		if (css == null) {
+			s_logger.error("isDataObjectPresent({},{}) called, but couldn't get an instance of CardSettingsSingleton", oid, authenticate);
+			return false;
+		}
+
+		if (authenticate && css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			s_logger.error("isDataObjectPresent({},{}) called, but login has already been attempted unsuccessfully", oid, authenticate);
+			return false;
+		}
+
+		if (authenticate) {
+			try {
+				CardUtils.setUpPivAppHandleInSingleton();
+				CardUtils.authenticateInSingleton(false);
+			} catch (ConformanceTestException e) {
+				s_logger.error("isDataObjectPresent({},{}) called, but login failed with a ConformanceTestException", oid, authenticate, e);
+				return false;
+			} 
+		}
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+
+		if (ch == null) {
+			s_logger.error("isDataObjectPresent({},{}) failed to obtain a valid card handle", oid, authenticate);
+			return false;
+		}
+
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		if (piv == null) {
+			s_logger.error("isDataObjectPresent({},{}) failed to obtain a valid PIV handle", oid, authenticate);
+			return false;
+		}
+		
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+
+		if (o == null) {
+			s_logger.error("isDataObjectPresent() failed to allocate a PIVDataObject for {} {} authentication.", oid, authenticate ? "with":"without");
+			return false;
+		}
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+
+		if (result != MiddlewareStatus.PIV_OK) {
+			s_logger.error("isDataObjectPresent() failed to get data for {} {} authentication: {}.", oid, authenticate ? "with":"without", result);
+			return false;
+		}
+
+		// if we got here, the object is present and has now been cached. others can attempt a decode and complain if that fails
+		return true;
+	}
 }
