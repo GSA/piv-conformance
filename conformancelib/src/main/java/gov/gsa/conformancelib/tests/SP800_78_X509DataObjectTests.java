@@ -2,6 +2,7 @@ package gov.gsa.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -79,10 +80,23 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     	
 		PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		
+		if(cert == null) {
+			Exception e = new Exception("getCertificate returned a null");
+			fail(e);
+		}
 		PublicKey pubKey = cert.getPublicKey();
+		if(pubKey == null) {
+			Exception e = new Exception("getPublicKey returned a null");
+			fail(e);
+		}
 		String certAlgorithm = pubKey.getAlgorithm();
 			
+		
+		
+		if(certAlgorithm == null) {
+			Exception e = new Exception("getAlgorithm returned a null");
+			fail(e);
+		}
 		
 		String curveFromCert = "";
 		int modulus = 0;
@@ -186,13 +200,25 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		
+		if(cert == null) {
+			Exception e = new Exception("getCertificate returned a null");
+			fail(e);
+		}
+		
 		String signatureAlgOID = cert.getSigAlgOID();
 		PublicKey pubKey = cert.getPublicKey();
+		if(pubKey == null) {
+			Exception e = new Exception("getPublicKey returned a null");
+			fail(e);
+		}
 		String certAlgorithm = pubKey.getAlgorithm();
-			
+
+		if(certAlgorithm == null) {
+			Exception e = new Exception("getAlgorithm returned a null");
+			fail(e);
+		}
 		
 		String curveFromCert = "";
-		int modulus = 0;
 		if(pubKey instanceof ECPublicKey) {
 			
 			ECPublicKey pk = (ECPublicKey) pubKey;
@@ -212,11 +238,6 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		        	curveFromCert = name;
 		        }
 	        }
-		}
-		if(pubKey instanceof RSAPublicKey) {
-			
-			RSAPublicKey pk = (RSAPublicKey) pubKey;
-			modulus = pk.getModulus().bitLength();
 		}
 		
 		
@@ -271,7 +292,10 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 
     	PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		
+		if(cert == null) {
+			Exception e = new Exception("getCertificate returned a null");
+			fail(e);
+		}
 		String signatureAlgOID = cert.getSigAlgOID();
 
 		String sha256Oid = "2.16.840.1.101.3.4.2.1";
