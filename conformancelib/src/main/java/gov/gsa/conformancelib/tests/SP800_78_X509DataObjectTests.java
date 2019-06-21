@@ -7,6 +7,7 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ParameterUtils;
@@ -71,61 +73,29 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 	// Expect to see paramsString contain an containerOid:keyAlgorithmOid
     @DisplayName("SP800-78.1 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("sp800_78_x509TestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void sp800_78_Test_1(String oid, String paramsString, TestReporter reporter) {
+    @MethodSource("sp800_78_x509TestProvider")
+    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_78_Test_1(String oid, TestReporter reporter) {
     	
 		PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		Map<String,List<String>> mp = ParameterUtils.MapFromString(paramsString);
-		
-		// Process the map if non-empty.  If the map is empty, an exception will
-		// have already been thrown and caught by MapFromString(), so we can safely
-		// drop through.
-		
-		if (!mp.isEmpty()) {
-			// Look for the matching certificate (by container OID) in the list
-			
-			Iterator<String> it = mp.keySet().iterator();
-			boolean allowable = false;
-			
-			while (it.hasNext()) {
-				String containerKey = it.next(); // will be an oid for a certificate container
-				if (containerKey.compareTo(oid) == 0) { // matches this certificate container we're inspecting
-					//AlgorithmIdentifier ai = new DefaultAlgorithmIdentifierFinder().find(( cert.getPublicKey().getAlgorithm() );
-
-					PublicKey pubKey = cert.getPublicKey();
-					String certAlgorithmOid = pubKey.getAlgorithm();
-					List<String> allowedOids = mp.get(containerKey); // sub-parameters
-					allowable = (allowedOids.contains(certAlgorithmOid));
-				}
-			}
-			assertTrue(allowable);
-		}
-    }
-    
-    //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
-    @DisplayName("SP800-78.2 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("sp800_78_x509TestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void sp800_78_Test_2(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert);
-		
-		String supportedCurve = "prime256v1";
 		
 		PublicKey pubKey = cert.getPublicKey();
-
-		if(pubKey instanceof ECPublicKey) {
+		String certAlgorithm = pubKey.getAlgorithm();
+			
 		
+		String curveFromCert = "";
+		int modulus = 0;
+		if(pubKey instanceof RSAPublicKey) {
+			
+			RSAPublicKey pk = (RSAPublicKey) pubKey;
+			modulus = pk.getModulus().bitLength();
+		}else if(pubKey instanceof ECPublicKey) {
+			
 			ECPublicKey pk = (ECPublicKey) pubKey;
 	        ECParameterSpec ecParameterSpec = pk.getParameters();
 	        
-	        String curveFromCert = "";
+	        
 	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
 	        	
 		        String name = (String)names.nextElement();
@@ -139,9 +109,147 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		        	curveFromCert = name;
 		        }
 	        }
+		}
+		
+		
+		String supportedCurve1 = "prime256v1";
+		String supportedCurve2 = "secp384r1";
+
+		
+		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0) {
+			
+			if(certAlgorithm.compareTo("RSA") == 0) {
+				//check key size
+				assertTrue(modulus == 2048);
+			}
+			else if(certAlgorithm.compareTo("EC") == 0) {
+					        
+			    //Confirm that the curve in the cert is prime256v1
+			    assertTrue(supportedCurve1.compareTo(curveFromCert) == 0);
+			}
+			else {
+				assertTrue(false);
+			}
+			
+		} else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0) {
+			
+			if(certAlgorithm.compareTo("RSA") == 0) {
+				//check key size
+				assertTrue(modulus == 2048);
+			}
+			else if(certAlgorithm.compareTo("EC") == 0) {
+
+			    //Confirm that the curve in the cert is prime256v1 or prime384v1
+				assertTrue(supportedCurve1.compareTo(curveFromCert) == 0 || supportedCurve2.compareTo(curveFromCert) == 0);
+			}
+			else {
+				assertTrue(false);
+			}
+		} else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0) {
+			
+			if(certAlgorithm.compareTo("RSA") == 0) {
+				//check key size
+				assertTrue(modulus == 2048);
+			}
+			else if(certAlgorithm.compareTo("EC") == 0) {
+			    //Confirm that the curve in the cert is prime256v1 or prime384v1
+				assertTrue(supportedCurve1.compareTo(curveFromCert) == 0 || supportedCurve2.compareTo(curveFromCert) == 0);
+			}
+			else {
+				assertTrue(false);
+			}
+			
+		} else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0) {
+		
+			if(certAlgorithm.compareTo("RSA") == 0) {
+				//check key size
+				assertTrue(modulus == 2048);
+			}
+			else if(certAlgorithm.compareTo("EC") == 0) {
+			    //Confirm that the curve in the cert is prime256v1 or prime384v1
+				assertTrue(supportedCurve1.compareTo(curveFromCert) == 0);
+			}
+			else {
+				assertTrue(false);
+			}
+		}
+		
+    }
+    
+    //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
+    @DisplayName("SP800-78.2 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("sp800_78_x509TestProvider")
+    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_78_Test_2(String oid, TestReporter reporter) {
+		
+		PIVDataObject o = AtomHelper.getDataObject(oid);		
+		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		
+		String signatureAlgOID = cert.getSigAlgOID();
+		PublicKey pubKey = cert.getPublicKey();
+		String certAlgorithm = pubKey.getAlgorithm();
+			
+		
+		String curveFromCert = "";
+		int modulus = 0;
+		if(pubKey instanceof ECPublicKey) {
+			
+			ECPublicKey pk = (ECPublicKey) pubKey;
+	        ECParameterSpec ecParameterSpec = pk.getParameters();
 	        
-	        //Confirm that the curve in the cert is prime256v1
-	        assertTrue(supportedCurve.compareTo(curveFromCert) == 0);
+	        
+	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
+	        	
+		        String name = (String)names.nextElement();
+	
+		        X9ECParameters params = ECNamedCurveTable.getByName(name);
+	
+		        if (params.getN().equals(ecParameterSpec.getN())
+		            && params.getH().equals(ecParameterSpec.getH())
+		            && params.getCurve().equals(ecParameterSpec.getCurve())
+		            && params.getG().equals(ecParameterSpec.getG())){
+		        	curveFromCert = name;
+		        }
+	        }
+		}
+		if(pubKey instanceof RSAPublicKey) {
+			
+			RSAPublicKey pk = (RSAPublicKey) pubKey;
+			modulus = pk.getModulus().bitLength();
+		}
+		
+		
+		String prime256v1 = "prime256v1";
+		String secp384r1 = "secp384r1";
+		
+
+		String sha256WithRSAEncryption = "1.2.840.113549.1.1.11";
+		String rSASSA_PSS =  "1.2.840.113549.1.1.10";
+		String ecdsaWithSHA256 = "1.2.840.10045.4.3.2";
+		String ecdsaWithSHA384 = "1.2.840.10045.4.3.3";
+
+		
+		if(certAlgorithm.compareTo("RSA") == 0) {
+			//check signature algorithm
+			assertTrue(signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0 || signatureAlgOID.compareTo(rSASSA_PSS) == 0);
+		}
+		else if(certAlgorithm.compareTo("EC") == 0) {
+
+			if(curveFromCert.compareTo(prime256v1) == 0) {
+				//check signature algorithm
+				assertTrue(signatureAlgOID.compareTo(ecdsaWithSHA256) == 0);
+			} else if(curveFromCert.compareTo(secp384r1) == 0) {
+
+				//check signature algorithm
+				assertTrue(signatureAlgOID.compareTo(ecdsaWithSHA384) == 0);
+			} else {
+				assertTrue(false);
+			}
+			
+		}
+		else {
+			assertTrue(false);
 		}
     }
     
@@ -157,39 +265,43 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
      */
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("sp800_78_x509TestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_78_Test_3(String oid, String paramsString, TestReporter reporter) {
+    @MethodSource("sp800_78_x509TestProvider")
+    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_78_Test_3(String oid, TestReporter reporter) {
 
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-    
+    	PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		Map<String,List<String>> mp = ParameterUtils.MapFromString(paramsString);
+		
+		String signatureAlgOID = cert.getSigAlgOID();
 
-		// Process the map if non-empty. If the map is empty, an exception will
-		// have already been thrown and caught by MapFromString(), so we can safely
-		// drop through.
-
-		if (!mp.isEmpty()) {
-			String sigAlgOid = cert.getSigAlgOID();
-
-			boolean found = mp.containsKey(sigAlgOid);
-			assertTrue(found == true, "Signature algorithm (" + sigAlgOid + ") is not an allowable algorithm");
-			List<String> databaseSigAlgParams = mp.get(sigAlgOid);
-			try {
-				AlgorithmParameters ap = AlgorithmParameters.getInstance(cert.getSigAlgName());
-				// RSA-PSS or ECDSA in this block at least for FIPS 201-2
-				if (!databaseSigAlgParams.isEmpty()) { // RSASSA-PSS
-					assertTrue(databaseSigAlgParams.contains(sigAlgOid), "Non-conformant signature algorithm OID");
-				} else {
-					assertTrue(databaseSigAlgParams.contains(""), "Non-conformant signature algorithm OID");
-				}
-			} catch (NoSuchAlgorithmException e) {
-				// Certs with legit RSA with SHA256 will end up here, so as
-				// long as the specified parameter is "null" it's a pass.
-				assertTrue(databaseSigAlgParams == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
-			}
+		String sha256Oid = "2.16.840.1.101.3.4.2.1";
+		String sha256WithRSAEncryption = "1.2.840.113549.1.1.11";
+		String rSASSA_PSS =  "1.2.840.113549.1.1.10";
+		String ecdsaWithSHA256 = "1.2.840.10045.4.3.2";
+		String ecdsaWithSHA384 = "1.2.840.10045.4.3.3";
+		
+		List<String> databaseSigAlgParams = new ArrayList<String>();
+		if(signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0) {
+			
+			byte[] params = cert.getSigAlgParams(); 
+			//byte [] xNULL = {0x05, 0x00};
+			// java is returning null for RSA params
+			///assertTrue(Arrays.equals(params, xNULL), "No such algorithm or parameters not available for (" + cert.getSigAlgName());
+			assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
+			
+		} else if(signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
+			databaseSigAlgParams.add(sha256Oid);	
+		} else if(signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
+			byte[] params = cert.getSigAlgParams(); 
+			byte [] sha256Encoding = {0x60, (byte) 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01};	
+			assertTrue(Arrays.equals(params, sha256Encoding), "Non-conformant signature algorithm OID");
+		} else if(signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
+			byte[] params = cert.getSigAlgParams(); 
+			assertTrue(params == null, "Non-conformant signature algorithm OID");
+		} else {
+			assertTrue(false, "Signature algorithm (" + signatureAlgOID + ") is not an allowable algorithm");
 		}
+
 	}
 
 	// methods below are no longer used in conformance test tool and are only retained because they are sometimes useful for
