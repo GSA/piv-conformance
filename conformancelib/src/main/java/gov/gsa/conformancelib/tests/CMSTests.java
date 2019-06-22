@@ -170,14 +170,11 @@ public class CMSTests {
 				throw e;
 			}
 			//Confirm encapsulated content is absent
-			if (issuerAsymmetricSignature.isDetachedSignature() == false) {
-				Exception e = new Exception("isDetachedSignature is false");
-				throw e;
-			}
-			ContentInfo contentInfo = ((CardHolderUniqueIdentifier) o).getContentInfo();
-			ASN1Encodable content = contentInfo.getContent();
-			//Confirm that encapsulated content is absent
-			assertTrue(content == null);
+			assertTrue(issuerAsymmetricSignature.getSignedContent() == null, "encapsulated content is NOT absent");
+			
+			String contentType = issuerAsymmetricSignature.getSignedContentTypeOID();
+			//Confirm that content type is  id-PIV-CHUIDSecurityObject
+			assertTrue(contentType.compareTo("2.16.840.1.101.3.6.1") == 0, "eContentType is NOT id-piv-CHUIDSecurityObject");
 		}
 		catch (Exception e) {
 			fail(e);
@@ -546,9 +543,10 @@ public class CMSTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void CMS_Test_17(String oid, List<String> oidList, TestReporter reporter) {
+    void CMS_Test_17(String oid, String params, TestReporter reporter) {
 		try {
-			PIVDataObject o = AtomHelper.getDataObject(oid);
+			String[] oidList = params.split(",");
+			PIVDataObject o = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
 			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
 			CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
@@ -584,9 +582,8 @@ public class CMSTests {
 					throw e;
 				}
 				
-				Iterator<String> iterator = oidList.iterator();
-				while (iterator.hasNext()) {
-					String attrOid = iterator.next();
+				for (int i = 0; i < oidList.length; i++) {
+					String attrOid = oidList[i];
 					ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(attrOid);
 					Attribute attr = attributeTable.get(pivFASCN_OID);
 					assertNotNull(attr, "attr " + attrOid + " is null");
