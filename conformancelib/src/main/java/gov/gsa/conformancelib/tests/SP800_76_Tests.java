@@ -1630,10 +1630,10 @@ public class SP800_76_Tests {
 		//@MethodSource("sp800_76_BiometricParamTestProvider2")
 		// for some tests, this seems to need to be fully qualified to avoid a conflict with the TestReporter arguments provider
 		@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
-		void sp800_76Test_41(String paramsString, TestReporter reporter) {
+		void sp800_76Test_41(String oid, String paramsString, TestReporter reporter) {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
-			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
+			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet().iterator();
 		    while (it.hasNext()) {
 		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
 		        String containerName = pair.getKey();
@@ -1686,10 +1686,10 @@ public class SP800_76_Tests {
 		//@MethodSource("sp800_76_BiometricParamTestProvider3")
 		@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
 		//@ArgumentsSource(ParameterizedArgumentsProvider.class)
-		void sp800_76Test_42(String paramsString, TestReporter reporter) {
+		void sp800_76Test_42(String oid, String paramsString, TestReporter reporter) {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
-			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet();
+			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet().iterator();
 		    while (it.hasNext()) {
 		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
 		        String containerName = pair.getKey();

@@ -252,6 +252,13 @@ public class SP800_73_4CHUIDTests {
 		}
         
 		int years = 0;
+		
+		if(yearsStr.contains(":")) {
+			String [] split = yearsStr.split(":");
+			
+			yearsStr = split[1];
+		}
+		
 		try {
 			years = Integer.parseInt(yearsStr);
 		} catch(NumberFormatException e) {
