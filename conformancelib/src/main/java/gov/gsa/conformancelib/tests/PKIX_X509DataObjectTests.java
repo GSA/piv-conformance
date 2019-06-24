@@ -153,7 +153,9 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void PKIX_Test_2(X509Certificate cert, TestReporter reporter) {
+	void PKIX_Test_2(String oid, TestReporter reporter) {
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		assertNotNull(cert, "NULL certificate passed to atom");
 
 		assertTrue(cert.getKeyUsage() != null, "Key usage extension is absent");
