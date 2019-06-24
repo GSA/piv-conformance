@@ -1001,6 +1001,10 @@ public class PKIX_X509DataObjectTests {
 			        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
 			            String url = location.getName().toString();
 			            
+			            // Some SSPs will also include other URLs (e.g. LDAP) that should not cause this test to fail.
+			            if(!url.startsWith("http")) continue;
+			            	
+			            
 			            try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
 			            		ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 		            		    byte dataBuffer[] = new byte[1024];
