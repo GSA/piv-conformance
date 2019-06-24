@@ -90,8 +90,9 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void PKIX_Test_1(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert, "NULL certificate passed to atom");
+	void PKIX_Test_1(String oid, TestReporter reporter) {
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		PublicKey pubKey = cert.getPublicKey();
 
