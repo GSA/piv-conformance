@@ -305,9 +305,8 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_8(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "NULL certificate passed to atom");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
