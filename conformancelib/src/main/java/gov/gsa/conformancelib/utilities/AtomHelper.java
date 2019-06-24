@@ -2,6 +2,8 @@ package gov.gsa.conformancelib.utilities;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.security.cert.X509Certificate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,11 +11,14 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 
 public class AtomHelper {
     private static final Logger s_logger = LoggerFactory.getLogger(AtomHelper.class);
@@ -95,6 +100,22 @@ public class AtomHelper {
 		}
 		
 		return o;		
+	}
+	
+	/**
+	 * Get a certificate from a container specified by oid
+	 * @param oid
+	 * @return Certificate from container
+	 */
+	public static X509Certificate getCertificateForContainer(String oid) {
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		X509Certificate cert = null;
+		if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) != 0) {
+			cert = ((X509CertificateDataObject) o).getCertificate();
+		} else {
+			cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+		}
+		return cert;
 	}
 	
     /**
