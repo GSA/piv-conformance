@@ -238,16 +238,29 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
 		
-		//Check that the oid passed in is not null
 		if (policyOid == null) {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
+		List<String> oidList = Arrays.asList(policyOid.split(","));
+		//Check that the oid passed in is not null
+
 				
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		
+		X509Certificate cert = null;
+		if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) != 0) {
+
+			cert = ((X509CertificateDataObject) o).getCertificate();
+		} else {
+			cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+		}
        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		
+		if (cert == null) {
+			ConformanceTestException e  = new ConformanceTestException("Certificate retrived from X509CertificateDataObject object is NULL");
+			fail(e);
+		}
 
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
@@ -267,7 +280,7 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	if(curroid.getId().compareTo(policyOid) == 0) {
+	    	if(oidList.contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;
 	    	}
