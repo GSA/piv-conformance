@@ -63,6 +63,8 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
@@ -81,7 +83,7 @@ import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 public class PKIX_X509DataObjectTests {
 	
 	
-	//private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
 
 	// Verify signature algorithm conforms to 78.1, 78.2, 78.3
 	@DisplayName("PKIX.1 test")
@@ -933,6 +935,7 @@ public class PKIX_X509DataObjectTests {
         		assertNotNull(crlDP);
         		
         		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
+        		boolean gotHttp = true;
 				for (DistributionPoint dp : descriptions) {
 					DistributionPointName dp_name = dp.getDistributionPoint();
 					if (dp_name.getType() == DistributionPointName.FULL_NAME) {
@@ -942,10 +945,16 @@ public class PKIX_X509DataObjectTests {
 		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
 		                    {
 		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
-		                        assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl " + url);
+		                        if(url.startsWith("http")) {
+		                        	gotHttp = true;
+									assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl " + url);
+		                        }
 		                    }
 		                }
 		            }
+				}
+				if(!gotHttp) {
+					s_logger.warn("PKIX.24 only passed because there was no http CRLDP. PKIX.23 will fail on this DP.");
 				}
 			} catch (IOException e) {
 				fail(e);
