@@ -244,9 +244,17 @@ public class PKIX_X509DataObjectTests {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-		List<String> oidList = Arrays.asList(policyOid.split(","));
-		//Check that the oid passed in is not null
-
+		List<String> paramList = Arrays.asList(policyOid.split(","));
+		
+		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
+		
+		for(String p : paramList) {
+			String[] paramList2 = p.split(";");
+					
+			List<String> paramList3 = Arrays.asList(paramList2[1].split(":"));
+			String containerOid = APDUConstants.getStringForFieldNamed(paramList2[0]);
+			rv.put(containerOid, paramList3);
+		}
 				
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
@@ -282,7 +290,7 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	if(oidList.contains(curroid.getId())) {
+	    	if(rv.get(oid).contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;
 	    	}
