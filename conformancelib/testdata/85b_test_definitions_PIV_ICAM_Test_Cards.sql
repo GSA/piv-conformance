@@ -230,7 +230,7 @@ INSERT INTO "TestSteps" VALUES(165,'PKIX.26','gov.gsa.conformancelib.tests.PKIX_
 INSERT INTO "TestSteps" VALUES(166,'PlaceholderTest.1','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_1',NULL);
 INSERT INTO "TestSteps" VALUES(167,'PlaceholderTest.2','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_2',NULL);
 INSERT INTO "TestSteps" VALUES(168,'PlaceholderTest.3','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_3',NULL);
-INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'CHUID_OID:15',0);
+INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'15',0);
 INSERT INTO "TestStepParameters" VALUES(2, 98,NULL,'CARDHOLDER_FINGERPRINTS_OID:513',0);
 INSERT INTO "TestStepParameters" VALUES(3, 98,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:1281',1);
 INSERT INTO "TestStepParameters" VALUES(4, 98,NULL,'CARDHOLDER_IRIS_IMAGES_OID:9',2);
@@ -238,8 +238,8 @@ INSERT INTO "TestStepParameters" VALUES(5, 101,NULL,'CARDHOLDER_FINGERPRINTS_OID
 INSERT INTO "TestStepParameters" VALUES(6, 101,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:2',1);
 INSERT INTO "TestStepParameters" VALUES(7, 101,NULL,'CARDHOLDER_IRIS_IMAGES_OID:16',2);
 INSERT INTO "TestStepParameters" VALUES(8, 102,NULL,'CARDHOLDER_FINGERPRINTS_OID:128',0);
-INSERT INTO "TestStepParameters" VALUES(9, 102,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:32:2',1);
-INSERT INTO "TestStepParameters" VALUES(10, 102,NULL,'CARDHOLDER_IRIS_IMAGES_OID:64',2);
+INSERT INTO "TestStepParameters" VALUES(9, 102,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:32',1);
+INSERT INTO "TestStepParameters" VALUES(10, 102,NULL,'CARDHOLDER_IRIS_IMAGES_OID:2',2);
 INSERT INTO "TestStepParameters" VALUES(11, 103,NULL,'-2',0);
 INSERT INTO "TestStepParameters" VALUES(12, 103,NULL,'100',1);
 INSERT INTO "TestStepParameters" VALUES(13, 121,NULL,'2.16.840.1.101.3.6.7',0);
@@ -542,7 +542,7 @@ INSERT INTO "TestCases" VALUES(281, NULL,'10.2.1.10','Value of the subject DN ob
 INSERT INTO "TestCases" VALUES(282, NULL,'10.2.1.11','Signature algorithm value for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm is in accordance with Table 3-3 of SP80078.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(283, NULL,'10.2.1.12','The signatureAlgorithm field specified in the SignerInfo field for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm shall be in accordance with Table 3-3 of SP 80078.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(284, NULL,'10.2.1.13','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(285, NULL,'10.2.1.14','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(285, NULL,'10.2.1.14','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(286, NULL,'10.3','Biometric Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(287, NULL,'10.3.1','Signature Block Contents','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(288, NULL,'10.3.1.1','CBEFF_SIGNATURE_BLOCK is present in the biometric CBEFF structure containing an asymmetric digital signature that is implemented as a SignedData type according to RFC 5652.','',NULL, 1, 1);
@@ -560,7 +560,7 @@ INSERT INTO "TestCases" VALUES(299, NULL,'10.3.1.10','Value of the subject DN ob
 INSERT INTO "TestCases" VALUES(300, NULL,'10.3.1.11','Signature algorithm value for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm is in accordance with Table 3-3 of SP80078.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(301, NULL,'10.3.1.12','The signatureAlgorithm field specified in the SignerInfo field for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm shall be in accordance with Table 3-3 of SP 80078.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(302, NULL,'10.3.1.13','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(303, NULL,'10.3.1.14','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(303, NULL,'10.3.1.14','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(304, NULL,'10.4','Security Object','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(305, NULL,'10.4.1','Data Integrity','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(306, NULL,'10.4.1.1','The actual hash of the data elements on the PIV card are identical to their corresponding hash values present in the security object.','',NULL, 1, 1);
@@ -589,7 +589,7 @@ INSERT INTO "TestCases" VALUES(328, NULL,'10.5.1.12','Value of the subject DN ob
 INSERT INTO "TestCases" VALUES(329, NULL,'10.5.1.13','Signature algorithm value for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm is in accordance with Table 3-3 of SP80078.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(330, NULL,'10.5.1.14','The signatureAlgorithm field specified in the SignerInfo field for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm shall be in accordance with Table 3-3 of SP 80078.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(331, NULL,'10.5.1.15','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(332, NULL,'10.5.1.16','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(332, NULL,'10.5.1.16','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(333, NULL,'11','PKI Certificate Profile Test Assertions','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(334, NULL,'11.1','PIV Authentication Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(335, NULL,'11.1.1','Algorithm Conformance','',NULL, 1, 1);
