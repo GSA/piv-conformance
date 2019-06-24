@@ -6,6 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -38,6 +42,7 @@ import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
+import gov.gsa.pivconformance.utils.OSUtils;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class CertDump {
@@ -55,6 +60,7 @@ public class CertDump {
         s_options.addOption("","reader", true, "Use the specified reader instead of the first one with a card");
         s_options.addOption("v","verify", false, "verify container pairwise consistency when dumping");
         s_options.addOption("", "printAlgs", false, "print algorithm OIDs for certificate public keys");
+        s_options.addOption("", "containerFile", true, "Dump the cert from a binary container file");
     }
 
     private static void PrintHelpAndExit(int exitCode) {
@@ -90,6 +96,37 @@ public class CertDump {
         		}
         	}
         	System.exit(0);
+        }
+        if(cmd.hasOption("containerFile")) {
+        	String file = cmd.getOptionValue("containerFile");
+			Path filePath = Paths.get(file);
+			byte[] fileData = null;
+			try {
+				fileData = Files.readAllBytes(filePath);
+			} catch (IOException e) {
+				s_logger.error("Unable to read from file {}", file, e);
+				System.exit(1);
+			}
+			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+
+			o.setOID(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+			o.setBytes(fileData);
+			boolean decoded = o.decode();
+			if(!decoded) {
+				s_logger.error("Unable to decode cert from container dump");
+				System.exit(1);
+			} else {
+				X509CertificateDataObject co = (X509CertificateDataObject) o;
+				X509Certificate cert = co.getCertificate();
+				Path certFilePath = Paths.get(file + ".crt");
+				try {
+					Files.write(certFilePath, cert.getEncoded());
+				} catch (CertificateEncodingException | IOException e) {
+					s_logger.error("Unable to write certificate", e);
+					System.exit(1);
+				}
+			}
+			System.exit(0);
         }
         PCSCUtils.ConfigureUserProperties();
         if(cmd.hasOption("listReaders")) {
