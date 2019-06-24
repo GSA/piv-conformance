@@ -437,7 +437,7 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider2")
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
-    void PKIX_Test_12(String oid, TestReporter reporter) {
+    void PKIX_Test_12(String oid) {
 
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
