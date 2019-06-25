@@ -196,18 +196,72 @@ public class PKIX_X509DataObjectTests {
 		boolean[] ku = cert.getKeyUsage();
 
 		// confirm key usage extension is present
-		assertTrue(ku != null);
+		if(ku == null) {
+			Exception e = new Exception("key usage is null");
+			fail(e);
+		}
+		
+		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0){
+			// Confirm digitalSignature bit is set
+			assertTrue(ku[0] == true, "digitalSignature bit is not set");
+			assertTrue(ku[1] == false, "nonRepudiation bit is set");
+			assertTrue(ku[2] == false, "keyEncipherment bit is set");
+			assertTrue(ku[3] == false, "dataEncipherment bit is set");
+			assertTrue(ku[4] == false, "keyAgreement bit is set");
+			assertTrue(ku[5] == false, "keyCertSign bit is set");
+			assertTrue(ku[6] == false, "cRLSign bit is set");
+			assertTrue(ku[7] == false, "encipherOnly bit is set");
+			assertTrue(ku[8] == false, "decipherOnly bit is set");
 
-		// Confirm digitalSignature bit is set
-		assertTrue(ku[0] == true, "digitalSignature bit is not set");
-		assertTrue(ku[1] == false, "nonRepudiation bit is set");
-		assertTrue(ku[2] == false, "keyEncipherment bit is set");
-		assertTrue(ku[3] == false, "dataEncipherment bit is set");
-		assertTrue(ku[4] == false, "keyAgreement bit is set");
-		assertTrue(ku[5] == false, "keyCertSign bit is set");
-		assertTrue(ku[6] == false, "cRLSign bit is set");
-		assertTrue(ku[7] == false, "encipherOnly bit is set");
-		assertTrue(ku[7] == false, "decipherOnly bit is set");
+        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0){
+        	// Confirm digitalSignature and nonRepudiation bits are set
+    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == true, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0){
+        	// Confirm keyEncipherment bit is set
+    		assertTrue(ku[0] == false, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == true, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
+        	// Confirm digitalSignature bit is set
+    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        } else if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0){
+        	// Confirm digitalSignature bit is set
+    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        }
 
 	}
 
