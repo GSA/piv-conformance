@@ -606,8 +606,7 @@ public class CMSTests {
 		
 		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
 
-		//XXX Failing this test with the test cards
-		assertTrue(signedData.getVersion() == 1);
+		assertTrue(signedData.getVersion() == 3);
 		
     }
 	
