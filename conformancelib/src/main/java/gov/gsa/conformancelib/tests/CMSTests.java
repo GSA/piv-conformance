@@ -546,24 +546,24 @@ public class CMSTests {
     void CMS_Test_17(String oid, String params, TestReporter reporter) {
 		try {
 			String[] oidList = params.split(",");
-			PIVDataObject o = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+			PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
 			CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
 			if (issuerAsymmetricSignature == null) {
-				Exception e = new Exception("Issuer Asymmetric Signature is null");
+				ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
 				throw e;
 			}
 			byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
 			if (fascn == null) {
-				Exception e = new Exception("fascn is null");
+				ConformanceTestException e = new ConformanceTestException("fascn is null");
 				throw e;
 			}
 			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
 			
 			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
 			if (signers == null) {
-				Exception e = new Exception("signers is null");
+				ConformanceTestException e = new ConformanceTestException("signers is null");
 				throw e;
 			}
 	
@@ -573,12 +573,12 @@ public class CMSTests {
 	
 				SignerId signerId = signer.getSID();
 				if (signerId == null) {
-					Exception e = new Exception("signerId is null");
+					ConformanceTestException e = new ConformanceTestException("signerId is null");
 					throw e;
 				}
 				AttributeTable attributeTable = signer.getSignedAttributes();
 				if (attributeTable == null) {
-					Exception e = new Exception("attributeTable is null");
+					ConformanceTestException e = new ConformanceTestException("attributeTable is null");
 					throw e;
 				}
 				
@@ -588,6 +588,9 @@ public class CMSTests {
 					Attribute attr = attributeTable.get(pivFASCN_OID);
 					assertNotNull(attr, "attr " + attrOid + " is null");
 				}
+
+				byte[] attrGuid = ((CardHolderUniqueIdentifier) o).getgUID();
+				assertTrue(Arrays.equals(attrGuid, guid), "GUID from attribute does not match GUID from card");
 			}
 		}
 		catch (Exception e) {
