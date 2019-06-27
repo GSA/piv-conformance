@@ -35,10 +35,6 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 
 public class SP800_76_Tests {
 	static Logger s_logger = org.slf4j.LoggerFactory.getLogger(SP800_76_Tests.class);
-
-	
-	
-	
 	
 	//BDB length field is non-zero
 	@DisplayName("SP800-76.1 test")
@@ -112,7 +108,7 @@ public class SP800_76_Tests {
             
             assertTrue(biometricDataBlockLength > 0);
             
-            assertTrue(biometricData.length >= (88 + 88 + biometricDataBlockLength),  "Biometric data block length does not matche actual length");
+            assertTrue(biometricData.length == biometricDataBlockLength,  "Biometric data block length does not matche actual length");
             
 		 }
 	}
@@ -1918,6 +1914,43 @@ public class SP800_76_Tests {
         }
 	}
 		
+	//Recorded length matches actual SB length
+	@DisplayName("SP800-76.48 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@MethodSource("sp800_76_BiometricTestProvider")
+	void sp800_76Test_48(String oid, TestReporter reporter) {
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}
+		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			
+		byte[] signature = ((CardholderBiometricData) o).getSignatureBlock();
+		
+		//Make sure signature is present
+		assertNotNull(signature, "Signature is absent in CardholderBiometricData object");
+		
+		 if (signature != null && signature.length > 8) {
+
+             //Get signature block (SB) Length
+             byte[] signatureBlockLengthBytes = Arrays.copyOfRange(signature, 6, 8);
+             
+     		assertNotNull(signature, "Signature block length is absent in CardholderBiometricData object");
+     		
+     		//Convert signature block (SB) Length byte[] value to short
+            ByteBuffer wrapped = ByteBuffer.wrap(signatureBlockLengthBytes);
+            int signatureBlockLength = wrapped.getShort();
+            
+            assertTrue(signatureBlockLength > 0);
+            
+            assertTrue(signature.length == signatureBlockLength,  "Biometric data block length does not matche actual length");
+            
+		 }
+	}
 	
 	// methods below are no longer used in conformance test tool and are only retained because they are sometimes useful for
 	// testing the atoms themselves
