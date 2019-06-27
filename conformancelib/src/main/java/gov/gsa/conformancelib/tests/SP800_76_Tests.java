@@ -444,6 +444,15 @@ public class SP800_76_Tests {
 	}
 	
 	//Confirm that capture equipment compliance has a value of 1000b
+	/*
+	 * From ANSI-378:
+	 * 6.4.5 Capture Equipment Compliance
+	 * Four bits are reserved to indicate compliance of the image capture equipment used to originally acquire the image
+	 * from which the minutiae were extracted. The most significant bit, if set to a 1, shall indicate that the equipment
+	 * was certified to comply with Appendix F (IAFIS Image Quality Specification, January 29, 1999) of CJIS-RS-0010,
+	 * the Federal Bureau of Investigation’s Electronic Fingerprint Transmission Specification. The other three bits are
+	 * reserved for future compliance indicators.
+	 */
 	@DisplayName("SP800-76.13 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
@@ -462,16 +471,21 @@ public class SP800_76_Tests {
 		
 		//Make sure biometric data block is present
 		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
-				
-		//Not sure what does the 1000b value indicates that 4 bits and is it located on the 19th byte?
 		assertTrue(biometricDataBlock.length >= 15);
 		
-		//Check the second byte of biometric data to confirm its is 1000b (0x80)
-		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x80) == 0, "Fingerprint capture equipment compliance value is not 1000b (0x80)");
+		//Check the second byte of biometric data to confirm its high order bit is set 1000b (0x80)
+		assertTrue((biometricDataBlock[14] & 0xF0) == 0x80, "Fingerprint capture equipment compliance value is not 1000b (0x80)");
 	}
 	
 	
 	//Confirm that capture equipment id is non-NULL
+	/*
+	 * 
+	 * 6.4.6 Capture Equipment ID
+	 * The capture equipment ID shall be recorded in twelve bits. A value of all zeros will be acceptable and will
+	 * indicate that the capture equipment ID is unreported. The value of this field is determined by the vendor. 
+	 * Applications developers may obtain the values for these codes from the vendor. 
+	 */
 	@DisplayName("SP800-76.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_FingerprintsTestProvider")
@@ -492,10 +506,14 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 16);
+
+		//Confirm that the first 12 bits are not null
+		byte[] ceiBytes = Arrays.copyOfRange(biometricDataBlock, 14, 16);
+		ByteBuffer wrapped = ByteBuffer.wrap(ceiBytes);
+		short cei = wrapped.getShort();
+		cei &= 0x0FFF;
 		
-		//Confirm that the 20th and 21st is not null
-		assertTrue(Byte.compare(biometricDataBlock[14], (byte)0x00) != 0, "Fingerprint capture equipment id is NULL");
-		assertTrue(Byte.compare(biometricDataBlock[15], (byte)0x00) != 0, "Fingerprint capture equipment id is NULL");
+		assertTrue(cei > 0, "Fingerprint capture equipment id is NULL");
 	}
 	
 	//Confirm that scanned image in X are non-zero (and obtained from enrollment records??)
