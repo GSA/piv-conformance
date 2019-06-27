@@ -49,6 +49,7 @@ public class CardholderBiometricData extends PIVDataObject {
     private String m_validityPeriodFrom;
     private String m_validityPeriodTo;
     private byte[] m_biometricDataBlock;
+    private byte[] m_signatureBlock;
     private CMSSignedData m_signedData;
     private ContentInfo m_contentInfo;
     private byte[] m_signedContent;
@@ -65,6 +66,7 @@ public class CardholderBiometricData extends PIVDataObject {
         m_validityPeriodTo = null;
         m_signedData = null;
         m_biometricDataBlock = null;
+        m_signatureBlock = null;
         m_contentInfo = null;
         m_signedContent = null;
         m_cbeffContainer = null;
@@ -140,6 +142,15 @@ public class CardholderBiometricData extends PIVDataObject {
         return m_biometricData;
     }
 
+    /**
+     *
+     * Returns a byte array with the CMS
+     *
+     * @return Byte array with CMS
+     */
+    public byte[] getSignatureBlock() {
+        return m_signatureBlock;
+    }
     /**
      *
      * Sets the biometric data
@@ -376,10 +387,10 @@ public class CardholderBiometricData extends PIVDataObject {
 
                         m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);
 
-                        byte[] signatureDataBlock = Arrays.copyOfRange(m_biometricData, 88 + biometricDataBlockLength, 88 + biometricDataBlockLength + signatureDataBlockLength);
+                        m_signatureBlock = Arrays.copyOfRange(m_biometricData, 88 + biometricDataBlockLength, 88 + biometricDataBlockLength + signatureDataBlockLength);
 
                         //Decode the ContentInfo and get SignedData object from the signature block.
-                        ByteArrayInputStream bIn = new ByteArrayInputStream(signatureDataBlock);
+                        ByteArrayInputStream bIn = new ByteArrayInputStream(m_signatureBlock);
                         ASN1InputStream aIn = new ASN1InputStream(bIn);
                         m_contentInfo = ContentInfo.getInstance(aIn.readObject());
                         m_signedData = new CMSSignedData(m_contentInfo);
@@ -387,7 +398,7 @@ public class CardholderBiometricData extends PIVDataObject {
                     }
                 }
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
             s_logger.error("Error parsing {}", APDUConstants.oidNameMAP.get(super.getOID()), ex);
             return false;
