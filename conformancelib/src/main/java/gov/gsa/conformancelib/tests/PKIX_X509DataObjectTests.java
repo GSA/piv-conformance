@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -769,8 +770,11 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_CardAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_20(String oid, String ekuOid, TestReporter reporter) {
-		
+    void PKIX_Test_20(String oid, String parameters, TestReporter reporter) {
+		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
+		List<String> ekuOids = pmap.get(oid);
+		//String ekuOid = ekuOids.get(0);
+		String ekuOid = "1.2.3.4";
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
@@ -792,13 +796,10 @@ public class PKIX_X509DataObjectTests {
 		
 	    KeyPurposeId[] kpilist = eku.getUsages();
 	    for (KeyPurposeId kpiInfo : kpilist) {
-	    	if(kpiInfo.getId().compareTo(ekuOid) == 0) {
-	    		containsOOID = true;
-	    	}
+	    	s_logger.debug("Testing key purpose OID {} for container {}", kpiInfo.getId().toString(), oid);
+	    	assert(ekuOids.contains(kpiInfo.getId().toString()));
 	    }
 	    
-	    //Confirm that id-PIV-cardAuth 2.16.840.1.101.3.6.8 OID is present in eku
-	    assertTrue(containsOOID, "EKU does not contain " + ekuOid);
 		
     }
 
