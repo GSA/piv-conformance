@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -90,9 +91,11 @@ public class SP800_76_Tests {
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data is present
 		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 
@@ -108,7 +111,7 @@ public class SP800_76_Tests {
             
             assertTrue(biometricDataBlockLength > 0);
             
-            assertTrue(biometricData.length == biometricDataBlockLength,  "Biometric data block length does not matche actual length");
+            assertTrue(biometricDataBlock.length == biometricDataBlockLength,  "Biometric data block length does not matche actual length");
             
 		 }
 	}
@@ -1947,22 +1950,22 @@ public class SP800_76_Tests {
 		}
 		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			
+		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		byte[] signature = ((CardholderBiometricData) o).getSignatureBlock();
-		
+				
 		//Make sure signature is present
-		assertNotNull(signature, "Signature is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "biometricData is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Signature is absent in CardholderBiometricData object");
 		
-		 if (signature != null && signature.length > 8) {
+		 if (biometricData != null && biometricData.length > 8) {
 
              //Get signature block (SB) Length
-             byte[] signatureBlockLengthBytes = Arrays.copyOfRange(signature, 6, 8);
+             byte[] signatureBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);
              
-     		assertNotNull(signature, "Signature block length is absent in CardholderBiometricData object");
+     		assertNotNull(signatureBlockLengthBytes, "Signature block length is absent in CardholderBiometricData object");
      		
-     		//Convert signature block (SB) Length byte[] value to short
-            ByteBuffer wrapped = ByteBuffer.wrap(signatureBlockLengthBytes);
-            int signatureBlockLength = wrapped.getShort();
-            
+     		//Convert signature block (SB) Length byte[] value to int
+            int signatureBlockLength = ((signatureBlockLengthBytes[0] & 0xff) << 8) | (signatureBlockLengthBytes[1] & 0xff);
             assertTrue(signatureBlockLength > 0);
             
             assertTrue(signature.length == signatureBlockLength,  "Biometric data block length does not matche actual length");
