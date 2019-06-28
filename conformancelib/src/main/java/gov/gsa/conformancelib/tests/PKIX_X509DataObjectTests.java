@@ -42,6 +42,7 @@ import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
@@ -763,6 +764,15 @@ public class PKIX_X509DataObjectTests {
 		
 		//Confirm eku extension is present
 		assertTrue(cpex != null, "EKU extension is absent");
+		Extension eku = null;
+		try {
+			eku = Extension.getInstance(X509ExtensionUtil.fromExtensionValue(cpex));
+		} catch (IOException e) {
+			s_logger.error("Failed to parse EKU extension");
+		}
+		assertNotNull(eku, "EKU extension is unparseable");
+		assertTrue(eku.isCritical(), "EKU extension is not marked critical and must be.");
+		
     }
 
 	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
