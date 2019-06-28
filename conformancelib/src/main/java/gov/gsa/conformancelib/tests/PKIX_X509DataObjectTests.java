@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
@@ -764,15 +765,19 @@ public class PKIX_X509DataObjectTests {
 		
 		//Confirm eku extension is present
 		assertTrue(cpex != null, "EKU extension is absent");
-		Extension eku = null;
+		boolean isCritical = false;
 		try {
-			eku = Extension.getInstance(X509ExtensionUtil.fromExtensionValue(cpex));
-		} catch (IOException e) {
-			s_logger.error("Failed to parse EKU extension");
+			X509CertificateHolder ch = new X509CertificateHolder(cert.getEncoded());
+			for(Object o : ch.getCriticalExtensionOIDs()) {
+				ASN1ObjectIdentifier objid = (ASN1ObjectIdentifier) o;
+				if(objid.toString().contentEquals("2.5.29.37")) {
+					isCritical = true;
+				}
+			}
+		} catch (CertificateEncodingException | IOException e1) {
+			s_logger.error("Failed to parse already decoded certificate.");
 		}
-		assertNotNull(eku, "EKU extension is unparseable");
-		assertTrue(eku.isCritical(), "EKU extension is not marked critical and must be.");
-		
+		assertTrue(isCritical, "EKU extension is not marked critical and must be.");
     }
 
 	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
