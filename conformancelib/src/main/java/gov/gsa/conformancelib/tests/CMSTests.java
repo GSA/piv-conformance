@@ -554,11 +554,13 @@ public class CMSTests {
 				ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
 				throw e;
 			}
-			byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
+			/*
+			 * This appears to be a holdover from a previous test
+			 * byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
 			if (fascn == null) {
 				ConformanceTestException e = new ConformanceTestException("fascn is null");
 				throw e;
-			}
+			}*/
 			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
 			
 			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
