@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -769,8 +770,10 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_CardAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_20(String oid, String ekuOid, TestReporter reporter) {
-		
+    void PKIX_Test_20(String oid, String parameters, TestReporter reporter) {
+		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
+		List<String> ekuOids = pmap.get(oid);
+		String ekuOid = ekuOids.get(0);
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
