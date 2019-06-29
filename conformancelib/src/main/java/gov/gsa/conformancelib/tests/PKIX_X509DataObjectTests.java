@@ -330,6 +330,7 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
+	    	s_logger.debug("Cert for {} contains {}", oid, curroid.getId());
 	    	if(rv.get(oid).contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;
@@ -337,7 +338,7 @@ public class PKIX_X509DataObjectTests {
 	    }
 	    
 	    //Confirm that oid matches is asserted in certificate policies
-	    assertTrue(containsOOID, "Policy oid " + policyOid + " is not present in certificate policies");
+	    assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
