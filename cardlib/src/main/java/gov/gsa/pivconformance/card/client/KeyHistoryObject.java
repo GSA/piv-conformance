@@ -16,8 +16,9 @@ import java.util.List;
 public class KeyHistoryObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(KeyHistoryObject.class);
-    private int m_keysWithOnCardCerts = 0;
-    private int m_keysWithOffCardCerts = 0;
+    // initialize to -1 so we can differentiate between no key history and failure to decode
+    private int m_keysWithOnCardCerts = -1;
+    private int m_keysWithOffCardCerts = -1;
     private byte[] m_offCardCertUrl;
 
     /**
@@ -110,7 +111,7 @@ public class KeyHistoryObject extends PIVDataObject {
             s_logger.debug("found tag: {}", Hex.encodeHexString(tag));
         }
 
-        if (m_keysWithOnCardCerts == 0 || m_keysWithOffCardCerts == 0)
+        if (m_keysWithOnCardCerts == -1 || m_keysWithOffCardCerts == -1)
             return false;
 
         return true;
