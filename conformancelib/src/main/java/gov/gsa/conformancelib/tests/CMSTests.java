@@ -546,10 +546,11 @@ public class CMSTests {
     void CMS_Test_17(String oid, String params, TestReporter reporter) {
 		try {
 			String[] oidList = params.split(",");
-			PIVDataObject o = AtomHelper.getDataObject(oid);
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObjectWithAuth(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
 			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-			CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+			CMSSignedData issuerAsymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			if (issuerAsymmetricSignature == null) {
 				ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
 				throw e;
@@ -561,7 +562,6 @@ public class CMSTests {
 				ConformanceTestException e = new ConformanceTestException("fascn is null");
 				throw e;
 			}*/
-			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
 			
 			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
 			if (signers == null) {
@@ -583,16 +583,22 @@ public class CMSTests {
 					ConformanceTestException e = new ConformanceTestException("attributeTable is null");
 					throw e;
 				}
-				
+				HashMap<String, Attribute> attrsFound = new HashMap<String, Attribute>();
+				// XXX *** TODO: move this comparison to the CHUID object. too specific for this atom
+				byte[] fascn = chuid.getfASCN();
+				String fascnOid = "2.16.840.1.101.3.6.6";
+				byte[] guid = chuid.getgUID();
+				String guidOid = "1.3.6.1.1.16.4";
 				for (int i = 0; i < oidList.length; i++) {
 					String attrOid = oidList[i];
-					ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(attrOid);
-					Attribute attr = attributeTable.get(pivFASCN_OID);
+					ASN1ObjectIdentifier currAttrOid = new ASN1ObjectIdentifier(attrOid);
+					Attribute attr = attributeTable.get(currAttrOid);
+					assertNotNull(attr, "Expected to find " + attrOid + " for container " + oid);
+					attrsFound.put(attrOid, attr);
+					if(oid == guidOid) assertTrue(Arrays.equals(attr.getEncoded(), guid), "GUID from signed attribute does not match card guid");
+					if(oid == fascnOid) assertTrue(Arrays.equals(attr.getEncoded(), fascn), "GUID from signed attribute does not match card guid");
 					//assertNotNull(attr, "attr " + attrOid + " is null");
 				}
-
-				byte[] attrGuid = ((CardHolderUniqueIdentifier) o).getgUID();
-				assertTrue(Arrays.equals(attrGuid, guid), "GUID from attribute does not match GUID from card");
 			}
 		}
 		catch (Exception e) {

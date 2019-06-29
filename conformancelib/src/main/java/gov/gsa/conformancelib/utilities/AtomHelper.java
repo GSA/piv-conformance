@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.cert.X509Certificate;
 
+import org.bouncycastle.cms.CMSSignedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
+import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
@@ -116,6 +118,19 @@ public class AtomHelper {
 			cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
 		}
 		return cert;
+	}
+	
+	public static CMSSignedData getSignedDataForObject(PIVDataObject o) {
+		CMSSignedData rv = null;
+		if(!o.isSigned()) {
+			return null;
+		}
+		if(o instanceof CardHolderUniqueIdentifier) {
+			rv = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+		} else if(o instanceof CardholderBiometricData) {
+			rv = ((CardholderBiometricData) o).getSignedData();
+		}
+		return rv;
 	}
 	
     /**
