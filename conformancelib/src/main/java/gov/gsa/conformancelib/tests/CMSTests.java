@@ -48,6 +48,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -58,6 +60,7 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.SecurityObject;
 
 public class CMSTests {
+	static Logger s_logger = LoggerFactory.getLogger(CMSTests.class);
 
 	//Verify that the asymmetric digital field contains a CMS signed data object with no encapsulated content
 	@DisplayName("CMS.1 test")
@@ -546,6 +549,11 @@ public class CMSTests {
     void CMS_Test_17(String oid, String params, TestReporter reporter) {
 		try {
 			String[] oidList = params.split(",");
+			boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+			if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+				s_logger.info("Optional container {} is absent from the card.", oid);
+				return;
+			}
 			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
 			CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObjectWithAuth(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
