@@ -6,6 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +36,7 @@ import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class ContainerDump {
@@ -47,6 +53,7 @@ public class ContainerDump {
         s_options.addOption("defaultGetResponse", false, "Use default javax.scardio GET RESPONSE processing");
         s_options.addOption("o", "outDir", true, "Directory to receive containers");
         s_options.addOption("reader", true, "Use the specified reader instead of the first one with a card");
+        s_options.addOption("", "parseFile", true, "Decode a container stored in a file");
         
     }
 
@@ -75,6 +82,34 @@ public class ContainerDump {
         		System.out.println(o + ": " + names.get(o));
         	}
         	System.exit(0);
+        }
+        if(cmd.hasOption("parseFile")) {
+        	String file = cmd.getOptionValue("parseFile");
+			Path filePath = Paths.get(file);
+			String[] argv = cmd.getArgs();
+			if(argv.length != 1) {
+				System.err.println("parseFile requires a single containerOID to be specified");
+			}
+			String fileOid = argv[0];
+			byte[] fileData = null;
+			try {
+				fileData = Files.readAllBytes(filePath);
+			} catch (IOException e) {
+				s_logger.error("Unable to read from file {}", file, e);
+				System.exit(1);
+			}
+			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(fileOid);
+
+			o.setOID(fileOid);
+			o.setBytes(fileData);
+			boolean decoded = o.decode();
+			if(!decoded) {
+				s_logger.error("Unable to decode container from dump");
+				System.exit(1);
+			} else {
+				s_logger.info("Successfully decoded {} as {}", file, fileOid);
+			}
+			System.exit(0);
         }
         if(!cmd.hasOption("defaultGetResponse")) {
         	s_logger.info("Using cardlib GET RESPONSE instead of java default");
