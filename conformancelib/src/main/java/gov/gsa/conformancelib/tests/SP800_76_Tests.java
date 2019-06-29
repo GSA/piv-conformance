@@ -453,7 +453,7 @@ public class SP800_76_Tests {
 	 * Four bits are reserved to indicate compliance of the image capture equipment used to originally acquire the image
 	 * from which the minutiae were extracted. The most significant bit, if set to a 1, shall indicate that the equipment
 	 * was certified to comply with Appendix F (IAFIS Image Quality Specification, January 29, 1999) of CJIS-RS-0010,
-	 * the Federal Bureau of Investigation’s Electronic Fingerprint Transmission Specification. The other three bits are
+	 * the Federal Bureau of Investigation's Electronic Fingerprint Transmission Specification. The other three bits are
 	 * reserved for future compliance indicators.
 	 */
 	@DisplayName("SP800-76.13 test")
