@@ -35,6 +35,7 @@ import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
@@ -135,6 +136,16 @@ public class ContainerDump {
 				int issuerIdTagIndex = tagList.indexOf(berIssuerIDTag);
 				s_logger.info("Name, Employee Affiliation, Agency Card Serial, Issuer Identification tag positions: {}, {}, {}, {}",
 						nameTagIndex, employeeAffiliationTagIndex, serialNumberTagIndex, issuerIdTagIndex );
+			}
+			if(fileOid.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
+				CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) o;
+				List<BerTag> tagList = chuid.getTagList();
+				s_logger.info("Tag list contains {} tags", tagList.size());
+				int i = 1;
+				for(BerTag t : tagList) {
+					s_logger.info("Tag {}: 0x{}", i, Hex.encodeHexString(t.bytes));
+					i++;
+				}
 			}
 			System.exit(0);
         }
