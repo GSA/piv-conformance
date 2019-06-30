@@ -25,6 +25,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,11 @@ import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.card.client.SecurityObject;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
+import gov.gsa.pivconformance.tlv.BerTag;
+import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class ContainerDump {
@@ -110,6 +114,27 @@ public class ContainerDump {
 				System.exit(1);
 			} else {
 				s_logger.info("Successfully decoded {} as {}", file, fileOid);
+			}
+			if(fileOid.equals(APDUConstants.PRINTED_INFORMATION_OID)) {
+				PrintedInformation pio = (PrintedInformation) o;
+				List<BerTag> tagList = pio.getTagList();
+				s_logger.info("Tag list contains {} tags", tagList.size());
+				int i = 1;
+				for(BerTag t : tagList) {
+					s_logger.info("Tag {}: {}", i, Hex.encodeHexString(t.bytes));
+					i++;
+				}
+				BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
+				BerTag berEmployeeAffiliationTag = new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG);
+				BerTag berPrintedInformationExpirationDateTag = new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG);
+				BerTag berAgencyCardSerialTag = new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG);
+				BerTag berIssuerIDTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
+				int nameTagIndex = tagList.indexOf(berNameTag);
+				int employeeAffiliationTagIndex = tagList.indexOf(berEmployeeAffiliationTag);
+				int serialNumberTagIndex = tagList.indexOf(berAgencyCardSerialTag);
+				int issuerIdTagIndex = tagList.indexOf(berIssuerIDTag);
+				s_logger.info("Name, Employee Affiliation, Agency Card Serial, Issuer Identification tag positions: {}, {}, {}, {}",
+						nameTagIndex, employeeAffiliationTagIndex, serialNumberTagIndex, issuerIdTagIndex );
 			}
 			System.exit(0);
         }
