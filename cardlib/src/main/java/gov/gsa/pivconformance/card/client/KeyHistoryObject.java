@@ -20,6 +20,13 @@ public class KeyHistoryObject extends PIVDataObject {
     private int m_keysWithOnCardCerts = -1;
     private int m_keysWithOffCardCerts = -1;
     private byte[] m_offCardCertUrl;
+    
+    // XXX *** This should probably land in the base class, but at least for this test, it won't
+    private byte[] m_tlvBuf = null;
+    public byte[] getTlvBuf() {
+    	return m_tlvBuf;
+    }
+    
 
     /**
      *
@@ -94,8 +101,8 @@ public class KeyHistoryObject extends PIVDataObject {
         BerTlvs outer = tlvp.parse(rawBytes);
         List<BerTlv> outerTlvs = outer.getList();
         if(outerTlvs.size() == 1 && outerTlvs.get(0).isTag(new BerTag(0x53))) {
-            byte[] tlvBuf = outerTlvs.get(0).getBytesValue();
-            outer = tlvp.parse(tlvBuf);
+            m_tlvBuf = outerTlvs.get(0).getBytesValue();
+            outer = tlvp.parse(m_tlvBuf);
         }
         for(BerTlv tlv : outer.getList()) {
             byte[] tag = tlv.getTag().bytes;

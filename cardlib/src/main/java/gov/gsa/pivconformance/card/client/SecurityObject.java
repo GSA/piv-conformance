@@ -415,6 +415,7 @@ public class SecurityObject extends PIVDataObject {
             for (Map.Entry<Integer, byte[]> entry : m_dghList.entrySet()) {
 
                 String oid = m_containerIDList.get(entry.getKey());
+                s_logger.debug("Checking digest for {} (0x{})", oid, Integer.toHexString(entry.getKey()));
 
                 if(oid == null) {
                     s_logger.error("Missing object to hash for id {}: ", entry.getKey());
@@ -422,14 +423,19 @@ public class SecurityObject extends PIVDataObject {
                 }
 
                 byte[] bytesToHash = m_mapOfDataElements.get(oid);
+                s_logger.debug("Bytes to hash: {}", Hex.encodeHexString(bytesToHash));
 
                 MessageDigest md = MessageDigest.getInstance(APDUConstants.DEFAULTHASHALG);
                 md.update(bytesToHash);
                 byte[] digest = md.digest();
+                s_logger.debug("Digest: {}", Hex.encodeHexString(digest));
                 
                 if (!Arrays.equals(entry.getValue(), digest)) {
-                    rv_result = false;
+                	s_logger.error("hashes don't match in security object (reference length: {}, calculated length: {})", entry.getValue().length, digest.length);
+                    s_logger.error("reference: {}, calculated: {}", Hex.encodeHexString(entry.getValue()), Hex.encodeHexString(digest));
+                	rv_result = false;
                 }
+                s_logger.debug("rv_result is currently {}", rv_result);
             }
 
         } catch (Exception ex) {

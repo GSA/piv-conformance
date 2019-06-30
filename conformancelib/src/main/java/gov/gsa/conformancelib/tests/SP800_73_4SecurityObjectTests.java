@@ -24,6 +24,7 @@ import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.DiscoveryObject;
+import gov.gsa.pivconformance.card.client.KeyHistoryObject;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.card.client.SecurityObject;
@@ -194,7 +195,7 @@ public class SP800_73_4SecurityObjectTests {
         		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
             } else if(entry.getValue().equals(APDUConstants.KEY_HISTORY_OBJECT_OID)) {
             	s_logger.debug("Adding key history to soDataElements");
-            	soDataElements.put(APDUConstants.KEY_HISTORY_OBJECT_OID, ((PIVDataObject) dataObject).getBytes());
+            	soDataElements.put(APDUConstants.KEY_HISTORY_OBJECT_OID, ((KeyHistoryObject) dataObject).getTlvBuf());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID)) {
                 soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID, ((PIVDataObject) dataObject).getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_OID)) {
