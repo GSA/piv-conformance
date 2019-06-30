@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.SecurityObject;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
@@ -243,6 +245,18 @@ public class ContainerDump {
 			} catch (IOException e) {
 				s_logger.error("Caught exception while writing data for container {} to file", container, e);
 			}
+        	if(container.equals(APDUConstants.SECURITY_OBJECT_OID)) {
+        		SecurityObject so = (SecurityObject) obj;
+        		if(!so.decode()) {
+        			s_logger.error("Failed to decode security object");
+        			continue;
+        		}
+        		HashMap<Integer, String> idList = so.getContainerIDList();
+
+				for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
+					s_logger.info("Security object covers {} (0x{})", entry.getValue(), Integer.toHexString(entry.getKey()));
+				}
+        	}
         	s_logger.info("Finished dumping {}", container);
         }
 	}
