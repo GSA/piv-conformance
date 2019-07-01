@@ -75,6 +75,7 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.conformancelib.utilities.KeyValidationHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
@@ -478,17 +479,15 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		// issue #107... temporarily turning red all the time to avoid repeat
-		ConformanceTestException e = new ConformanceTestException("PKIX.11 needs to always fail until 107 is addressed.");
-		fail(e);
-		/*
+		//ConformanceTestException e = new ConformanceTestException("PKIX.11 needs to always fail until 107 is addressed.");
+		//fail(e);
 		KeyValidationHelper kvh = KeyValidationHelper.getInstance();
 		try {
 			kvh.validateKey(cert, oid);
-			s_logger.error("validateKey() finished");
+			s_logger.debug("validateKey() finished");
 		} catch(ConformanceTestException cte) {
 			fail(cte);
 		}
-		*/
     }
 	
 	//Confirm that the certificate subjectAltName includes FASC-N and that it matches CHUID
