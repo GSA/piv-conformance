@@ -244,7 +244,7 @@ public class APDUConstants {
     public static final int PIV_CARD_APPLICATION_ADMINISTRATION_KEY_ID = 0x9B;
     public static final int DIGITAL_SIGNATURE_KEY_ID = 0x9C;
     public static final int KEY_MANAGEMENT_KEY_ID = 0x9D;
-    public static final int CARD_AUTHENTICATION_KEY_ID = 0x9D;
+    public static final int CARD_AUTHENTICATION_KEY_ID = 0x9E;
     public static final int RETIRED_KEY_MANAGEMENT_KEY_ID_1 = 0x82;
     public static final int RETIRED_KEY_MANAGEMENT_KEY_ID_2 = 0x83;
     public static final int RETIRED_KEY_MANAGEMENT_KEY_ID_3 = 0x84;
