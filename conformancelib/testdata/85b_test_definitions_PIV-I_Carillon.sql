@@ -731,7 +731,6 @@ INSERT INTO "TestCases" VALUES(466, NULL,'11.7.2.6.2','authorityInfoAccess field
 INSERT INTO "TestCases" VALUES(467, NULL,'11.7.2.6.3','The accessLocation for this AccessMethod is of type uniformResourceIdentifier','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(468, NULL,'11.7.2.6.4','URI scheme is http (not https)','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(469, NULL,'11.7.2.6.6','File contains a CMS a certs-only CMS message (see RFC 3851).','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(470, NULL,'11.7.2.6.6','File contains a CMS a certs-only CMS message (see RFC 3851).','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestsToSteps" VALUES(1, 1,4,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(2, 2,5,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(3, 3,6,0,NULL);
@@ -1095,5 +1094,4 @@ INSERT INTO "TestsToSteps" VALUES(360, 147,465,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(361, 148,466,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(362, 149,467,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(363, 163,468,0,NULL);
-INSERT INTO "TestsToSteps" VALUES(364, 165,470,0,NULL);
-INSERT INTO "TestsToSteps" VALUES(365, 165,364,0,NULL);
+INSERT INTO "TestsToSteps" VALUES(364, 165,469,0,NULL);
