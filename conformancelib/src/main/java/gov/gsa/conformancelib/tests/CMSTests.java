@@ -490,10 +490,11 @@ public class CMSTests {
 	//Confirm that signing certificate contains id-PIV-content-signing (2.16.840.1.101.3.6.7) in EKU extension
 	@DisplayName("CMS.15 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
-    void CMS_Test_15(String oid, TestReporter reporter) {
+    //@MethodSource("CMS_TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void CMS_Test_15(String container, String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		PIVDataObject o = AtomHelper.getDataObject(container);
 		
 		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
 		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
@@ -514,7 +515,7 @@ public class CMSTests {
 		}
 		
 		//Confirm id-PIV-content-signing (2.16.840.1.101.3.6.7) present
-		assertTrue(ekuList.contains("2.16.840.1.101.3.6.7"));
+		assertTrue(ekuList.contains(oid));
     }
 	
 	//Validate that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field)
