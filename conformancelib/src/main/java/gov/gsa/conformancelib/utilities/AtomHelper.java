@@ -2,6 +2,11 @@ package gov.gsa.conformancelib.utilities;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
 import org.bouncycastle.cms.CMSSignedData;
@@ -41,6 +46,31 @@ public class AtomHelper {
 			ConformanceTestException e  = new ConformanceTestException("OID is null");
 			fail(e);
 		}
+		
+// This snippet can be used to target a folder full of containers
+//		byte[] allBytes = null;
+//		 try (
+//		            InputStream inputStream = new FileInputStream("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin");
+//		            
+//		        ) {
+//		 
+//		            long fileSize = new File("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin").length();
+//		 
+//		            allBytes = new byte[(int) fileSize];
+//		 
+//		            inputStream.read(allBytes);
+//		 
+//		        } catch (IOException ex) {
+//		            ex.printStackTrace();
+//		        }
+//		 PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+//		 o.setOID(oid);
+//         o.setBytes(allBytes);
+//         
+// 		if (o.decode() != true) {
+//			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
+//			fail(e);
+//		}
 		
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		
@@ -151,6 +181,31 @@ public class AtomHelper {
 			fail(e);
 		}
 		
+//  This snipper can be used to target a folder full of containers
+//		byte[] allBytes = null;
+//		 try (
+//		            InputStream inputStream = new FileInputStream("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin");
+//		            
+//		        ) {
+//		 
+//		            long fileSize = new File("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin").length();
+//		 
+//		            allBytes = new byte[(int) fileSize];
+//		 
+//		            inputStream.read(allBytes);
+//		 
+//		        } catch (IOException ex) {
+//		            ex.printStackTrace();
+//		        }
+//		 PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+//		 o.setOID(oid);
+//        o.setBytes(allBytes);
+//		
+// 		if (o.decode() != true) {
+//			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
+//			fail(e);
+//		}
+        
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		
 		//Check that CardSettingsSingleton
