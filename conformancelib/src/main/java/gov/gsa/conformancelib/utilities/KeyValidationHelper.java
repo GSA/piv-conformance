@@ -27,7 +27,7 @@ public class KeyValidationHelper {
 	
 	public void validateKey(X509Certificate containerCert, String containerOid) throws ConformanceTestException {
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		CardUtils.authenticateInSingleton(true);
+		CardUtils.reauthenticateInSingleton();
 		if (!APDUConstants.oidToContainerIdMap.containsKey(containerOid)) {
 			s_logger.error("{} is not a valid container OID for this test", containerOid);
 			throw new ConformanceTestException("validateKey was passed container OID " + containerOid

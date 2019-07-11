@@ -103,7 +103,8 @@ public class GeneralAuthenticateHelper {
 				} else {
 					currPos = request.length;
 				}
-				ccBaos.write((byte)0x00);  //Add Le
+				if(currPos >= request.length - 1)
+					ccBaos.write((byte)0x00);  //Add Le
 				try {
 					CommandAPDU chainedGeneralAuthApdu = new CommandAPDU(ccBaos.toByteArray());
 					PCSCWrapper pcsc = PCSCWrapper.getInstance();
