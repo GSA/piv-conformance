@@ -30,6 +30,8 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
+import gov.gsa.pivconformance.card.client.CachingDefaultPIVApplication;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 import javax.swing.JTextField;
@@ -78,7 +80,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 			}
 		});
 		
-		JLabel lblApplicationPin = new JLabel("Application PIN");
+		JLabel lblApplicationPin = new JLabel("PIV Application PIN");
 		
 		m_appPinField = new JPasswordField();
 		m_appPinField.setColumns(10);

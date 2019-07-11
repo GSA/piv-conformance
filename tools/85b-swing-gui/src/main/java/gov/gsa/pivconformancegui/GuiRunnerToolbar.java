@@ -32,6 +32,10 @@ public class GuiRunnerToolbar extends JToolBar {
 	    
 	    this.addSeparator();
 	    this.add(c.getDisplayTestReportAction());
+	    this.addSeparator();
+	    this.add(c.getOpenDefaultPIVDatabaseAction());
+	    this.addSeparator();
+	    this.add(c.getOpenDefaultPIVIDatabaseAction());
 	    
 	}
 	
