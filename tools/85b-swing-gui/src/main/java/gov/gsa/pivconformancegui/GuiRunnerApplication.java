@@ -158,7 +158,7 @@ public class GuiRunnerApplication {
 		m_mainFrame = new JFrame();
 		m_mainFrame.setBounds(100, 100, 1024, 768);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		m_mainFrame.setTitle("PIV Card Conformance Tool");
+		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool");
 		
 		
 		JMenuBar menuBar = new JMenuBar();

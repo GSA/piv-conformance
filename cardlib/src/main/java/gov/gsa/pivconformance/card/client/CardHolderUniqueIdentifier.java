@@ -467,6 +467,8 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                                //Added this to deal with deprecated tag 3D
+                                scos.write(APDUUtils.getTLV(tlv2.getTag().bytes, tlv2.getBytesValue()));
                             }
                         }
                     }

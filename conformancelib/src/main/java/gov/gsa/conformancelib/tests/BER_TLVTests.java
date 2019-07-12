@@ -53,10 +53,10 @@ public class BER_TLVTests {
         	
         	int l = firstByte.intValue();        	
         	assertTrue(l > 0);
-        	assertTrue(l < 127);
+        	assertTrue(l <= 127);
         	
         	assertTrue(valueLength > 0);
-        	assertTrue(valueLength < 127);
+        	assertTrue(valueLength <= 127);
         	
         }else if(lengthBytesCount == 2) {
         	

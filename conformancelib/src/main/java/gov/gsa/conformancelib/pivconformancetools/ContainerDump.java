@@ -6,7 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +25,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +35,15 @@ import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.PrintedInformation;
+import gov.gsa.pivconformance.card.client.SecurityObject;
+import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
+import gov.gsa.pivconformance.tlv.BerTag;
+import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class ContainerDump {
@@ -47,6 +60,7 @@ public class ContainerDump {
         s_options.addOption("defaultGetResponse", false, "Use default javax.scardio GET RESPONSE processing");
         s_options.addOption("o", "outDir", true, "Directory to receive containers");
         s_options.addOption("reader", true, "Use the specified reader instead of the first one with a card");
+        s_options.addOption("", "parseFile", true, "Decode a container stored in a file");
         
     }
 
@@ -75,6 +89,65 @@ public class ContainerDump {
         		System.out.println(o + ": " + names.get(o));
         	}
         	System.exit(0);
+        }
+        if(cmd.hasOption("parseFile")) {
+        	String file = cmd.getOptionValue("parseFile");
+			Path filePath = Paths.get(file);
+			String[] argv = cmd.getArgs();
+			if(argv.length != 1) {
+				System.err.println("parseFile requires a single containerOID to be specified");
+			}
+			String fileOid = argv[0];
+			byte[] fileData = null;
+			try {
+				fileData = Files.readAllBytes(filePath);
+			} catch (IOException e) {
+				s_logger.error("Unable to read from file {}", file, e);
+				System.exit(1);
+			}
+			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(fileOid);
+
+			o.setOID(fileOid);
+			o.setBytes(fileData);
+			boolean decoded = o.decode();
+			if(!decoded) {
+				s_logger.error("Unable to decode container from dump");
+				System.exit(1);
+			} else {
+				s_logger.info("Successfully decoded {} as {}", file, fileOid);
+			}
+			if(fileOid.equals(APDUConstants.PRINTED_INFORMATION_OID)) {
+				PrintedInformation pio = (PrintedInformation) o;
+				List<BerTag> tagList = pio.getTagList();
+				s_logger.info("Tag list contains {} tags", tagList.size());
+				int i = 1;
+				for(BerTag t : tagList) {
+					s_logger.info("Tag {}: {}", i, Hex.encodeHexString(t.bytes));
+					i++;
+				}
+				BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
+				BerTag berEmployeeAffiliationTag = new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG);
+				BerTag berPrintedInformationExpirationDateTag = new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG);
+				BerTag berAgencyCardSerialTag = new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG);
+				BerTag berIssuerIDTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
+				int nameTagIndex = tagList.indexOf(berNameTag);
+				int employeeAffiliationTagIndex = tagList.indexOf(berEmployeeAffiliationTag);
+				int serialNumberTagIndex = tagList.indexOf(berAgencyCardSerialTag);
+				int issuerIdTagIndex = tagList.indexOf(berIssuerIDTag);
+				s_logger.info("Name, Employee Affiliation, Agency Card Serial, Issuer Identification tag positions: {}, {}, {}, {}",
+						nameTagIndex, employeeAffiliationTagIndex, serialNumberTagIndex, issuerIdTagIndex );
+			}
+			if(fileOid.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
+				CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) o;
+				List<BerTag> tagList = chuid.getTagList();
+				s_logger.info("Tag list contains {} tags", tagList.size());
+				int i = 1;
+				for(BerTag t : tagList) {
+					s_logger.info("Tag {}: 0x{}", i, Hex.encodeHexString(t.bytes));
+					i++;
+				}
+			}
+			System.exit(0);
         }
         if(!cmd.hasOption("defaultGetResponse")) {
         	s_logger.info("Using cardlib GET RESPONSE instead of java default");
@@ -208,6 +281,18 @@ public class ContainerDump {
 			} catch (IOException e) {
 				s_logger.error("Caught exception while writing data for container {} to file", container, e);
 			}
+        	if(container.equals(APDUConstants.SECURITY_OBJECT_OID)) {
+        		SecurityObject so = (SecurityObject) obj;
+        		if(!so.decode()) {
+        			s_logger.error("Failed to decode security object");
+        			continue;
+        		}
+        		HashMap<Integer, String> idList = so.getContainerIDList();
+
+				for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
+					s_logger.info("Security object covers {} (0x{})", entry.getValue(), Integer.toHexString(entry.getKey()));
+				}
+        	}
         	s_logger.info("Finished dumping {}", container);
         }
 	}

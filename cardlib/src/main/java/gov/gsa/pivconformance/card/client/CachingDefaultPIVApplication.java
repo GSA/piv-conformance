@@ -11,7 +11,7 @@ public class CachingDefaultPIVApplication extends DefaultPIVApplication {
     HashMap<String, byte[]> m_containerMap = new HashMap<String, byte[]>();
 
     // Cache the buffers coming back from pivGetData to minimize churn
-    public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
+	public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
     	MiddlewareStatus result = MiddlewareStatus.PIV_OK;
     	byte[] dataBytes = m_containerMap.get(OID);
     	if(dataBytes == null) {
@@ -24,6 +24,10 @@ public class CachingDefaultPIVApplication extends DefaultPIVApplication {
     		data.setBytes(dataBytes);
     	}
     	return result;
+    }
+    
+    public void clearCache() {
+    	m_containerMap.clear();
     }
     
 }

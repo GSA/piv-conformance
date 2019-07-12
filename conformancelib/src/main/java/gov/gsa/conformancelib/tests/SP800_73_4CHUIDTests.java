@@ -252,6 +252,13 @@ public class SP800_73_4CHUIDTests {
 		}
         
 		int years = 0;
+		
+		if(yearsStr.contains(":")) {
+			String [] split = yearsStr.split(":");
+			
+			yearsStr = split[1];
+		}
+		
 		try {
 			years = Integer.parseInt(yearsStr);
 		} catch(NumberFormatException e) {
@@ -535,7 +542,6 @@ public class SP800_73_4CHUIDTests {
 				fail(e);
 			}
 				
-			assertTrue(tagList.size() >= 6);
 			
 			int berIssuerAssymSigTagIndex = tagList.indexOf(berIssuerAssymSigTag);
 			if ((berIssuerAssymSigTagIndex >= 0) == false) {
@@ -589,22 +595,9 @@ public class SP800_73_4CHUIDTests {
 				fail(e);
 			}
 				
-			if ((tagList.size() >= 6) == false) {
-				Exception e = new Exception("tagList size is less than 6");
-				fail(e);
-			}
-			
 			int berIssuerAssymSigTagIndex = tagList.indexOf(berIssuerAssymSigTag);
-			if ((berIssuerAssymSigTagIndex >= 0) == false) {
-				Exception e = new Exception("Index of ISSUER_ASYMMETRIC_SIGNATURE_TAG tag was not found");
-				fail(e);
-			}
-			
-			if ((Arrays.equals(tagList.get(berIssuerAssymSigTagIndex).bytes,TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)) == false) {
-				Exception e = new Exception("The byte array at berIssuerAssymSigTagIndex != ISSUER_ASYMMETRIC_SIGNATURE_TAG");
-				fail(e);
-			}
-			assertTrue(Arrays.equals(tagList.get(berIssuerAssymSigTagIndex+1).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
+			int berErrorDetectionCodeTagIndex = tagList.indexOf(berErrorDetectionCodeTag);
+			assertTrue(berErrorDetectionCodeTagIndex == berIssuerAssymSigTagIndex + 1, "Tag 0xFE must follow tag 0x3E");
 		}
 		catch (Exception e) {
 			fail(e);

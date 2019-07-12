@@ -24,6 +24,7 @@ import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.DiscoveryObject;
+import gov.gsa.pivconformance.card.client.KeyHistoryObject;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.card.client.SecurityObject;
@@ -146,7 +147,18 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_37(String oid, TestReporter reporter) {
 
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		// this was parameterized but only tests the security object
+		// default to that to address Issue #141 until we confirm that nothing expects to pass an oid
+		// in and just change the signature
+		PIVDataObject o = null;
+		
+		if((oid == null) || oid.isEmpty()) {
+			o = AtomHelper.getDataObjectWithAuth(APDUConstants.SECURITY_OBJECT_OID);
+		} else {
+			// a log message to help confirm no other uses of this parameter that were unexpected
+			o = AtomHelper.getDataObjectWithAuth(oid);
+			s_logger.warn("SP800-73-4.37 was called with an OID of {}. Confirm that this is correct on the spreadsheet.", oid);
+		}
         
         boolean decoded = o.decode();
 		assertTrue(decoded);
@@ -159,6 +171,7 @@ public class SP800_73_4SecurityObjectTests {
 		
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
+            s_logger.debug("[Security object: 0x{} about to read {} from card", Integer.toHexString(entry.getKey()), entry.getValue());
             PIVDataObject dataObject = AtomHelper.getDataObjectWithAuth(entry.getValue());
             
             decoded = dataObject.decode();
@@ -180,6 +193,9 @@ public class SP800_73_4SecurityObjectTests {
         		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardholderBiometricData) dataObject).getCceffContainer());        	
             } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
         		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+            } else if(entry.getValue().equals(APDUConstants.KEY_HISTORY_OBJECT_OID)) {
+            	s_logger.debug("Adding key history to soDataElements");
+            	soDataElements.put(APDUConstants.KEY_HISTORY_OBJECT_OID, ((KeyHistoryObject) dataObject).getTlvBuf());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID)) {
                 soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID, ((PIVDataObject) dataObject).getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_OID)) {

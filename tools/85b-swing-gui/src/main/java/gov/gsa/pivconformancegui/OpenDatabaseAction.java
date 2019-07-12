@@ -8,6 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,9 @@ public class OpenDatabaseAction extends AbstractAction {
 		JFileChooser fc = new JFileChooser();
 		File cwd = new File(System.getProperty("user.dir"));
 		fc.setCurrentDirectory(cwd);
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("PIV Card Conformance Tool databases (*.db)", "db");
+		fc.addChoosableFileFilter(filter);
+		fc.setAcceptAllFileFilterUsed(true);
 		JFrame mainFrame = GuiRunnerAppController.getInstance().getMainFrame();
 		int result = fc.showOpenDialog(mainFrame);
 		if(result == JFileChooser.APPROVE_OPTION) {

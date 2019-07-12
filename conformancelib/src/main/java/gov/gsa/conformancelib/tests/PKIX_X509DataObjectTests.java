@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.PublicKey;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERIA5String;
@@ -41,6 +43,7 @@ import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
@@ -61,14 +64,18 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.conformancelib.utilities.KeyValidationHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
@@ -77,6 +84,7 @@ import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
+import gov.gsa.pivconformance.card.client.OtherName;;
 
 public class PKIX_X509DataObjectTests {
 	
@@ -88,8 +96,9 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void PKIX_Test_1(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert, "NULL certificate passed to atom");
+	void PKIX_Test_1(String oid, TestReporter reporter) {
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		PublicKey pubKey = cert.getPublicKey();
 
@@ -151,8 +160,9 @@ public class PKIX_X509DataObjectTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void PKIX_Test_2(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert, "NULL certificate passed to atom");
+	void PKIX_Test_2(String oid, TestReporter reporter) {
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		assertTrue(cert.getKeyUsage() != null, "Key usage extension is absent");
 	}
@@ -163,11 +173,9 @@ public class PKIX_X509DataObjectTests {
 	//@MethodSource("pKIX_PIVAuthx509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void PKIX_Test_3(String oid, TestReporter reporter) {
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -187,25 +195,77 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void PKIX_Test_4(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		boolean[] ku = cert.getKeyUsage();
 
 		// confirm key usage extension is present
-		assertTrue(ku != null);
+		if(ku == null) {
+			Exception e = new Exception("key usage is null");
+			fail(e);
+		}
+		
+		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0){
+			// Confirm digitalSignature bit is set
+			assertTrue(ku[0] == true, "digitalSignature bit is not set");
+			assertTrue(ku[1] == false, "nonRepudiation bit is set");
+			assertTrue(ku[2] == false, "keyEncipherment bit is set");
+			assertTrue(ku[3] == false, "dataEncipherment bit is set");
+			assertTrue(ku[4] == false, "keyAgreement bit is set");
+			assertTrue(ku[5] == false, "keyCertSign bit is set");
+			assertTrue(ku[6] == false, "cRLSign bit is set");
+			assertTrue(ku[7] == false, "encipherOnly bit is set");
+			assertTrue(ku[8] == false, "decipherOnly bit is set");
 
-		// Confirm digitalSignature bit is set
-		assertTrue(ku[0] == true, "digitalSignature bit is not set");
-		assertTrue(ku[1] == false, "nonRepudiation bit is set");
-		assertTrue(ku[2] == false, "keyEncipherment bit is set");
-		assertTrue(ku[3] == false, "dataEncipherment bit is set");
-		assertTrue(ku[4] == false, "keyAgreement bit is set");
-		assertTrue(ku[5] == false, "keyCertSign bit is set");
-		assertTrue(ku[6] == false, "cRLSign bit is set");
-		assertTrue(ku[7] == false, "encipherOnly bit is set");
-		assertTrue(ku[7] == false, "decipherOnly bit is set");
+        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0){
+        	// Confirm digitalSignature and nonRepudiation bits are set
+    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == true, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0){
+        	// Confirm keyEncipherment bit is set
+    		assertTrue(ku[0] == false, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == true, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
+        	// Confirm digitalSignature bit is set
+    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        } else if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0){
+        	// Confirm digitalSignature bit is set
+    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
+    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
+    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
+    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
+    		assertTrue(ku[4] == false, "keyAgreement bit is set");
+    		assertTrue(ku[5] == false, "keyCertSign bit is set");
+    		assertTrue(ku[6] == false, "cRLSign bit is set");
+    		assertTrue(ku[7] == false, "encipherOnly bit is set");
+    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+
+        }
 
 	}
 
@@ -215,10 +275,8 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_5(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
@@ -236,16 +294,24 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
 		
-		//Check that the oid passed in is not null
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+
 		if (policyOid == null) {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-				
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		List<String> paramList = Arrays.asList(policyOid.split(","));
+		
+		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
+		
+		for(String p : paramList) {
+			String[] paramList2 = p.split(";");
+					
+			List<String> paramList3 = Arrays.asList(paramList2[1].split(":"));
+			String containerOid = APDUConstants.getStringForFieldNamed(paramList2[0]);
+			rv.put(containerOid, paramList3);
+		}
 
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
@@ -265,14 +331,15 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	if(curroid.getId().compareTo(policyOid) == 0) {
+	    	s_logger.debug("Cert for {} contains {}", oid, curroid.getId());
+	    	if(rv.get(oid).contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;
 	    	}
 	    }
 	    
 	    //Confirm that oid matches is asserted in certificate policies
-	    assertTrue(containsOOID, "Policy oid " + policyOid + " is not present in certificate policies");
+	    assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
@@ -283,9 +350,8 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_7(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "NULL certificate passed to atom");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
@@ -300,9 +366,8 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_8(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "NULL certificate passed to atom");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get authorityInformationAccess extension
 		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
@@ -342,9 +407,8 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_9(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "NULL certificate passed to atom");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		boolean uriOk = false;
 		
@@ -392,9 +456,8 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_10(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		if (cert != null) {
 			//Get piv interim "2.16.840.1.101.3.6.9.1" extension
@@ -403,11 +466,7 @@ public class PKIX_X509DataObjectTests {
 			//Confirm pivInterim extension is present and isn't empty
 			assertTrue(pivInterim != null, "pivInterim extension is not present");
 			assertTrue(pivInterim.length > 0, "pivInterim extension is empty");
-		} else {
-        	ConformanceTestException e  = new ConformanceTestException("Could not obtain certificate for " + oid);
-			fail(e);
 		}
-
     }
 	
 	//Sign arbitrary data using the specified key container and confirm that the certificate can validate it
@@ -416,63 +475,123 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_11(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "NULL certificate passed to atom");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+
 		// issue #107... temporarily turning red all the time to avoid repeat
-		ConformanceTestException e = new ConformanceTestException("PKIX.11 needs to always fail until 107 is addressed.");
-		fail(e);
-		/*
+		//ConformanceTestException e = new ConformanceTestException("PKIX.11 needs to always fail until 107 is addressed.");
+		//fail(e);
 		KeyValidationHelper kvh = KeyValidationHelper.getInstance();
 		try {
 			kvh.validateKey(cert, oid);
-			s_logger.error("validateKey() finished");
+			s_logger.debug("validateKey() finished");
 		} catch(ConformanceTestException cte) {
 			fail(cte);
 		}
-		*/
     }
 	
 	//Confirm that the certificate subjectAltName includes FASC-N and that it matches CHUID
 	@DisplayName("PKIX.12 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ParameterizedTest(/*name = "{index} => oid = {0}"*/)
     //@MethodSource("pKIX_x509TestProvider2")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_12(String oid, TestReporter reporter) {
+    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
+    void PKIX_Test_12(String oid, String params, TestReporter reporter) {
 
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		
-		//Check that the oid passed in is not null
-		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("certificate is null");
-			fail(e);
-		}
-		
 		//Check that the oid passed in is not null
 		if (oid == null) {
 			ConformanceTestException e  = new ConformanceTestException("OID is null");
 			fail(e);
 		}
 		
+		//Check that the oid passed in is not null
+		if (params == null) {
+			ConformanceTestException e  = new ConformanceTestException("parameters are null");
+			fail(e);
+		}
 		
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+		
+		List<String> paramList = Arrays.asList(params.split(","));
+		
+		boolean fascnTest = false;
+		boolean uuidTest = false;
+		if(paramList.contains("2.16.840.1.101.3.6.6"))
+			fascnTest = true;
+		
+		if(paramList.contains("1.3.6.1.1.16.4"))
+			uuidTest = true;
+				
+		//Check that the oid passed in is not null
+		if (cert == null) {
+			ConformanceTestException e  = new ConformanceTestException("certificate is null");
+			fail(e);
+		}
+				
 		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
-               
-		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
+		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
+		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o2).getIssuerAsymmetricSignature();
+		if (issuerAsymmetricSignature == null) {
+			ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
+			fail(e);
+		}
 		
+		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
+		if (fascn == null) {
+			ConformanceTestException e = new ConformanceTestException("fascn is null");
+			fail(e);
+		}
+		
+		byte[] guid = ((CardHolderUniqueIdentifier) o2).getgUID();
+		String guidString = Hex.encodeHexString(guid);
+		
+		if (guid == null) {
+			ConformanceTestException e = new ConformanceTestException("signers is null");
+			fail(e);
+		}
+				
+		boolean otherPresent = false;
 		try {
 			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
 	        if (altNames != null) {
 	            for (List<?> altName : altNames) {
 	                Integer altNameType = (Integer) altName.get(0);
-	                if (altNameType == 0) {
+	                if (fascnTest && altNameType == 0) {
 	                	byte[] otherName = (byte[]) altName.toArray()[1];
+	                	
+	                	boolean otherNameFASCN = true;
+	                	OtherName on = OtherName.getInstance(otherName);
+	                    if(!on.getTypeID().toString().contentEquals("2.16.840.1.101.3.6.6")) {
+	                    	otherNameFASCN = false;
+	                    }
+	                	
+	                	
+	                	if(otherNameFASCN) {
                	
-	                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
-	                	assertTrue(Arrays.equals(fascnFromCert, fascn), "FASCN values do not match");
+		                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
+		                	assertTrue(Arrays.equals(fascnFromCert, fascn), "FASCN values do not match");
+	                	}
+	                	else
+	                	{
+	                		otherPresent = true;
+	                	}
+	                } else if(uuidTest && altNameType == 6) {
+	                	
+	                	String altNameStr = (String) altName.get(1);
+	                	altNameStr = altNameStr.replace("-","");
+	                	assertTrue(altNameStr.endsWith(guidString), "uuid values do not match");
+	                }
+	                
+	                if(altNameType != 0 && altNameType != 6){
+	                	otherPresent = true;
 	                }
 	            }
+	        }
+	        
+	        if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
+	        	assertTrue(otherPresent == false, "SAN values other than fascn and uuid are present");
 	        }
 		} catch (CertificateParsingException e) {
 			fail(e);
@@ -486,12 +605,8 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_13(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("certificate is null");
-			fail(e);
-		}
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
@@ -517,13 +632,8 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_14(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("certificate is null");
-			fail(e);
-		}
-		assertNotNull(cert, "NULL certificate passed to atom");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
 		
@@ -543,10 +653,8 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_15(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-        X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -567,10 +675,8 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_16(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		boolean[] ku = cert.getKeyUsage();
 
@@ -589,10 +695,8 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_17(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		PublicKey pubKey = cert.getPublicKey();
 
@@ -615,10 +719,8 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_18(String oid, String policyOid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-        X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
@@ -655,16 +757,27 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_19(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get eku extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.37");
 		
 		//Confirm eku extension is present
 		assertTrue(cpex != null, "EKU extension is absent");
+		boolean isCritical = false;
+		try {
+			X509CertificateHolder ch = new X509CertificateHolder(cert.getEncoded());
+			for(Object o : ch.getCriticalExtensionOIDs()) {
+				ASN1ObjectIdentifier objid = (ASN1ObjectIdentifier) o;
+				if(objid.toString().contentEquals("2.5.29.37")) {
+					isCritical = true;
+				}
+			}
+		} catch (CertificateEncodingException | IOException e1) {
+			s_logger.error("Failed to parse already decoded certificate.");
+		}
+		assertTrue(isCritical, "EKU extension is not marked critical and must be.");
     }
 
 	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
@@ -672,12 +785,13 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_CardAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_20(String oid, String ekuOid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+    void PKIX_Test_20(String oid, String parameters, TestReporter reporter) {
+		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
+		List<String> ekuOids = pmap.get(oid);
+		//String ekuOid = ekuOids.get(0);
+		String ekuOid = "1.2.3.4";
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
 		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
@@ -697,13 +811,10 @@ public class PKIX_X509DataObjectTests {
 		
 	    KeyPurposeId[] kpilist = eku.getUsages();
 	    for (KeyPurposeId kpiInfo : kpilist) {
-	    	if(kpiInfo.getId().compareTo(ekuOid) == 0) {
-	    		containsOOID = true;
-	    	}
+	    	s_logger.debug("Testing key purpose OID {} for container {}", kpiInfo.getId().toString(), oid);
+	    	assert(ekuOids.contains(kpiInfo.getId().toString()));
 	    }
 	    
-	    //Confirm that id-PIV-cardAuth 2.16.840.1.101.3.6.8 OID is present in eku
-	    assertTrue(containsOOID, "EKU does not contain " + ekuOid);
 		
     }
 
@@ -712,10 +823,9 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_CardAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_21(String oid, String ekuOid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+
 		//Get certificate policies extension
 		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
 		
@@ -742,20 +852,9 @@ public class PKIX_X509DataObjectTests {
 	    assertTrue(containsOOID, "EKU does not contain " + ekuOid);
 	}
 
-	void PKIX_Test_22x(X509Certificate cert, TestReporter reporter) {
-		assertNotNull(cert, "NULL certificate passed to atom");
-				
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
+	void PKIX_Test_22x(String oid, TestReporter reporter) {
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
        
         byte[] extVal = cert.getExtensionValue("2.5.29.31");
         
@@ -794,22 +893,9 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_22(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 				
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
        
         byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
 	    if (extVal != null) {
@@ -841,22 +927,9 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_23(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 				
-        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-        assertNotNull(css);
-        if(css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-        	ConformanceTestException e  = new ConformanceTestException("Login has already been attempted and failed. Not trying again.");
-			fail(e);
-        }
-        try {
-			CardUtils.setUpPivAppHandleInSingleton();
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
        
         byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
         
@@ -894,12 +967,9 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_24(String containerOid, String oid, TestReporter reporter) {
-		assertNotNull(containerOid, "NULL certificate passed to atom");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(containerOid);
+		assertNotNull(cert, "Certificate could not be read for " + containerOid);
 		assertNotNull(oid, "NULL oid passed to atom");
-		PIVDataObject o = AtomHelper.getDataObject(containerOid);
-        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
 				 
         byte[] extVal = cert.getExtensionValue(oid);
         assertNotNull(extVal);
@@ -932,6 +1002,7 @@ public class PKIX_X509DataObjectTests {
         		assertNotNull(crlDP);
         		
         		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
+        		boolean gotHttp = true;
 				for (DistributionPoint dp : descriptions) {
 					DistributionPointName dp_name = dp.getDistributionPoint();
 					if (dp_name.getType() == DistributionPointName.FULL_NAME) {
@@ -941,10 +1012,16 @@ public class PKIX_X509DataObjectTests {
 		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
 		                    {
 		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
-		                        assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl " + url);
+		                        if(url.startsWith("http")) {
+		                        	gotHttp = true;
+									assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl " + url);
+		                        }
 		                    }
 		                }
 		            }
+				}
+				if(!gotHttp) {
+					s_logger.warn("PKIX.24 only passed because there was no http CRLDP. PKIX.23 will fail on this DP.");
 				}
 			} catch (IOException e) {
 				fail(e);
@@ -959,10 +1036,8 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_25(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-        
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
-		assertNotNull(cert, "Certificate retrived from X509CertificateDataObject object is NULL");
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 				      
         byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
         assertNotNull(extVal);
@@ -977,6 +1052,10 @@ public class PKIX_X509DataObjectTests {
 			        GeneralName location = ad.getAccessLocation();
 			        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
 			            String url = location.getName().toString();
+			            
+			            // Some SSPs will also include other URLs (e.g. LDAP) that should not cause this test to fail.
+			            if(!url.startsWith("http")) continue;
+			            	
 			            
 			            try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
 			            		ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -1039,10 +1118,8 @@ public class PKIX_X509DataObjectTests {
     @MethodSource("pkix_CHUIDTestProvider")
     void PKIX_Test_26(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		
-		X509Certificate cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		Calendar cal = Calendar.getInstance();
 		Date today = cal.getTime();
@@ -1054,7 +1131,7 @@ public class PKIX_X509DataObjectTests {
 	private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {
 		HashMap<String, X509Certificate> rv = new HashMap<String, X509Certificate>();
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		if(css == null) s_logger.error("Failed to retrieve card settings singleton while constructing test parameters");
+		//if(css == null) s_logger.error("Failed to retrieve card settings singleton while constructing test parameters");
 		assertNotNull(css, "Failed to get instance of Card Settings Singleton");
 		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
 			ConformanceTestException e = new ConformanceTestException(
@@ -1076,14 +1153,14 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(c, "Invalid card handle in singleton");
 		
 		for(String oid : oids) {
-			s_logger.debug("Retrieving certificate for oid {}", oid);
+			//s_logger.debug("Retrieving certificate for oid {}", oid);
 			PIVDataObject obj = PIVDataObjectFactory.createDataObjectForOid(oid);
 			assertNotNull(obj, "Failed to allocate PIV data object");
 			result = piv.pivGetData(c, oid, obj);
 			if(result != MiddlewareStatus.PIV_OK) {
 				// this is only a warning here because it is up to the consumer of this function to decide
 				// whether a missing cert constitutes an assertion failure
-				s_logger.warn("pivGetData() for {} returned {}", oid, result);
+				//s_logger.warn("pivGetData() for {} returned {}", oid, result);
 				rv.put(oid, null);
 			}
 			boolean  decoded = obj.decode();

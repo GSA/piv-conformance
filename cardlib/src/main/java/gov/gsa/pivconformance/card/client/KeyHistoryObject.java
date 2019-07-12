@@ -16,9 +16,17 @@ import java.util.List;
 public class KeyHistoryObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(KeyHistoryObject.class);
-    private int m_keysWithOnCardCerts = 0;
-    private int m_keysWithOffCardCerts = 0;
+    // initialize to -1 so we can differentiate between no key history and failure to decode
+    private int m_keysWithOnCardCerts = -1;
+    private int m_keysWithOffCardCerts = -1;
     private byte[] m_offCardCertUrl;
+    
+    // XXX *** This should probably land in the base class, but at least for this test, it won't
+    private byte[] m_tlvBuf = null;
+    public byte[] getTlvBuf() {
+    	return m_tlvBuf;
+    }
+    
 
     /**
      *
@@ -93,8 +101,8 @@ public class KeyHistoryObject extends PIVDataObject {
         BerTlvs outer = tlvp.parse(rawBytes);
         List<BerTlv> outerTlvs = outer.getList();
         if(outerTlvs.size() == 1 && outerTlvs.get(0).isTag(new BerTag(0x53))) {
-            byte[] tlvBuf = outerTlvs.get(0).getBytesValue();
-            outer = tlvp.parse(tlvBuf);
+            m_tlvBuf = outerTlvs.get(0).getBytesValue();
+            outer = tlvp.parse(m_tlvBuf);
         }
         for(BerTlv tlv : outer.getList()) {
             byte[] tag = tlv.getTag().bytes;
@@ -110,7 +118,7 @@ public class KeyHistoryObject extends PIVDataObject {
             s_logger.debug("found tag: {}", Hex.encodeHexString(tag));
         }
 
-        if (m_keysWithOnCardCerts == 0 || m_keysWithOffCardCerts == 0)
+        if (m_keysWithOnCardCerts == -1 || m_keysWithOffCardCerts == -1)
             return false;
 
         return true;

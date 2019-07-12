@@ -31,6 +31,8 @@ public class GuiRunnerAppController {
 	private ToggleTestTreeAction m_toggleTreeAction;
 	private DisplayAboutDialogAction m_displayAboutDialogAction;
 	private DisplayTestReportAction m_displayTestReportAction;
+	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
+	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
 	
 	public void reset() {
 		m_testDatabase = null;
@@ -42,6 +44,8 @@ public class GuiRunnerAppController {
 		m_toggleTreeAction = null;
 		m_displayAboutDialogAction = null;
 		m_displayTestReportAction = null;
+		m_openDefaultPIVDatabaseAction = null;
+		m_openDefaultPIVIDatabaseAction = null;
 		createActions();
 	}
 	
@@ -86,6 +90,14 @@ public class GuiRunnerAppController {
 		return m_openDatabaseAction;
 	}
 
+	public OpenDefaultPIVDatabaseAction getOpenDefaultPIVDatabaseAction() {
+		return m_openDefaultPIVDatabaseAction;
+	}
+
+	public OpenDefaultPIVIDatabaseAction getOpenDefaultPIVIDatabaseAction() {
+		return m_openDefaultPIVIDatabaseAction;
+	}
+	
 	public ShowDebugWindowAction getShowDebugWindowAction() {
 		return m_showDebugWindowAction;
 	}
@@ -164,7 +176,13 @@ public class GuiRunnerAppController {
 	    m_toggleTreeAction = new ToggleTestTreeAction("Toggle test tree view", toggleIcon, "Show or hide the test tree");
 	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");
 	    m_displayTestReportAction = new DisplayTestReportAction("Display Test Report", displayReportIcon, "Display test report for current log");
-	    
+
+
+	    ImageIcon pivIcon = getActionIcon("PIV", "Open");
+	    m_openDefaultPIVDatabaseAction = new OpenDefaultPIVDatabaseAction("Open Default PIV Database", pivIcon, "Open Default PIV conformance test database");
+	
+	    ImageIcon pivIIcon = getActionIcon("PIVI", "Open");
+	    m_openDefaultPIVIDatabaseAction = new OpenDefaultPIVIDatabaseAction("Open Default PIV-I Database", pivIIcon, "Open Default PIV-I conformance test database");
 	}
 	
 	protected ImageIcon getActionIcon(String imageName, String altText) {

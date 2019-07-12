@@ -48,6 +48,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -58,6 +60,7 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.SecurityObject;
 
 public class CMSTests {
+	static Logger s_logger = LoggerFactory.getLogger(CMSTests.class);
 
 	//Verify that the asymmetric digital field contains a CMS signed data object with no encapsulated content
 	@DisplayName("CMS.1 test")
@@ -170,14 +173,11 @@ public class CMSTests {
 				throw e;
 			}
 			//Confirm encapsulated content is absent
-			if (issuerAsymmetricSignature.isDetachedSignature() == false) {
-				Exception e = new Exception("isDetachedSignature is false");
-				throw e;
-			}
-			ContentInfo contentInfo = ((CardHolderUniqueIdentifier) o).getContentInfo();
-			ASN1Encodable content = contentInfo.getContent();
-			//Confirm that encapsulated content is absent
-			assertTrue(content == null);
+			assertTrue(issuerAsymmetricSignature.getSignedContent() == null, "encapsulated content is NOT absent");
+			
+			String contentType = issuerAsymmetricSignature.getSignedContentTypeOID();
+			//Confirm that content type is  id-PIV-CHUIDSecurityObject
+			assertTrue(contentType.compareTo("2.16.840.1.101.3.6.1") == 0, "eContentType is NOT id-piv-CHUIDSecurityObject");
 		}
 		catch (Exception e) {
 			fail(e);
@@ -490,10 +490,11 @@ public class CMSTests {
 	//Confirm that signing certificate contains id-PIV-content-signing (2.16.840.1.101.3.6.7) in EKU extension
 	@DisplayName("CMS.15 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
-    void CMS_Test_15(String oid, TestReporter reporter) {
+    //@MethodSource("CMS_TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void CMS_Test_15(String container, String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		PIVDataObject o = AtomHelper.getDataObject(container);
 		
 		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
 		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
@@ -514,7 +515,7 @@ public class CMSTests {
 		}
 		
 		//Confirm id-PIV-content-signing (2.16.840.1.101.3.6.7) present
-		assertTrue(ekuList.contains("2.16.840.1.101.3.6.7"));
+		assertTrue(ekuList.contains(oid));
     }
 	
 	//Validate that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field)
@@ -546,26 +547,34 @@ public class CMSTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void CMS_Test_17(String oid, List<String> oidList, TestReporter reporter) {
+    void CMS_Test_17(String oid, String params, TestReporter reporter) {
 		try {
-			PIVDataObject o = AtomHelper.getDataObject(oid);
+			String[] oidList = params.split(",");
+			boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+			if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+				s_logger.info("Optional container {} is absent from the card.", oid);
+				return;
+			}
+			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObjectWithAuth(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
 			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-			CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+			CMSSignedData issuerAsymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			if (issuerAsymmetricSignature == null) {
-				Exception e = new Exception("Issuer Asymmetric Signature is null");
+				ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
 				throw e;
 			}
-			byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
+			/*
+			 * This appears to be a holdover from a previous test
+			 * byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
 			if (fascn == null) {
-				Exception e = new Exception("fascn is null");
+				ConformanceTestException e = new ConformanceTestException("fascn is null");
 				throw e;
-			}
-			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
+			}*/
 			
 			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
 			if (signers == null) {
-				Exception e = new Exception("signers is null");
+				ConformanceTestException e = new ConformanceTestException("signers is null");
 				throw e;
 			}
 	
@@ -575,21 +584,29 @@ public class CMSTests {
 	
 				SignerId signerId = signer.getSID();
 				if (signerId == null) {
-					Exception e = new Exception("signerId is null");
+					ConformanceTestException e = new ConformanceTestException("signerId is null");
 					throw e;
 				}
 				AttributeTable attributeTable = signer.getSignedAttributes();
 				if (attributeTable == null) {
-					Exception e = new Exception("attributeTable is null");
+					ConformanceTestException e = new ConformanceTestException("attributeTable is null");
 					throw e;
 				}
-				
-				Iterator<String> iterator = oidList.iterator();
-				while (iterator.hasNext()) {
-					String attrOid = iterator.next();
-					ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(attrOid);
-					Attribute attr = attributeTable.get(pivFASCN_OID);
-					assertNotNull(attr, "attr " + attrOid + " is null");
+				HashMap<String, Attribute> attrsFound = new HashMap<String, Attribute>();
+				// XXX *** TODO: move this comparison to the CHUID object. too specific for this atom
+				byte[] fascn = chuid.getfASCN();
+				String fascnOid = "2.16.840.1.101.3.6.6";
+				byte[] guid = chuid.getgUID();
+				String guidOid = "1.3.6.1.1.16.4";
+				for (int i = 0; i < oidList.length; i++) {
+					String attrOid = oidList[i];
+					ASN1ObjectIdentifier currAttrOid = new ASN1ObjectIdentifier(attrOid);
+					Attribute attr = attributeTable.get(currAttrOid);
+					assertNotNull(attr, "Expected to find " + attrOid + " for container " + oid);
+					attrsFound.put(attrOid, attr);
+					if(oid == guidOid) assertTrue(Arrays.equals(attr.getEncoded(), guid), "GUID from signed attribute does not match card guid");
+					if(oid == fascnOid) assertTrue(Arrays.equals(attr.getEncoded(), fascn), "GUID from signed attribute does not match card guid");
+					//assertNotNull(attr, "attr " + attrOid + " is null");
 				}
 			}
 		}
@@ -609,8 +626,7 @@ public class CMSTests {
 		
 		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
 
-		//XXX Failing this test with the test cards
-		assertTrue(signedData.getVersion() == 1);
+		assertTrue(signedData.getVersion() == 3);
 		
     }
 	

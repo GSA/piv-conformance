@@ -2,6 +2,14 @@ package gov.gsa.conformancelib.utilities;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.cert.X509Certificate;
+
+import org.bouncycastle.cms.CMSSignedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,11 +17,15 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.conformancelib.utilities.CardUtils;
+import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
+import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 
 public class AtomHelper {
     private static final Logger s_logger = LoggerFactory.getLogger(AtomHelper.class);
@@ -34,6 +46,31 @@ public class AtomHelper {
 			ConformanceTestException e  = new ConformanceTestException("OID is null");
 			fail(e);
 		}
+		
+// This snippet can be used to target a folder full of containers
+//		byte[] allBytes = null;
+//		 try (
+//		            InputStream inputStream = new FileInputStream("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin");
+//		            
+//		        ) {
+//		 
+//		            long fileSize = new File("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin").length();
+//		 
+//		            allBytes = new byte[(int) fileSize];
+//		 
+//		            inputStream.read(allBytes);
+//		 
+//		        } catch (IOException ex) {
+//		            ex.printStackTrace();
+//		        }
+//		 PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+//		 o.setOID(oid);
+//         o.setBytes(allBytes);
+//         
+// 		if (o.decode() != true) {
+//			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
+//			fail(e);
+//		}
 		
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		
@@ -97,6 +134,35 @@ public class AtomHelper {
 		return o;		
 	}
 	
+	/**
+	 * Get a certificate from a container specified by oid
+	 * @param oid
+	 * @return Certificate from container
+	 */
+	public static X509Certificate getCertificateForContainer(String oid) {
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		X509Certificate cert = null;
+		if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) != 0) {
+			cert = ((X509CertificateDataObject) o).getCertificate();
+		} else {
+			cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+		}
+		return cert;
+	}
+	
+	public static CMSSignedData getSignedDataForObject(PIVDataObject o) {
+		CMSSignedData rv = null;
+		if(!o.isSigned()) {
+			return null;
+		}
+		if(o instanceof CardHolderUniqueIdentifier) {
+			rv = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+		} else if(o instanceof CardholderBiometricData) {
+			rv = ((CardholderBiometricData) o).getSignedData();
+		}
+		return rv;
+	}
+	
     /**
     * 
     * Helper function that retrieves  a data object from the card based on the container OID, authenticating to the
@@ -115,6 +181,31 @@ public class AtomHelper {
 			fail(e);
 		}
 		
+//  This snipper can be used to target a folder full of containers
+//		byte[] allBytes = null;
+//		 try (
+//		            InputStream inputStream = new FileInputStream("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin");
+//		            
+//		        ) {
+//		 
+//		            long fileSize = new File("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin").length();
+//		 
+//		            allBytes = new byte[(int) fileSize];
+//		 
+//		            inputStream.read(allBytes);
+//		 
+//		        } catch (IOException ex) {
+//		            ex.printStackTrace();
+//		        }
+//		 PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+//		 o.setOID(oid);
+//        o.setBytes(allBytes);
+//		
+// 		if (o.decode() != true) {
+//			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
+//			fail(e);
+//		}
+        
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		
 		//Check that CardSettingsSingleton
@@ -176,5 +267,80 @@ public class AtomHelper {
 		}
 		
 		return o;		
+	}
+	
+	/**
+	 * 
+	 * Helper function that checks whether a data object is present based on
+	 * container OID, possibly authenticating to the card along the way.
+	 * 
+	 * This function will only throw RuntimeErrors and will not cause an atom to fail
+	 * 
+	 * @param OID  String containing OID value identifying data object whose data
+	 *             content is to be retrieved
+	 * @param authenticate controls whether the helper will attempt to log in
+	 * @return true if the object was found, false otherwise
+	 */
+	public static boolean isDataObjectPresent(String oid, boolean authenticate) {
+		// Check that the oid passed in is not null
+		if (oid == null) {
+			throw new IllegalArgumentException("isDataObjectPresent called with null oid");
+		}
+
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+
+		// Check that CardSettingsSingleton
+		if (css == null) {
+			s_logger.error("isDataObjectPresent({},{}) called, but couldn't get an instance of CardSettingsSingleton", oid, authenticate);
+			return false;
+		}
+
+		if (authenticate && css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
+			s_logger.error("isDataObjectPresent({},{}) called, but login has already been attempted unsuccessfully", oid, authenticate);
+			return false;
+		}
+
+		if (authenticate) {
+			try {
+				CardUtils.setUpPivAppHandleInSingleton();
+				CardUtils.authenticateInSingleton(false);
+			} catch (ConformanceTestException e) {
+				s_logger.error("isDataObjectPresent({},{}) called, but login failed with a ConformanceTestException", oid, authenticate, e);
+				return false;
+			} 
+		}
+		// Get card handle and PIV handle
+		CardHandle ch = css.getCardHandle();
+
+		if (ch == null) {
+			s_logger.error("isDataObjectPresent({},{}) failed to obtain a valid card handle", oid, authenticate);
+			return false;
+		}
+
+		AbstractPIVApplication piv = css.getPivHandle();
+
+		if (piv == null) {
+			s_logger.error("isDataObjectPresent({},{}) failed to obtain a valid PIV handle", oid, authenticate);
+			return false;
+		}
+		
+		// Created an object corresponding to the OID value
+		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
+
+		if (o == null) {
+			s_logger.error("isDataObjectPresent() failed to allocate a PIVDataObject for {} {} authentication.", oid, authenticate ? "with":"without");
+			return false;
+		}
+
+		// Get data from the card corresponding to the OID value
+		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
+
+		if (result != MiddlewareStatus.PIV_OK) {
+			s_logger.error("isDataObjectPresent() failed to get data for {} {} authentication: {}.", oid, authenticate ? "with":"without", result);
+			return false;
+		}
+
+		// if we got here, the object is present and has now been cached. others can attempt a decode and complain if that fails
+		return true;
 	}
 }

@@ -1,5 +1,6 @@
 package gov.gsa.conformancelib.tests;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -79,50 +80,26 @@ public class SP800_73_4PrintedInfoTests {
 		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
 		
 		BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
+		BerTag berIssuerIdTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
 		BerTag berOrgAffiliationTag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG);
 		BerTag berOrgAffiliationL2Tag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG);
 		
 		//Make sure Name tage is present
 		assertTrue(tagList.contains(berNameTag));
-		//Get index of the name tag
-		int orgIDTagIndex = tagList.indexOf(berNameTag);
 		
 		//If organizational affiliation tag is present check the order
+		
 		if(tagList.contains(berOrgAffiliationTag)) {
-			
-			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex).bytes,TagConstants.NAME_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+1).bytes,TagConstants.EMPLOYEE_AFFILIATION_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+2).bytes,TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+3).bytes,TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+4).bytes,TagConstants.ISSUER_IDENTIFICATION_TAG));
-			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+5).bytes,TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG));
-		}
-		
-		
-		//If organizational affiliation L2 tag is present check the order
-		if(tagList.contains(berOrgAffiliationL2Tag)) {
-
-			//Different conditions if organizational affiliation is also present 
-			if(tagList.contains(berOrgAffiliationTag)) {
-				
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex).bytes,TagConstants.NAME_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+1).bytes,TagConstants.EMPLOYEE_AFFILIATION_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+2).bytes,TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+3).bytes,TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+4).bytes,TagConstants.ISSUER_IDENTIFICATION_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+5).bytes,TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+6).bytes,TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG));
-			
-			} else {
-				
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex).bytes,TagConstants.NAME_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+1).bytes,TagConstants.EMPLOYEE_AFFILIATION_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+2).bytes,TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+3).bytes,TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+4).bytes,TagConstants.ISSUER_IDENTIFICATION_TAG));
-				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+5).bytes,TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG));				
-			
+			int issuerIdTagIndex = tagList.indexOf(berIssuerIdTag);	
+			assertFalse(issuerIdTagIndex == -1, "Issuer Identification tag must be present");
+			int orgAffiliationTagIndex = tagList.indexOf(berOrgAffiliationTag);
+			assertTrue(orgAffiliationTagIndex == issuerIdTagIndex + 1, "Tag 0x07 must follow tag 0x06 if present");
+			int orgAffiliationTagL2Index = tagList.indexOf(berOrgAffiliationL2Tag);
+			if(orgAffiliationTagL2Index != -1) {
+				assertTrue(orgAffiliationTagL2Index == orgAffiliationTagIndex + 1, "Tag 0x08 must follow tag 0x07 if present");
 			}
+		} else {
+			assertFalse(tagList.contains(berOrgAffiliationL2Tag));
 		}
 	}
 	
@@ -211,14 +188,26 @@ public class SP800_73_4PrintedInfoTests {
 				throw e;
 			}
 			
-			int orgIDTagIndex = tagList.indexOf(berNameTag);
+			// Moving to make assertions about the indexes so that this test does exactly what it says
+			// in the description. I think based on my read of 73-4 appendix A what this was doing should be correct
+			// but we should re-litigate that later if needed; the description as written makes no assertions about
+			// the printed information expiration date tag and GSA PIVs follow the letter of the description in this case.
+			int nameTagIndex = tagList.indexOf(berNameTag);
+			int employeeAffiliationTagIndex = tagList.indexOf(berEmployeeAffiliationTag);
+			int serialNumberTagIndex = tagList.indexOf(berAgencyCardSerialTag);
+			int issuerIdTagIndex = tagList.indexOf(berIssuerIDTag);
+			assertTrue(nameTagIndex < employeeAffiliationTagIndex, "Tag 0x02 must follow tag 0x01");
+			assertTrue(employeeAffiliationTagIndex < serialNumberTagIndex , "Tag 0x05 must follow tag 0x02");
+			assertTrue(serialNumberTagIndex < issuerIdTagIndex, "Tag 0x06 must follow tag 0x05");
 			
+			/*
 			//Confirm tags 0x01, 0x02, 0x05, 0x06 are in right order
 			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex).bytes,TagConstants.NAME_TAG));
 			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+1).bytes,TagConstants.EMPLOYEE_AFFILIATION_TAG));
 			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+2).bytes,TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG));
 			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+3).bytes,TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG));
 			assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+4).bytes,TagConstants.ISSUER_IDENTIFICATION_TAG));
+			*/
 		}
 		catch (Exception e) {
 			fail(e);
@@ -237,6 +226,7 @@ public class SP800_73_4PrintedInfoTests {
 			List<BerTag> tagList = ((PrintedInformation) o).getTagList();
 			
 			BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
+			BerTag berIssuerIdentificationTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
 			BerTag berOrgAffiliationTag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG);
 			BerTag berOrgAffiliationL2Tag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG);
 			BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
@@ -247,7 +237,7 @@ public class SP800_73_4PrintedInfoTests {
 				throw e;
 			}
 			//Get index of the name tag
-			int orgIDTagIndex = tagList.indexOf(berNameTag);
+			// int orgIDTagIndex = tagList.indexOf(berNameTag);
 			
 			
 			//Make sure EDC tag is present
@@ -255,7 +245,22 @@ public class SP800_73_4PrintedInfoTests {
 				Exception e = new Exception("ERROR_DETECTION_CODE_TAG is missing");
 				throw e;
 			}
+			// Moving to make assertions about the indexes so that this test does exactly what it says
+			// in the description. I think based on my read of 73-4 appendix A what this was doing should be correct
+			// but we should re-litigate that later if needed; the description as written makes no assertions about
+			// the printed information expiration date tag and GSA PIVs follow the letter of the description in this case.
+			int ecTagIndex = tagList.indexOf(berECTag);
+			assertTrue(ecTagIndex == tagList.size()-1, "ERROR_DETECTION_TAG must be the last tag");
+			BerTag previousTag = tagList.get(ecTagIndex - 1);
+			assertTrue(
+					previousTag.equals(berOrgAffiliationL2Tag) ||
+					previousTag.equals(berOrgAffiliationTag) ||
+					previousTag.equals(berIssuerIdentificationTag),
+					"Tag 0xFE must follow either tag 0x06, 0x07, 0x08."
+					);
 			
+			
+			/*
 			boolean optionalPresent = false;
 			
 			//Check the order to make sure EDC tag is last
@@ -327,7 +332,7 @@ public class SP800_73_4PrintedInfoTests {
 				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+3).bytes,TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG));
 				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+4).bytes,TagConstants.ISSUER_IDENTIFICATION_TAG));
 				assertTrue(Arrays.equals(tagList.get(orgIDTagIndex+5).bytes,TagConstants.ERROR_DETECTION_CODE_TAG));
-			}
+			}*/
 		}
 		catch (Exception e) {
 			fail(e);
