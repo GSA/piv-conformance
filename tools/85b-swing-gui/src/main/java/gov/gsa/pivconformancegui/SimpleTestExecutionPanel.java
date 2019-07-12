@@ -105,6 +105,25 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_runButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					//Armen -- Added this snippet to refresh card information before each run, otherwise if cards are swapped and 
+					//run tests button is click tests fail.  Probably would be better to have an action that would detect
+					//a new card do this when new card is detected but not sure how to do that right now
+					int selected = m_readerComboBox.getSelectedIndex();
+					CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+					css.reset();
+					css.setReaderIndex(selected);
+					try {
+						CardUtils.setUpReaderInSingleton();
+					} catch (ConformanceTestException e1) {
+						s_logger.error("Caught ConformanceTestException setting up card reader", e1);
+						JOptionPane msgBox = new JOptionPane("Unable to configure reader: " + m_readerComboBox.getSelectedItem() + ".\n" +
+								e1.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JDialog dialog = msgBox.createDialog(SimpleTestExecutionPanel.this, "Error");
+						dialog.setAlwaysOnTop(true);
+						dialog.setVisible(true);
+					}
+					refreshReaderStatus(css);
+					
 					if(!CardUtils.setUpPivAppHandleInSingleton()) {
 						s_logger.error("CardUtils.setUpPivAppHandleInSingleton() returned false");
 						JOptionPane msgBox = new JOptionPane("Error connecting to card in order to verify PIN.", JOptionPane.ERROR_MESSAGE);
