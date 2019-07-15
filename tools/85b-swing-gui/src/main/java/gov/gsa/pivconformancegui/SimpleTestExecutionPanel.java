@@ -42,6 +42,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
+import java.awt.Component;
 
 public class SimpleTestExecutionPanel extends JPanel {
 	
@@ -98,6 +99,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		JLabel lblReaderStatus = new JLabel("Reader Status");
 		
 		m_readerStatusField = new JTextField();
+		m_readerStatusField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		m_readerStatusField.setEditable(false);
 		m_readerStatusField.setColumns(10);
 		
@@ -196,6 +198,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		});
 		
 		m_testProgressBar = new JProgressBar();
+		m_testProgressBar.setAlignmentY(Component.TOP_ALIGNMENT);
 		
 		JButton btnRefreshReaders = new JButton("Refresh Readers");
 		btnRefreshReaders.addActionListener(new ActionListener() {
@@ -245,23 +248,23 @@ public class SimpleTestExecutionPanel extends JPanel {
 							.addGap(25)
 							.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(58)
-							.addComponent(btnRefreshReaders)
-							.addGap(6)
-							.addComponent(m_runButton))
-						.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
-							.addGroup(groupLayout.createSequentialGroup()
-								.addGap(10)
-								.addComponent(lblReaderStatus)
-								.addGap(26)
-								.addComponent(m_readerStatusField))
-							.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-								.addGap(461)
-								.addComponent(btnOpenOtherDatabase)))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, 638, GroupLayout.PREFERRED_SIZE)))
-					.addContainerGap(103, Short.MAX_VALUE))
+							.addGap(10)
+							.addComponent(lblReaderStatus)
+							.addGap(26)
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(btnOpenOtherDatabase)
+								.addComponent(m_readerStatusField, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE))))
+					.addGap(103))
+				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(m_testProgressBar, GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
+					.addContainerGap())
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(106)
+					.addComponent(btnRefreshReaders, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(m_runButton)
+					.addGap(317))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -286,21 +289,22 @@ public class SimpleTestExecutionPanel extends JPanel {
 							.addGap(3)
 							.addComponent(lblTestDatabase))
 						.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(1)
-					.addComponent(btnOpenOtherDatabase)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(3)
+							.addGap(27)
 							.addComponent(lblReaderStatus))
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(1)
+							.addGap(25)
 							.addComponent(m_readerStatusField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addGap(84)
-					.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(92)
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+					.addGap(18)
+					.addComponent(btnOpenOtherDatabase)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnRefreshReaders)
-						.addComponent(m_runButton)))
+						.addComponent(m_runButton))
+					.addContainerGap(230, Short.MAX_VALUE))
 		);
 		setLayout(groupLayout);
 		
