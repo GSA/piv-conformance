@@ -82,6 +82,7 @@ eclipse {
 mainClassName = 'gov.gsa.pivconformancegui.GuiRunnerApplication'
 
 jar {
+	dependsOn(shadowJar { classifier = null })
     manifest {
         attributes 'Main-Class': mainClassName
     }
