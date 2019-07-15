@@ -21,11 +21,11 @@ IF %VENV% NEQ venv (
 )
 
 FOR %%x IN (
-	85b_test_definitions_PIV_ICAM_Test_Cards
-	85b_test_definitions_PIV-I_ICAM_Test_Cards
-	85b_test_definitions_PIV_Production_Cards
-	85b_test_definitions_PIV-I_Production_Cards
-	85b_test_definitions_PIV-I_Carillon
+	PIV_ICAM_Test_Cards
+	PIV-I_ICAM_Test_Cards
+	PIV_Production_Cards
+	PIV-I_Production_Cards
+	PIV-I_Carillon
 ) do (
 	ECHO "Processing %%x.xlsx"
 	IF EXIST %%x.db DEL %%x.db

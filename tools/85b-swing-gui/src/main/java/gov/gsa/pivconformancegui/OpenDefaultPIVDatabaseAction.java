@@ -33,7 +33,7 @@ public class OpenDefaultPIVDatabaseAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFrame mainFrame = GuiRunnerAppController.getInstance().getMainFrame();
-		String fullPath = "85b_test_definitions_PIV_Production_Cards.db";
+		String fullPath = "PIV_Production_Cards.db";
 		try {
 			ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 			db.openDatabaseInFile(fullPath);
