@@ -599,7 +599,7 @@ INSERT INTO "TestCases" VALUES(331, NULL,'10.5.1.11','Message digest from signed
 INSERT INTO "TestCases" VALUES(332, NULL,'10.5.1.12','Value of the subject DN obtained from the certificate in the certificates field in the SignedData is identical to that obtained from the pivSigner-DN attribute of the signedAttrs of the SignerInfo.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(333, NULL,'10.5.1.13','Signature algorithm value for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm is in accordance with Table 3-3 of SP80078.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(334, NULL,'10.5.1.14','The signatureAlgorithm field specified in the SignerInfo field for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm shall be in accordance with Table 3-3 of SP 80078.','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(335, NULL,'10.5.1.15','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(335, NULL,'10.5.1.15','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(336, NULL,'10.5.1.16','Signed attributes include pivFASC-N and entryUUID attribute','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(337, NULL,'10.5.1.17','The signed attribute pivFASC-N matches FASC-N read from CHUID container.','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(338, NULL,'10.5.1.18','The signed attribute entryUUID matches GUID read from CHUID container.','',NULL, 1, 1);
@@ -740,7 +740,7 @@ INSERT INTO "TestCases" VALUES(472, NULL,'11.7.2.6.1','authorityInformationAcces
 INSERT INTO "TestCases" VALUES(473, NULL,'11.7.2.6.2','authorityInfoAccess field contains an id-ad-caIssuers','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(474, NULL,'11.7.2.6.3','The accessLocation for this AccessMethod is of type uniformResourceIdentifier','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(475, NULL,'11.7.2.6.4','URI scheme is http (not https)','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(476, NULL,'11.7.2.6.6','File contains a CMS a certs-only CMS message (see RFC 3851).','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(476, NULL,'11.7.2.6.5','File contains a CMS a certs-only CMS message (see RFC 3851).','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestsToSteps" VALUES(1, 1,4,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(2, 2,5,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(3, 3,6,0,NULL);
