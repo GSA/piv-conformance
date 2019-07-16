@@ -22,10 +22,10 @@ pip install xlwt
 pip install xlsxwriter
 source ./venv-xlrd/bin/activate
 
-for F in 85b_test_definitions_PIV_ICAM_Test_Cards \
-        85b_test_definitions_PIV-I_ICAM_Test_Cards \
-        85b_test_definitions_PIV_Production_Cards \
-        85b_test_definitions_PIV-I_Production_Cards
+for F in PIV_ICAM_Test_Cards \
+        PIV-I_ICAM_Test_Cards \
+        PIV_Production_Cards \
+        PIV-I_Production_Cards
 do
         BASE=$F
   echo "Processing $F..."

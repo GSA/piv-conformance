@@ -96,6 +96,7 @@ public final class CardSettingsSingleton {
     	m_globalPin = null;
     	m_terminal = null;
     	m_pivHandle = null;
+    	m_cardHandle = null;
     	m_lastLoginStatus = LOGIN_STATUS.LOGIN_NOT_TRIED;
     }
 

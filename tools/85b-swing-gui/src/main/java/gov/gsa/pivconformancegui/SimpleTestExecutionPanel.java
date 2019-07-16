@@ -42,6 +42,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
+import java.awt.Component;
 
 public class SimpleTestExecutionPanel extends JPanel {
 	
@@ -98,6 +99,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		JLabel lblReaderStatus = new JLabel("Reader Status");
 		
 		m_readerStatusField = new JTextField();
+		m_readerStatusField.setAlignmentX(Component.LEFT_ALIGNMENT);
 		m_readerStatusField.setEditable(false);
 		m_readerStatusField.setColumns(10);
 		
@@ -105,6 +107,25 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_runButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					//Armen -- Added this snippet to refresh card information before each run, otherwise if cards are swapped and 
+					//run tests button is click tests fail.  Probably would be better to have an action that would detect
+					//a new card do this when new card is detected but not sure how to do that right now
+					int selected = m_readerComboBox.getSelectedIndex();
+					CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+					css.reset();
+					css.setReaderIndex(selected);
+					try {
+						CardUtils.setUpReaderInSingleton();
+					} catch (ConformanceTestException e1) {
+						s_logger.error("Caught ConformanceTestException setting up card reader", e1);
+						JOptionPane msgBox = new JOptionPane("Unable to configure reader: " + m_readerComboBox.getSelectedItem() + ".\n" +
+								e1.getMessage(), JOptionPane.ERROR_MESSAGE);
+						JDialog dialog = msgBox.createDialog(SimpleTestExecutionPanel.this, "Error");
+						dialog.setAlwaysOnTop(true);
+						dialog.setVisible(true);
+					}
+					refreshReaderStatus(css);
+					
 					if(!CardUtils.setUpPivAppHandleInSingleton()) {
 						s_logger.error("CardUtils.setUpPivAppHandleInSingleton() returned false");
 						JOptionPane msgBox = new JOptionPane("Error connecting to card in order to verify PIN.", JOptionPane.ERROR_MESSAGE);
@@ -177,6 +198,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		});
 		
 		m_testProgressBar = new JProgressBar();
+		m_testProgressBar.setAlignmentY(Component.TOP_ALIGNMENT);
 		
 		JButton btnRefreshReaders = new JButton("Refresh Readers");
 		btnRefreshReaders.addActionListener(new ActionListener() {
@@ -186,7 +208,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 			}
 		});
 		
-		String lblImageLocation = "/images/gsa_logo.png";
+		String lblImageLocation = "/icons/gsa_logo.png";
 		URL imageUrl = SimpleTestExecutionPanel.class.getResource(lblImageLocation);
 		ImageIcon imageIcon = null;
 		if(imageUrl == null) {
@@ -194,8 +216,9 @@ public class SimpleTestExecutionPanel extends JPanel {
 		} else {
 			imageIcon = new ImageIcon(imageUrl);
 		}
-
+		
 		JLabel lblImage = new JLabel("[GSA Logo]");
+		lblImage.setSize(50, 50);
 		lblImage.setHorizontalAlignment(SwingConstants.CENTER);
 		if(imageIcon != null) {
 			lblImage.setIcon(imageIcon);
@@ -203,73 +226,85 @@ public class SimpleTestExecutionPanel extends JPanel {
 		}
 		GroupLayout groupLayout = new GroupLayout(this);
 		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.TRAILING)
+			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(m_testProgressBar, GroupLayout.DEFAULT_SIZE, 466, Short.MAX_VALUE)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(237)
+							.addComponent(lblImage))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(10)
+							.addComponent(lblCardReader)
+							.addGap(34)
+							.addComponent(m_readerComboBox, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(10)
+							.addComponent(lblApplicationPin)
+							.addGap(425)
+							.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(10)
+							.addComponent(lblTestDatabase)
+							.addGap(25)
+							.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(10)
+							.addComponent(lblReaderStatus)
+							.addGap(26)
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(btnOpenOtherDatabase)
+								.addComponent(m_readerStatusField, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE))))
 					.addGap(103))
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(58)
-					.addComponent(btnRefreshReaders)
+					.addContainerGap()
+					.addComponent(m_testProgressBar, GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
+					.addContainerGap())
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(106)
+					.addComponent(btnRefreshReaders, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(m_runButton)
-					.addGap(12))
-				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(lblCardReader)
-						.addComponent(lblApplicationPin)
-						.addComponent(lblTestDatabase)
-						.addComponent(lblReaderStatus))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addComponent(m_readerComboBox, 0, 308, Short.MAX_VALUE)
-						.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(m_databaseNameField, GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(m_readerStatusField, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnOpenOtherDatabase)))
-					.addGap(139))
-				.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-					.addGap(237)
-					.addComponent(lblImage)
-					.addContainerGap(269, Short.MAX_VALUE))
+					.addGap(317))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
+					.addGap(20)
 					.addComponent(lblImage)
 					.addGap(20)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblCardReader)
-						.addComponent(m_readerComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblApplicationPin)
-						.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblTestDatabase)
-						.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(1)
-							.addComponent(btnOpenOtherDatabase))
+							.addGap(3)
+							.addComponent(lblCardReader))
+						.addComponent(m_readerComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(20)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(3)
+							.addComponent(lblApplicationPin))
+						.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(20)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(3)
+							.addComponent(lblTestDatabase))
+						.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(27)
 							.addComponent(lblReaderStatus))
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(25)
 							.addComponent(m_readerStatusField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addPreferredGap(ComponentPlacement.RELATED, 199, Short.MAX_VALUE)
-					.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(m_runButton)
-						.addComponent(btnRefreshReaders))
-					.addGap(18))
+					.addGap(18)
+					.addComponent(btnOpenOtherDatabase)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(btnRefreshReaders)
+						.addComponent(m_runButton))
+					.addContainerGap(230, Short.MAX_VALUE))
 		);
 		setLayout(groupLayout);
 		

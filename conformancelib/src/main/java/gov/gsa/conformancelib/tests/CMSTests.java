@@ -564,13 +564,6 @@ public class CMSTests {
 				ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
 				throw e;
 			}
-			/*
-			 * This appears to be a holdover from a previous test
-			 * byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
-			if (fascn == null) {
-				ConformanceTestException e = new ConformanceTestException("fascn is null");
-				throw e;
-			}*/
 			
 			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
 			if (signers == null) {
@@ -587,26 +580,19 @@ public class CMSTests {
 					ConformanceTestException e = new ConformanceTestException("signerId is null");
 					throw e;
 				}
-				AttributeTable attributeTable = signer.getSignedAttributes();
-				if (attributeTable == null) {
+				AttributeTable cmsAttributeTable = signer.getSignedAttributes();
+				if (cmsAttributeTable == null) {
 					ConformanceTestException e = new ConformanceTestException("attributeTable is null");
 					throw e;
 				}
-				HashMap<String, Attribute> attrsFound = new HashMap<String, Attribute>();
-				// XXX *** TODO: move this comparison to the CHUID object. too specific for this atom
-				byte[] fascn = chuid.getfASCN();
-				String fascnOid = "2.16.840.1.101.3.6.6";
-				byte[] guid = chuid.getgUID();
-				String guidOid = "1.3.6.1.1.16.4";
+
+				// Ensure every OID on oidList is in the signed attributes
+
 				for (int i = 0; i < oidList.length; i++) {
-					String attrOid = oidList[i];
-					ASN1ObjectIdentifier currAttrOid = new ASN1ObjectIdentifier(attrOid);
-					Attribute attr = attributeTable.get(currAttrOid);
-					assertNotNull(attr, "Expected to find " + attrOid + " for container " + oid);
-					attrsFound.put(attrOid, attr);
-					if(oid == guidOid) assertTrue(Arrays.equals(attr.getEncoded(), guid), "GUID from signed attribute does not match card guid");
-					if(oid == fascnOid) assertTrue(Arrays.equals(attr.getEncoded(), fascn), "GUID from signed attribute does not match card guid");
-					//assertNotNull(attr, "attr " + attrOid + " is null");
+					String requiredAttrOid = oidList[i];
+					ASN1ObjectIdentifier currReqAttrOid = new ASN1ObjectIdentifier(requiredAttrOid);
+					Attribute reqAttr = cmsAttributeTable.get(currReqAttrOid);
+					assertNotNull(reqAttr, "CMS is missing OID " + oidList[i]);
 				}
 			}
 		}

@@ -2,7 +2,6 @@ package gov.gsa.pivconformancegui;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
-import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -22,12 +21,13 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
-import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 import gov.gsa.pivconformance.utils.PCSCWrapper;
+import gov.gsa.pivconformance.card.client.CachingDefaultPIVApplication;
 
 public class TestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(TestExecutionController.class);
@@ -75,7 +75,6 @@ public class TestExecutionController {
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
 		display.setEnabled(false);
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
-		GuiRunnerAppController.getInstance().rollConformanceCSV();
 		if(db == null || db.getConnection() == null) {
 			s_logger.error("Unable to run tests without a valid database");
 			// XXX *** Display message don't just log it
@@ -200,7 +199,11 @@ public class TestExecutionController {
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
         m_running = false;
+        CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+        CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
+        cpiv.clearCache();
 		display.setEnabled(true);
+		GuiRunnerAppController.getInstance().rollConformanceCSV();
 	}
 	
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

@@ -64,7 +64,7 @@ public class BER_TLVTests {
         	assertTrue((firstByte & 0x81) == 0x81);
         	
         	assertTrue(valueLength > 0);
-        	assertTrue(valueLength < 255);
+        	assertTrue(valueLength <= 255);
         	
         }else if(lengthBytesCount == 3) {
         	
@@ -72,7 +72,7 @@ public class BER_TLVTests {
         	assertTrue((firstByte & 0x82)  == 0x82);
         	
         	assertTrue(valueLength > 0);
-        	assertTrue(valueLength < 65535);
+        	assertTrue(valueLength <= 65535);
         	
         }else if(lengthBytesCount == 4) {
         	
@@ -80,7 +80,7 @@ public class BER_TLVTests {
         	assertTrue((firstByte & 0x83) == 0x83);
         	
         	assertTrue(valueLength > 0);
-        	assertTrue(valueLength < 16777215);
+        	assertTrue(valueLength <= 16777215);
         	
         }else if(lengthBytesCount == 5) {
         	
