@@ -3,7 +3,7 @@
 bash ./ensuredeps.sh
 ./gradlew shadowJar
 
-DESTDIR=${DESTDIR:-85b-swing-gui}
+DESTDIR=${DESTDIR:-FIPS-201-Card-Conformance-Tool}
 STAMP=$(date +'%Y%m%d%H%M')
 
 if [[ -d ${DESTDIR} ]]; then
@@ -14,10 +14,10 @@ if [[ -d ${DESTDIR} ]]; then
     done
 fi
 mkdir -p $DESTDIR
-cp ./build/libs/85b-swing-gui-all.jar $DESTDIR/
+cp ./build/libs/FIPS-201-Card-Conformance-Tool.jar $DESTDIR/
 cp -i ./user_log_config.xml $DESTDIR/
 [[ -z $CLEANLOGS ]] && rm $DESTDIR/*.log $DESTDIR/*.csv $DESTDIR/*.csv.html
-#cp -i ../../conformancelib/testdata/85b_test_definitions_PIV_ICAM_Test_Cards.db $DESTDIR/
-[[ -z $DONTZIP ]] && zip -r 85b-swing-gui-$STAMP.zip $DESTDIR
-echo "File to upload: 85b-swing-gui-$STAMP.zip"
+cp -i ../../conformancelib/testdata/PIV*Cards.db $DESTDIR/
+[[ -z $DONTZIP ]] && zip -r FIPS-201-Card-Conformance-Tool-$STAMP.zip $DESTDIR
+echo "FIPS-201-Card-Conformance-Tool-$STAMP.zip"
 

@@ -22,13 +22,10 @@ pip install xlwt
 pip install xlsxwriter
 source ./venv-xlrd/bin/activate
 
-for F in PIV_ICAM_Test_Cards \
-        PIV-I_ICAM_Test_Cards \
-        PIV_Production_Cards \
-        PIV-I_Production_Cards
+for F in $(ls *_Cards.xlsx)
 do
         BASE=$F
-  echo "Processing $F..."
+        echo "Processing $F..."
         rm -f $BASE.db
         rm -f $BASE.sql
         if [ -f $BASE.xlsx ]; then 
