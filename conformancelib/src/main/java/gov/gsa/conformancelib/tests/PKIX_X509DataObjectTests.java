@@ -496,7 +496,7 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider2")
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
-    void PKIX_Test_12(String oid, String params, TestReporter reporter) {
+    void PKIX_Test_12(String oid, TestReporter reporter) {
 
 		//Check that the oid passed in is not null
 		if (oid == null) {
@@ -504,25 +504,9 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
 		
-		//Check that the oid passed in is not null
-		if (params == null) {
-			ConformanceTestException e  = new ConformanceTestException("parameters are null");
-			fail(e);
-		}
-		
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-		
-		List<String> paramList = Arrays.asList(params.split(","));
-		
-		boolean fascnTest = false;
-		boolean uuidTest = false;
-		if(paramList.contains("2.16.840.1.101.3.6.6"))
-			fascnTest = true;
-		
-		if(paramList.contains("1.3.6.1.1.16.4"))
-			uuidTest = true;
-				
+						
 		//Check that the oid passed in is not null
 		if (cert == null) {
 			ConformanceTestException e  = new ConformanceTestException("certificate is null");
@@ -542,57 +526,28 @@ public class PKIX_X509DataObjectTests {
 		if (fascn == null) {
 			ConformanceTestException e = new ConformanceTestException("fascn is null");
 			fail(e);
-		}
-		
-		byte[] guid = ((CardHolderUniqueIdentifier) o2).getgUID();
-		String guidString = Hex.encodeHexString(guid);
-		
-		if (guid == null) {
-			ConformanceTestException e = new ConformanceTestException("signers is null");
-			fail(e);
-		}
+		}		
 				
-		boolean otherPresent = false;
+		boolean fascnPresent = false;
 		try {
 			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
 	        if (altNames != null) {
 	            for (List<?> altName : altNames) {
 	                Integer altNameType = (Integer) altName.get(0);
-	                if (fascnTest && altNameType == 0) {
+	                if (altNameType == 0) {
 	                	byte[] otherName = (byte[]) altName.toArray()[1];
 	                	
-	                	boolean otherNameFASCN = true;
 	                	OtherName on = OtherName.getInstance(otherName);
-	                    if(!on.getTypeID().toString().contentEquals("2.16.840.1.101.3.6.6")) {
-	                    	otherNameFASCN = false;
-	                    }
-	                	
-	                	
-	                	if(otherNameFASCN) {
-               	
-		                	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
+	                    if(on.getTypeID().toString().contentEquals("2.16.840.1.101.3.6.6")) {
+	                    	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
 		                	assertTrue(Arrays.equals(fascnFromCert, fascn), "FASCN values do not match");
-	                	}
-	                	else
-	                	{
-	                		otherPresent = true;
-	                	}
-	                } else if(uuidTest && altNameType == 6) {
-	                	
-	                	String altNameStr = (String) altName.get(1);
-	                	altNameStr = altNameStr.replace("-","");
-	                	assertTrue(altNameStr.endsWith(guidString), "uuid values do not match");
-	                }
-	                
-	                if(altNameType != 0 && altNameType != 6){
-	                	otherPresent = true;
+		                	fascnPresent = true;
+	                    }
 	                }
 	            }
 	        }
 	        
-	        if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
-	        	assertTrue(otherPresent == false, "SAN values other than fascn and uuid are present");
-	        }
+	        assertTrue(fascnPresent, "FASCN values is missing");
 		} catch (CertificateParsingException e) {
 			fail(e);
 		}
@@ -1126,6 +1081,123 @@ public class PKIX_X509DataObjectTests {
 		
 		assertTrue(cert.getNotAfter().compareTo(today) >= 0, "Signing certificate expired " + cert.getNotAfter());
        
+    }
+	
+	//GeneralName field exists that contain a URI asserting a Card UUID as specified by [RFC4122, Section 3] 
+	//that matches the GUID value in the CHUID.
+	@DisplayName("PKIX.27 test")
+    @ParameterizedTest(/*name = "{index} => oid = {0}"*/)
+    //@MethodSource("pKIX_x509TestProvider2")
+    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
+    void PKIX_Test_27(String oid, TestReporter reporter) {
+
+		//Check that the oid passed in is not null
+		if (oid == null) {
+			ConformanceTestException e  = new ConformanceTestException("OID is null");
+			fail(e);
+		}
+		
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+						
+		//Check that the oid passed in is not null
+		if (cert == null) {
+			ConformanceTestException e  = new ConformanceTestException("certificate is null");
+			fail(e);
+		}
+				
+		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+
+		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
+		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o2).getIssuerAsymmetricSignature();
+		if (issuerAsymmetricSignature == null) {
+			ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
+			fail(e);
+		}
+		
+		byte[] guid = ((CardHolderUniqueIdentifier) o2).getgUID();
+		String guidString = Hex.encodeHexString(guid);
+		
+		if (guid == null) {
+			ConformanceTestException e = new ConformanceTestException("signers is null");
+			fail(e);
+		}
+				
+		boolean uuidPresent = false;
+		try {
+			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
+	        if (altNames != null) {
+	            for (List<?> altName : altNames) {
+	                Integer altNameType = (Integer) altName.get(0);
+	               if(altNameType == 6) {
+	                	
+	                	String altNameStr = (String) altName.get(1);
+	                	altNameStr = altNameStr.replace("-","");
+	                	uuidPresent = true;
+	                	assertTrue(altNameStr.endsWith(guidString), "uuid values do not match");
+	                }
+	            }
+	        }
+	        
+	        if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
+	        	assertTrue(uuidPresent == true, "uuid value is missing");
+	        }
+		} catch (CertificateParsingException e) {
+			fail(e);
+		}
+    }
+	
+	//No other name forms appear in the subjectAltName extension.
+	@DisplayName("PKIX.28 test")
+    @ParameterizedTest(/*name = "{index} => oid = {0}"*/)
+    //@MethodSource("pKIX_x509TestProvider2")
+    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
+    void PKIX_Test_28(String oid, TestReporter reporter) {
+
+		//Check that the oid passed in is not null
+		if (oid == null) {
+			ConformanceTestException e  = new ConformanceTestException("OID is null");
+			fail(e);
+		}
+		
+		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+				
+		//Check that the oid passed in is not null
+		if (cert == null) {
+			ConformanceTestException e  = new ConformanceTestException("certificate is null");
+			fail(e);
+		}
+				
+		boolean otherPresent = false;
+		try {
+			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
+	        if (altNames != null) {
+	            for (List<?> altName : altNames) {
+	                Integer altNameType = (Integer) altName.get(0);
+	                if (altNameType == 0) {
+	                	byte[] otherName = (byte[]) altName.toArray()[1];
+	                	
+	                	OtherName on = OtherName.getInstance(otherName);
+	                    if(!on.getTypeID().toString().contentEquals("2.16.840.1.101.3.6.6")) {
+	                    	otherPresent = true;
+	                    }
+	             
+	                }
+	                
+	                if(altNameType != 0 && altNameType != 6){
+	                	otherPresent = true;
+	                }
+	            }
+	        }
+	        
+	        assertTrue(otherPresent == false, "SAN values other than fascn and uuid are present");
+
+		} catch (CertificateParsingException e) {
+			fail(e);
+		}
     }
 	
 	private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {
