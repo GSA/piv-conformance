@@ -75,6 +75,7 @@ public class TestExecutionController {
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
 		display.setEnabled(false);
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
+		GuiRunnerAppController.getInstance().rollConformanceCSV();
 		if(db == null || db.getConnection() == null) {
 			s_logger.error("Unable to run tests without a valid database");
 			// XXX *** Display message don't just log it
@@ -203,7 +204,6 @@ public class TestExecutionController {
         CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
         cpiv.clearCache();
 		display.setEnabled(true);
-		GuiRunnerAppController.getInstance().rollConformanceCSV();
 	}
 	
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {
