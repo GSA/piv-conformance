@@ -33,6 +33,7 @@ public class GuiRunnerAppController {
 	private DisplayTestReportAction m_displayTestReportAction;
 	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
 	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
+	private boolean m_logBeenWrittenTo = false;
 	
 	public void reset() {
 		m_testDatabase = null;
@@ -143,19 +144,22 @@ public class GuiRunnerAppController {
 		tree.refresh();
 	}
 	
-	public void rollConformanceCSV() {
+	public void rollConformanceCSV(boolean nextHeader) {
 		if(m_ConformanceTestCsvAppender == null) {
 			s_logger.warn("rollConformanceCSV was called without any appender configured.");
 		}
-		m_ConformanceTestCsvAppender.rollover();
+
+		m_ConformanceTestCsvAppender.rollover(); // new file returned from getFile() method
+		
 		Logger conformanceLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
-		if(conformanceLogger != null) {
+		if(conformanceLogger != null && nextHeader == true) {
 			File f = new File(m_ConformanceTestCsvAppender.getFile());
 			PrintStream p;
 			try {
 				p = new PrintStream(f);
 				p.println("Date,Test Id,Description,Expected Result,Actual Result");
 				p.close();
+				m_logBeenWrittenTo = true;
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

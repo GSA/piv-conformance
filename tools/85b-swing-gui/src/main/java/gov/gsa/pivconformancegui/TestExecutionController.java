@@ -104,6 +104,9 @@ public class TestExecutionController {
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
 		TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
+		
+		if (curr != null) GuiRunnerAppController.getInstance().rollConformanceCSV(true);
+		
 		while(curr != null) {
 			TestCaseModel testCase = curr.getTestCase();
 			LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
@@ -187,6 +190,7 @@ public class TestExecutionController {
             l.execute(ldr);
             curr = (TestCaseTreeNode) curr.getNextSibling();
 		}
+    	GuiRunnerAppController.getInstance().rollConformanceCSV(false);
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
@@ -203,7 +207,6 @@ public class TestExecutionController {
         CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
         cpiv.clearCache();
 		display.setEnabled(true);
-		GuiRunnerAppController.getInstance().rollConformanceCSV();
 	}
 	
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {
