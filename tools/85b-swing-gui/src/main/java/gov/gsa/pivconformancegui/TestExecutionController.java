@@ -75,7 +75,6 @@ public class TestExecutionController {
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
 		display.setEnabled(false);
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
-		GuiRunnerAppController.getInstance().rollConformanceCSV();
 		if(db == null || db.getConnection() == null) {
 			s_logger.error("Unable to run tests without a valid database");
 			// XXX *** Display message don't just log it
@@ -105,6 +104,9 @@ public class TestExecutionController {
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
 		TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
+		
+		if (curr != null) GuiRunnerAppController.getInstance().rollConformanceCSV(true);
+		
 		while(curr != null) {
 			TestCaseModel testCase = curr.getTestCase();
 			LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
@@ -188,6 +190,7 @@ public class TestExecutionController {
             l.execute(ldr);
             curr = (TestCaseTreeNode) curr.getNextSibling();
 		}
+    	GuiRunnerAppController.getInstance().rollConformanceCSV(false);
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
