@@ -496,20 +496,39 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider2")
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
-    void PKIX_Test_12(String oid, TestReporter reporter) {
-
+    void PKIX_Test_12(String oid, String parameters, TestReporter reporter) {
 		//Check that the oid passed in is not null
 		if (oid == null) {
 			ConformanceTestException e  = new ConformanceTestException("OID is null");
 			fail(e);
 		}
 		
+		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
+		if (pmap == null) {
+			ConformanceTestException e  = new ConformanceTestException("Parameter list is null");
+		}
+
+		Iterable<?> requiredSanOids = pmap.keySet();
+		if (requiredSanOids == null) {
+			ConformanceTestException e  = new ConformanceTestException("Required SAN OtherName OID list is null");
+		}
+    	
+    	Iterator<?> i = requiredSanOids.iterator();
+    	String requiredOid = "";
+    	if (i.hasNext()) {
+    		requiredOid = (String) i.next();
+    	}
+		
+    	if (requiredOid == null || requiredOid.length() == 0) {
+    		ConformanceTestException e  = new ConformanceTestException("Required OID value null or empty");
+    	}
+    	
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 						
-		//Check that the oid passed in is not null
+		//Check that the cert is not null
 		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("certificate is null");
+			ConformanceTestException e  = new ConformanceTestException("Certificate is null");
 			fail(e);
 		}
 				
@@ -524,34 +543,43 @@ public class PKIX_X509DataObjectTests {
 		
 		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
 		if (fascn == null) {
-			ConformanceTestException e = new ConformanceTestException("fascn is null");
+			ConformanceTestException e = new ConformanceTestException("CHUID FASC-N is null");
 			fail(e);
 		}		
-				
-		boolean fascnPresent = false;
+		
+		boolean found = false;
 		try {
 			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-	        if (altNames != null) {
-	            for (List<?> altName : altNames) {
-	                Integer altNameType = (Integer) altName.get(0);
-	                if (altNameType == 0) {
-	                	byte[] otherName = (byte[]) altName.toArray()[1];
-	                	
-	                	OtherName on = OtherName.getInstance(otherName);
-	                    if(on.getTypeID().toString().contentEquals("2.16.840.1.101.3.6.6")) {
-	                    	byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
-		                	assertTrue(Arrays.equals(fascnFromCert, fascn), "FASCN values do not match");
-		                	fascnPresent = true;
-	                    }
-	                }
-	            }
-	        }
-	        
-	        assertTrue(fascnPresent, "FASCN values is missing");
+			if (altNames != null) {
+				for (List<?> altName : altNames) {
+					Integer altNameType = (Integer) altName.get(0);
+					if (altNameType == 0) {
+						byte[] otherName = (byte[]) altName.toArray()[1];
+
+						OtherName on = OtherName.getInstance(otherName);
+						String typeID = on.getTypeID().toString();
+
+						if (typeID.contentEquals(requiredOid)) {
+							found = true;
+							byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
+							assertTrue(Arrays.equals(fascnFromCert, fascn), "FASC-N values do not match");
+						} else {
+							// We weren't looking for this.
+							// TODO: If this is a UPN, we're probably good for everything but the card auth
+							// cert
+							// TODO: Create some logic to check if this is a card auth (look at EKU KPID)
+							// TODO: And then fail if we're here and it's not a card auth
+							s_logger.warn("Found SAN OtherName typeID " + typeID.toString());
+						}
+					}
+				}
+			}
 		} catch (CertificateParsingException e) {
 			fail(e);
 		}
-    }
+
+		assertTrue(found == true, "SAN did not contain required OID " + requiredOid);
+	}
 	
 	//Confirm that expiration of certificate is not later than expiration of card
 	@DisplayName("PKIX.13 test")
@@ -744,7 +772,6 @@ public class PKIX_X509DataObjectTests {
 		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
 		List<String> ekuOids = pmap.get(oid);
 		//String ekuOid = ekuOids.get(0);
-		String ekuOid = "1.2.3.4";
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
@@ -1090,20 +1117,39 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider2")
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
-    void PKIX_Test_27(String oid, TestReporter reporter) {
-
+    void PKIX_Test_27(String oid, String parameters, TestReporter reporter) {
 		//Check that the oid passed in is not null
 		if (oid == null) {
 			ConformanceTestException e  = new ConformanceTestException("OID is null");
 			fail(e);
 		}
 		
+		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
+		if (pmap == null) {
+			ConformanceTestException e  = new ConformanceTestException("Parameter list is null");
+		}
+
+		Iterable<?> requiredSanOids = pmap.keySet();
+		if (requiredSanOids == null) {
+			ConformanceTestException e  = new ConformanceTestException("Required SAN OtherName OID list is null");
+		}
+    	
+    	Iterator<?> i = requiredSanOids.iterator();
+    	String requiredOid = "";
+    	if (i.hasNext()) {
+    		requiredOid = (String) i.next();
+    	}
+		
+    	if (requiredOid == null || requiredOid.length() == 0) {
+    		ConformanceTestException e  = new ConformanceTestException("Required OID value null or empty");
+    	}
+    	
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 						
-		//Check that the oid passed in is not null
+		//Check that the cert is not null
 		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("certificate is null");
+			ConformanceTestException e  = new ConformanceTestException("Certificate is null");
 			fail(e);
 		}
 				
@@ -1120,32 +1166,36 @@ public class PKIX_X509DataObjectTests {
 		String guidString = Hex.encodeHexString(guid);
 		
 		if (guid == null) {
-			ConformanceTestException e = new ConformanceTestException("signers is null");
+			ConformanceTestException e = new ConformanceTestException("GUID is null");
 			fail(e);
 		}
-				
-		boolean uuidPresent = false;
+
+		boolean found = false;
 		try {
 			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-	        if (altNames != null) {
-	            for (List<?> altName : altNames) {
-	                Integer altNameType = (Integer) altName.get(0);
-	               if(altNameType == 6) {
-	                	
-	                	String altNameStr = (String) altName.get(1);
+			if (altNames != null) {
+				for (List<?> altName : altNames) {
+					Integer altNameType = (Integer) altName.get(0);
+					if (altNameType == 6) { // TODO: Someday this will be parameterized
+
+						String altNameStr = (String) altName.get(1);
 	                	altNameStr = altNameStr.replace("-","");
-	                	uuidPresent = true;
-	                	assertTrue(altNameStr.endsWith(guidString), "uuid values do not match");
-	                }
-	            }
-	        }
-	        
-	        if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
-	        	assertTrue(uuidPresent == true, "uuid value is missing");
-	        }
+						found = true;
+		                assertTrue(altNameStr.endsWith(guidString), "UUID in SAN doesn't match GUID");
+					} else {
+						// We weren't looking for this.
+						// TODO: If this is a UPN, we're probably good for everything but the card auth
+						// cert
+						// TODO: Create some logic to check if this is a card auth (look at EKU KPID)
+						// TODO: And then fail if we're here and it's not a card auth							s_logger.warn("Found SAN OtherName typeID " + typeID.toString());
+					}
+				}
+			}
 		} catch (CertificateParsingException e) {
 			fail(e);
 		}
+
+		assertTrue(found == true, "SAN did not contain required OID " + requiredOid);			
     }
 	
 	//No other name forms appear in the subjectAltName extension.
