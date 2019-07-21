@@ -1,0 +1,16 @@
+name: 'FIPS 201 Card Conformance Tool'
+description: 'Java-based tool to assess conformance of FIPS 201-based identity cards'
+openSourceProject: 1
+governmentWideReuseProject: 1
+tags:
+    - pki
+    - personalization
+    - sp800-73
+    - fips201
+    - ficam
+    - piv
+    - biometrics
+    - credentials
+    - authentication
+contact:
+    email: fips201ep@gsa.gov
