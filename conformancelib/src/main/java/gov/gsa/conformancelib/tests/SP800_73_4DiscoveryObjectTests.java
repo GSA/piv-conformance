@@ -43,7 +43,7 @@ public class SP800_73_4DiscoveryObjectTests {
 		assertNotNull(bertlv);
 
 		//Check blob length
-		assertTrue(bertlv.length <= 20);
+		assertTrue(bertlv.length <= 19); // TODO: Make this a parameter
 		
 		assertTrue(bertlv[bertlv.length-1] == 0x00);
 	}
