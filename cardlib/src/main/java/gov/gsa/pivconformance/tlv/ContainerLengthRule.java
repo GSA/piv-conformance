@@ -7,18 +7,16 @@ import java.util.HashMap;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
 /**
- * Private class to encapsulate the rather fuzzy max lengths per Tables 8-43 in SP 800-73-4
+ * Class to encapsulate the rather fuzzy max lengths per Tables 8-43 in SP 800-73-4
  * TODO: Add logic to account for embedded content signing certs in biometrics
  */
 public class ContainerLengthRule {
-
-	public static final int OR_MASK = 0x40000000; // Unmask from return of lengthDifference() to know what to do next
 	
 	/**
 	 * Eunumeration used to compute lengths of TLV values
 	 *
 	 */
-	private enum RULE {
+	public enum RULE {
 		FIXED, OR, VARIABLE
 	};
 
@@ -131,16 +129,20 @@ public class ContainerLengthRule {
 		}
 	};
 
+	public static RULE ruleType(byte[] tag) {	
+		return maxLenMap.get(tag).m_rule;
+	}
+
 	/**
 	 * Determines whether the total of all lengths of values on the container under
 	 * test falls within the length boundaries for that container
 	 * 
 	 * @param tag    the element's tag
 	 * @param length computed by adding value lengths from the value length under test
-	 * @return the difference between the prescribed lengths and the value length
+	 * @return the difference between the prescribed lengths and the value length, hopefully all bits clear
 	 */
 	public static int lengthDifference(byte[] tag, int lenFromCut) {
-		int rv = 0xFFFFFFFF & ~OR_MASK;
+		int rv = 0xFFFFFFFF;
 		ContainerLengthRule msr = maxLenMap.get(tag);
 		switch (msr.m_rule) {
 		case VARIABLE:
@@ -154,17 +156,17 @@ public class ContainerLengthRule {
 				rv = lenFromCut - msr.m_highVal;			
 			break;
 		case OR:
+			// Here, we want the return value to indicate 
 			if (lenFromCut == msr.m_lowVal || lenFromCut == msr.m_highVal) {
 				rv = 0;
 			} else {
 				rv += (lenFromCut != msr.m_lowVal) ? 1 : 0;
 				rv += (lenFromCut != msr.m_highVal) ? 1: 0;
 			}
-			rv |= OR_MASK;
 			break;
 		case FIXED:
 		default:
-			if (lenFromCut < msr.m_lowVal && lenFromCut == msr.m_highVal) { // Check for typos in maxLenMap i suppose
+			if (lenFromCut == msr.m_lowVal && lenFromCut == msr.m_highVal) { // Check for typos in maxLenMap i suppose
 				rv = 0;
 			}
 		}
