@@ -256,7 +256,7 @@ public class CardCapabilityContainer extends PIVDataObject {
             BerTlvs outer = tp.parse(raw);
 
             if(outer == null){
-                s_logger.error("Error parsing X.509 Certificate, unable to parse TLV value.");
+                s_logger.error("Error parsing CCC container, unable to parse TLV value 1.");
                 return false;
             }
 
@@ -268,7 +268,7 @@ public class CardCapabilityContainer extends PIVDataObject {
                     BerTlvs outer2 = tp.parse(tlv.getBytesValue());
 
                     if(outer2 == null){
-                        s_logger.error("Error parsing X.509 Certificate, unable to parse TLV value.");
+                        s_logger.error("Error parsing CCC, unable to parse TLV value 2.");
                         return false;
                     }
 
@@ -282,8 +282,13 @@ public class CardCapabilityContainer extends PIVDataObject {
                             if(Arrays.equals(tlv2.getTag().bytes,TagConstants.CARD_IDENTIFIER_TAG)) {
                                 if (tlv2.hasRawValue()) {
                                     m_cardIdentifier = tlv2.getBytesValue();
-
                                     scos.write(APDUUtils.getTLV(TagConstants.CARD_IDENTIFIER_TAG, m_cardIdentifier));
+
+                                    int diff;
+                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.CARD_IDENTIFIER_TAG, m_cardIdentifier.length) & ~ContainerLengthRule.OR_MASK) != 0) {
+                                        s_logger.error("Failure of value length of Tag " + TagConstants.CARD_IDENTIFIER_TAG + " " + m_cardIdentifier.length + ": " + diff);
+                                        return false;
+                                    }
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG)) {
