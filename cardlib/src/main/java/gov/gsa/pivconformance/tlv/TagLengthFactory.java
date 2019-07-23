@@ -2,13 +2,17 @@ package gov.gsa.pivconformance.tlv;
 
 import java.util.HashMap;
 
+import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.gsa.pivconformance.tlv.TagLengthRule;
 import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.tlv.TagLengthRule.RULE;
 
 public class TagLengthFactory {
-
-	private static final HashMap<byte[], TagLengthRule> m_maxLenMap = null;
+    private static final Logger s_logger = LoggerFactory.getLogger(TagLengthFactory.class);
+	private static final HashMap<byte[], TagLengthRule> m_maxLenMap = new HashMap<byte[], TagLengthRule>();
 
 	private void initCache() {
 		m_maxLenMap.put(TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG, new TagLengthRule(RULE.OR, 0, 17));
@@ -83,18 +87,24 @@ public class TagLengthFactory {
 	}
 
 	/**
-	 * Determines whether the total of all lengths of values on the container under
-	 * test falls within the length boundaries for that container
+	 * Determines whether the length of the byte array corresponding
+	 * to the tag falls within the length boundaries for that container
 	 * 
 	 * @param tag    the element's tag
-	 * @param length computed by adding value lengths from the value length under
+	 * @param byteLength computed by adding value lengths from the value length under
 	 *               test
 	 * @return the difference between the prescribed lengths and the value length,
 	 *         hopefully all bits clear
+	 * @throws NullPointerException
 	 */
-	public int lengthDifference(byte[] tag, int lenFromCut) {
+	public int lengthDelta(byte[] tag, int bytesLength) throws NullPointerException {
 		int rv = -1;
 		TagLengthRule clr = m_maxLenMap.get(tag);
+		if (clr == null) {
+			String errStr = (String.format("Tag " + Hex.toHexString(tag) + " is null"));
+			NullPointerException e = new NullPointerException(errStr);
+			throw(e);
+		}
 		int hi = clr.getHighVal();
 		int lo = clr.getLowVal();
 		RULE rule = clr.getRule();
@@ -102,25 +112,25 @@ public class TagLengthFactory {
 		case VARIABLE:
 			// When there's a range, negative indicates below floor,
 			// positive indicates above ceiling, zero indicates in range.
-			if (lenFromCut >= lo && lenFromCut <= hi) {
+			if (bytesLength >= lo && bytesLength <= hi) {
 				rv = 0;
-			} else if (lenFromCut < lo) {
-				rv = lo - lenFromCut;
+			} else if (bytesLength < lo) {
+				rv = lo - bytesLength;
 			} else
-				rv = lenFromCut - hi;
+				rv = bytesLength - hi;
 			break;
 		case OR:
 			// Here, we want the return value to indicate what didn't match
-			if (lenFromCut == lo || lenFromCut == hi) {
+			if (bytesLength == lo || bytesLength == hi) {
 				rv = 0;
 			} else {
-				rv = ((lenFromCut != lo) ? 1 : 0) << 1;
-				rv |= (lenFromCut != hi) ? 1 : 0;
+				rv = ((bytesLength != lo) ? 1 : 0) << 1;
+				rv |= (bytesLength != hi) ? 1 : 0;
 			}
 			break;
 		case FIXED:
 		default:
-			if (lenFromCut == lo && lenFromCut == hi) { // Check for typos in maxLenMap i suppose
+			if (bytesLength == lo && bytesLength == hi) { // Check for typos in maxLenMap i suppose
 				rv = 0;
 			}
 		}

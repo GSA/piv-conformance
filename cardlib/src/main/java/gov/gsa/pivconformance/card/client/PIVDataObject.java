@@ -1,13 +1,18 @@
 package gov.gsa.pivconformance.card.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.tlv.BerTag;
+import gov.gsa.pivconformance.tlv.HexUtil;
+import gov.gsa.pivconformance.tlv.TagLengthFactory;
 
 /**
  * Represents a PIV data object as read to or written from the card.
@@ -23,6 +28,9 @@ public class PIVDataObject {
     protected List<BerTag> m_tagList;
     private boolean m_error_Detection_Code;
     private boolean m_error_Detection_Code_Has_Data;
+    private TagLengthFactory m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
+    private boolean m_lengthOk;
+    protected static HashMap<BerTag, byte[]> m_content;
 
     /**
      * Initialize an invalid PIV data object
@@ -32,6 +40,8 @@ public class PIVDataObject {
         m_OID = null;
         m_signed = false;
         m_tagList = new ArrayList<BerTag>();
+        m_lengthOk = false;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**
@@ -105,6 +115,54 @@ public class PIVDataObject {
         return rv;
     }
 
+	/**
+	 * Indicates whether the given length is within boundaries of the rule
+	 * 
+	 * @param tag the tag 
+	 * @param valueLen the value, as counted by byte[].length
+	 * @return true if the value meets all length requirements for that tag
+	 */
+
+    private boolean inBounds(BerTag tag, int valueLen) {
+    	byte tagBytes[] = tag.bytes;
+    	int diff = m_tagLengthRules.lengthDelta(tagBytes, valueLen);
+    	try {
+	    	if (diff != 0) {
+	    		String tagString = HexUtil.toHexString(tagBytes);
+	    		String errStr = (String.format("Tag %s length was %d bytes, differs from 800-73 spec by %d", tagString, valueLen, diff));
+	    		Exception e = new Exception(errStr);
+	    		throw(e);
+	    	}
+    	} catch (Exception e) { return false; }
+
+    	return true;
+    }
+    
+	/**
+	 * Indicates whether the given length is within boundaries of the rule
+	 * 
+	 * @param tag the tag 
+	 * @param valueLen the value, as counted by byte[].length of the value
+	 * @return zero if the value meets all length requirements for that tag, < 0 when the
+	 * length is less than the low bound, > 0 if the length is greater than the high bound.
+	 * For rules that require either of two values, the value returned indicates which of
+	 * the two values matched with a 0x10 or 0x01 (low or high).
+	 */
+    public boolean inBounds() {
+    	// Iterate over each tag and corresponding value
+    	Iterator<Map.Entry<BerTag, byte[]>> it = m_content.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            BerTag tag = (BerTag) pair.getKey();
+            byte value[] = (byte[]) pair.getValue();
+            // Check length
+            if (!(this.m_lengthOk = this.inBounds (tag, value.length))) {
+            	return false;
+            }
+        }
+        return true;
+    }   
+    
     /**
      *
      * Place holder that will throw RuntimeError if the is a missing implementations of decode
@@ -117,6 +175,16 @@ public class PIVDataObject {
         return false;
     }
 
+    /**
+     *
+     * Returns the length of all containers was found to be okay, false otherwise
+     *
+     * @return True if the length of all containers was found to be okay, false otherwise
+     */
+    public boolean lengthOk() {
+        return m_lengthOk;
+    }
+    
     /**
      *
      * Returns a String containing hex representation of the raw value of the PIV data object

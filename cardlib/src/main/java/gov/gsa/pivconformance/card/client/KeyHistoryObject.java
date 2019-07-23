@@ -108,11 +108,15 @@ public class KeyHistoryObject extends PIVDataObject {
             byte[] tag = tlv.getTag().bytes;
             if(Arrays.equals(tag, TagConstants.KEYS_WITH_ON_CARD_CERTS)) {
                 m_keysWithOnCardCerts = tlv.getIntValue();
+                m_content.put(tlv.getTag(), tlv.getBytesValue());
             } else if(Arrays.equals(tag, TagConstants.KEYS_WITH_OFF_CARD_CERTS)) {
                 m_keysWithOffCardCerts = tlv.getIntValue();
+                m_content.put(tlv.getTag(), tlv.getBytesValue());
             } else if(Arrays.equals(tag, TagConstants.OFF_CARD_CERT_URL)) {
                 m_offCardCertUrl = tlv.getBytesValue();
-            }else if(!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
+                m_content.put(tlv.getTag(), tlv.getBytesValue());
+            } else if(!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
+                m_content.put(tlv.getTag(), tlv.getBytesValue());
                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
             }
             s_logger.debug("found tag: {}", Hex.encodeHexString(tag));

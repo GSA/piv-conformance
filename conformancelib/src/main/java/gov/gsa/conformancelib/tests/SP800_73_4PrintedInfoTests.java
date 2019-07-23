@@ -1,7 +1,6 @@
 package gov.gsa.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -14,6 +13,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -24,22 +25,25 @@ import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class SP800_73_4PrintedInfoTests {
+    private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4PrintedInfoTests.class);
 
-	//Printed Information blob is no larger than 120 bytes
+	//Printed Information value lengths comply with Table 14 of SP 800-73-4
 	@DisplayName("SP800-73-4.27 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_27(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv, "No data returned from PIVDataObject");
-
-		//was: Confirm blob is not larger than 120
-		// see issue #72
-		assertTrue(bertlv.length <= 245, "Printed object length must be no larger than 245 bytes: got " + bertlv.length);
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);	
+			if (!o.inBounds()) {
+				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
+				Exception e = new Exception(errStr);
+				throw(e);
+			}
+		} catch (Exception e) {
+			s_logger.info(e.getMessage());
+			fail(e);
+		}
 	}
 
 	//Tags 0x01, 0x02, 0x05, 0x06 are present

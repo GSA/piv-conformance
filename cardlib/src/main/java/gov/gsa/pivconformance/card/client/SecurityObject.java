@@ -224,6 +224,7 @@ public class SecurityObject extends PIVDataObject {
             	super.m_tagList.add(tlv.getTag());
                 if (Arrays.equals(tag, TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG)) {
                     m_mapping = tlv.getBytesValue();
+                    m_content.put(tlv.getTag(), tlv.getBytesValue());
 
                     if(m_mapping == null){
                         s_logger.error("Missing mapping of DG to contains IDs for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
@@ -253,6 +254,7 @@ public class SecurityObject extends PIVDataObject {
 
                 } else if (Arrays.equals(tag, TagConstants.SECURITY_OBJECT_TAG)) {
                     m_so = tlv.getBytesValue();
+                    m_content.put(tlv.getTag(), tlv.getBytesValue());
 
                     if(m_so == null){
                         s_logger.error("Missing security object value for {}.", APDUConstants.oidNameMAP.get(super.getOID()));

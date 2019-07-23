@@ -1,6 +1,5 @@
 package gov.gsa.conformancelib.tests;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -25,27 +24,28 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
+
 public class SP800_73_4DiscoveryObjectTests {
 	
-
     private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4DiscoveryObjectTests.class);
 
-	//Discovery Object blob no larger than 19 bytes
+	//Discovery Object Max Bytes comply with Table 18 in SP 800-83-4
 	@DisplayName("SP800-73-4.38 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_DiscoveryObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_73_4_Test_38(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		//Check blob length
-		assertTrue(bertlv.length <= 19); // TODO: Make this a parameter
-		
-		assertTrue(bertlv[bertlv.length-1] == 0x00);
+	void sp800_73_4_Test_38(String oid, TestReporter reporter) {		
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);	
+			if (!o.inBounds()) {
+				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
+				Exception e = new Exception(errStr);
+				throw(e);
+			}
+		} catch (Exception e) {
+			s_logger.info(e.getMessage());
+			fail(e);
+		}
 	}
 
 	//Tag 0x4F is present

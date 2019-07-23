@@ -15,6 +15,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -25,20 +27,25 @@ import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class SP800_73_4CHUIDTests {
+    private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4CHUIDTests.class);
 
-	//CHUID blob no larger than 3395 bytes
+	//CHUID value lengths comply with Table 9 of SP 800-73-4
 	@DisplayName("SP800-73-4.8 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_CHUIDTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_8(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		assertTrue(bertlv.length <= 3395);
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);	
+			if (!o.inBounds()) {
+				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
+				Exception e = new Exception(errStr);
+				throw(e);
+			}
+		} catch (Exception e) {
+			s_logger.info(e.getMessage());
+			fail(e);
+		}
 	}
 
 	//If CHUID tag 0xEE is present, it is the first tag in the blob

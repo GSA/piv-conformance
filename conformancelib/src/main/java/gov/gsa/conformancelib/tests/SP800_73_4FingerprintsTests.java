@@ -2,6 +2,7 @@ package gov.gsa.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -22,6 +25,7 @@ import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class SP800_73_4FingerprintsTests {
+    private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4FingerprintsTests.class);
 
 	//Fingerprints container blob no larger than 4006 bytes
 	@DisplayName("SP800-73-4.24 test")
@@ -29,14 +33,17 @@ public class SP800_73_4FingerprintsTests {
 	//@MethodSource("sp800_73_4_FingerprintsTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_24(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		//Check blob length
-		assertTrue(bertlv.length <= 4006);
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);	
+			if (!o.inBounds()) {
+				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
+				Exception e = new Exception(errStr);
+				throw(e);
+			}
+		} catch (Exception e) {
+			s_logger.info(e.getMessage());
+			fail(e);
+		}
 	}
 
 	//Tags 0xBC and 0xFE are present in that order
