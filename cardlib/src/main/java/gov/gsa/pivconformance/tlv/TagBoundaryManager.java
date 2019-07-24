@@ -51,7 +51,7 @@ public class TagBoundaryManager {
 		crs.add(new BerTag(TagConstants.CARD_IDENTIFIER_TAG), new TagLengthRule(RULE.OR, 0, 21));
 		crs.add(new BerTag(TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG), new TagLengthRule(RULE.OR, 0, 1));
 		crs.add(new BerTag(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG), new TagLengthRule(RULE.OR, 0, 1));
-		crs.add(new BerTag(TagConstants.APPLICATIONS_CARDURL_TAG), new TagLengthRule(RULE.FIXED, 128, 128));
+		crs.add(new BerTag(TagConstants.APPLICATIONS_CARDURL_TAG), new TagLengthRule(RULE.VARIABLE, 0, 128));
 		crs.add(new BerTag(TagConstants.PKCS15_TAG), new TagLengthRule(RULE.OR, 0, 1));
 		crs.add(new BerTag(TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
 		crs.add(new BerTag(TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG), new TagLengthRule(RULE.OR, 0, 17));
@@ -61,7 +61,7 @@ public class TagBoundaryManager {
 		crs.add(new BerTag(TagConstants.STATUS_TUPLES_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 		crs.add(new BerTag(TagConstants.NEXT_CCC_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 		crs.add(new BerTag(TagConstants.EXTENDED_APPLICATION_CARDURL_TAG), new TagLengthRule(RULE.FIXED, 48, 48));
-		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_BUFFER_TAG), new TagLengthRule(RULE.VARIABLE, 0, 48));
+		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_BUFFER_TAG), new TagLengthRule(RULE.FIXED, 0, 48));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP800-73-4 Part 1, Table 9. Card Holder Unique Identifier tags
@@ -83,7 +83,7 @@ public class TagBoundaryManager {
 			crs = new ContainerRuleset(cn);
 			crs.add(new BerTag(TagConstants.CERTIFICATE_TAG), new TagLengthRule(RULE.VARIABLE, 0, 1858));
 			crs.add(new BerTag(TagConstants.CERTINFO_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
-			crs.add(new BerTag(TagConstants.MSCUID_TAG), new TagLengthRule(RULE.VARIABLE, 0, 0));
+			crs.add(new BerTag(TagConstants.MSCUID_TAG), new TagLengthRule(RULE.VARIABLE, 0, 38));
 			crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 			m_maxLenMap.put(crs.getContainerName(), crs);
 		}
@@ -130,6 +130,7 @@ public class TagBoundaryManager {
 		crs = new ContainerRuleset(APDUConstants.KEY_HISTORY_OBJECT_NAME);
 		crs.add(new BerTag(TagConstants.KEYS_WITH_ON_CARD_CERTS_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
 		crs.add(new BerTag(TagConstants.KEYS_WITH_OFF_CARD_CERTS_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
+		// TODO: Handle conditional hmmm...
 		crs.add(new BerTag(TagConstants.OFF_CARD_CERT_URL_TAG), new TagLengthRule(RULE.VARIABLE, 0, 118));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
@@ -142,8 +143,8 @@ public class TagBoundaryManager {
 		// SP 800-73-4 Part 1, Table 41. Biometric Information Templates Group Template
 		crs = new ContainerRuleset(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_NAME);
 		crs.add(new BerTag(TagConstants.NUMBER_OF_FINGERS_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
-		crs.add(new BerTag(TagConstants.BIT_FOR_FIRST_FINGER_TAG), new TagLengthRule(RULE.FIXED, 28, 28));
-		crs.add(new BerTag(TagConstants.BIT_FOR_SECOND_FINGER_TAG), new TagLengthRule(RULE.FIXED, 28, 28));
+		crs.add(new BerTag(TagConstants.BIT_FOR_FIRST_FINGER_TAG), new TagLengthRule(RULE.VARIABLE, 0, 28));
+		crs.add(new BerTag(TagConstants.BIT_FOR_SECOND_FINGER_TAG), new TagLengthRule(RULE.VARIABLE, 0, 28));
 		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
@@ -225,10 +226,11 @@ public class TagBoundaryManager {
 			}
 			break;
 		case FIXED:
-		default:
 			if (bytesLength == lo && bytesLength == hi) { // Check for typos in maxLenMap i suppose
 				rv = 0;
 			}
+		default: // This had darn well be *
+			rv = 0;
 		}
 		return rv;
 	}
