@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.HexUtil;
-import gov.gsa.pivconformance.tlv.TagLengthFactory;
+import gov.gsa.pivconformance.tlv.TagBoundaryManager;
 
 /**
  * Represents a PIV data object as read to or written from the card.
@@ -28,7 +28,7 @@ public class PIVDataObject {
     protected List<BerTag> m_tagList;
     private boolean m_error_Detection_Code;
     private boolean m_error_Detection_Code_Has_Data;
-    private TagLengthFactory m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
+    private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
     private boolean m_lengthOk;
     protected static HashMap<BerTag, byte[]> m_content;
 
@@ -123,12 +123,11 @@ public class PIVDataObject {
 	 * @return true if the value meets all length requirements for that tag
 	 */
 
-    private boolean inBounds(BerTag tag, int valueLen) {
-    	byte tagBytes[] = tag.bytes;
-    	int diff = m_tagLengthRules.lengthDelta(tagBytes, valueLen);
+    private boolean inBounds(String name, BerTag tag, int valueLen) {
+    	int diff = m_tagLengthRules.lengthDelta(name, tag, valueLen);
     	try {
 	    	if (diff != 0) {
-	    		String tagString = HexUtil.toHexString(tagBytes);
+	    		String tagString = HexUtil.toHexString(tag.bytes);
 	    		String errStr = (String.format("Tag %s length was %d bytes, differs from 800-73 spec by %d", tagString, valueLen, diff));
 	    		Exception e = new Exception(errStr);
 	    		throw(e);
@@ -148,7 +147,11 @@ public class PIVDataObject {
 	 * For rules that require either of two values, the value returned indicates which of
 	 * the two values matched with a 0x10 or 0x01 (low or high).
 	 */
-    public boolean inBounds() {
+    public boolean inBounds(String oid) {
+    	String name = APDUConstants.oidNameMAP.get(oid);
+    	if (name == null) {
+    		return false;
+    	}
     	// Iterate over each tag and corresponding value
     	Iterator<Map.Entry<BerTag, byte[]>> it = m_content.entrySet().iterator();
         while (it.hasNext()) {
@@ -156,7 +159,7 @@ public class PIVDataObject {
             BerTag tag = (BerTag) pair.getKey();
             byte value[] = (byte[]) pair.getValue();
             // Check length
-            if (!(this.m_lengthOk = this.inBounds (tag, value.length))) {
+            if (!(this.m_lengthOk = this.inBounds (name, tag, value.length))) {
             	return false;
             }
         }

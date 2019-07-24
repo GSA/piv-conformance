@@ -106,13 +106,13 @@ public class KeyHistoryObject extends PIVDataObject {
         }
         for(BerTlv tlv : outer.getList()) {
             byte[] tag = tlv.getTag().bytes;
-            if(Arrays.equals(tag, TagConstants.KEYS_WITH_ON_CARD_CERTS)) {
+            if(Arrays.equals(tag, TagConstants.KEYS_WITH_ON_CARD_CERTS_TAG)) {
                 m_keysWithOnCardCerts = tlv.getIntValue();
                 m_content.put(tlv.getTag(), tlv.getBytesValue());
-            } else if(Arrays.equals(tag, TagConstants.KEYS_WITH_OFF_CARD_CERTS)) {
+            } else if(Arrays.equals(tag, TagConstants.KEYS_WITH_OFF_CARD_CERTS_TAG)) {
                 m_keysWithOffCardCerts = tlv.getIntValue();
                 m_content.put(tlv.getTag(), tlv.getBytesValue());
-            } else if(Arrays.equals(tag, TagConstants.OFF_CARD_CERT_URL)) {
+            } else if(Arrays.equals(tag, TagConstants.OFF_CARD_CERT_URL_TAG)) {
                 m_offCardCertUrl = tlv.getBytesValue();
                 m_content.put(tlv.getTag(), tlv.getBytesValue());
             } else if(!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {

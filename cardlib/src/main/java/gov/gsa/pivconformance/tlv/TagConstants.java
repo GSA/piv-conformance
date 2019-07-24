@@ -1,10 +1,8 @@
 package gov.gsa.pivconformance.tlv;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.nio.ByteBuffer;
 
 public class TagConstants {
 	public static final byte[] AID_TAG = { 0x4F };
@@ -95,7 +93,7 @@ public class TagConstants {
 	public static final byte[] ORGANIZATIONAL_IDENTIFIER_TAG = { 0x32 };
 	public static final byte[] DUNS_TAG = { 0x33 };
 	public static final byte[] GUID_TAG = { 0x34 };
-	public static final byte[] CHUID_EXPIRATION_DATE_TAG = { 0x35 }; // differs from naming convention due to collision
+	public static final byte[] CHUID_EXPIRATION_DATE_TAG = { 0x35 }; 
 	public static final byte[] CARDHOLDER_UUID_TAG = { 0x36 };
 	public static final byte[] ISSUER_ASYMMETRIC_SIGNATURE_TAG = { 0x3E };
 
@@ -128,13 +126,12 @@ public class TagConstants {
 	public static final byte[] SECURITY_OBJECT_TAG = { (byte) 0xBB };
 
 	// SP800-73-4 Part 1, Table 13. Card Holder Facial Image Tags
-	public static final byte[] IMAGE_FOR_VISUAL_VERIFICATION_TAG = { (byte) 0xBC };
+	public static final byte[] IMAGE_FOR_VISUAL_VERIFICATION_TAG = { (byte) 0xBC }; 
 
 	// SP800-73-4 Part 1, Table 14. Printed Information Tags
 	public static final byte[] NAME_TAG = { 0x01 };
 	public static final byte[] EMPLOYEE_AFFILIATION_TAG = { 0x02 };
-	public static final byte[] PRINTED_INFORMATION_EXPIRATION_DATE_TAG = { 0x04 }; // differs from naming convention due
-																					// to collision
+	public static final byte[] PRINTED_INFORMATION_EXPIRATION_DATE_TAG = { 0x04 };
 	public static final byte[] AGENCY_CARD_SERIAL_NUMBER_TAG = { 0x05 };
 	public static final byte[] ISSUER_IDENTIFICATION_TAG = { 0x06 };
 	public static final byte[] ORGANIZATIONAL_AFFILIATION_L1_TAG = { 0x07 };
@@ -165,9 +162,9 @@ public class TagConstants {
 	public static final byte[] PIN_USAGE_POLICY_TAG = { 0x5F, 0x2F };
 
 	// SP800-73-4 Part 1, Table 19. Key history Object Tags
-	public static final byte[] KEYS_WITH_ON_CARD_CERTS = { (byte) 0xC1 };
-	public static final byte[] KEYS_WITH_OFF_CARD_CERTS = { (byte) 0xC2 };
-	public static final byte[] OFF_CARD_CERT_URL = { (byte) 0xF3 };
+	public static final byte[] KEYS_WITH_ON_CARD_CERTS_TAG = { (byte) 0xC1 };
+	public static final byte[] KEYS_WITH_OFF_CARD_CERTS_TAG = { (byte) 0xC2 };
+	public static final byte[] OFF_CARD_CERT_URL_TAG = { (byte) 0xF3 };
 
 	// SP800-73-4 Part 1, Table 40. Cardholder Iris Images
 	public static final byte[] IMAGES_FOR_IRIS_TAG = { (byte) 0xBC };
@@ -227,6 +224,11 @@ public class TagConstants {
 	public static final String Cipher_Suite_7 = "Cipher Suite 7";
 
 	public static final HashMap<byte[], String> algMAP = new HashMap<byte[], String>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		{
 			put(Three_Key_Triple_DES_ECB_ID, Three_Key_Triple_DES_ECB);
 			put(Three_Key_Triple_DES_ECB2_ID, Three_Key_Triple_DES_ECB2);

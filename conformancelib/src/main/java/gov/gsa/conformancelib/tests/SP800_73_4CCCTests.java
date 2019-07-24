@@ -169,7 +169,7 @@ public class SP800_73_4CCCTests {
 	void sp800_73_4_Test_6(String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);	
-			if (!o.inBounds()) {
+			if (!o.inBounds(oid)) {
 				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
 				Exception e = new Exception(errStr);
 				throw(e);

@@ -7,7 +7,7 @@ import gov.gsa.pivconformance.tlv.*;
 
 public class DataModelSingleton {
 
-	TagLengthFactory m_containerLengthRules;
+	TagBoundaryManager m_containerLengthRules;
 	
     private DataModelSingleton() {
     	reset();
@@ -21,22 +21,22 @@ public class DataModelSingleton {
     
     public void reset() {
     	m_containerLengthRules = null;
-    	m_containerLengthRules = new TagLengthFactory();
+    	m_containerLengthRules = new TagBoundaryManager();
     }
  
 	public void loadLengthRules() {
 		if (m_containerLengthRules == null)
-			m_containerLengthRules = new TagLengthFactory();
+			m_containerLengthRules = new TagBoundaryManager();
 	}
 	
-	public TagLengthFactory getLengthRules() {
+	public TagBoundaryManager getLengthRules() {
 		if (m_containerLengthRules == null)
 			loadLengthRules();
 		
 		return m_containerLengthRules;
 	}
 	
-	public void setLengthRules(TagLengthFactory clf) {
+	public void setLengthRules(TagBoundaryManager clf) {
 		m_containerLengthRules = clf;
 	}
 }

@@ -4,9 +4,9 @@
 package gov.gsa.pivconformance.tlv;
 
 /**
- * One of two classes to encapsulate the rather fuzzy max lengths per Tables 8-43 in SP
+ * One of three classes to encapsulate the rather fuzzy max lengths per Tables 8-43 in SP
  * 800-73-4 TODO: Add logic to account for embedded content signing certs in
- * biometrics
+ * biometrics. 
  */
 public class TagLengthRule {
 	private RULE m_rule;
