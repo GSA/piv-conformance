@@ -18,8 +18,6 @@ import javax.smartcardio.*;
 import java.lang.invoke.MethodHandles;
 import java.security.cert.X509Certificate;
 import java.util.*;
-import java.io.Console;
-
 
 public class PIVRunner {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -101,22 +99,7 @@ public class PIVRunner {
                     }
                 }
 
-
                 result = MiddlewareStatus.PIV_AUTHENTICATION_FAILURE;
-
-//                Console cons = System.console();
-//                char[] passwd;
-//                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
-//
-//                    PIVAuthenticators authenticators = new PIVAuthenticators();
-//                    authenticators.addApplicationPin("123456");
-//                    authenticators.addGlobalPin("12345678");
-//                    authenticators.addApplicationPin(new String(passwd));
-//                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
-//                    java.util.Arrays.fill(passwd, ' ');
-//                }
-
-
 
                 if(result != MiddlewareStatus.PIV_OK)
                     s_logger.error("Error authenticating to the smartcard: {}", result.toString());
@@ -125,19 +108,6 @@ public class PIVRunner {
 
                 HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
                 PIVDataObject securityObject = null;
-
-//                ArrayList<PIVDataObject> dataList = new ArrayList<PIVDataObject>();
-//                result = piv.pivGetAllDataContainers(c, dataList);
-//
-//                if(result == MiddlewareStatus.PIV_OK)
-//                    s_logger.info("Number of containers present on the card: {}", dataList.size());
-//
-//
-//                PIVDataObject keyDataObject = PIVDataObjectFactory.createDataObjectForOid("1.2.3");
-//                result = piv.pivGenerateKeyPair(c, APDUConstants.PIV_AUTHENTICATION_KEY, APDUConstants.CRYPTO_MECHANISM_RSA, keyDataObject);
-//
-//                if(result == MiddlewareStatus.PIV_OK)
-//                    s_logger.info("Key Generated");
 
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
@@ -163,7 +133,6 @@ public class PIVRunner {
                                 s_logger.info("{}", Hex.encodeHexString(u));
                             }
                         }
-
 
                         s_logger.info("Registered Data Model number: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getRegisteredDataModelNumber()));
                         s_logger.info("Access Control Rule Table: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getAccessControlRuleTable()));
@@ -194,7 +163,6 @@ public class PIVRunner {
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
 
                         soDataElements.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, ((CardCapabilityContainer) dataObject).getSignedContent());
-
                     }
 
                     if (containerOID.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
@@ -218,8 +186,8 @@ public class PIVRunner {
 
                         CMSSignedData sd = ((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -262,11 +230,10 @@ public class PIVRunner {
                         s_logger.info("Validity Period From: {}", ((CardholderBiometricData) dataObject).getValidityPeriodFrom());
                         s_logger.info("Validity Period To: {}",((CardholderBiometricData) dataObject).getValidityPeriodTo());
 
-
                         CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -293,7 +260,6 @@ public class PIVRunner {
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
                         soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
-
                     }
 
                     if (containerOID.equals(APDUConstants.SECURITY_OBJECT_OID)) {
@@ -310,8 +276,8 @@ public class PIVRunner {
 
                         CMSSignedData sd = ((SecurityObject) dataObject).getSignedData();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -334,8 +300,6 @@ public class PIVRunner {
                         s_logger.info("SecurityObject signatue valid: {}",((SecurityObject) dataObject).verifySignature(signingCertificate));
 
                         securityObject = dataObject;
-
-
                     }
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
@@ -348,8 +312,8 @@ public class PIVRunner {
 
                         CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -365,7 +329,6 @@ public class PIVRunner {
                                 s_logger.info("Signer skid: {} ", skid);
                             else
                                 s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
-
                         }
 
                         if(signingCertificate != null)
@@ -377,7 +340,6 @@ public class PIVRunner {
 
                         soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
                     }
-
 
                     if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID)){
                         X509Certificate pibAuthCert = ((X509CertificateDataObject) dataObject).getCertificate();
@@ -431,12 +393,6 @@ public class PIVRunner {
                     soDataElements.put(APDUConstants.PRINTED_INFORMATION_OID, ((PrintedInformation) printedInformation).getSignedContent());
                 }
 
-
-//                result = piv.pivPutData(c, APDUConstants.PRINTED_INFORMATION_OID, printedInformation);
-//                if(result != MiddlewareStatus.PIV_OK) {
-//                    s_logger.error("Attempted to write {} to the card failed.", APDUConstants.oidNameMAP.get(APDUConstants.PRINTED_INFORMATION_OID));
-//                }
-
                 boolean decoded = false;
                 PIVDataObject discoveryObject = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.DISCOVERY_OBJECT_OID);
                 result = piv.pivGetData(c, APDUConstants.DISCOVERY_OBJECT_OID, discoveryObject);
@@ -448,8 +404,6 @@ public class PIVRunner {
                 }
 
                 soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, ((DiscoveryObject) discoveryObject).getSignedContent());
-
-
 
                 PIVDataObject cardholderIrisImages = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID);
                 result = piv.pivGetData(c, APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, cardholderIrisImages);
@@ -470,8 +424,8 @@ public class PIVRunner {
 
                             CMSSignedData sd = ((CardholderBiometricData) cardholderIrisImages).getSignedData();
                             SignerInformationStore signers = sd.getSignerInfos();
-                            Collection collection = signers.getSigners();
-                            Iterator it = collection.iterator();
+                            Collection<SignerInformation> collection = signers.getSigners();
+                            Iterator<SignerInformation> it = collection.iterator();
 
                             while (it.hasNext())
                             {
@@ -511,7 +465,6 @@ public class PIVRunner {
                     }
                 }
 
-
                 PIVDataObject biometricInformationTemplatesGroupTemplate = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID);
                 result = piv.pivGetData(c, APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, biometricInformationTemplatesGroupTemplate);
 
@@ -530,7 +483,6 @@ public class PIVRunner {
 
                     }
                 }
-
 
                 PIVDataObject secureMessagingCertificateSigner = PIVDataObjectFactory.createDataObjectForOid(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID);
                 result = piv.pivGetData(c, APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, secureMessagingCertificateSigner);
@@ -577,7 +529,7 @@ public class PIVRunner {
                 s_logger.info("Printed Information hash verified: {}", hashVerified);
 
             }
-            ResponseAPDU rsp = null;
+            //ResponseAPDU rsp = null;
             return true;
         } else {
             s_logger.error("TestCard called with invalid card handle");
