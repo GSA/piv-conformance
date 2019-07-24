@@ -353,7 +353,7 @@ INSERT INTO "TestCases" VALUES(81, NULL,'8.6.0.1','Length field encoded as shown
 INSERT INTO "TestCases" VALUES(82, NULL,'8.6.0.2','Tag encoded as 3 bytes','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(83, NULL,'8.6.0.3','Each data object returned with 2 byte status word (90 00)','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(84, NULL,'8.6.0.4','If a variable length field has length of 0, tag length is followed immediately by next tag if applicable','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(85, NULL,'8.6.1.1','Card Holder Facial Image blob no larger than 12710 bytes','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(85, NULL,'8.6.1.1','Card Holder Facial Image value lengths comply with Table 13 of SP 800-73-4','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(86, NULL,'8.6.1.2','Position is one of the valid x,y coordinate types in the original image','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(87, NULL,'8.6.1.3','No tags other than (0xBC, 0xFE) are present','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(88, NULL,'8.6..4','Tag 0xFE has length of 0','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
