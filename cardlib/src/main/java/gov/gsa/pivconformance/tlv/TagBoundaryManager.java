@@ -229,8 +229,10 @@ public class TagBoundaryManager {
 			if (bytesLength == lo && bytesLength == hi) { // Check for typos in maxLenMap i suppose
 				rv = 0;
 			}
+			break;
 		default: // This had darn well be *
 			rv = 0;
+			break;
 		}
 		return rv;
 	}
