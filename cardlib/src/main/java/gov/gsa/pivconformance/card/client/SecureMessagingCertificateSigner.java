@@ -119,19 +119,23 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
                                     if (tlv2.hasRawValue()) {
                                         rawCertBuf = tlv2.getBytesValue();
+                                        m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     }
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
                                     if (tlv2.hasRawValue()) {
                                         m_error_Detection_Code = true;
+                                        m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     }
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTINFO_TAG)) {
                                     certInfoBuf = tlv2.getBytesValue();
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 }
 
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.INTERMEDIATE_CVC_TAG)) {
                                     m_intermediateCVC = tlv2.getBytesValue();
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 }
                             }
                         }

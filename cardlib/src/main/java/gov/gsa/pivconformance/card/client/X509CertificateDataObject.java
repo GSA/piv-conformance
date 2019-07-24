@@ -95,12 +95,13 @@ public class X509CertificateDataObject extends PIVDataObject {
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
                                     if (tlv2.hasRawValue()) {
                                         rawCertBuf = tlv2.getBytesValue();
+                                        m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                         s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(rawCertBuf));
                                     }
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
                                 	setErrorDetectionCode(true);
-
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     if (tlv2.getBytesValue().length > 0) {
                                     	setErrorDetectionCodeHasData(true);
                                     }
@@ -108,11 +109,13 @@ public class X509CertificateDataObject extends PIVDataObject {
                                                                 
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTINFO_TAG)) {
                                     certInfoBuf = tlv2.getBytesValue();
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     s_logger.debug("Got cert info buffer: {}", Hex.encodeHexString(certInfoBuf));
                                 }
                                 
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.MSCUID_TAG)) {
                                 	mSCUIDBuf = tlv2.getBytesValue();
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     s_logger.debug("Got MSCUID buffer: {}", Hex.encodeHexString(mSCUIDBuf));
                                 }
                             }

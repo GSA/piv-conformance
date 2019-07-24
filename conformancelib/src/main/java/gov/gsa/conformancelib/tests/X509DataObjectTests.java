@@ -1,7 +1,7 @@
 package gov.gsa.conformancelib.tests;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +12,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -22,22 +24,25 @@ import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class X509DataObjectTests {
+    private static final Logger s_logger = LoggerFactory.getLogger(X509DataObjectTests.class);
 	
-	//Container blob is no larger than 1905 bytes
+	//Cert container value lengths comply with Table 10, 15, 16, 17, 20-39, 42 of SP 800-73-4
     @DisplayName("SP800-73-4.18 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_73_4_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_18(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-       
-        
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
-		assertTrue(bertlv.length <= 1905);
-        
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);	
+			if (!o.inBounds(oid)) {
+				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
+				Exception e = new Exception(errStr);
+				throw(e);
+			}
+		} catch (Exception e) {
+			s_logger.info(e.getMessage());
+			fail(e);
+		}
     }
     
     
@@ -63,8 +68,6 @@ public class X509DataObjectTests {
 		
 		assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.CERTIFICATE_TAG));
 		assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.CERTINFO_TAG));
-        
-        
     }
     
 	//Tag 0x72 is optionally present and follows tags from 73-4.19
@@ -179,7 +182,8 @@ public class X509DataObjectTests {
 		assertTrue(ecHasData == false);
     }
     
-    private static Stream<Arguments> sp800_73_4_x509TestProvider() {
+    @SuppressWarnings("unused")
+	private static Stream<Arguments> sp800_73_4_x509TestProvider() {
     	
     	return Stream.of(
                 Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID),

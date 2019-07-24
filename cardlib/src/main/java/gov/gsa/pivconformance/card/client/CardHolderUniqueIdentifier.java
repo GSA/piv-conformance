@@ -387,30 +387,36 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.BUFFER_LENGTH_TAG)) {
 
                                 m_bufferLength = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.FASC_N_TAG)) {
 
                                 m_fASCN = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.FASC_N_TAG, m_fASCN));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG)) {
 
                                 m_organizationalIdentifier = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG, m_organizationalIdentifier));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.DUNS_TAG)) {
 
                                 m_dUNS = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.DUNS_TAG, m_dUNS));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.GUID_TAG)) {
 
                                 m_gUID = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.GUID_TAG, m_gUID));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG)) {
 
                                 String s = new String(tlv2.getBytesValue());
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 Date date = new SimpleDateFormat("yyyyMMdd").parse(s);
                                 m_expirationDate = date;
                                 scos.write(APDUUtils.getTLV(TagConstants.CHUID_EXPIRATION_DATE_TAG, tlv2.getBytesValue()));
@@ -418,13 +424,15 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CARDHOLDER_UUID_TAG)) {
 
                                 m_cardholderUUID = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 if(m_cardholderUUID != null)
                                     scos.write(APDUUtils.getTLV(TagConstants.CARDHOLDER_UUID_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)) {
 
                                 issuerAsymmetricSignature = tlv2.getBytesValue();
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
+                                
                                 if(issuerAsymmetricSignature != null) {
                                     //Decode the ContentInfo and get SignedData object.
                                     ByteArrayInputStream bIn = new ByteArrayInputStream(issuerAsymmetricSignature);
@@ -456,15 +464,11 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                 }
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
-
+                            	m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 if(!ecAdded) {
                                     m_errorDetectionCode = true;
-                                    //scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
-                                    //scos.write((byte) 0x00);
                                     ecAdded = true;
                                 }
-
-
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                                 //Added this to deal with deprecated tag 3D

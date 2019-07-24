@@ -42,7 +42,6 @@ public class CardholderBiometricData extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(CardholderBiometricData.class);
 
-
     private byte[] m_biometricData;
     private String m_biometricCreationDate;
     private boolean m_errorDetectionCode;
@@ -332,21 +331,26 @@ public class CardholderBiometricData extends PIVDataObject {
 
                                 super.setSigned(true);
                                 m_biometricData = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG)) {
 
                                 m_biometricData = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG, m_biometricData));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.IMAGES_FOR_IRIS_TAG)) {
 
                                 m_biometricData = tlv2.getBytesValue();
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.IMAGES_FOR_IRIS_TAG, m_biometricData));
 
-                            }else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
+                            } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 
                                 m_errorDetectionCode = true;
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
+
                                 scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
                                 scos.write((byte) 0x00);
 
@@ -354,9 +358,6 @@ public class CardholderBiometricData extends PIVDataObject {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
 
-                            //There is a bug in the encoder what adds an extar FE00 this will need to be removed for the new version
-                            //scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
-                            //scos.write((byte) 0x00);
                             m_cbeffContainer = scos.toByteArray();
                         }
                     }

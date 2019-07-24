@@ -2,12 +2,13 @@ package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -191,7 +192,6 @@ public class DiscoveryObject extends PIVDataObject {
         m_occSatisfiesACR = occSatisfiesACR;
     }
 
-
     /**
      *
      * Decode function that decodes Discovery Object object retrieved from the card and populates various class fields.
@@ -215,19 +215,23 @@ public class DiscoveryObject extends PIVDataObject {
                 byte[] tag = tlv.getTag().bytes;
             	super.m_tagList.add(tlv.getTag());
                 if (Arrays.equals(tag, TagConstants.PIV_CARD_APPLICATION_AID_TAG)) {
-                    m_aid = tlv.getBytesValue();
-
+                   
+                	m_aid = tlv.getBytesValue();
+                    m_content.put(tlv.getTag(), tlv.getBytesValue());
+                    
                     scos.write(APDUUtils.getTLV(TagConstants.PIV_CARD_APPLICATION_AID_TAG, m_aid));
-
                 } else if (Arrays.equals(tag, TagConstants.PIN_USAGE_POLICY_TAG)) {
-                    m_pinPolicy = tlv.getBytesValue();
-
+                    
+                	m_pinPolicy = tlv.getBytesValue();
+                    m_content.put(tlv.getTag(), tlv.getBytesValue());
+                    
                     scos.write(APDUUtils.getTLV(TagConstants.PIN_USAGE_POLICY_TAG, m_pinPolicy));
 
                     m_globalPINisPrimary = false;
                     m_globalPINSatisfiesACR = false;
                     m_appPINSatisfiesACR = false;
                     m_occSatisfiesACR = false;
+                    
                     if (is_set(m_pinPolicy[0], 8)) {
                         s_logger.error("PIN Policy bit 8 was set");
                     }
@@ -251,7 +255,7 @@ public class DiscoveryObject extends PIVDataObject {
 
             m_signedContent = scos.toByteArray();
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;

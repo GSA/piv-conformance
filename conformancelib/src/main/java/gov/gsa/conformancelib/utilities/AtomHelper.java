@@ -2,11 +2,6 @@ package gov.gsa.conformancelib.utilities;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
 import org.bouncycastle.cms.CMSSignedData;
@@ -268,7 +263,7 @@ public class AtomHelper {
 		
 		return o;		
 	}
-	
+
 	/**
 	 * 
 	 * Helper function that checks whether a data object is present based on

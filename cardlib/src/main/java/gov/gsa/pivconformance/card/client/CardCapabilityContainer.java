@@ -282,38 +282,21 @@ public class CardCapabilityContainer extends PIVDataObject {
                             if(Arrays.equals(tlv2.getTag().bytes,TagConstants.CARD_IDENTIFIER_TAG)) {
                                 if (tlv2.hasRawValue()) {
                                     m_cardIdentifier = tlv2.getBytesValue();
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     scos.write(APDUUtils.getTLV(TagConstants.CARD_IDENTIFIER_TAG, m_cardIdentifier));
-
-                                    int diff;
-                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.CARD_IDENTIFIER_TAG, m_cardIdentifier.length)) != 0) {
-                                        s_logger.error("Failure of value length of Tag " + TagConstants.CARD_IDENTIFIER_TAG + " " + m_cardIdentifier.length + ": " + diff);
-                                        return false;
-                                    }
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG)) {
                                 if (tlv2.hasRawValue()) {
                                     m_capabilityContainerVersionNumber = tlv2.getBytesValue();
-
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     scos.write(APDUUtils.getTLV(TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG, m_capabilityContainerVersionNumber));
-                                    
-                                    int diff;
-                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG, m_capabilityContainerVersionNumber.length)) != 0) {
-                                        s_logger.error("Failure of value length of Tag " + TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG + " " + m_capabilityContainerVersionNumber.length + ": " + diff);
-                                        return false;
-									}
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG)) {
                                 if (tlv2.hasRawValue()) {
                                     m_capabilityGrammarVersionNumber = tlv2.getBytesValue();
-
-                                    scos.write(APDUUtils.getTLV(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG, m_capabilityGrammarVersionNumber));
-                                    int diff;
-                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG, m_capabilityGrammarVersionNumber.length)) != 0) {
-                                        s_logger.error("Failure of value length of Tag " + TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG + " " + m_capabilityGrammarVersionNumber.length + ": " + diff);
-                                        return false;
-									}
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.APPLICATIONS_CARDURL_TAG)) {
@@ -322,136 +305,72 @@ public class CardCapabilityContainer extends PIVDataObject {
                                     if(m_appCardURL == null)
                                         m_appCardURL = new ArrayList<>();
                                     m_appCardURL.add(tlv2.getBytesValue());
-
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     scos.write(APDUUtils.getTLV(TagConstants.APPLICATIONS_CARDURL_TAG, tlv2.getBytesValue()));
-                                    int tlv2len = tlv2.getBytesValue().length;
-                                    int diff;
-                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.APPLICATIONS_CARDURL_TAG, tlv2len)) != 0) {
-                                        s_logger.error("Failure of value length of Tag " + TagConstants.APPLICATIONS_CARDURL_TAG + " " + tlv2len + ": " + diff);
-                                        return false;
-									}
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.PKCS15_TAG)) {
                                 if (tlv2.hasRawValue()) {
                                     m_pkcs15 = tlv2.getBytesValue();
-
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     scos.write(APDUUtils.getTLV(TagConstants.PKCS15_TAG, m_pkcs15));
-                                    int tlv2len = tlv2.getBytesValue().length;
-                                    int diff;
-                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.PKCS15_TAG, tlv2len)) != 0) {
-                                        s_logger.error("Failure of value length of Tag " + TagConstants.PKCS15_TAG + " " + tlv2len + ": " + diff);
-                                        return false;
-									}
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG)) {
                                 if (tlv2.hasRawValue()) {
                                     m_registeredDataModelNumber = tlv2.getBytesValue();
-
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     scos.write(APDUUtils.getTLV(TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG, m_registeredDataModelNumber));
-                                    int tlv2len = tlv2.getBytesValue().length;
-                                    int diff;
-                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG, tlv2len)) != 0) {
-                                        s_logger.error("Failure of value length of Tag " + TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG + " " + tlv2len + ": " + diff);
-                                        return false;
-									}
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG)) {
                                 if (tlv2.hasRawValue()) {
                                     m_accessControlRuleTable = tlv2.getBytesValue();
-
+                                    m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                     scos.write(APDUUtils.getTLV(TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG, m_accessControlRuleTable));
-                                    int tlv2len = tlv2.getBytesValue().length;
-                                    int diff;
-                                    if ((diff = ContainerLengthRule.lengthDifference(TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG, tlv2len)) != 0) {
-                                        s_logger.error("Failure of value length of Tag " + TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG + " " + tlv2len + ": " + diff);
-                                        return false;
-									}
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CARD_APDUS_TAG)) {
                                  m_cardAPDUs = true;
-
+                                 m_content.put(tlv2.getTag(), tlv2.getBytesValue());                        
                                  scos.write(APDUUtils.getTLV(TagConstants.CARD_APDUS_TAG, tlv2.getBytesValue()));
-                                 int tlv2len = tlv2.getBytesValue().length;
-                                 int diff;
-                                 if ((diff = ContainerLengthRule.lengthDifference(TagConstants.CARD_APDUS_TAG, tlv2len)) != 0) {
-                                     s_logger.error("Failure of value length of Tag " + TagConstants.CARD_APDUS_TAG + " " + tlv2len + ": " + diff);
-                                     return false;
-								}
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.REDIRECTION_TAG_TAG)) {
                                  m_redirectionTag = true;
-
+                                 m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                  scos.write(APDUUtils.getTLV(TagConstants.REDIRECTION_TAG_TAG, tlv2.getBytesValue()));
-                                 int tlv2len = tlv2.getBytesValue().length;
-                                 int diff;
-                                 if ((diff = ContainerLengthRule.lengthDifference(TagConstants.REDIRECTION_TAG_TAG, tlv2len)) != 0) {
-                                     s_logger.error("Failure of value length of Tag " + TagConstants.REDIRECTION_TAG_TAG + " " + tlv2len + ": " + diff);
-                                     return false;
-								}
+
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CAPABILITY_TUPLES_TAG)) {
                                  m_capabilityTuples = true;
-
+                                 m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                  scos.write(APDUUtils.getTLV(TagConstants.CAPABILITY_TUPLES_TAG, tlv2.getBytesValue()));
-                                 int tlv2len = tlv2.getBytesValue().length;
-                                 int diff;
-                                 if ((diff = ContainerLengthRule.lengthDifference(TagConstants.CAPABILITY_TUPLES_TAG, tlv2len)) != 0) {
-                                     s_logger.error("Failure of value length of Tag " + TagConstants.CAPABILITY_TUPLES_TAG + " " + tlv2len + ": " + diff);
-                                     return false;
-								}
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.STATUS_TUPLES_TAG)) {
                                  m_statusTuples = true;
-
+                                 m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                  scos.write(APDUUtils.getTLV(TagConstants.STATUS_TUPLES_TAG, tlv2.getBytesValue()));
-                                 int tlv2len = tlv2.getBytesValue().length;
-                                 int diff;
-                                 if ((diff = ContainerLengthRule.lengthDifference(TagConstants.STATUS_TUPLES_TAG, tlv2len)) != 0) {
-                                     s_logger.error("Failure of value length of Tag " + TagConstants.STATUS_TUPLES_TAG + " " + tlv2len + ": " + diff);
-                                     return false;
-									}
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.NEXT_CCC_TAG)) {
                                  m_nextCCC = true;
-
+                                 m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                  scos.write(APDUUtils.getTLV(TagConstants.NEXT_CCC_TAG, tlv2.getBytesValue()));
-                                 int tlv2len = tlv2.getBytesValue().length;
-                                 int diff;
-                                 if ((diff = ContainerLengthRule.lengthDifference(TagConstants.NEXT_CCC_TAG, tlv2len)) != 0) {
-                                     s_logger.error("Failure of value length of Tag " + TagConstants.NEXT_CCC_TAG + " " + tlv2len + ": " + diff);
-                                     return false;
-								}
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.EXTENDED_APPLICATION_CARDURL_TAG)) {
                                 if(m_extendedApplicationCardURL == null)
                                     m_extendedApplicationCardURL = new ArrayList<>();
                                 m_extendedApplicationCardURL.add(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.EXTENDED_APPLICATION_CARDURL_TAG, tlv2.getBytesValue()));
-                                int tlv2len = tlv2.getBytesValue().length;
-                                int diff;
-                                if ((diff = ContainerLengthRule.lengthDifference(TagConstants.EXTENDED_APPLICATION_CARDURL_TAG, tlv2len)) != 0) {
-                                    s_logger.error("Failure of value length of Tag " + TagConstants.EXTENDED_APPLICATION_CARDURL_TAG + " " + tlv2len + ": " + diff);
-                                    return false;
-								}
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.SECURITY_OBJECT_BUFFER_TAG)) {
                                 m_securityObjectBuffer = tlv2.getBytesValue();
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.SECURITY_OBJECT_BUFFER_TAG, tlv2.getBytesValue()));
-                                int tlv2len = tlv2.getBytesValue().length;
-                                int diff;
-                                if ((diff = ContainerLengthRule.lengthDifference(TagConstants.SECURITY_OBJECT_BUFFER_TAG, tlv2len)) != 0) {
-                                    s_logger.error("Failure of value length of Tag " + TagConstants.SECURITY_OBJECT_BUFFER_TAG + " " + tlv2len + ": " + diff);
-                                    return false;
-								}
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
                             	setErrorDetectionCode(true);
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
                                 scos.write((byte) 0x00);
                             }
@@ -467,7 +386,7 @@ public class CardCapabilityContainer extends PIVDataObject {
             }
         }catch (Exception ex) {
 
-            s_logger.error("Error parsing X.509 Certificate: {}", ex.getMessage());
+            s_logger.error("Error parsing CCC: {}", ex.getMessage());
             return false;
         }
 
