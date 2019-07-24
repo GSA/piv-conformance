@@ -96,7 +96,8 @@ public class TagBoundaryManager {
 
 		// SP 800-73-4 Part 1, Table 12. Security Object
 		crs = new ContainerRuleset(APDUConstants.SECURITY_OBJECT_NAME);
-		crs.add(new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG), new TagLengthRule(RULE.VARIABLE, 0, 3200));
+		crs.add(new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG), new TagLengthRule(RULE.VARIABLE, 0, 30));
+		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_TAG), new TagLengthRule(RULE.VARIABLE, 0, 1298));
 		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
