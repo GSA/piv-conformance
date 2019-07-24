@@ -62,6 +62,7 @@ public class TagBoundaryManager {
 		crs.add(new BerTag(TagConstants.NEXT_CCC_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 		crs.add(new BerTag(TagConstants.EXTENDED_APPLICATION_CARDURL_TAG), new TagLengthRule(RULE.FIXED, 48, 48));
 		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_BUFFER_TAG), new TagLengthRule(RULE.FIXED, 0, 48));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP800-73-4 Part 1, Table 9. Card Holder Unique Identifier tags
@@ -113,7 +114,6 @@ public class TagBoundaryManager {
 		crs.add(new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
 		crs.add(new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG), new TagLengthRule(RULE.FIXED, 9, 9));
 		crs.add(new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
-		;
 		crs.add(new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG), new TagLengthRule(RULE.VARIABLE, 0, 15));
 		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
 		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
@@ -132,6 +132,7 @@ public class TagBoundaryManager {
 		crs.add(new BerTag(TagConstants.KEYS_WITH_OFF_CARD_CERTS_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
 		// TODO: Handle conditional hmmm...
 		crs.add(new BerTag(TagConstants.OFF_CARD_CERT_URL_TAG), new TagLengthRule(RULE.VARIABLE, 0, 118));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 40. Cardholder Iris Images
