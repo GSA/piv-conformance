@@ -25,7 +25,7 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
  * and reduce code maintenance.
  * :1,$s/56/57/g
  * 
- * 9- or 10-step data-driven design approach to code reduction:
+ * 10-step data-driven design approach to code reduction:
  * 
  * 1. Add 1 to this number right here: [ 56 ]
  * 2. On the Steps Overview tab of the .xlsx sheet, locate the two rows with atoms that perform the same function and 
@@ -39,10 +39,12 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
  * 7. JUnit test and comment test fixture code within
  * 8. To prove out that the collapse works:
  *    a. refactor collapsed methods, then rebuild and/or adjust database (parameterize, if necessary), and 
- *    repeat Step 7 and 8 until the two old test cases fails and the new case passes per the requirement. The key
- *    is make the test runner fail with a graceful popup until correctly merged. 
+ *    repeat Step 7 and 8 until the two old test cases fails and the new case passes per the requirement. The trick
+ *    is make the test runner fail with a graceful popup at runtime or a Python KeyError: '73-4.xx' during mk_db.sh
+ *    until correctly merged. 
  * 9. On the SP800-73-4 tab, locate the old atom rows, removed them, save, and rebuild the database. The next test
  *    should run with no unexpected failures and no popups. If either occurs, investigate, fix, and repeat 7-9.
+ * 10. The old atoms can be removed from the appropriate test class and the system can be rebuilt.
  * 
  * @author Bob.Fontana
  *
