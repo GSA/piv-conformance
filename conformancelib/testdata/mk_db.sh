@@ -8,9 +8,24 @@
 # Windows 64 Python distro.
 
 if [ $(expr $(uname) : "^.*CYG") -eq 3 ]; then
-        echo "Please run CMD /c mk_db.bat for Cygwin environments"
-        exit 1
+	echo -n "Hit <ENTER> when ready to invoke Windows Python detour around Cygwin: " 
+	read ans
+	mkdbParam=""
+	if [ ! -d venv-xlrd ]; then #prompt create new
+		echo "Forcing a new installation of venv-xlrd..."
+		mkdbParam="-f"
+	elif [ -d venv-xlrd ] && [ "z$1" == "z-f" ]; then
+		echo "You must first manually remove venv-xlrd -- that's above my paygrade"
+		exit 1
+	elif [ "z$1" != "z-f" ]; then
+		echo "Building databases..."
+	fi
+	cmd /c mk_db.bat $mkdbParam
+	echo -n "Hit <ENTER> to close this window: " 
+	read ans
+	exit 1
 fi
+
 PYTHON=${PYTHON:-$(which python)}
 
 # Don't try to parse $PS1, just go for it
@@ -24,17 +39,17 @@ source ./venv-xlrd/bin/activate
 
 for F in $(ls *_Cards.xlsx)
 do
-        BASE=$F
-        echo "Processing $F..."
-        rm -f $BASE.db
-        rm -f $BASE.sql
-        if [ -f $BASE.xlsx ]; then 
-                python CctDatabasePopulator.py -i $BASE.xlsx -o $BASE.sql
-                sqlite3 $BASE.db < $BASE.sql
-                cp -p $BASE.db ../../tools/85b-swing-gui/
-        else
-                echo "$BASE.xlsx is missing"
-        fi
+	BASE=$F
+	echo "Processing $F..."
+	rm -f $BASE.db
+	rm -f $BASE.sql
+	if [ -f $BASE.xlsx ]; then 
+		python CctDatabasePopulator.py -i $BASE.xlsx -o $BASE.sql
+		sqlite3 $BASE.db < $BASE.sql
+		cp -p $BASE.db ../../tools/85b-swing-gui/
+	else
+		echo "$BASE.xlsx is missing"
+	fi
 done
 
 exit 0
