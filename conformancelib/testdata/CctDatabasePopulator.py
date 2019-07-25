@@ -110,7 +110,6 @@ def main():
         test_atoms = str(step_overview_tab.cell_value(ii, 3)).strip()
         tc.m_test_case_container = str(step_overview_tab.cell_value(ii, 5))
         if test_atoms:
-            print (test_atoms)
             if ',' in test_atoms:
                 test_atoms = test_atoms.rstrip(',')
                 test_step_ids = test_atoms.split(',')
