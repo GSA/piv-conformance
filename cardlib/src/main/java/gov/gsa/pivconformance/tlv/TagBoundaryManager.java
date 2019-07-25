@@ -12,12 +12,26 @@ import gov.gsa.pivconformance.tlv.TagLengthRule.RULE;
 import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.tlv.ContainerRuleset;
-
+/**
+ * This class is intended to be used side-by-side SP 800-73 for quick comparison/updates to
+ * lengths. 
+ * 
+ * TODO: It's possible to have a single atom called to check lengths of any container simply
+ * by passing in a container OID. It will only require a database change. Recommend adding
+ * a new "CommonObject" class for atoms like that.
+ * 
+ * @author Bob.Fontana
+ *
+ */
 public class TagBoundaryManager {
 	private static final Logger s_logger = LoggerFactory.getLogger(TagBoundaryManager.class);
 	private static final HashMap<String, ContainerRuleset> m_maxLenMap = new HashMap<String, ContainerRuleset>();
 
 	private void initCache() {
+		/*
+		 * This cache gets hung from the gov.gsa.pivconformance.card.client.DataModelSingleton object
+		 * with a public accessor getLengthRules() method.
+		 */
 		// Handle cert containers from Table 10, 15, 16, 17, 20-39, 42 of SP 800-73-4
 		ArrayList<String> certNames = new ArrayList<String>();
 		certNames.add(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_NAME);
@@ -163,17 +177,12 @@ public class TagBoundaryManager {
 	public TagBoundaryManager() {
 		initCache();
 	}
-	/*
-		*//**
-			 * Getter for length rules based on container name
-			 * 
-			 *//*
-				 * private ContainerRuleset getLengthRules(String containerName) { return
-				 * m_maxLenMap.get(containerName); }
-				 */
 
 	/**
+	 * Gets the tag length rules
 	 * 
+	 * @param name container name
+	 * @return HashMap of TagLengthRule objects, one for each tag
 	 */
 	private HashMap<BerTag, TagLengthRule> getTagLengthRules(String name) {
 		ContainerRuleset cr = m_maxLenMap.get(name);
@@ -198,7 +207,7 @@ public class TagBoundaryManager {
 		HashMap<BerTag, TagLengthRule> tlRules = getTagLengthRules(containerName);
 		if (tlRules == null) {
 			String errStr = (String.format("Rules for container %s, tag 0x%02x is null", containerName, Hex.toHexString(tag.bytes)));
-			s_logger.warn(errStr);
+			s_logger.error(errStr);
 			NullPointerException e = new NullPointerException(errStr);
 			throw (e);
 		}

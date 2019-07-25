@@ -27,13 +27,30 @@ public class TagLengthRule {
 		FIXED, OR, VARIABLE
 	};
 	
+	/*
+	 * Provides the RULE (for lack of a better word at the time) of the rule
+	 * 
+	 * @return the RULE
+	 */
+	
 	public RULE getRule() {
 		return m_rule;
 	}
 	
+	/*
+	 * Provides the low value in the rule
+	 * 
+	 * @return the low value in the rule
+	 */	
 	public int getLowVal() {
 		return m_lowVal;
 	}
+	
+	/*
+	 * Provides the high value in the rule
+	 * 
+	 * @return the high value in the rule
+	 */
 	
 	public int getHighVal() {
 		return m_highVal;
