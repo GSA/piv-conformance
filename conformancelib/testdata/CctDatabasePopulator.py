@@ -107,17 +107,17 @@ def main():
         tc = test_case()
         tc.m_test_case_identifier = str(step_overview_tab.cell_value(ii, 1)).strip()
         tc.m_test_case_description = str(step_overview_tab.cell_value(ii, 2)).strip()
-        test_details = str(step_overview_tab.cell_value(ii, 3)).strip()
+        test_atoms = str(step_overview_tab.cell_value(ii, 3)).strip()
         tc.m_test_case_container = str(step_overview_tab.cell_value(ii, 5))
-        if test_details:
-            if ',' in test_details:
-                test_details = test_details.rstrip(',')
-                test_step_ids = test_details.split(',')
+        if test_atoms:
+            if ',' in test_atoms:
+                test_atoms = test_atoms.rstrip(',')
+                test_step_ids = test_atoms.split(',')
                 for test_step_id in test_step_ids:
                     ts = test_step_map[test_step_id.strip()]
                     tc.m_test_steps.append(ts)
             else:
-                ts = test_step_map[test_details]
+                ts = test_step_map[test_atoms]
                 tc.m_test_steps.append(ts)
 
         test_cases.append(tc)

@@ -274,43 +274,43 @@ public class PrintedInformation extends PIVDataObject {
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.NAME_TAG)) {
 
                                 m_name = new String(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.NAME_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.EMPLOYEE_AFFILIATION_TAG)) {
 
                                 m_employeeAffiliation = new String(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.EMPLOYEE_AFFILIATION_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG)) {
 
                                 m_expirationDate = new String(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG)) {
 
                                 m_agencyCardSerialNumber = new String(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ISSUER_IDENTIFICATION_TAG)) {
 
                                 m_issuerIdentification = new String(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.ISSUER_IDENTIFICATION_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG)) {
 
                                 m_organizationAffiliation1 = new String(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG, tlv2.getBytesValue()));
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG)) {
 
                                 m_organizationAffiliation2 = new String(tlv2.getBytesValue());
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG, tlv2.getBytesValue()));
 
                             }else{
@@ -319,7 +319,7 @@ public class PrintedInformation extends PIVDataObject {
                         } else {
                         	super.m_tagList.add(tlv2.getTag());
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
-
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 m_errorDetectionCode = true;
 
                                 scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);

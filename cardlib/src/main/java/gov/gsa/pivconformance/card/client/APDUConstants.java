@@ -340,6 +340,12 @@ public class APDUConstants {
     }
 
     /**
+     * HashMap for easy look of container OIDs to names
+     *
+     */
+    
+    
+    /**
      *
      * HashMap for easy lookup of tag values for PIV Data Objects
      *

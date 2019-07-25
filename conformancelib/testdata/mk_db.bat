@@ -8,17 +8,28 @@ REM If this utility runs correctly there will be 4 total files
 REM copied to the .\tools\85b-swing-gui directory for testing.
 REM
 
-SET VENV=%PROMPT:~1,4%
-echo %VENV%
-IF %VENV% NEQ venv (
-	PYTHON -mvenv venv-xlrd
-	.\venv-xlrd\Scripts\activate
-	PIP install --upgrade pip
-	PIP install xlrd
-	PIP install xlwt
-	PIP install xlsxwriter
-	.\venv-xlrd\Scripts\activate
+IF "%PYTHONPATH%"=="" (
+ECHO PYTHONPATH is NOT defined
+EXIT
 )
+
+IF "%1"=="-f" (
+	PYTHON -mvenv venv-xlrd
+	CMD /C .\venv-xlrd\Scripts\activate
+	.\venv-xlrd\Scripts\easy_install xlwt
+	.\venv-xlrd\Scripts\PIP install --upgrade pip
+	.\venv-xlrd\Scripts\PIP install xlrd
+	.\venv-xlrd\Scripts\PIP install xlwt
+	.\venv-xlrd\Scripts\PIP install xlsxwriter
+)
+
+COPY *.db venv-xlrd
+COPY *.sql venv-xlrd
+COPY *.xlsx venv-xlrd
+COPY *.py venv-xlrd
+
+CD venv-xlrd
+CMD /C Scripts\Activate
 
 FOR %%x IN (
 	PIV_ICAM_Test_Cards
@@ -34,8 +45,14 @@ FOR %%x IN (
 	IF EXIST %%x.xlsx (
 		PYTHON CctDatabasePopulator.py -i %%x.xlsx -o %%x.sql
 		TYPE %%x.sql | sqlite3 %%x.db
-		COPY %%x.db ..\..\tools\85b-swing-gui\
+		COPY %%x.sql ..
+		COPY %%x.db ..
 	) ELSE (
-		echo %%x.xlsx is missing
+		ECHO %%x.xlsx is missing
 	)
 )
+CD ..
+COPY *.db ..\..\tools\85b-swing-gui\
+
+REM Remove this when we are in maintenance mode
+

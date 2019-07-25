@@ -2,6 +2,7 @@ package gov.gsa.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
@@ -23,6 +26,7 @@ import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 
 public class SP800_73_4CCCTests {
+    private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4CCCTests.class);
 
 	//registered data model element is present and has a value of 0x10
 	@DisplayName("SP800-73-4.1 test")
@@ -51,7 +55,7 @@ public class SP800_73_4CCCTests {
         	
         byte[] bertlv = o.getBytes();
         
-        //pivGetData retrives data based on the tag value for CCC its '5FC107'
+        //pivGetData retrieves data based on the tag value for CCC its '5FC107'
         assertNotNull(bertlv);
     }
 
@@ -157,20 +161,23 @@ public class SP800_73_4CCCTests {
 
 	}
 	
-	//Values of tags present conform to vendor-supplied data
+	// CCC value lengths comply with Table 8 of SP 800-73-4
 	@DisplayName("SP800-73-4.6 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_CCCTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-	@Disabled //DIsabled for now because we really don't know how to test that now.
 	void sp800_73_4_Test_6(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		// XXX *** until vendor supplied data tests are defined, the only test here is to
-		// make sure the object parsed
-		assertNotNull(o);
-		
-		//XXX Not sure what vendor supplied data is to check values of tags	
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);	
+			if (!o.inBounds(oid)) {
+				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
+				Exception e = new Exception(errStr);
+				throw(e);
+			}
+		} catch (Exception e) {
+			s_logger.info(e.getMessage());
+			fail(e);
+		}
 	}
 	
 	//No tags other than (0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xFA, 0xFB, 0xFC, 0xFD, 0xE3, 0xE4, 0xFE) are present

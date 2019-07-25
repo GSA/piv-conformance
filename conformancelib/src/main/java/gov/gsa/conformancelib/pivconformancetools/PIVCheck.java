@@ -18,8 +18,6 @@ import javax.smartcardio.*;
 import java.lang.invoke.MethodHandles;
 import java.security.cert.X509Certificate;
 import java.util.*;
-import java.io.Console;
-
 
 public class PIVCheck {
     // slf4j will thunk this through to an appropriately configured logging library
@@ -218,8 +216,8 @@ public class PIVCheck {
 
                         CMSSignedData sd = ((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -265,8 +263,8 @@ public class PIVCheck {
 
                         CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -310,8 +308,8 @@ public class PIVCheck {
 
                         CMSSignedData sd = ((SecurityObject) dataObject).getSignedData();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -348,8 +346,8 @@ public class PIVCheck {
 
                         CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
                         SignerInformationStore signers = sd.getSignerInfos();
-                        Collection collection = signers.getSigners();
-                        Iterator it = collection.iterator();
+                        Collection<SignerInformation> collection = signers.getSigners();
+                        Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
@@ -470,8 +468,8 @@ public class PIVCheck {
 
                             CMSSignedData sd = ((CardholderBiometricData) cardholderIrisImages).getSignedData();
                             SignerInformationStore signers = sd.getSignerInfos();
-                            Collection collection = signers.getSigners();
-                            Iterator it = collection.iterator();
+                            Collection<SignerInformation> collection = signers.getSigners();
+                            Iterator<SignerInformation> it = collection.iterator();
 
                             while (it.hasNext())
                             {
@@ -577,7 +575,7 @@ public class PIVCheck {
                 s_logger.info("Printed Information hash verified: {}", hashVerified);
 
             }
-            ResponseAPDU rsp = null;
+            //ResponseAPDU rsp = null;
             return true;
         } else {
             s_logger.error("TestCard called with invalid card handle");

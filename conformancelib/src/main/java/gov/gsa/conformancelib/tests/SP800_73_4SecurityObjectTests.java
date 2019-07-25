@@ -34,20 +34,25 @@ import gov.gsa.pivconformance.tlv.TagConstants;
 public class SP800_73_4SecurityObjectTests {
 	static Logger s_logger = LoggerFactory.getLogger(SP800_73_4SecurityObjectTests.class);
 
-	//Security Object blob no larger than 1008 bytes
+	//Security Object value lengths comply with Table 12 of SP 800-73-4
 	@DisplayName("SP800-73-4.33 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_33(String oid, TestReporter reporter) {
-
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
-
-		byte[] bertlv = o.getBytes();
-		assertNotNull(bertlv);
-
+		try {
+			PIVDataObject o = AtomHelper.getDataObject(oid);	
+			if (!o.inBounds(oid)) {
+				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
+				Exception e = new Exception(errStr);
+				throw(e);
+			}
+		} catch (Exception e) {
+			s_logger.info(e.getMessage());
+			fail(e);
+		}
 		//Confirm Security object blob is not larger than 120
-		assertTrue(bertlv.length <= 1008); // TODO: https://github.com/GSA/piv-conformance/issues/90
+		// assertTrue(bertlv.length <= 1008); // TODO: https://github.com/GSA/piv-conformance/issues/90
 	}
 
 	//Tags 0xBA, 0xBB, 0XFE are present

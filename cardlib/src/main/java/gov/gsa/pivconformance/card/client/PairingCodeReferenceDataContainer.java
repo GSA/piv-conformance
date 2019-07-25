@@ -110,6 +110,7 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.PAIRING_CODE_TAG)) {
 
                                 m_pairingCode = new String(tlv2.getBytesValue());
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
 
                             } else{
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
@@ -118,6 +119,7 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 
                                 m_errorDetectionCode = true;
+                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
 
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
