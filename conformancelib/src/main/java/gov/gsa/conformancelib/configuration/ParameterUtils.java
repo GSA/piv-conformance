@@ -14,7 +14,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.gsa.conformancelib.tests.ConformanceTestException;
+import gov.gsa.pivconformance.card.client.CardClientException;
 
 public class ParameterUtils {
 	
@@ -58,11 +58,11 @@ public class ParameterUtils {
 	 * 
 	 * @param parameters string containing list of comma-separated parameters, themselves possibly with parameters 
 	 * @return HashMap of key:value pairs
-	 * @throws ConformanceTestException
+	 * 
+	 * Note that we throw CardClientExceptions here to capture our own issues with the database params
 	 */
 	public static Map<String,List<String>> MapFromString(String parameters, String delimiter) {
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
-		final Logger methodLogger = LoggerFactory.getLogger(ParameterUtils.class.getName() + ".MapFromString");
 		String[] parameterList = ParameterUtils.CreateFromString(parameters, ",");
 		String logMessage = "";
 		
@@ -70,33 +70,29 @@ public class ParameterUtils {
 			if (parameterList.length == 0) {
 				logMessage = "Parameter list expected but none found";
 				s_logger.error(logMessage);
-				throw new ConformanceTestException(logMessage);
+				throw new CardClientException(logMessage);
 			}
 			
 			for(String p : parameterList) {
 				ArrayList<String> value = new ArrayList<String>();
 				if(p.contains(":")) {
 					// Type 3, with ":" separating key and value
-					methodLogger.debug("Type 3, with \":\" separating key and value\n");
 					String[] kv = p.split(":");
 
 					if(kv.length == 2) {
 						// Could be an inner key:value pair, or just a key
 						if (kv[1].toLowerCase().compareTo("null") == 0) {
-							methodLogger.debug("***************** sub-parameter is null\n");
 							value.add(null);
 						} else {
 							value.add(kv[1]);
-							methodLogger.debug("***************** sub-parameter is NOT null:" + kv[1] + "\n");
 						}
 					} else if (kv.length == 1) {
 						// Empty string == absent
-						methodLogger.debug("****************** sub-parameter is the empty string (absent)\n");
 						value.add("");
 					} else {
 						logMessage = "Unexpected format in parameter string (" +  p + ")";
 						s_logger.error(logMessage);
-						throw new ConformanceTestException(logMessage);
+						throw new CardClientException(logMessage);
 					}
 					// Print out for debugging
 					if (value != null) {
@@ -105,13 +101,10 @@ public class ParameterUtils {
 							String listItem = li.next();
 							if (listItem.contains("|")) {
 								// A list of allowable values - nothing too fancy
-								methodLogger.debug("****************** A list of allowable values: " + listItem  + "\n");
-								String[] subParamList = ParameterUtils.CreateFromString(listItem, "\\|");
-								for (String si : subParamList) {
-									methodLogger.debug("****************** An allowable sub-parameter: " + si  + "\n");
-								}
-							} else {
-								methodLogger.debug("****************** An allowable value: " + listItem  + "\n");
+								// String[] subParamList = ParameterUtils.CreateFromString(listItem, "\\|");
+								// TODO: Do we even have any parameters with pipe-separators?
+								logMessage = "TODO: Handle pipe-separated sub-parameters";
+								throw new CardClientException(logMessage);
 							}
 						}
 					}
@@ -119,20 +112,17 @@ public class ParameterUtils {
 					rv.put(kv[0], value);
 				} else {
 					// Type 2 with comma-separated values.  Put them into the map with a null List.
-					methodLogger.debug("***************** Type 2 with comma-separated values\n");
 					rv.putIfAbsent(p, null);
 				}
 			}
 			if (rv.isEmpty()) {
 				logMessage = "Return HashMap<String, List<String>> is empty";
-				methodLogger.debug("***************** Type 2 with comma-separated values\n");
-				methodLogger.error(logMessage);
 				s_logger.error(logMessage);
-				throw new ConformanceTestException(logMessage);
+				throw new CardClientException(logMessage);
 			}
-		} catch (ConformanceTestException e) {
+		} catch (CardClientException e) {
 			s_logger.error(logMessage);
-		}
+		} 
 		return rv;		
 	}
 
