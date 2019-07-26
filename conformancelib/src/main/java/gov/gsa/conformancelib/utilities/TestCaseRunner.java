@@ -45,7 +45,8 @@ public class TestCaseRunner {
         return messages;
     }
 
-    private static List<String> CheckRequiredOptions(String option, String requiredOptions, CommandLine cmd) {
+    @SuppressWarnings("unused")
+	private static List<String> CheckRequiredOptions(String option, String requiredOptions, CommandLine cmd) {
         List<String> requiredOptionList = Arrays.asList(requiredOptions.split("\\s*,\\s*"));
         // if the split didn't find anything, just treat the whole string as an option to test
         if(requiredOptionList.isEmpty()) {

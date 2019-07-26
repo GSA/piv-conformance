@@ -9,8 +9,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +39,6 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.card.client.PrintedInformation;
 import gov.gsa.pivconformance.card.client.SecurityObject;
-import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.utils.PCSCUtils;
@@ -127,7 +124,7 @@ public class ContainerDump {
 				}
 				BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
 				BerTag berEmployeeAffiliationTag = new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG);
-				BerTag berPrintedInformationExpirationDateTag = new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG);
+				new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG);
 				BerTag berAgencyCardSerialTag = new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG);
 				BerTag berIssuerIDTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
 				int nameTagIndex = tagList.indexOf(berNameTag);

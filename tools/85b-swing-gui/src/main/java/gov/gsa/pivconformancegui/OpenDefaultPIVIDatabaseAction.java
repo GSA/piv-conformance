@@ -1,15 +1,10 @@
 package gov.gsa.pivconformancegui;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
-
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

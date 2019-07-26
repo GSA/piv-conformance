@@ -1,7 +1,6 @@
 package gov.gsa.pivconformancetest;
 
 import gov.gsa.pivconformance.card.client.*;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -148,12 +148,6 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                             certIS = new ByteArrayInputStream(rawCertBuf);
                         }
 
-                        //Check to make sure certificate buffer is not null
-                        if(certIS == null){
-                            s_logger.error("Error parsing {}, unable to get certificate buffer.", APDUConstants.oidNameMAP.get(super.getOID()));
-                            return false;
-                        }
-
                         CertificateFactory cf = CertificateFactory.getInstance("X509");
                         m_pivAuthCert = (X509Certificate)cf.generateCertificate(certIS);
                         s_logger.info(m_pivAuthCert.getSubjectDN().toString());

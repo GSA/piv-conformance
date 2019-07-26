@@ -10,7 +10,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 

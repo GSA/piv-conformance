@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -740,13 +739,11 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
 			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 			
 			
@@ -791,13 +788,12 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
+			b1.intValue();
 			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 			
 			
@@ -840,13 +836,12 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
+			b1.intValue();
 			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 			
 			
@@ -889,13 +884,11 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b1.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 	        
 	        //Confirm number of minutiae is between 0 and 128
@@ -938,13 +931,11 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b1.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 	        
 			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
@@ -992,19 +983,16 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b1.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 	        
 			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
 				
-				int positionX = (((biometricDataBlock[offset+4] & ~0xC0) << 2 & 0xFF) | (biometricDataBlock[offset+5] & 0xFF));
-				int positionY = (((biometricDataBlock[offset+6] & ~0xC0) << 2 & 0xFF) | (biometricDataBlock[offset+7] & 0xFF));
+				
 				
 				//XXX Not sure how to check position
 				
@@ -1047,13 +1035,11 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b1.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 	        
 			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
@@ -1100,13 +1086,11 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b1.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 	        
 			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
@@ -1153,13 +1137,11 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
-			int fingerQuality = b3.intValue();
+			b1.intValue();
+			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 	        
 			byte [] zeroBlock = { 0x00, 0x00 };
@@ -1921,14 +1903,12 @@ public class SP800_76_Tests {
         for (int view = 0; view < numberOfFingers; view++) {			
 
 			Byte b1 = new Byte(biometricDataBlock[offset]);
-			Byte b2 = new Byte(biometricDataBlock[offset+1]);
+			new Byte(biometricDataBlock[offset+1]);
 			Byte b3 = new Byte(biometricDataBlock[offset+2]);
 			Byte b4 = new Byte(biometricDataBlock[offset+3]);
-			int fingerPosition = b1.intValue();
-			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
-			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
+			b1.intValue();
 			int fingerQuality = b3.intValue();
-			int numberOfMinutiae = b4.intValue();
+			b4.intValue();
 			
 
 	        assertTrue(qList.contains(fingerQuality), "Finger qulity is not the right value " + fingerQuality + " Expected values are " + qList.toString());

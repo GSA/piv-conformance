@@ -1,6 +1,5 @@
 package gov.gsa.pivconformancegui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JPanel;

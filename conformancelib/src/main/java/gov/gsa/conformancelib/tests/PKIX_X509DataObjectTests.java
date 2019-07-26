@@ -43,7 +43,6 @@ import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
-import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
@@ -505,12 +504,12 @@ public class PKIX_X509DataObjectTests {
 		
 		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
 		if (pmap == null) {
-			ConformanceTestException e  = new ConformanceTestException("Parameter list is null");
+			new ConformanceTestException("Parameter list is null");
 		}
 
 		Iterable<?> requiredSanOids = pmap.keySet();
 		if (requiredSanOids == null) {
-			ConformanceTestException e  = new ConformanceTestException("Required SAN OtherName OID list is null");
+			new ConformanceTestException("Required SAN OtherName OID list is null");
 		}
     	
     	Iterator<?> i = requiredSanOids.iterator();
@@ -520,7 +519,7 @@ public class PKIX_X509DataObjectTests {
     	}
 		
     	if (requiredOid == null || requiredOid.length() == 0) {
-    		ConformanceTestException e  = new ConformanceTestException("Required OID value null or empty");
+    		new ConformanceTestException("Required OID value null or empty");
     	}
     	
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
@@ -789,9 +788,7 @@ public class PKIX_X509DataObjectTests {
 		}
 		
 		assertNotNull(eku);
-		boolean containsOOID = false;
-		
-	    KeyPurposeId[] kpilist = eku.getUsages();
+		KeyPurposeId[] kpilist = eku.getUsages();
 	    for (KeyPurposeId kpiInfo : kpilist) {
 	    	s_logger.debug("Testing key purpose OID {} for container {}", kpiInfo.getId().toString(), oid);
 	    	assert(ekuOids.contains(kpiInfo.getId().toString()));
@@ -1126,12 +1123,12 @@ public class PKIX_X509DataObjectTests {
 		
 		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
 		if (pmap == null) {
-			ConformanceTestException e  = new ConformanceTestException("Parameter list is null");
+			new ConformanceTestException("Parameter list is null");
 		}
 
 		Iterable<?> requiredSanOids = pmap.keySet();
 		if (requiredSanOids == null) {
-			ConformanceTestException e  = new ConformanceTestException("Required SAN OtherName OID list is null");
+			new ConformanceTestException("Required SAN OtherName OID list is null");
 		}
     	
     	Iterator<?> i = requiredSanOids.iterator();
@@ -1141,7 +1138,7 @@ public class PKIX_X509DataObjectTests {
     	}
 		
     	if (requiredOid == null || requiredOid.length() == 0) {
-    		ConformanceTestException e  = new ConformanceTestException("Required OID value null or empty");
+    		new ConformanceTestException("Required OID value null or empty");
     	}
     	
 		X509Certificate cert = AtomHelper.getCertificateForContainer(oid);
