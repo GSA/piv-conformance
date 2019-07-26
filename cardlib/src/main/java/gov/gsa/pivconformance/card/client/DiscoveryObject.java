@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  *

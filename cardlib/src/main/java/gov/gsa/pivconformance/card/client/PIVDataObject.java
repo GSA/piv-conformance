@@ -121,18 +121,19 @@ public class PIVDataObject {
 	 * @param tag the tag 
 	 * @param valueLen the value, as counted by byte[].length
 	 * @return true if the value meets all length requirements for that tag
+	 * @throws Exception 
 	 */
 
-    private boolean inBounds(String name, BerTag tag, int valueLen) {
-    	int diff = m_tagLengthRules.lengthDelta(name, tag, valueLen);
+    private boolean inBounds(String name, BerTag tag, int valueLen) throws Exception {
     	try {
+        	int diff = m_tagLengthRules.lengthDelta(name, tag, valueLen);
 	    	if (diff != 0) {
 	    		String tagString = HexUtil.toHexString(tag.bytes);
 	    		String errStr = (String.format("Tag %s length was %d bytes, differs from 800-73 spec by %d", tagString, valueLen, diff));
-	    		Exception e = new Exception(errStr);
+	    		Exception e = new TagBoundaryException(errStr);
 	    		throw(e);
 	    	}
-    	} catch (Exception e) { return false; }
+    	} catch (CardClientException e) { return false; }
 
     	return true;
     }
@@ -146,8 +147,9 @@ public class PIVDataObject {
 	 * length is less than the low bound, > 0 if the length is greater than the high bound.
 	 * For rules that require either of two values, the value returned indicates which of
 	 * the two values matched with a 0x10 or 0x01 (low or high).
+	 * @throws Exception 
 	 */
-    public boolean inBounds(String oid) {
+    public boolean inBounds(String oid) throws Exception {
     	String name = APDUConstants.oidNameMAP.get(oid);
     	if (name == null) {
     		return false;

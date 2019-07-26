@@ -3,7 +3,6 @@ package gov.gsa.pivconformancegui;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JToolBar;
 
 import org.slf4j.Logger;

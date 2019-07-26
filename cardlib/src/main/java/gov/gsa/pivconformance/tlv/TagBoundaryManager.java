@@ -11,6 +11,7 @@ import gov.gsa.pivconformance.tlv.TagLengthRule;
 import gov.gsa.pivconformance.tlv.TagLengthRule.RULE;
 import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.card.client.APDUConstants;
+import gov.gsa.pivconformance.card.client.CardClientException;
 import gov.gsa.pivconformance.tlv.ContainerRuleset;
 /**
  * This class is intended to be used side-by-side SP 800-73 for quick comparison/updates to
@@ -201,8 +202,9 @@ public class TagBoundaryManager {
 	 * @return the difference between the prescribed lengths and the value length,
 	 *         hopefully all bits clear
 	 * @throws NullPointerException
+	 * @throws CardClientException 
 	 */
-	public int lengthDelta(String containerName, BerTag tag, int bytesLength) throws NullPointerException {
+	public int lengthDelta(String containerName, BerTag tag, int bytesLength) throws NullPointerException, CardClientException {
 		int rv = -1;
 		HashMap<BerTag, TagLengthRule> tlRules = getTagLengthRules(containerName);
 		if (tlRules == null) {
@@ -215,34 +217,44 @@ public class TagBoundaryManager {
 		int hi = tlr.getHighVal();
 		int lo = tlr.getLowVal();
 		RULE rule = tlr.getRule();
+		if((rule = tlr.getRule()) != null) {
 		switch (rule) {
-		case VARIABLE:
-			// When there's a range, negative indicates below floor,
-			// positive indicates above ceiling, zero indicates in range.
-			if (bytesLength >= lo && bytesLength <= hi) {
-				rv = 0;
-			} else if (bytesLength < lo) {
-				rv = lo - bytesLength;
-			} else
-				rv = bytesLength - hi;
-			break;
-		case OR:
-			// Here, we want the return value to indicate what didn't match
-			if (bytesLength == lo || bytesLength == hi) {
-				rv = 0;
-			} else {
-				rv = ((bytesLength != lo) ? 1 : 0) << 1;
-				rv |= (bytesLength != hi) ? 1 : 0;
+			case VARIABLE:
+				// When there's a range, negative indicates below floor,
+				// positive indicates above ceiling, zero indicates in range.
+				if (bytesLength >= lo && bytesLength <= hi) {
+					rv = 0; // Pass
+				} else if (bytesLength < lo) {
+					rv = lo - bytesLength;			
+				} else {
+					rv = bytesLength - hi;;
+				}
+				break;
+				
+			case OR:
+				// Here, we want the return value to indicate what didn't match
+				if (bytesLength == lo || bytesLength == hi) {
+					rv = 0; // Pass
+				} else {
+					rv = ((bytesLength != lo) ? 1 : 0) << 1;
+					rv |= (bytesLength != hi) ? 1 : 0;
+				}
+				break;
+			case FIXED:
+				if (bytesLength == lo && bytesLength == hi) { // Check for typos in maxLenMap i suppose
+					rv = 0; // Pass
+				}
+				break;
+			default: // Let's fail the programmer
+				String errStr = String.format("Rule for %s, container %s has unknown rule", Hex.toHexString(tag.bytes));
+				s_logger.error(errStr);
+				break;
 			}
-			break;
-		case FIXED:
-			if (bytesLength == lo && bytesLength == hi) { // Check for typos in maxLenMap i suppose
-				rv = 0;
-			}
-			break;
-		default: // This had darn well be *
-			rv = 0;
-			break;
+		}
+		if (rv != 0) {
+			  String errStr = String.format("Container %s, Tag %s varies from SP 800-73-4 table by %d",
+			  containerName, Hex.toHexString(tag.bytes), rv); s_logger.error(errStr);
+			  throw new CardClientException(errStr);
 		}
 		return rv;
 	}

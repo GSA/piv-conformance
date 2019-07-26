@@ -9,20 +9,12 @@ import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 import gov.gsa.conformancelib.junitoptions.ConformanceTestExecutionListener;
 import gov.gsa.conformancelib.junitoptions.Theme;
-//import gov.gsa.conformancelib.tests.SignedObjectVerificationTests;
-import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
-import gov.gsa.pivconformance.card.client.MiddlewareStatus;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 import gov.gsa.pivconformance.utils.VersionUtils;
-import gov.gsa.conformancelib.pivconformancetools.junitconsole.VerboseTreePrintingListener;
 import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.conformancelib.utilities.CardUtils;
 
 import org.apache.commons.cli.*;
-import org.apache.commons.codec.binary.Hex;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.launcher.*;
 //import org.junit.platform;
@@ -34,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.io.BufferedWriter;
 import java.io.Console;
 import java.io.File;
 import java.io.IOException;
@@ -43,19 +34,15 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
 public class ConformanceTestRunner {
 
     private static final String FIRST_CONFIG = "SELECT * from SystemSettings LIMIT 1";
-    private static final String NAMED_CONFIG = "SELECT * from SystemSettings where SettingsGroup='?'";
     private static final String TEST_SET = "SELECT * from TestCases where Enabled=1";
 
     // slf4j will thunk this through to an appropriately configured logging library

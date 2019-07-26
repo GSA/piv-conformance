@@ -1,7 +1,6 @@
 package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +79,6 @@ public class PIVAuthenticators {
         if(authenticators.length == 0) return true;
         BerTlvParser p = new BerTlvParser(new CCTTlvLogger(this.getClass()));
         BerTlvs tlvs = p.parse(authenticators);
-        int currTagIndex = 0;
         byte[] refData = null;
         byte refId = 0x00;
         for(BerTlv t : tlvs.getList()) {

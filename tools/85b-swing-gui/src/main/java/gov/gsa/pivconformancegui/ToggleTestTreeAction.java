@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JSplitPane;
 

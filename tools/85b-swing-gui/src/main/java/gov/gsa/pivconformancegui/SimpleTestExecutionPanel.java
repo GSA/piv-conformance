@@ -23,15 +23,11 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.swing.SwingUtilities;
-
 import gov.gsa.conformancelib.configuration.CardInfoController;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.tests.ConformanceTestException;
 import gov.gsa.conformancelib.utilities.CardUtils;
-import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
-import gov.gsa.pivconformance.card.client.CachingDefaultPIVApplication;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 import javax.swing.JTextField;

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.security.MessageDigest;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Collection;

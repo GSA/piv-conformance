@@ -73,7 +73,7 @@ public class Csv2Html {
 	}
 	
 	public static void generateHtml(String sourceFileName, PrintStream destination, boolean withTableHeader) {
-		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+		ClassLoader.getSystemClassLoader();
 		 
 		File file = new File(sourceFileName);
 
@@ -101,7 +101,6 @@ public class Csv2Html {
 		destination.println("</head><body><h1>Test Results</h1>");
 
 		destination.println("<table>");
-		String stdinLine;
 		boolean firstLine = true;
 		
 		try {

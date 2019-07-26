@@ -1,21 +1,15 @@
 package gov.gsa.conformancelib.configuration;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.Provider.Service;
 import java.security.Security;
-import java.security.Signature;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,15 +143,10 @@ public class ParameterUtils {
 				"X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7," + 
 				"X509_CERTIFICATE_FOR_DIGITAL_CERTIFICATE_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34," + 
 				"X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34";
-		Map<String, List<String>> map1 = MapFromString(csvParams1);
-		Map<String, List<String>> map2 = MapFromString(csvParams2);
-        // Declaring int variable 
-        int i = 5; 
-  
+		MapFromString(csvParams1);
+		MapFromString(csvParams2);
         try { 
-            // creating the object of  SecureRandom 
-			ASN1ObjectIdentifier oid = null;
-			String digestAlgorithmName = "SHA-224";
+            String digestAlgorithmName = "SHA-224";
 			Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
 			Service service = provider.getService("MessageDigest", digestAlgorithmName);
 			if (service != null) {
@@ -170,7 +159,7 @@ public class ParameterUtils {
 			            string = array[array.length - 2];
 			            array = string.split(", ");
 			            Arrays.sort(array);
-			            oid =  new ASN1ObjectIdentifier(array[0]);
+			            new ASN1ObjectIdentifier(array[0]);
 			        }
 			    }
 			}

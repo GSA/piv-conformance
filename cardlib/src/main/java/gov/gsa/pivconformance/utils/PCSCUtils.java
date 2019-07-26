@@ -67,7 +67,7 @@ public class PCSCUtils {
     }
 
     public static String GetFirstReaderWithCardPresent() {
-        ArrayList<String> readerList = new ArrayList<>();
+        new ArrayList<>();
         TerminalFactory tf = TerminalFactory.getDefault();
         List<CardTerminal> terminals = null;
         try {

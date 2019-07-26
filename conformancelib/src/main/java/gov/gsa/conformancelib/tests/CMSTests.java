@@ -556,7 +556,7 @@ public class CMSTests {
 				return;
 			}
 			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
-			CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObjectWithAuth(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+			AtomHelper.getDataObjectWithAuth(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
 			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
 			CMSSignedData issuerAsymmetricSignature = AtomHelper.getSignedDataForObject(o);
@@ -950,7 +950,7 @@ public class CMSTests {
 				Exception e = new Exception("fascn is null");
 				throw e;
 			}
-			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
+			((CardHolderUniqueIdentifier) o).getgUID();
 			
 			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
 			if (signers == null) {
@@ -1074,7 +1074,6 @@ public class CMSTests {
 		}
 	}
     
-	@SuppressWarnings("unused")
 	private static Stream<Arguments> CMS_TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
@@ -1089,7 +1088,6 @@ public class CMSTests {
 
 	}
 	
-	@SuppressWarnings("unused")
 	private static Stream<Arguments> CMS_SecurityObjectTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));

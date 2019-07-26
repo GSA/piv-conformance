@@ -8,12 +8,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
@@ -107,14 +105,13 @@ public class GuiRunnerApplication {
 					Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 					logger.addAppender(a);
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
-					String errorMessage = null;
 					String dbFilename = "85b_tests.db";
 					boolean opened = false;
 					try {
 						db.openDatabaseInFile(dbFilename);
 						opened = true;
 					} catch(ConfigurationException ce) {
-						errorMessage = ce.getMessage();
+						ce.getMessage();
 					}
 					c.setTestDatabase(db);
 					c.setConformanceTestCsvAppender(foundAppender);
