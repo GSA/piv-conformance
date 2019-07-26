@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JDialog;

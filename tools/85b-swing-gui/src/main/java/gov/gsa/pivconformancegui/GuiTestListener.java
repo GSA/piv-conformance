@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.net.ssl.SSLEngineResult.Status;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;

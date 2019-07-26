@@ -2,7 +2,6 @@ package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.BerTlv;
-import gov.gsa.pivconformance.utils.PCSCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

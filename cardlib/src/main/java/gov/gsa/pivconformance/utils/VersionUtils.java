@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.Properties;
 
 public class VersionUtils {
@@ -23,7 +21,7 @@ public class VersionUtils {
         s_properties = new Properties();
         InputStream pis = null;
         try {
-            ClassLoader cl = VersionUtils.class.getClassLoader();
+            VersionUtils.class.getClassLoader();
             pis = VersionUtils.class.getResourceAsStream("version.properties");
             s_properties.load(pis);
         } catch(Exception e) {

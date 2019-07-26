@@ -1,10 +1,5 @@
 package gov.gsa.pivconformance.utils;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import gov.gsa.pivconformance.utils.OSUtils.OSTYPE;
-
 public class OSUtils {
 	
 	public enum  OSTYPE {

@@ -37,7 +37,7 @@ public class SecurityObjectDataObjectTests {
         assertNotNull(o);
         reporter.publishEntry(oid, o.getClass().getSimpleName());
 
-        byte[] data = APDUUtils.getTLV(APDUConstants.DATA, fileData);
+        APDUUtils.getTLV(APDUConstants.DATA, fileData);
 
         o.setOID(oid);
         o.setBytes(fileData);

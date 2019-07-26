@@ -1,6 +1,5 @@
 package gov.gsa.pivconformancegui;
 
-import java.awt.GraphicsConfiguration;
 import java.awt.HeadlessException;
 
 import javax.swing.JFrame;

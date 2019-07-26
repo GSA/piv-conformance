@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 public class CCTTlvLogger implements IBerTlvLogger {
 
     private Logger m_logger = null;
-    public CCTTlvLogger(Class clazz) {
+    public CCTTlvLogger(Class<?> clazz) {
        m_logger = LoggerFactory.getLogger(clazz.toString() + ".TLVParser");
     }
 

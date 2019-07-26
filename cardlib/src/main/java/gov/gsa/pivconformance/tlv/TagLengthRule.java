@@ -9,12 +9,12 @@ package gov.gsa.pivconformance.tlv;
  * biometrics. 
  */
 public class TagLengthRule {
-	private RULE m_rule;
+	private CONSTRAINT m_rule;
 	private int m_lowVal;
 	private int m_highVal;
 	
 	// Private constructor
-	public TagLengthRule(RULE rule, int lowVal, int highVal) {
+	public TagLengthRule(CONSTRAINT rule, int lowVal, int highVal) {
 		m_rule = rule;
 		m_lowVal = lowVal;
 		m_highVal = highVal;
@@ -23,7 +23,7 @@ public class TagLengthRule {
 	 * Eunumeration used to compute lengths of TLV values
 	 *
 	 */
-	public static enum RULE {
+	public static enum CONSTRAINT {
 		FIXED, OR, VARIABLE
 	};
 	
@@ -33,7 +33,7 @@ public class TagLengthRule {
 	 * @return the RULE
 	 */
 	
-	public RULE getRule() {
+	public CONSTRAINT getRule() {
 		return m_rule;
 	}
 	
