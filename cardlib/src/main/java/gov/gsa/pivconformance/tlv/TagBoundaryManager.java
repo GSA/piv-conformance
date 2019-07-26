@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.tlv.TagLengthRule;
-import gov.gsa.pivconformance.tlv.TagLengthRule.RULE;
+import gov.gsa.pivconformance.tlv.TagLengthRule.CONSTRAINT;
 import gov.gsa.pivconformance.tlv.TagConstants;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardClientException;
@@ -63,111 +63,111 @@ public class TagBoundaryManager {
 
 		// SP800-73-4 Part 1, Table 8. Card Capability Container tags
 		ContainerRuleset crs = new ContainerRuleset(APDUConstants.CARD_CAPABILITY_CONTAINER_NAME);
-		crs.add(new BerTag(TagConstants.CARD_IDENTIFIER_TAG), new TagLengthRule(RULE.OR, 0, 21));
-		crs.add(new BerTag(TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG), new TagLengthRule(RULE.OR, 0, 1));
-		crs.add(new BerTag(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG), new TagLengthRule(RULE.OR, 0, 1));
-		crs.add(new BerTag(TagConstants.APPLICATIONS_CARDURL_TAG), new TagLengthRule(RULE.VARIABLE, 0, 128));
-		crs.add(new BerTag(TagConstants.PKCS15_TAG), new TagLengthRule(RULE.OR, 0, 1));
-		crs.add(new BerTag(TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
-		crs.add(new BerTag(TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG), new TagLengthRule(RULE.OR, 0, 17));
-		crs.add(new BerTag(TagConstants.CARD_APDUS_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
-		crs.add(new BerTag(TagConstants.REDIRECTION_TAG_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
-		crs.add(new BerTag(TagConstants.CAPABILITY_TUPLES_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
-		crs.add(new BerTag(TagConstants.STATUS_TUPLES_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
-		crs.add(new BerTag(TagConstants.NEXT_CCC_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
-		crs.add(new BerTag(TagConstants.EXTENDED_APPLICATION_CARDURL_TAG), new TagLengthRule(RULE.FIXED, 48, 48));
-		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_BUFFER_TAG), new TagLengthRule(RULE.FIXED, 0, 48));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.CARD_IDENTIFIER_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 21));
+		crs.add(new BerTag(TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 1));
+		crs.add(new BerTag(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 1));
+		crs.add(new BerTag(TagConstants.APPLICATIONS_CARDURL_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 128));
+		crs.add(new BerTag(TagConstants.PKCS15_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 1));
+		crs.add(new BerTag(TagConstants.REGISTERED_DATA_MODEL_NUMBER_TAG), new TagLengthRule(CONSTRAINT.FIXED, 1, 1));
+		crs.add(new BerTag(TagConstants.ACCESS_CONTROL_RULE_TABLE_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 17));
+		crs.add(new BerTag(TagConstants.CARD_APDUS_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.REDIRECTION_TAG_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.CAPABILITY_TUPLES_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.STATUS_TUPLES_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.NEXT_CCC_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.EXTENDED_APPLICATION_CARDURL_TAG), new TagLengthRule(CONSTRAINT.FIXED, 48, 48));
+		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_BUFFER_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 48));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP800-73-4 Part 1, Table 9. Card Holder Unique Identifier tags
 		crs = new ContainerRuleset(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_NAME);
-		crs.add(new BerTag(TagConstants.BUFFER_LENGTH_TAG), new TagLengthRule(RULE.FIXED, 2, 2));
-		crs.add(new BerTag(TagConstants.FASC_N_TAG), new TagLengthRule(RULE.FIXED, 25, 25));
-		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG), new TagLengthRule(RULE.FIXED, 4, 4));
-		crs.add(new BerTag(TagConstants.DUNS_TAG), new TagLengthRule(RULE.FIXED, 9, 9));
-		crs.add(new BerTag(TagConstants.GUID_TAG), new TagLengthRule(RULE.FIXED, 16, 16));
-		crs.add(new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG), new TagLengthRule(RULE.FIXED, 8, 8));
-		crs.add(new BerTag(TagConstants.CARDHOLDER_UUID_TAG), new TagLengthRule(RULE.FIXED, 16, 16));
-		crs.add(new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG), new TagLengthRule(RULE.VARIABLE, 0, 3200));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.BUFFER_LENGTH_TAG), new TagLengthRule(CONSTRAINT.FIXED, 2, 2));
+		crs.add(new BerTag(TagConstants.FASC_N_TAG), new TagLengthRule(CONSTRAINT.FIXED, 25, 25));
+		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG), new TagLengthRule(CONSTRAINT.FIXED, 4, 4));
+		crs.add(new BerTag(TagConstants.DUNS_TAG), new TagLengthRule(CONSTRAINT.FIXED, 9, 9));
+		crs.add(new BerTag(TagConstants.GUID_TAG), new TagLengthRule(CONSTRAINT.FIXED, 16, 16));
+		crs.add(new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 8, 8));
+		crs.add(new BerTag(TagConstants.CARDHOLDER_UUID_TAG), new TagLengthRule(CONSTRAINT.FIXED, 16, 16));
+		crs.add(new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 3200));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// Handle cert containers from Table 10, 15, 16, 17, 20-39, 42 of SP 800-73-4
 
 		for (String cn : certNames) {
 			crs = new ContainerRuleset(cn);
-			crs.add(new BerTag(TagConstants.CERTIFICATE_TAG), new TagLengthRule(RULE.VARIABLE, 0, 1858));
-			crs.add(new BerTag(TagConstants.CERTINFO_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
-			crs.add(new BerTag(TagConstants.MSCUID_TAG), new TagLengthRule(RULE.VARIABLE, 0, 38));
-			crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+			crs.add(new BerTag(TagConstants.CERTIFICATE_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 1858));
+			crs.add(new BerTag(TagConstants.CERTINFO_TAG), new TagLengthRule(CONSTRAINT.FIXED, 1, 1));
+			crs.add(new BerTag(TagConstants.MSCUID_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 38));
+			crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 			m_maxLenMap.put(crs.getContainerName(), crs);
 		}
 
 		// SP 800-73-4 Part 1, Table 11. Cardholder Fingerprints
 		crs = new ContainerRuleset(APDUConstants.CARDHOLDER_FINGERPRINTS_NAME);
-		crs.add(new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG), new TagLengthRule(RULE.VARIABLE, 88, 4000));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 88, 4000));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 12. Security Object
 		crs = new ContainerRuleset(APDUConstants.SECURITY_OBJECT_NAME);
-		crs.add(new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG), new TagLengthRule(RULE.VARIABLE, 0, 30));
-		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_TAG), new TagLengthRule(RULE.VARIABLE, 0, 1298));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 30));
+		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 1298));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 13. Cardholder Facial Image
 		crs = new ContainerRuleset(APDUConstants.CARDHOLDER_FACIAL_IMAGE_NAME);
-		crs.add(new BerTag(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG), new TagLengthRule(RULE.VARIABLE, 0, 12704));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 12704));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 14. Printed Information tags
 		crs = new ContainerRuleset(APDUConstants.PRINTED_INFORMATION_NAME);
-		crs.add(new BerTag(TagConstants.NAME_TAG), new TagLengthRule(RULE.FIXED, 2, 2));
-		crs.add(new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
-		crs.add(new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG), new TagLengthRule(RULE.FIXED, 9, 9));
-		crs.add(new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
-		crs.add(new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG), new TagLengthRule(RULE.VARIABLE, 0, 15));
-		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
-		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG), new TagLengthRule(RULE.VARIABLE, 0, 20));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.NAME_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 125));
+		crs.add(new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
+		crs.add(new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 9, 9));
+		crs.add(new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
+		crs.add(new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 15));
+		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
+		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 18. Discovery Object
 		crs = new ContainerRuleset(APDUConstants.DISCOVERY_OBJECT_NAME);
-		crs.add(new BerTag(TagConstants.PIN_USAGE_POLICY_TAG), new TagLengthRule(RULE.FIXED, 2, 2));
-		crs.add(new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG), new TagLengthRule(RULE.VARIABLE, 10, 12));
+		crs.add(new BerTag(TagConstants.PIN_USAGE_POLICY_TAG), new TagLengthRule(CONSTRAINT.FIXED, 2, 2));
+		crs.add(new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 10, 12));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 19. Key History
 		crs = new ContainerRuleset(APDUConstants.KEY_HISTORY_OBJECT_NAME);
-		crs.add(new BerTag(TagConstants.KEYS_WITH_ON_CARD_CERTS_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
-		crs.add(new BerTag(TagConstants.KEYS_WITH_OFF_CARD_CERTS_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
+		crs.add(new BerTag(TagConstants.KEYS_WITH_ON_CARD_CERTS_TAG), new TagLengthRule(CONSTRAINT.FIXED, 1, 1));
+		crs.add(new BerTag(TagConstants.KEYS_WITH_OFF_CARD_CERTS_TAG), new TagLengthRule(CONSTRAINT.FIXED, 1, 1));
 		// TODO: Handle conditional hmmm...
-		crs.add(new BerTag(TagConstants.OFF_CARD_CERT_URL_TAG), new TagLengthRule(RULE.VARIABLE, 0, 118));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.OFF_CARD_CERT_URL_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 118));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 40. Cardholder Iris Images
 		crs = new ContainerRuleset(APDUConstants.CARDHOLDER_IRIS_IMAGES_NAME);
-		crs.add(new BerTag(TagConstants.IMAGES_FOR_IRIS_TAG), new TagLengthRule(RULE.VARIABLE, 0, 7100));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.IMAGES_FOR_IRIS_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 7100));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 41. Biometric Information Templates Group Template
 		crs = new ContainerRuleset(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_NAME);
-		crs.add(new BerTag(TagConstants.NUMBER_OF_FINGERS_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
-		crs.add(new BerTag(TagConstants.BIT_FOR_FIRST_FINGER_TAG), new TagLengthRule(RULE.VARIABLE, 0, 28));
-		crs.add(new BerTag(TagConstants.BIT_FOR_SECOND_FINGER_TAG), new TagLengthRule(RULE.VARIABLE, 0, 28));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.NUMBER_OF_FINGERS_TAG), new TagLengthRule(CONSTRAINT.FIXED, 1, 1));
+		crs.add(new BerTag(TagConstants.BIT_FOR_FIRST_FINGER_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 28));
+		crs.add(new BerTag(TagConstants.BIT_FOR_SECOND_FINGER_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 28));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 43. Pairing Code Reference Data
 		crs = new ContainerRuleset(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_NAME);
-		crs.add(new BerTag(TagConstants.PAIRING_CODE_TAG), new TagLengthRule(RULE.FIXED, 1, 1));
-		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(RULE.FIXED, 0, 0));
+		crs.add(new BerTag(TagConstants.PAIRING_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 1, 1));
+		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 	}
 
@@ -216,7 +216,7 @@ public class TagBoundaryManager {
 		TagLengthRule tlr = tlRules.get(tag);
 		int hi = tlr.getHighVal();
 		int lo = tlr.getLowVal();
-		RULE rule = tlr.getRule();
+		CONSTRAINT rule = tlr.getRule();
 		if((rule = tlr.getRule()) != null) {
 		switch (rule) {
 			case VARIABLE:
