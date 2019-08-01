@@ -71,14 +71,14 @@ def main():
 
     wb = xlrd.open_workbook(args.input)
 
-    step_overview_tab = wb.sheet_by_index(1)
-    ber_tlv_tab = wb.sheet_by_index(2)
-    SP800_73_4_tab = wb.sheet_by_index(3)
-    SP800_76_tab = wb.sheet_by_index(4)
-    cms_tab = wb.sheet_by_index(5)
-    SP800_78_tab = wb.sheet_by_index(6)
-    pkix_tab = wb.sheet_by_index(7)
-    placeholder_tab = wb.sheet_by_index(8)
+    step_overview_tab = wb.sheet_by_index(0)
+    ber_tlv_tab = wb.sheet_by_index(1)
+    SP800_73_4_tab = wb.sheet_by_index(2)
+    SP800_76_tab = wb.sheet_by_index(3)
+    cms_tab = wb.sheet_by_index(4)
+    SP800_78_tab = wb.sheet_by_index(5)
+    pkix_tab = wb.sheet_by_index(6)
+    placeholder_tab = wb.sheet_by_index(7)
 
     sheets = [ber_tlv_tab, SP800_73_4_tab, SP800_76_tab, cms_tab, SP800_78_tab, pkix_tab, placeholder_tab]
 
