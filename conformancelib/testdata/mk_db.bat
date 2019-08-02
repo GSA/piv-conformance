@@ -23,8 +23,8 @@ IF "%1"=="-f" (
 	.\venv-xlrd\Scripts\PIP install xlsxwriter
 )
 
-COPY *.db venv-xlrd
-COPY *.sql venv-xlrd
+
+COPY conformance-schema.sql venv-xlrd
 COPY *.xlsx venv-xlrd
 COPY *.py venv-xlrd
 
