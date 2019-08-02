@@ -354,7 +354,7 @@ INSERT INTO "TestCases" VALUES(81, NULL,'8.6.0.1','Length field encoded as shown
 INSERT INTO "TestCases" VALUES(82, NULL,'8.6.0.2','Tag encoded as 3 bytes','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(83, NULL,'8.6.0.3','Each data object returned with 2 byte status word (90 00)','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(84, NULL,'8.6.0.4','If a variable length field has length of 0, tag length is followed immediately by next tag if applicable','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(85, NULL,'8.6.1.1','Card Holder Facial Image blob no larger than 12710 bytes','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(85, NULL,'8.6.1.1','Printed Information value lengths comply with Table 13 of SP 800-73-4','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(86, NULL,'8.6.1.2','Position is one of the valid x,y coordinate types in the original image','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(87, NULL,'8.6.1.3','No tags other than (0xBC, 0xFE) are present','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(88, NULL,'8.6..4','Tag 0xFE has length of 0','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
@@ -388,7 +388,7 @@ INSERT INTO "TestCases" VALUES(115, NULL,'8.9.0.1','Length field encoded as show
 INSERT INTO "TestCases" VALUES(116, NULL,'8.9.0.2','Tag encoded as 3 bytes','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(117, NULL,'8.9.0.3','Each data object returned with 2 byte status word (90 00)','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(118, NULL,'8.9.0.4','If a variable length field has length of 0, tag length is followed immediately by next tag if applicable','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(119, NULL,'8.9.1.1','X.509 Certificate for Card Authentication value lengths comply with Table 16 of SP 800-73-4','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(119, NULL,'8.9.1.1','X.509 Certificate for Card Authentication value lengths comply with Table 17 of SP 800-73-4','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(120, NULL,'8.9.1.2','Tags 0x70 and 0x71 are present in that order','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(121, NULL,'8.9.1.3','Tag 0x72 is optionally present and follows tags from 73-4.19','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(122, NULL,'8.9.1.4','Tag 0xFE is present and follows tags from 73-4.19, 73-4.20','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
