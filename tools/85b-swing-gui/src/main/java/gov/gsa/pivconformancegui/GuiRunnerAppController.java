@@ -34,6 +34,7 @@ public class GuiRunnerAppController {
 	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
 	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
 	private boolean m_logBeenWrittenTo = false;
+	private String m_logPath = "constructor: No file name available";
 	
 	public void reset() {
 		m_testDatabase = null;
@@ -47,6 +48,7 @@ public class GuiRunnerAppController {
 		m_displayTestReportAction = null;
 		m_openDefaultPIVDatabaseAction = null;
 		m_openDefaultPIVIDatabaseAction = null;
+		m_logPath = "reset: No file name available";
 		createActions();
 	}
 	
@@ -122,6 +124,10 @@ public class GuiRunnerAppController {
 	public DisplayTestReportAction getDisplayTestReportAction() {
 		return m_displayTestReportAction;
 	}
+	
+	public String getLogPath() {
+		return m_logPath;
+	}
 
 	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
 	public void showDebugWindow() {
@@ -148,9 +154,9 @@ public class GuiRunnerAppController {
 		if(m_ConformanceTestCsvAppender == null) {
 			s_logger.warn("rollConformanceCSV was called without any appender configured.");
 		}
-
-		m_ConformanceTestCsvAppender.rollover(); // new file returned from getFile() method
 		
+		m_logPath = m_ConformanceTestCsvAppender.getFile();
+		m_ConformanceTestCsvAppender.rollover(); // new file returned from getFile() method
 		Logger conformanceLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
 		if(conformanceLogger != null && nextHeader == true) {
 			File f = new File(m_ConformanceTestCsvAppender.getFile());
