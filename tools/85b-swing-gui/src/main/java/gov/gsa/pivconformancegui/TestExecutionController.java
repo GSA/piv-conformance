@@ -5,6 +5,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMetho
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -36,6 +37,8 @@ public class TestExecutionController {
 	TestTreePanel m_testTreePanel;
 	SimpleTestExecutionPanel m_testExecutionPanel;
 	boolean m_running;
+	Date m_startDate;
+	Date m_stopDate;
 	
 	public static TestExecutionController getInstance() {
 		return INSTANCE;
@@ -49,6 +52,8 @@ public class TestExecutionController {
 		m_testTreePanel = null;
 		m_testExecutionPanel = null;
 		m_running = false;
+		m_startDate = new Date();
+		m_stopDate = null; // will get set by new appender plugin
 	}
 
 	public TestTreePanel getTestTreePanel() {
@@ -105,7 +110,7 @@ public class TestExecutionController {
 		guiListener.setProgressBar(progress);
 		TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
 		
-		if (curr != null) GuiRunnerAppController.getInstance().rollConformanceCSV(true);
+		// if (curr != null) GuiRunnerAppController.getInstance().rollConformanceCSV(true);
 		
 		while(curr != null) {
 			TestCaseModel testCase = curr.getTestCase();
@@ -190,7 +195,9 @@ public class TestExecutionController {
             l.execute(ldr);
             curr = (TestCaseTreeNode) curr.getNextSibling();
 		}
-    	GuiRunnerAppController.getInstance().rollConformanceCSV(false);
+		
+		// After this call, we need a known CSV file name
+    	// GuiRunnerAppController.getInstance().rollConformanceCSV(false);
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
