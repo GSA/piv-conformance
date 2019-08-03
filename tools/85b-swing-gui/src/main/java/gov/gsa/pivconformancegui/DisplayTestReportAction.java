@@ -21,11 +21,6 @@ import gov.gsa.conformancelib.utilities.Csv2Html;
 
 public class DisplayTestReportAction extends AbstractAction {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	public DisplayTestReportAction(String name, Icon icon, String toolTip) {
 		super(name, icon);
 		putValue(SHORT_DESCRIPTION, toolTip);
@@ -52,8 +47,7 @@ public class DisplayTestReportAction extends AbstractAction {
 			csvAppender = (RollingFileAppender<?>) a;
 		}
 		if(csvAppender != null) {
-			String fn = GuiRunnerAppController.getInstance().getConformanceTestCsvAppender().getFile();
-			// TODO: Add temporary workaround before implementing ForcedTimestampAppender subclass of RollingFileAppender
+			String fn = csvAppender.getFile();
 			String rfn = fn + ".html";
 			try {
 				PrintStream writer  = new PrintStream(rfn);
@@ -71,5 +65,7 @@ public class DisplayTestReportAction extends AbstractAction {
 				e1.printStackTrace();
 			}
 		}
+
 	}
+
 }
