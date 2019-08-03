@@ -12,12 +12,22 @@ public class TagLengthRule {
 	private CONSTRAINT m_rule;
 	private int m_lowVal;
 	private int m_highVal;
+	private boolean m_softUpperBound;
 	
 	// Private constructor
+	public TagLengthRule(CONSTRAINT rule, int lowVal, int highVal, boolean softUpperBound) {
+		m_rule = rule;
+		m_lowVal = lowVal;
+		m_highVal = highVal;
+		m_softUpperBound = softUpperBound;
+	}
+	
+	// Additional constructor
 	public TagLengthRule(CONSTRAINT rule, int lowVal, int highVal) {
 		m_rule = rule;
 		m_lowVal = lowVal;
 		m_highVal = highVal;
+		m_softUpperBound = false;
 	}
 	/**
 	 * Eunumeration used to compute lengths of TLV values
@@ -54,6 +64,16 @@ public class TagLengthRule {
 	
 	public int getHighVal() {
 		return m_highVal;
+	}
+	
+	/*
+	 * Indicates if a soft boundary exists (due to an embedded CMS or signing cert)
+	 * 
+	 * @return whether this value is eligible to have a soft upper bound
+	 */
+	
+	public boolean hasSoftUpperBound() {
+		return m_softUpperBound;
 	}
 }
 	
