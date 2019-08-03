@@ -3,7 +3,7 @@
     <!-- this is a file appender that the root logger will post events to. Setting the level on the root logger
             will moderate verbosity. Individual facilities can be turned off as shown below. -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/85b-swing-gui/85b-swing-gui.log</file>
+        <file>85b-swing-gui.log</file>
         <encoder>
             <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
         </encoder>
@@ -11,7 +11,7 @@
 
     <!-- this log is used by conformance tests/atoms in progress. it can be omitted if there's no need to crack this stream out into a separate file. -->
     <appender name="TESTLOG" class="ch.qos.logback.core.FileAppender">
-        <file>logs/test_progress/test_progress.log</file>
+        <file>test_progress.log</file>
         <encoder>
             <pattern>%date,%level,"%msg"%n</pattern>
         </encoder>
@@ -20,9 +20,9 @@
     <!-- This is the appender that produces the conformance results CSV.
         In order to get test reports, it **MUST** be called CONFORMANCELOG -->
     <appender name="CONFORMANCELOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/csv/conformance_results.csv</file>
+        <file>conformance_results.csv</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-          <fileNamePattern>logs/csv/conformance_results.%i.csv</fileNamePattern>
+          <fileNamePattern>conformance_results.%i.csv</fileNamePattern>
               <minIndex>1</minIndex>
               <maxIndex>999999</maxIndex>
         </rollingPolicy>
@@ -37,11 +37,11 @@
     <!-- This is the appender that produces the APDU traces.
         In order to get traces, it **MUST** be called APDULOG -->
     <appender name="APDULOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/apdu/apdu_transmission.log</file>
+        <file>apdu_transmission.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-          <fileNamePattern>logs/apdu/apdu_transmission.%i.log</fileNamePattern>
+          <fileNamePattern>apdu_transmission.%i.log</fileNamePattern>
               <minIndex>1</minIndex>
-              <maxIndex>2</maxIndex>
+              <maxIndex>999999</maxIndex>
         </rollingPolicy>
         <!-- the application will search out this appender by name and manually rotate it at the beginning of each conformance run.
                 this triggering policy is necessary to allow logback to append to a log without knowing how to rotate it. -->
