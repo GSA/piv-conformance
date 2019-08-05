@@ -1,5 +1,6 @@
 package gov.gsa.pivconformance.card.client;
 
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,7 +31,9 @@ public class PIVDataObject {
     private boolean m_error_Detection_Code_Has_Data;
     private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
     private boolean m_lengthOk;
-    protected static HashMap<BerTag, byte[]> m_content;
+    private static HashMap<BerTag, byte[]> m_content;
+    X509Certificate m_signingCertificate;
+    private int m_certCount;
 
     /**
      * Initialize an invalid PIV data object
@@ -41,7 +44,8 @@ public class PIVDataObject {
         m_signed = false;
         m_tagList = new ArrayList<BerTag>();
         m_lengthOk = false;
-        m_content = new HashMap<BerTag, byte[]>();
+        m_content = null;
+        m_certCount = 0;
     }
 
     /**
@@ -93,6 +97,25 @@ public class PIVDataObject {
         m_OID = OID;
     }
 
+    /**
+    *
+    * Returns the number of certs found in this object
+    *
+    * @return number of certs found in this object
+    */
+   public int getCertCount() {
+       return m_certCount;
+   }
+
+   /**
+    *
+    * Sets the cert count found in the object
+    *
+    * @param OID String containing the OID that identifies PIV data object
+    */
+   public void setCertCount(int count) {
+       m_certCount = count;
+   }
 
     /**
      *
@@ -104,6 +127,45 @@ public class PIVDataObject {
         return APDUConstants.oidNameMAP.getOrDefault(m_OID, "Undefined");
     }
 
+    /**
+     *
+     * Returns the signing certificate in X509Certificate object
+     *
+     * @return X509Certificate object containing the signing certificate
+     */
+    public X509Certificate getSigningCertificate() {
+        return m_signingCertificate;
+    }
+
+    /**
+     *
+     * Sets the signing certificate
+     *
+     * @param signingCertificate X509Certificate object containing the signing certificate
+     */
+    public void setSigningCertificate(X509Certificate signingCertificate) {
+        m_signingCertificate = signingCertificate;
+    }
+    
+    /**
+    *
+    * Returns the hashmap of tags and values for this container
+    *
+    * @return hashmap of tags and values for this container
+    */
+   public HashMap<BerTag, byte[]> getContent() {
+       return m_content;
+   }
+
+   /**
+    *
+    * Sets the array of tags and values
+    *
+    * @param hashmap of tags and bytes
+    */
+   public void setContent(HashMap<BerTag, byte[]> content) {
+       m_content = content;
+   } 
     /**
      *
      * Returns the tag value for the current PIV data object
