@@ -1827,8 +1827,7 @@ public class SP800_76_Tests {
 		assertTrue(fASCN.length == fASCN2.length);
 		
 		//Confirm fascn match
-		assertTrue(Arrays.equals(fASCN, fASCN2), "FASCN values to not match");
-		
+		assertTrue(Arrays.equals(fASCN, fASCN2), "FASC-N value in biometric does not match FASC-N in CHUID");	
 	}
 	
 	//Validate that the 'Reserved for Future Use' field is equal to 0x00000000
@@ -1911,11 +1910,11 @@ public class SP800_76_Tests {
 			b4.intValue();
 			
 
-	        assertTrue(qList.contains(fingerQuality), "Finger qulity is not the right value " + fingerQuality + " Expected values are " + qList.toString());
+	        assertTrue(qList.contains(fingerQuality), "Finger quality is not the right value " + fingerQuality + " Expected values are " + qList.toString());
         }
 	}
 		
-	//Recorded length matches actual SB length
+	//Recorded SB length matches actual SB length
 	@DisplayName("SP800-76.48 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
@@ -1948,8 +1947,7 @@ public class SP800_76_Tests {
             int signatureBlockLength = ((signatureBlockLengthBytes[0] & 0xff) << 8) | (signatureBlockLengthBytes[1] & 0xff);
             assertTrue(signatureBlockLength > 0);
             
-            assertTrue(signature.length == signatureBlockLength,  "Biometric data block length does not matche actual length");
-            
+            assertTrue(signature.length == signatureBlockLength,  "Biometric data block length does not match actual length");            
 		 }
 	}
 	
