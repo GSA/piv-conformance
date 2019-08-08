@@ -6,11 +6,11 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
 import java.nio.ByteBuffer;
@@ -20,7 +20,6 @@ import org.bouncycastle.util.Store;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SignerInformation;
-import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSProcessable;
@@ -68,25 +67,26 @@ public class CardholderBiometricData extends PIVDataObject {
         m_contentInfo = null;
         m_signedContent = null;
         m_cbeffContainer = null;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**
      *
-     * Returns the CCEFF container value
+     * Returns the CBEFF container value
      *
-     * @return Byte array with CCEFF container value
+     * @return Byte array with CBEFF container value
      */
-    public byte[] getCceffContainer() {
+    public byte[] getCbeffContainer() {
         return m_cbeffContainer;
     }
 
     /**
      *
-     * Sets the CCEFF container value
+     * Sets the CBEFF container value
      *
-     * @param cbeffContainer Byte array with CCEFF container value
+     * @param cbeffContainer Byte array with CBEFF container value
      */
-    public void setCceffContainer(byte[] cbeffContainer) {
+    public void setCbeffContainer(byte[] cbeffContainer) {
         m_cbeffContainer = cbeffContainer;
     }
 
@@ -289,7 +289,9 @@ public class CardholderBiometricData extends PIVDataObject {
      */
     public boolean decode() {
 
-        try{
+    	boolean certFound = false;
+    	
+        try {
             byte[] rawBytes = this.getBytes();
 
             s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
@@ -328,7 +330,6 @@ public class CardholderBiometricData extends PIVDataObject {
                         	super.m_tagList.add(tlv2.getTag());
                             if (Arrays.equals(tlv2.getTag().bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
 
-                                super.setSigned(true);
                                 m_biometricData = tlv2.getBytesValue();
                                 m_content.put(tlv2.getTag(), tlv2.getBytesValue());
                                 scos.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
@@ -388,13 +389,42 @@ public class CardholderBiometricData extends PIVDataObject {
                         m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);
 
                         m_signatureBlock = Arrays.copyOfRange(m_biometricData, 88 + biometricDataBlockLength, 88 + biometricDataBlockLength + signatureDataBlockLength);
+             
+                        CMSSignedData s = new CMSSignedData(m_signatureBlock);
+            			if (s.isDetachedSignature()) {
+            				CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
+            				s = new CMSSignedData(procesableContentBytes, m_signatureBlock);
+            			}
+            			
+            			m_signedData = s;
+                        
+                        if(m_signedData != null) {
+                            //Decode the ContentInfo and get SignedData object.
+                            try {
+                                Security.addProvider(new BouncyCastleProvider());
+                            } catch (Exception e) {
+                                s_logger.error("Unable to add provider for signature verification: {}" , e.getMessage());
+                                return false;
+                            }
+                            Store<X509CertificateHolder> certs = m_signedData.getCertificates();
+                            SignerInformationStore signers = m_signedData.getSignerInfos();
 
-                        //Decode the ContentInfo and get SignedData object from the signature block.
-                        ByteArrayInputStream bIn = new ByteArrayInputStream(m_signatureBlock);
-                        ASN1InputStream aIn = new ASN1InputStream(bIn);
-                        m_contentInfo = ContentInfo.getInstance(aIn.readObject());
-                        m_signedData = new CMSSignedData(m_contentInfo);
-                        super.setSigned(true);
+                            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext(); ) {
+                                SignerInformation signer = i.next();
+                                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+                                if (certIt.hasNext()) {
+                                    X509CertificateHolder certHolder = certIt.next();
+
+                                    // Note that setSignerCert internally increments a counter. If there are more than one
+                                    // cert in PKCS7 cert bags then the consumer class should throw an exception.
+
+                                    super.setSignerCert(new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder));
+                                    super.setHasOwnSignerCert(true);
+                                    certFound = true;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -404,6 +434,12 @@ public class CardholderBiometricData extends PIVDataObject {
             return false;
         }
 
+        super.setSigned(true);
+        super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());
+        
+        String message = APDUConstants.oidNameMAP.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
+        s_logger.debug(message);
+        
         if(m_biometricData == null)
             return false;
 
@@ -452,15 +488,14 @@ public class CardholderBiometricData extends PIVDataObject {
                     X509CertificateHolder certHolder = certIt.next();
                     signingCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
                 }
-                else if(signingCertificate != null){
+                else if(signingCertificate != null) {
                     signingCert = signingCertificate;
                 }
                 else {
-                    s_logger.error("Missing signing certificate to verifysignature on {}", APDUConstants.oidNameMAP.get(super.getOID()));
+                    s_logger.error("Missing signing certificate to verify signature on {}", APDUConstants.oidNameMAP.get(super.getOID()));
                     rv_result = false;
                     return rv_result;
                 }
-
 
                 try {
                     if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCert))) {

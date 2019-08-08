@@ -76,7 +76,7 @@ public class PIVSignatureVerificationTests {
                 boolean rv = ((CardHolderUniqueIdentifier) dataObject).verifySignature();
                 assertEquals(true, rv);
 
-                signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSigningCertificate();
+                signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSignerCert();
 
                 assertNotNull(signingCertificate);
             }

@@ -236,7 +236,7 @@ public class PIVCheck {
 
                         }
                         s_logger.info("Signature valid: {}", ((CardHolderUniqueIdentifier) dataObject).verifySignature());
-                        signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSigningCertificate();
+                        signingCertificate = dataObject.getChuidSignerCert();
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
 
@@ -290,7 +290,7 @@ public class PIVCheck {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCbeffContainer());
 
                     }
 
@@ -373,7 +373,7 @@ public class PIVCheck {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCbeffContainer());
                     }
 
 

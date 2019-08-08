@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -42,6 +43,7 @@ public class PrintedInformation extends PIVDataObject {
         m_organizationAffiliation2 = "";
         m_errorDetectionCode = false;
         m_signedContent = null;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**

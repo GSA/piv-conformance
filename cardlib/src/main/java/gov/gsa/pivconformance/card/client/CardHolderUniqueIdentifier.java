@@ -12,6 +12,7 @@ import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.pivconformance.card.client.DataModelSingleton;
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
 
@@ -46,6 +47,8 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     X509Certificate m_signingCertificate;
     private byte[] m_signedContent;
     private byte[] m_chuidContainer;
+    // TODO: Cache this 
+    //HashMap<BerTag, byte[]> m_content;
 
     /**
      * CardCapabilityContainer class constructor, initializes all the class fields.
@@ -64,6 +67,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         m_signingCertificate = null;
         m_signedContent = null;
         m_chuidContainer = null;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**
@@ -112,7 +116,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
      *
      * @return X509Certificate object containing the signing certificate
      */
-    public X509Certificate getSigningCertificate() {
+    public X509Certificate getSignerCert() {
         return m_signingCertificate;
     }
 
@@ -122,7 +126,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
      *
      * @param signingCertificate X509Certificate object containing the signing certificate
      */
-    public void setSigningCertificate(X509Certificate signingCertificate) {
+    public void setSignerCert(X509Certificate signingCertificate) {
         m_signingCertificate = signingCertificate;
     }
 
@@ -342,7 +346,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
      */
     public boolean decode() {
 
-        try{
+        try {
             byte[] rawBytes = this.getBytes();
 
             s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
@@ -456,11 +460,17 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                         Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                                         if (certIt.hasNext()) {
                                             X509CertificateHolder certHolder = certIt.next();
-                                            m_signingCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+
+                                            // Note that setSignerCert internally increments the cert back counter. 
+                                            // Using the getter, consumers can quickly determine if there were more
+                                            // than one cert in PKCS7 cert bag and throw an exception.
+                                            
+                                            X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                                            super.setSignerCert(cert);
+                                            super.setChuidSignerCert(cert);
+                                            DataModelSingleton.getInstance().setChuidSignerCert(cert);
                                         }
                                     }
-                                    
-                                    super.setSigned(true);
                                 }
 
                             } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
@@ -481,24 +491,21 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
             scos2.write(scos.toByteArray());
             
-            
-            
             if(issuerAsymmetricSignature != null)
             	scos2.write(APDUUtils.getTLV(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG, issuerAsymmetricSignature));
             
             if(ecAdded) {
             	scos2.write(TagConstants.ERROR_DETECTION_CODE_TAG);
                 scos2.write((byte) 0x00);
-            	
-            	scos.write(TagConstants.ERROR_DETECTION_CODE_TAG);
-                scos.write((byte) 0x00);
             }
-            	
+            
+            super.setSigned(true);
+            super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());
+
             m_signedContent = scos.toByteArray();
             m_chuidContainer = scos2.toByteArray();
 
-        }catch (Exception ex) {
-
+        } catch (Exception ex) {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
         }
 
@@ -522,7 +529,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         s_logger.debug("m_signedContent HEX value: {} ", Hex.encodeHexString(m_signedContent));
 
         try {
-        	//XXX need to be replaced with digest alg from the digestAlgorithms attribute
+        	//TODO: Need to be replaced with digest alg from the digestAlgorithms attribute
             MessageDigest md = MessageDigest.getInstance("SHA-256");
 
             md.update(m_signedContent);
@@ -530,12 +537,9 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
             byte[] digest = md.digest();
 
             s_logger.debug("message digest value: {} ", Hex.encodeHexString(digest));
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             s_logger.error("Error calculating hash value: {}", ex.getMessage());
         }
-
-
-
 
         try {
             Security.addProvider(new BouncyCastleProvider());

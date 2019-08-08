@@ -3,6 +3,8 @@
  */
 package gov.gsa.pivconformance.card.client;
 
+import java.security.cert.X509Certificate;
+
 import gov.gsa.pivconformance.tlv.*;
 
 /**
@@ -17,6 +19,7 @@ import gov.gsa.pivconformance.tlv.*;
 public class DataModelSingleton {
 
 	TagBoundaryManager m_tagLengthRules;
+    X509Certificate m_chuidSignerCert;
 	
     private DataModelSingleton() {
     	reset();
@@ -45,6 +48,7 @@ public class DataModelSingleton {
     public void reset() {
     	m_tagLengthRules = null;
     	m_tagLengthRules = new TagBoundaryManager();
+    	m_chuidSignerCert = null;
     }
     
     /**
@@ -77,5 +81,24 @@ public class DataModelSingleton {
 	
 	public void setLengthRules(TagBoundaryManager clf) {
 		m_tagLengthRules = clf;
+	}
+	
+	/**
+	 * Gets the cached CHUID signer cert
+	 * 
+	 * @return the cached CHUID signer cert
+	 */
+	
+	public X509Certificate getChuidSignerCert() {
+		return m_chuidSignerCert;
+	}
+	
+	/**
+	 * Sets the cached CHUID signer cert
+	 * @param cert
+	 */
+	
+	public void setChuidSignerCert(X509Certificate cert) {
+		m_chuidSignerCert = cert;
 	}
 }

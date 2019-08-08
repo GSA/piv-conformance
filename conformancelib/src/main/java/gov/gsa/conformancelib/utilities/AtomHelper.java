@@ -25,9 +25,9 @@ import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 public class AtomHelper {
     private static final Logger s_logger = LoggerFactory.getLogger(AtomHelper.class);
 
-    
     /**
-    * Helper function that retrieves  a data object from the card based on the container OID
+    * Helper function that retrieves a data object from the card based on the container OID
+    * and performs certain pre-screening functions for atoms.
     * 
     * @param OID String containing OID value identifying data object whose data content is to be
     * retrieved
@@ -35,7 +35,7 @@ public class AtomHelper {
     * @return MiddlewareStatus value indicating the result of the function call
     */
 	public static PIVDataObject getDataObject(String oid) {
-		
+				
 		//Check that the oid passed in is not null
 		if (oid == null) {
 			ConformanceTestException e  = new ConformanceTestException("OID is null");
@@ -114,11 +114,19 @@ public class AtomHelper {
 
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-
-		if (result != MiddlewareStatus.PIV_OK) {
-			ConformanceTestException e  = new
-					ConformanceTestException("Failed to retrieve data object for OID " + oid + " from the card");
-			fail(e);
+		
+		switch (result) {
+		case PIV_DATA_OBJECT_NOT_FOUND:	// Only fail mandatory containers 
+			if (APDUConstants.isContainerMandatory(oid)) {
+				ConformanceTestException e  = new ConformanceTestException("Failed to find " + APDUConstants.oidNameMAP.get(oid) + " container");
+				fail(e);
+			}
+			break;
+		case PIV_OK:
+			break;
+		default:
+			ConformanceTestException e  = new ConformanceTestException("Failed to retrieve data object for OID " + oid + " from the card");
+			fail(e);				
 		}
 
 		if (o.decode() != true) {
@@ -126,21 +134,34 @@ public class AtomHelper {
 			fail(e);
 		}
 		
+		if (o.getCertCount() > 1) {
+			ConformanceTestException e  = new ConformanceTestException("More than one cert found in " + APDUConstants.oidNameMAP.get(oid) + " container");
+			fail(e);			
+		}
+		
 		return o;		
 	}
 	
 	/**
-	 * Get a certificate from a container specified by oid
-	 * @param oid
+	 * Get a certificate from a container specified by oid. For the CHUID and Security Object containers
+	 * the certificate will be the CHUID content signer cerificate.  For biometrics, the cerificate will be
+	 * either the cert in the CMS cert bag *or* the CHUID content signer certificate.  For X509 certificates,
+	 * the certificate is in Tag 70.
+	 * @param pivDataObject o the PIV data object being processed
+	 * @param oid the OID for the container
 	 * @return Certificate from container
 	 */
-	public static X509Certificate getCertificateForContainer(String oid) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+	public static X509Certificate getCertificateForContainer(PIVDataObject o) {
 		X509Certificate cert = null;
-		if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) != 0) {
-			cert = ((X509CertificateDataObject) o).getCertificate();
+		String oid = o.getOID();
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0 || oid.compareTo(APDUConstants.SECURITY_OBJECT_OID) == 0) {		
+			cert = o.getChuidSignerCert();		
+		} else if (oid.compareTo(APDUConstants.CARDHOLDER_FINGERPRINTS_OID) == 0 ||
+			oid.compareTo(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID) == 0 ||
+			oid.compareTo(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID) == 0) {
+			cert = o.getHasOwnSignerCert() ? o.getSignerCert() : o.getChuidSignerCert();
 		} else {
-			cert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+			cert = ((X509CertificateDataObject) o).getCertificate();
 		}
 		return cert;
 	}
@@ -154,6 +175,10 @@ public class AtomHelper {
 			rv = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
 		} else if(o instanceof CardholderBiometricData) {
 			rv = ((CardholderBiometricData) o).getSignedData();
+		} else {
+			// XXX handle error condition
+			ConformanceTestException e  = new ConformanceTestException("Container " + o.getOID() + " should have no CMS");
+			fail(e);
 		}
 		return rv;
 	}

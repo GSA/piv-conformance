@@ -206,7 +206,7 @@ public class PIVRunner {
 
                         }
                         s_logger.info("Signature valid: {}", ((CardHolderUniqueIdentifier) dataObject).verifySignature());
-                        signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSigningCertificate();
+                        signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSignerCert();
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
 
@@ -259,7 +259,7 @@ public class PIVRunner {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCbeffContainer());
                     }
 
                     if (containerOID.equals(APDUConstants.SECURITY_OBJECT_OID)) {
@@ -338,7 +338,7 @@ public class PIVRunner {
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCbeffContainer());
                     }
 
                     if(containerOID.equals(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID)){

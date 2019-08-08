@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -33,6 +34,7 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
         m_pivAuthCert = null;
         m_intermediateCVC = null;
         m_error_Detection_Code = false;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**

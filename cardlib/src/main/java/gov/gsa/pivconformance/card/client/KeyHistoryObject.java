@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -20,6 +21,10 @@ public class KeyHistoryObject extends PIVDataObject {
     private int m_keysWithOnCardCerts = -1;
     private int m_keysWithOffCardCerts = -1;
     private byte[] m_offCardCertUrl;
+    
+    public KeyHistoryObject() {
+        m_content = new HashMap<BerTag, byte[]>();
+    }
     
     // XXX *** This should probably land in the base class, but at least for this test, it won't
     private byte[] m_tlvBuf = null;

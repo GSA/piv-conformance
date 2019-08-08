@@ -52,6 +52,7 @@ public class SecurityObject extends PIVDataObject {
         m_mapOfDataElements = null;
         m_dghList = null;
         m_errorDetectionCode = false;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**

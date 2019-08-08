@@ -26,14 +26,22 @@ public class PIVDataObject {
     private byte[] m_dataBytes;
     private String m_OID;
     private boolean m_signed;
+    private boolean m_mandatory;
     protected List<BerTag> m_tagList;
     private boolean m_error_Detection_Code;
     private boolean m_error_Detection_Code_Has_Data;
     private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
     private boolean m_lengthOk;
-    private static HashMap<BerTag, byte[]> m_content;
-    X509Certificate m_signingCertificate;
-    private int m_certCount;
+    // TODO: Cache these tags
+    protected static HashMap<BerTag, byte[]> m_content;
+    // This will be either the embedded cert in the signature or the CHUID signing cert
+    private X509Certificate m_signerCert;
+    // This is always here and is the default used by a consumer if m_hasOwnSignerCert is false
+    private X509Certificate m_chuidSignerCert;
+    // This will be zero or one, and reflects the number of certs in this object
+    private int m_signerCertCount;
+    // This will be true *only* when this object has its own cert
+    private boolean m_hasOwnSignerCert;
 
     /**
      * Initialize an invalid PIV data object
@@ -42,10 +50,14 @@ public class PIVDataObject {
 
         m_OID = null;
         m_signed = false;
+        m_mandatory = false;
         m_tagList = new ArrayList<BerTag>();
         m_lengthOk = false;
-        m_content = null;
-        m_certCount = 0;
+        m_content = new HashMap<BerTag, byte[]>();
+        m_signerCert = null;
+        m_chuidSignerCert = null;
+        m_signerCertCount = 0;
+        m_hasOwnSignerCert = false;
     }
 
     /**
@@ -56,6 +68,7 @@ public class PIVDataObject {
      */
     public PIVDataObject(String OID) {
         m_OID = OID;
+        m_mandatory = APDUConstants.isContainerMandatory(m_OID);
     }
 
     /**
@@ -86,7 +99,6 @@ public class PIVDataObject {
         return m_OID;
     }
 
-
     /**
      *
      * Sets the OID that identifies PIV data object
@@ -104,17 +116,7 @@ public class PIVDataObject {
     * @return number of certs found in this object
     */
    public int getCertCount() {
-       return m_certCount;
-   }
-
-   /**
-    *
-    * Sets the cert count found in the object
-    *
-    * @param OID String containing the OID that identifies PIV data object
-    */
-   public void setCertCount(int count) {
-       m_certCount = count;
+       return m_signerCertCount;
    }
 
     /**
@@ -129,43 +131,64 @@ public class PIVDataObject {
 
     /**
      *
-     * Returns the signing certificate in X509Certificate object
+     * Returns the certificate in this object
      *
-     * @return X509Certificate object containing the signing certificate
+     * @return X509Certificate object containing the certificate or null if no cert exists
      */
-    public X509Certificate getSigningCertificate() {
-        return m_signingCertificate;
+    public X509Certificate getSignerCert() {
+        return m_signerCert;
     }
 
     /**
      *
-     * Sets the signing certificate
+     * Sets the certificate embedded in this object
      *
-     * @param signingCertificate X509Certificate object containing the signing certificate
+     * @param cert X509Certificate object containing the certificate
      */
-    public void setSigningCertificate(X509Certificate signingCertificate) {
-        m_signingCertificate = signingCertificate;
+    public void setSignerCert(X509Certificate cert) {
+        m_signerCert = cert;
+        m_signerCertCount++; // TODO: Sneaky; should use a private setter to set this
     }
-    
+  
     /**
     *
-    * Returns the hashmap of tags and values for this container
+    * Returns the CHUID signer certificate in this object
     *
-    * @return hashmap of tags and values for this container
+    * @return X509Certificate object containing the CHUID signer cert for this card
     */
-   public HashMap<BerTag, byte[]> getContent() {
-       return m_content;
+   public X509Certificate getChuidSignerCert() {
+       return m_chuidSignerCert;
    }
 
    /**
     *
-    * Sets the array of tags and values
+    * Sets the CHUID signing certificate for this object in the event it doesn't have its own
+    * signing cert (which is probably almost always).
     *
-    * @param hashmap of tags and bytes
+    * @param cert X509Certificate object containing the CHUID signing certificate
     */
-   public void setContent(HashMap<BerTag, byte[]> content) {
-       m_content = content;
-   } 
+   public void setChuidSignerCert(X509Certificate cert) {
+       m_chuidSignerCert = cert;
+   }
+
+   /**
+    * Indicates whether the object associated with the subclass
+    * is mandatory.
+    */
+   
+   public boolean isMandatory(String oid) {
+	   return m_mandatory;
+   }
+   
+   /**
+    * Indicates whether this object has an embedded content signer cert 
+    *
+    */
+   
+   public boolean hasOwnSignerCert() {
+	   return m_signerCertCount > 0;
+   }
+   
     /**
      *
      * Returns the tag value for the current PIV data object
@@ -321,14 +344,34 @@ public class PIVDataObject {
      *
      * @return Boolean value indicating if error detection code had any bytes
      */
+	
     public boolean getErrorDetectionCodeHasData() {
 		return m_error_Detection_Code_Has_Data;
+	}
+    
+    /**
+     * Sets a flag indicating that this object has an embedded content signer cert.
+     * 
+     * @param hasOwnSignerCert boolean value indicating if this object has its own embedded signer cert
+     */
+    
+    public void setHasOwnSignerCert(boolean hasOwnSignerCert) {
+		m_hasOwnSignerCert = hasOwnSignerCert;
+    }
+
+    /**
+     * Returns boolean value indicating if this object has its own embedded signer cert
+     *
+     * @return Boolean value indicating if this object has its own embedded signer cert
+     */
+    public boolean getHasOwnSignerCert() {
+		return m_hasOwnSignerCert;
 	}
     
     public void setErrorDetectionCodeHasData(boolean hasData) {
 		m_error_Detection_Code_Has_Data = hasData;
     }
-    
+       
     public void setErrorDetectionCode(boolean present) {
     	m_error_Detection_Code = present;
     }

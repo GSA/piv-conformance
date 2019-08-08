@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  *
@@ -34,6 +35,7 @@ public class CardCapabilityContainer extends PIVDataObject {
     private List<byte[]> m_extendedApplicationCardURL;
     private byte[] m_securityObjectBuffer;
     private byte[] m_signedContent;
+    private HashMap<BerTag, byte[]> m_content;
 
 
 	/**
@@ -57,6 +59,7 @@ public class CardCapabilityContainer extends PIVDataObject {
         m_securityObjectBuffer = null;
         setErrorDetectionCode(false);
         setErrorDetectionCodeHasData(false);
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**

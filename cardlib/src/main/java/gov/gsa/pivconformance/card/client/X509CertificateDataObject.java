@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.util.zip.GZIPInputStream;
@@ -34,6 +35,7 @@ public class X509CertificateDataObject extends PIVDataObject {
         m_pivAuthCert = null;
         setErrorDetectionCode(false);
         setErrorDetectionCodeHasData(false);
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
 

@@ -65,62 +65,88 @@ public class CMSTests {
 	//Verify that the asymmetric digital field contains a CMS signed data object with no encapsulated content
 	@DisplayName("CMS.1 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_1(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		//Confirm that no encapsulated content present
-		assertTrue(issuerAsymmetricSignature.isDetachedSignature());
+		assertTrue(asymmetricSignature.isDetachedSignature());
     }
 	
 	//Verify that version is set to 3
 	@DisplayName("CMS.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_2(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		//Confirm version is 3
-		assertTrue(issuerAsymmetricSignature.getVersion() == 3);
+		assertTrue(asymmetricSignature.getVersion() == 3);
     }
 	
 	//Validate signing key length
 	@DisplayName("CMS.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_3(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
-		
-		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
 		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		PublicKey pubKey = signingCert.getPublicKey();
 		
 		if(pubKey instanceof RSAPublicKey) {
 			RSAPublicKey pk = (RSAPublicKey) pubKey;
-			assertTrue(pk.getModulus().bitLength() == 2048);
+			assertTrue(pk.getModulus().bitLength() == 2048); // TODO: This assumes only RSA 2048 is used for content signing
 		} 
 		
 		if(pubKey instanceof ECPublicKey) {
 			
+			// TODO: Add support for P-384 and loop through both curves.  Model for permanent fix for 78-4.{1,2,3}
 			String supportedCurve = "prime256v1";
 			ECPublicKey pk = (ECPublicKey) pubKey;
 	        ECParameterSpec ecParameterSpec = pk.getParameters();
@@ -141,6 +167,7 @@ public class CMSTests {
 	        }
 	        
 	        //Confirm that the curve in the signing certificate is prime256v1
+	        // TODO: Support P-384
 	        assertTrue(supportedCurve.compareTo(curveFromCert) == 0);
 		}
     }
@@ -148,62 +175,93 @@ public class CMSTests {
 	//Verify digestAlgorithms attribute is present
 	@DisplayName("CMS.4 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_4(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		assertNotNull(asymmetricSignature);
+		assertNotNull(asymmetricSignature.getDigestAlgorithmIDs());
     }
 	
 	//Ensure encapsulated content is absent
 	@DisplayName("CMS.5 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("CMS_TestProvider")
+	
     void CMS_Test_5(String oid, TestReporter reporter) {
 		try {
-			PIVDataObject o = AtomHelper.getDataObject(oid);
-			
-			CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-			if (issuerAsymmetricSignature == null) {
-				Exception e = new Exception("Issuer Asymmetric Signature is null");
-				throw e;
+			PIVDataObject o = null;
+			CMSSignedData asymmetricSignature = null;
+			X509Certificate signingCert = null;
+			if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+				o = AtomHelper.getDataObject(oid);
+			} else {
+				o = AtomHelper.getDataObjectWithAuth(oid);
 			}
-			//Confirm encapsulated content is absent
-			assertTrue(issuerAsymmetricSignature.getSignedContent() == null, "encapsulated content is NOT absent");
+			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+			signingCert = AtomHelper.getCertificateForContainer(o);
 			
-			String contentType = issuerAsymmetricSignature.getSignedContentTypeOID();
+			// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+			// TODO: Create atom to ensure that there is only one cert in the cert bag.
+			assertNotNull(signingCert);
+			assertNotNull(asymmetricSignature);
+			//Confirm encapsulated content is absent
+			assertTrue(asymmetricSignature.getSignedContent() == null, "encapsulated content is NOT absent");
+			
+			String contentType = asymmetricSignature.getSignedContentTypeOID();
 			//Confirm that content type is  id-PIV-CHUIDSecurityObject
 			assertTrue(contentType.compareTo("2.16.840.1.101.3.6.1") == 0, "eContentType is NOT id-piv-CHUIDSecurityObject");
 		}
 		catch (Exception e) {
 			fail(e);
-		}
-		
+		}		
     }
-	
-	
+		
 	//Ensure CRLs field is absent in signed data structure
 	@DisplayName("CMS.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_6(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		assertNotNull(asymmetricSignature);
 		
 		//Confirm encapsulated content is absent
-		assertTrue(issuerAsymmetricSignature.isDetachedSignature());
+		assertTrue(asymmetricSignature.isDetachedSignature());
 		
-		Store<?> crlStore = issuerAsymmetricSignature.getCRLs();
-		
+		Store<?> crlStore = asymmetricSignature.getCRLs();
 		
 		Collection<?> crlColl = crlStore.getMatches(null);
 		
@@ -213,17 +271,29 @@ public class CMSTests {
 	//Verify SignerInfos contains only a single signerInfo
 	@DisplayName("CMS.7 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_7(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		assertNotNull(asymmetricSignature);
 		
-		SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
+		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 		
 		assertNotNull(signers);
 		
@@ -235,20 +305,31 @@ public class CMSTests {
 	//Ensure that the signerId uses ths IssuerAndSerialNumber choice
 	@DisplayName("CMS.8 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_8(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		assertNotNull(asymmetricSignature);
 		
-		SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
+		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 		
 		assertNotNull(signers);
-		
 
 		Iterator<?> it = signers.getSigners().iterator();
 		while (it.hasNext()) {
@@ -269,23 +350,26 @@ public class CMSTests {
 	//Ensure that the Issuer in the signer info corresponds to the issuer value in the signer's certificate
 	@DisplayName("CMS.9 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_9(String oid, TestReporter reporter) {
     	try {
-			PIVDataObject o = AtomHelper.getDataObject(oid);
-			
-			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-			CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-			if (issuerAsymmetricSignature == null) {
-				Exception e = new Exception("Issuer Asymmetric Signature is null");
-				throw e;
-			}
-			X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
-			if (signingCert == null) {
-				Exception e = new Exception("Signing Certificate is null");
-				throw e;
-			}
-			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
+    		PIVDataObject o = null;
+    		CMSSignedData asymmetricSignature = null;
+    		X509Certificate signingCert = null;
+    		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+    			o = AtomHelper.getDataObject(oid);
+    		} else {
+    			o = AtomHelper.getDataObjectWithAuth(oid);
+    		}
+    		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+    		signingCert = AtomHelper.getCertificateForContainer(o);
+    		
+    		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+    		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+    		assertNotNull(signingCert);
+    		assertNotNull(asymmetricSignature);
+			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 			if (signers == null) {
 				Exception e = new Exception("signers is null");
 				throw e;
@@ -313,48 +397,28 @@ public class CMSTests {
     	}
     }
 	
-	//Confirm that piv interim extension is present
-	@DisplayName("CMS.10 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
-    void CMS_Test_10(String oid, TestReporter reporter) {
-		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
-		
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
-		assertNotNull(signingCert);
-		
-		SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
-		
-		assertNotNull(signers);
-		
-		//XXX Two questions about this tests.  Is the extension need to be found in the signing certificate?  What is the oid for piv interum 
-		byte[] pivInterim = signingCert.getExtensionValue("2.5.29.32");
-		
-		//Confirm the extension is not null
-		assertNotNull(pivInterim);
-    }
-	
 	//Validate that message digest from signed attributes bag matches the digest over CHUID (excluding contents of digital signature field)
 	@DisplayName("CMS.11 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_11(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
-		
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
 		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
-
 		//Signature verification confirms that message digest from signed attributes bag matches the digest over CHUID
 		assertTrue(((CardHolderUniqueIdentifier) o).verifySignature());
     }
@@ -362,24 +426,28 @@ public class CMSTests {
 	//Validate that signed attributes includes pivSigner-DN 
 	@DisplayName("CMS.12 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_12(String oid, TestReporter reporter) {
 		
     	try {
-			PIVDataObject o = AtomHelper.getDataObject(oid);
-			
-			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-			CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-			if (issuerAsymmetricSignature == null) {
-				Exception e = new Exception("Issuer Asymmetric Signature is null");
-				throw e;
-			}
-			X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
-			if (signingCert == null) {
-				Exception e = new Exception("Signing Certificate is null");
-				throw e;
-			}
-			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
+    		PIVDataObject o = null;
+    		CMSSignedData asymmetricSignature = null;
+    		X509Certificate signingCert = null;
+    		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+    			o = AtomHelper.getDataObject(oid);
+    		} else {
+    			o = AtomHelper.getDataObjectWithAuth(oid);
+    		}
+    		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+    		signingCert = AtomHelper.getCertificateForContainer(o);
+    		
+    		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+    		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+    		assertNotNull(signingCert);
+    		assertNotNull(asymmetricSignature);
+    		
+			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 			if (signers == null) {
 				Exception e = new Exception("signers is null");
 				throw e;
@@ -410,24 +478,35 @@ public class CMSTests {
     	}
     }
 	
-	
-	//Verify permissibility of signature algorithm relative to sunset date
+
+	// Verify permissibility of signature algorithm relative to sunset date
 	@DisplayName("CMS.13 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_13(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
 		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		assertNotNull(asymmetricSignature);
 		assertNotNull(signingCert);
 		
 		
-		SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
+		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 		
 		assertNotNull(signers);
 
@@ -454,20 +533,26 @@ public class CMSTests {
 	//Confirm that the certificate from the cert bag successfully validates the CMS signature
 	@DisplayName("CMS.14 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_TestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_14(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
-		
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
 		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		
-
-		Store<X509CertificateHolder> certBag = issuerAsymmetricSignature.getCertificates();
+		Store<X509CertificateHolder> certBag = asymmetricSignature.getCertificates();
 		
 		assertNotNull(certBag);
 		assertTrue(certBag.getMatches(null).size() > 0);
@@ -479,7 +564,7 @@ public class CMSTests {
         
         try {
         	//Set the signing cert to the one from the cert bag
-			((CardHolderUniqueIdentifier) o).setSigningCertificate(new JcaX509CertificateConverter().setProvider( "BC" ).getCertificate( cert ));
+			o.setChuidSignerCert(new JcaX509CertificateConverter().setProvider( "BC" ).getCertificate(cert));
 		} catch (CertificateException e) {
 			fail(e);
 		}
@@ -487,26 +572,28 @@ public class CMSTests {
 		assertTrue(((CardHolderUniqueIdentifier) o).verifySignature());
     }
 	
-	//Confirm that signing certificate contains id-PIV-content-signing (2.16.840.1.101.3.6.7) in EKU extension
+	//Confirm that signing certificate contains id-PIV-content-signing (or PIV-I directly asserted equivalent) in EKU extension
 	@DisplayName("CMS.15 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_15(String container, String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(container);
-		
-		CMSSignedData issuerAsymmetricSignature = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
-		
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		assertNotNull(issuerAsymmetricSignature);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
 		assertNotNull(signingCert);
 		
-		SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
-		
-		assertNotNull(signers);
-		
+		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
+		assertNotNull(signingCert);
+
 		List<String> ekuList = new ArrayList<String>();
 		try {
 			ekuList = signingCert.getExtendedKeyUsage();
@@ -521,11 +608,24 @@ public class CMSTests {
 	//Validate that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field)
 	@DisplayName("CMS.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
-	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_16(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(signingCert);
+		assertNotNull(asymmetricSignature);
 		PIVDataObject o2 = AtomHelper.getDataObjectWithAuth(APDUConstants.CARDHOLDER_FINGERPRINTS_OID);
                 	
         HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
@@ -533,13 +633,12 @@ public class CMSTests {
         boolean decoded = o.decode();
 		assertTrue(decoded);
 				
-		soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) o2).getCceffContainer());
+		soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) o2).getCbeffContainer());
 		
 		((SecurityObject) o).setMapOfDataElements(soDataElements);
 		
 		//Confirm that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field) 
-		assertTrue(((SecurityObject) o).verifyHashes());
-		
+		assertTrue(((SecurityObject) o).verifyHashes());	
     }
 	
 	//Confirm that signed attributes include pivFASC-N attribute and that it matches FACSC-N read from CHUID container
@@ -555,17 +654,23 @@ public class CMSTests {
 				s_logger.info("Optional container {} is absent from the card.", oid);
 				return;
 			}
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
-			AtomHelper.getDataObjectWithAuth(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-			
-			//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-			CMSSignedData issuerAsymmetricSignature = AtomHelper.getSignedDataForObject(o);
-			if (issuerAsymmetricSignature == null) {
-				ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
-				throw e;
+			PIVDataObject o = null;
+			CMSSignedData asymmetricSignature = null;
+			X509Certificate signingCert = null;
+			if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+				o = AtomHelper.getDataObject(oid);
+			} else {
+				o = AtomHelper.getDataObjectWithAuth(oid);
 			}
+			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+			signingCert = AtomHelper.getCertificateForContainer(o);
 			
-			SignerInformationStore signers = issuerAsymmetricSignature.getSignerInfos();
+			// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+			// TODO: Create atom to ensure that there is only one cert in the cert bag.
+			assertNotNull(signingCert);
+			assertNotNull(asymmetricSignature);
+
+			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 			if (signers == null) {
 				ConformanceTestException e = new ConformanceTestException("signers is null");
 				throw e;
@@ -605,10 +710,19 @@ public class CMSTests {
 	//Confirm that version of signed data structure is 1
 	@DisplayName("CMS.18 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_18(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		
+		o = AtomHelper.getDataObject(oid);
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(asymmetricSignature);
 		
 		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
 
@@ -619,54 +733,66 @@ public class CMSTests {
 	//Verify that eContent contains a security object
 	@DisplayName("CMS.19 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_19(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		o = AtomHelper.getDataObject(oid);
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		
-		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
-
-		assertNotNull(signedData);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(asymmetricSignature);
 		
 		//Confirm encapsulated content is present
-		CMSProcessableByteArray cpb = (CMSProcessableByteArray) signedData.getSignedContent();
+		CMSProcessableByteArray cpb = (CMSProcessableByteArray) asymmetricSignature.getSignedContent();
 		byte[] signedContent = (byte[]) cpb.getContent();
 		assertNotNull(signedContent);
 		assertTrue(signedContent.length > 0);
 			
     }
 	
-	//Verify that eContentType is id-icao-ldsSecurityObject "2.23.136.1.1.1"
+	//Verify that eContentType is id-icao-ldsSecurityObject "1.3.27.1.1.1"
 	@DisplayName("CMS.20 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_20(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
-
-		assertNotNull(signedData);
+		o = AtomHelper.getDataObject(oid);
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		
-		CMSTypedData ct = signedData.getSignedContent();
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(asymmetricSignature);
 		
-		//XXX Confirm the right oid for id-icao-ldsSecurityObject is it "2.23.136.1.1.1"  or "1.3.27.1.1.1"
+		CMSTypedData ct = asymmetricSignature.getSignedContent();
+		
 		assertTrue(ct.getContentType().toString().compareTo("1.3.27.1.1.1") == 0);
     }
 	
 	//Confirm certificates field is omitted
 	@DisplayName("CMS.21 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_21(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		o = AtomHelper.getDataObject(oid);
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		
-		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
-
-		assertNotNull(signedData);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(asymmetricSignature);
 		
-		Store<X509CertificateHolder> certBag = signedData.getCertificates();
+		Store<X509CertificateHolder> certBag = asymmetricSignature.getCertificates();
 		
 		assertNotNull(certBag);
 		assertTrue(certBag.getMatches(null).size() == 0);
@@ -675,32 +801,40 @@ public class CMSTests {
 	//Confirm certificate used to sign CHUID verifies signature
 	@DisplayName("CMS.22 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_22(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		X509Certificate signingCert = null;
+		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
+			o = AtomHelper.getDataObject(oid);
+		} else {
+			o = AtomHelper.getDataObjectWithAuth(oid);
+		}
+		signingCert = AtomHelper.getCertificateForContainer(o);
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-		
-		X509Certificate cert = ((CardHolderUniqueIdentifier) o2).getSigningCertificate();
-
-		assertNotNull(cert);
-		
-		assertTrue(((SecurityObject) o).verifySignature(cert));
+		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
+		assertNotNull(signingCert);		
+		assertTrue(((SecurityObject) o).verifySignature(signingCert));
     }
 	
 	//Validate signing and digest algorithms
 	@DisplayName("CMS.23 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_23(String oid, TestReporter reporter) {
+		PIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
 		
-		PIVDataObject o = AtomHelper.getDataObject(oid);
+		o = AtomHelper.getDataObject(oid);
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		
-		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
-
-		assertNotNull(signedData);
+		// TODO: Assumes underlying decoder for OID sniffed out containers with embedded content signing certs
+		// TODO: Create atom to ensure that there is only one cert in the cert bag.
+		assertNotNull(asymmetricSignature);
 		
-		SignerInformationStore signers = signedData.getSignerInfos();
+		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 		
 		assertNotNull(signers);
 
@@ -725,9 +859,10 @@ public class CMSTests {
     }
 	
 	// Verify digest algorithm is present (extended from CMS.4)
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
 	@DisplayName("CMS.24 Test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_24 (String oid, TestReporter reporter) {
 		
     	try {
@@ -753,9 +888,10 @@ public class CMSTests {
     
 	// Verify that digest algorithm is consistent with the signature algorithm (split from CMS.4)
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
 	@DisplayName("CMS.25 Test")
-	void CMS_Test_25 (String oid, TestReporter reporter) {
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void CMS_Test_25 (String oid, TestReporter reporter) {
     	try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 			
@@ -788,9 +924,10 @@ public class CMSTests {
 	}
     
 	// Ensure eContentType is id-piv-CHUIDSecurityContent in encapContentInfo (split from CMS.5)
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
 	@DisplayName("CMS.26 Test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    // @MethodSource("CMS_SecurityObjectTestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_26 (String oid, TestReporter reporter) {
     	try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -814,7 +951,7 @@ public class CMSTests {
 			}
 			ASN1ObjectIdentifier ct = contentInfo.getContentType();
 			//XXX Couldn't find OID for  id-piv-CHUIDSecurityContent need to find it and put here
-			assertTrue(ct.getId().compareTo("1.2.3.4.5.6.7.8.9") == 0);
+			assertTrue(ct.getId().compareTo("2.16.840.1.101.3.6.1") == 0);
     	}
     	catch (Exception e) {
     		fail(e);
@@ -822,9 +959,10 @@ public class CMSTests {
 	}
 
 	// Ensure that the Serial in the signer info corresponds to the serial value in the signer certificate (split from CMS.9)
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
 	@DisplayName("CMS.27 Test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_27 (String oid, TestReporter reporter) {
     	try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -835,7 +973,7 @@ public class CMSTests {
 				Exception e = new Exception("Issuer Asymmetric Signature is null");
 				throw e;
 			}
-			X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+			X509Certificate signingCert = o.getChuidSignerCert();
 			if (signingCert == null) {
 				Exception e = new Exception("Signing Certificate is null");
 				throw e;
@@ -865,9 +1003,10 @@ public class CMSTests {
 	}
     
 	// Validate that signed attribute pivSigner-DN matches the one asserted in signing certificate (split from CMS.12)
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
 	@DisplayName("CMS.28 Test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_28 (String oid, TestReporter reporter) {
     	try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -878,7 +1017,7 @@ public class CMSTests {
 				Exception e = new Exception("Issuer Asymmetric Signature is null");
 				throw e;
 			}
-			X509Certificate signingCert = ((CardHolderUniqueIdentifier) o).getSigningCertificate();
+			X509Certificate signingCert = o.getChuidSignerCert();
 			if (signingCert == null) {
 				Exception e = new Exception("Signing Certificate is null");
 				throw e;
@@ -930,9 +1069,9 @@ public class CMSTests {
 	}
     
 	// Confirm that signed attribute pivFASC-N matches FASC-N read from CHUID container (split from CMS.17)
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
 	@DisplayName("CMS.29 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+    @MethodSource("CMS_SecurityObjectTestProvider")
     //@MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_29(String oid, List<String> oidList, TestReporter reporter) {
@@ -1005,9 +1144,10 @@ public class CMSTests {
 	}
     
 	// Confirm that signed attribute entryUUID matches GUID read from CHUID container (split form CMS.17)
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("CMS_SecurityObjectTestProvider")
 	@DisplayName("CMS.30 Test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    //@MethodSource("CMS_SecurityObjectTestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_30 (String oid, List<String> oidList, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -1073,7 +1213,8 @@ public class CMSTests {
 			fail(e);
 		}
 	}
-    
+
+	
 	private static Stream<Arguments> CMS_TestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));

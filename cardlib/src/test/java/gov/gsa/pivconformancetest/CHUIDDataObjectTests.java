@@ -50,7 +50,7 @@ public class CHUIDDataObjectTests {
         assertNotNull(((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature());
 
         ((CardHolderUniqueIdentifier) o).verifySignature();
-        assertNotNull(((CardHolderUniqueIdentifier) o).getSigningCertificate());
+        assertNotNull(((CardHolderUniqueIdentifier) o).getSignerCert());
 
         assertTrue(((CardHolderUniqueIdentifier) o).getErrorDetectionCode());
     }
