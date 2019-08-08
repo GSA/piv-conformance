@@ -39,10 +39,16 @@ public class X509DataObjectTests {
     //@MethodSource("sp800_73_4_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_19(String oid, TestReporter reporter) {
-		
+		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
+		// if the object is not mandatory and is not present, the test is done
+		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return;
+		} else {
+			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
+		}		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-        
-        
+          
 		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
 		
 		BerTag berCertTag = new BerTag(TagConstants.CERTIFICATE_TAG);
