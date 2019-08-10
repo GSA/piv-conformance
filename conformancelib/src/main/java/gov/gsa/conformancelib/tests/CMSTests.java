@@ -11,6 +11,8 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.ContentInfo;
@@ -70,6 +72,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_1(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -86,6 +89,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_2(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -102,7 +106,8 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_3(String oid, TestReporter reporter) {
-		PIVDataObject o = null;
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+		PIVDataObject o = null;		
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
@@ -153,6 +158,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_4(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -170,6 +176,7 @@ public class CMSTests {
     @MethodSource("CMS_TestProvider")
 	
     void CMS_Test_5(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		try {
 			PIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
@@ -196,6 +203,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_6(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -218,6 +226,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_7(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -238,6 +247,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_8(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -270,6 +280,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_9(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
     	try {
     		PIVDataObject o = null;
     		CMSSignedData asymmetricSignature = null;
@@ -307,40 +318,59 @@ public class CMSTests {
     		fail(e);
     	}
     }
-	
-	//Validate that message digest from signed attributes bag matches the digest over CHUID (excluding contents of digital signature field)
-	@DisplayName("CMS.11 test")
+	//Verify that the asymmetric digital field contains a CMS signed data object
+	@DisplayName("CMS.10 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void CMS_Test_11(String oid, TestReporter reporter) {
+    void CMS_Test_10(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-		// Underlying decoder for OID identified containers with embedded content signing certs
-		// Now, select the appropriate signature cert for the object
-		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-		assertNotNull(signingCert, "No signing cert found for OID " + oid);
-
-		// Signature verification confirms that message digest from signed attributes bag matches the digest over CHUID
-		// TODO: Split out from signature verification since both are different issues.
-        if (o instanceof CardholderBiometricData) {
-    		assertTrue(((CardholderBiometricData) o).verifySignature(signingCert));
-        } else if (o instanceof SecurityObject) {
-    		assertTrue(((SecurityObject) o).verifySignature(signingCert));
-        } else 
-        	assertTrue(((CardHolderUniqueIdentifier) o).verifySignature());
     }
-	
+		
+	// TODO: CMS.11 should digest the content and compare against message digest in signed attributes 
+
+	@DisplayName("CMS.11 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void CMS_Test_11(String oid, String params, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+		try {
+			String[] oidList = params.split(",");
+			PIVDataObject o = null;
+			CMSSignedData asymmetricSignature = null;
+			o = AtomHelper.getDataObject(oid);
+			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
+			// Underlying decoder for OID identified containers with embedded content signing certs
+			// Now, select the appropriate signature cert for the object
+			X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
+			assertNotNull(signingCert, "No signing cert found for OID " + oid);
+			// Find messageDigest 1.2.840.113549.1.9.4 in signedAttributeSet
+			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
+			if (signers == null) {
+				ConformanceTestException e = new ConformanceTestException("Signers in CMS is null");
+				throw(e);
+			}
+			byte[] soContentBytes = ((DEROctetString) asymmetricSignature.getSignedContent().getContent()).getOctets();
+			ASN1Sequence seq = ASN1Sequence.getInstance(soContentBytes);
+			ContentInfo ci = new ContentInfo(seq);
+		} catch (Exception e) {
+			fail(e);
+		}
+	}	
+
 	//Validate that signed attributes includes pivSigner-DN 
 	@DisplayName("CMS.12 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_12(String oid, TestReporter reporter) {
-		
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
     	try {
     		PIVDataObject o = null;
     		CMSSignedData asymmetricSignature = null;
@@ -390,6 +420,8 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_13(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0 ||
@@ -438,6 +470,8 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_14(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -448,22 +482,6 @@ public class CMSTests {
 		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(signingCert, "No signing cert found for OID " + oid);
 
-		Store<X509CertificateHolder> certBag = asymmetricSignature.getCertificates();
-		
-		assertNotNull(certBag);
-		
-		Collection<X509CertificateHolder> certCollection = certBag.getMatches(null);
-		
-		Iterator<X509CertificateHolder> certIt = certCollection.iterator();
-        X509CertificateHolder cert = (X509CertificateHolder) certIt.next();
-        
-        try {
-        	//Set the signing cert to the one from the cert bag
-			o.setChuidSignerCert(new JcaX509CertificateConverter().setProvider( "BC" ).getCertificate(cert));
-		} catch (CertificateException e) {
-			fail(e);
-		}
-		
         if (o instanceof CardholderBiometricData) {
     		assertTrue(((CardholderBiometricData) o).verifySignature(signingCert));
         } else if (o instanceof SecurityObject) {
@@ -478,6 +496,8 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_15(String oid, String params, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
 		String[] oidList = params.split(",");
 
 		PIVDataObject o = null;
@@ -502,64 +522,17 @@ public class CMSTests {
 			assertTrue(ekuList.contains(oidList[i]));
 		}
     }
-	
-	//Validate that message digest from signed attributes bag matches the digest over biometric data (excluding contents of digital signature field)
-	@DisplayName("CMS.16 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("CMS_SecurityObjectTestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void CMS_Test_16(String oid, TestReporter reporter) {
-		PIVDataObject o = null;
-		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
-		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
-		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-		
-		CMSProcessable signedContent = asymmetricSignature.getSignedContent();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    	// TODO: Find where the message digest verification stuff is.
-		// Digest of content
-		MessageDigest messageDigest;
-		try {
-			messageDigest = MessageDigest.getInstance("SHA-256");
-			byte[] digestBytes = messageDigest.digest(baos.toByteArray());
-			String signedContentOid = asymmetricSignature.getSignedContentTypeOID();
-			//
-			System.out.println("Signed content oid = " + signedContentOid);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}  
-  /*
-   * This looks completely wrong 
-        HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
 
-        PIVDataObject o3 = new PIVDataObject(APDUConstants.SECURITY_OBJECT_OID);
-        boolean decoded = o3.decode();
-		assertTrue(decoded);
-			
-		soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) o3).getCbeffContainer());
-		
-		((SecurityObject) o3).setMapOfDataElements(soDataElements);
-		
-		//Confirm that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field) 
-		assertTrue(((SecurityObject) o3).verifyHashes());	
-
-	*/
-	
 	//Confirm that signed attributes include pivFASC-N attribute and that it matches FACSC-N read from CHUID container
 	@DisplayName("CMS.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_17(String oid, String params, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
 		try {
 			String[] oidList = params.split(",");
-			boolean isMandatory = APDUConstants.isContainerMandatory(oid);
-			if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
-				s_logger.info("Optional container {} is absent from the card.", oid);
-				return;
-			}
 			PIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
 			o = AtomHelper.getDataObject(oid);
@@ -604,15 +577,14 @@ public class CMSTests {
 			fail(e);
 		}
     }
-	
-	
+		
 	//Confirm that version of signed data structure is 1
 	@DisplayName("CMS.18 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("CMS_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_18(String oid, TestReporter reporter) {
-		
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -635,6 +607,7 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_19(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -650,7 +623,6 @@ public class CMSTests {
 		byte[] signedContent = (byte[]) cpb.getContent();
 		assertNotNull(signedContent);
 		assertTrue(signedContent.length > 0);
-			
     }
 	
 	//Verify that eContentType is id-icao-ldsSecurityObject "1.3.27.1.1.1"
@@ -659,6 +631,7 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_20(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -681,6 +654,7 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_21(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -703,6 +677,7 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_22(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -724,6 +699,7 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_23(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
 		o = AtomHelper.getDataObject(oid);
@@ -764,6 +740,7 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_24 (String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		
     	try {
     		PIVDataObject o = null;
@@ -795,7 +772,8 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_25 (String oid, TestReporter reporter) {
-    	try {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+		try {
     		PIVDataObject o = null;
     		CMSSignedData asymmetricSignature = null;
     		o = AtomHelper.getDataObject(oid);
@@ -834,7 +812,9 @@ public class CMSTests {
     // @MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_26 (String oid, TestReporter reporter) {
-    	try {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
+		try {
     		PIVDataObject o = null;
     		CMSSignedData asymmetricSignature = null;
     		o = AtomHelper.getDataObject(oid);
@@ -872,7 +852,9 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_27 (String oid, TestReporter reporter) {
-    	try {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
+		try {
     		PIVDataObject o = null;
     		CMSSignedData asymmetricSignature = null;
     		o = AtomHelper.getDataObject(oid);
@@ -911,7 +893,9 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_28 (String oid, TestReporter reporter) {
-    	try {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
+		try {
     		PIVDataObject o = null;
     		CMSSignedData asymmetricSignature = null;
     		o = AtomHelper.getDataObject(oid);
@@ -975,6 +959,8 @@ public class CMSTests {
     //@MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void CMS_Test_29(String oid, List<String> oidList, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
 		try {
 			PIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
@@ -1051,6 +1037,8 @@ public class CMSTests {
     //@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_30 (String oid, List<String> oidList, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+
 		try {
 			PIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;

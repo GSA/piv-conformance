@@ -130,7 +130,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         m_signingCertificate = signingCertificate;
     }
 
-
     /**
      *
      * Returns ContentInfo object
@@ -558,22 +557,24 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
             Store<X509CertificateHolder> certs = s.getCertificates();
             SignerInformationStore signers = s.getSignerInfos();
+            String ct = s.getSignedContent().getContentType().toString();
 
             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
                 SignerInformation signer = i.next();
+                X509Certificate signerCert = null;
 
                 Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                 Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                 if (certIt.hasNext()) {
                     X509CertificateHolder certHolder = certIt.next();
-                    m_signingCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                    signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
                 }
 
-                if(m_signingCertificate == null)
+                if(signerCert == null)
                     s_logger.error("Unable to find signing certificate for {}", APDUConstants.oidNameMAP.get(super.getOID()));
 
                 try {
-                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(m_signingCertificate))) {
+                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert))) {
                         rv_result = true;
                     }
                 } catch (CMSSignerDigestMismatchException e) {

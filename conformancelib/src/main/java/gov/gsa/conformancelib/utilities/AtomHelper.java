@@ -20,6 +20,7 @@ import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.SecurityObject;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 
 public class AtomHelper {
@@ -175,6 +176,8 @@ public class AtomHelper {
 		}
 		if(o instanceof CardHolderUniqueIdentifier) {
 			rv = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
+		} else if (o instanceof SecurityObject) {
+			rv = ((SecurityObject) o).getSignedData();
 		} else if(o instanceof CardholderBiometricData) {
 			rv = ((CardholderBiometricData) o).getSignedData();
 		} else {
@@ -185,120 +188,20 @@ public class AtomHelper {
 		return rv;
 	}
 	
-    /**
-    * 
-    * Helper function that retrieves  a data object from the card based on the container OID, authenticating to the
-    * card along the way
-    * 
-    * @param OID String containing OID value identifying data object whose data content is to be
-    * retrieved
-    * @param data PIVDataObject object that will store retrieved data content
-    * @return MiddlewareStatus value indicating the result of the function call
-    */
-	public static PIVDataObject getDataObjectWithXXXXAuth(String oid) {
-		
-		//Check that the oid passed in is not null
-		if (oid == null) {
-			ConformanceTestException e  = new ConformanceTestException("OID is null");
-			fail(e);
-		}
-		
-//  This snipper can be used to target a folder full of containers
-//		byte[] allBytes = null;
-//		 try (
-//		            InputStream inputStream = new FileInputStream("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin");
-//		            
-//		        ) {
-//		 
-//		            long fileSize = new File("G:\\GSA\\GSA_GIT\\piv-conformance-pkix-11\\tools\\85b-swing-gui\\85b-swing-gui-201907010300\\" + oid + ".bin").length();
-//		 
-//		            allBytes = new byte[(int) fileSize];
-//		 
-//		            inputStream.read(allBytes);
-//		 
-//		        } catch (IOException ex) {
-//		            ex.printStackTrace();
-//		        }
-//		 PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-//		 o.setOID(oid);
-//        o.setBytes(allBytes);
-//		
-// 		if (o.decode() != true) {
-//			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
-//			fail(e);
-//		}
-        
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		
-		//Check that CardSettingsSingleton
-		if (css == null) {
-			ConformanceTestException e  = new
-					ConformanceTestException("Singleton is null");
-			fail(e);
-		}
-		
-		if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
-			ConformanceTestException e = new ConformanceTestException(
-					"Login has already been attempted and failed. Not trying again.");
-			fail(e);
-		}
-		
-		try {
-			CardUtils.setUpPivAppHandleInSingleton();
-			CardUtils.authenticateInSingleton(false);
-		} catch (ConformanceTestException e) {
-			fail(e);
-		}
+	/***
+	 * Quick helper function to determine whether to run the atom
+	 * @param oid Container OID
+	 * @return true if this container is optional and absent (and can be skipped)
+	 */
 
-		// Get card handle and PIV handle
-		CardHandle ch = css.getCardHandle();
-		
-		if (ch == null) {
-			ConformanceTestException e  = new
-					ConformanceTestException("Failed to obtain valid card handle");
-			fail(e);
+	public static boolean isOptionalAndAbsent(String oid) {
+		if(!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+			s_logger.info("Optional container {} is absent from the card.", oid);
+			return true;
 		}
-		
-		AbstractPIVApplication piv = css.getPivHandle();
-
-		if (piv == null) {
-			ConformanceTestException e  = new
-					ConformanceTestException("Failed to obtain valid PIV handle");
-			fail(e);
-		}
-		// Created an object corresponding to the OID value
-		PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
-		
-		if (o == null) {
-			ConformanceTestException e  = new ConformanceTestException("Failed to allocate PIVDataObject");
-			fail(e);
-		}
-
-		// Get data from the card corresponding to the OID value
-		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
-
-		switch (result) {
-		case PIV_DATA_OBJECT_NOT_FOUND:	// Only fail mandatory containers 
-			if (APDUConstants.isContainerMandatory(oid)) {
-				ConformanceTestException e  = new ConformanceTestException("Failed to find " + APDUConstants.oidNameMAP.get(oid) + " container");
-				fail(e);
-			}
-			break;
-		case PIV_OK:
-			break;
-		default:
-			ConformanceTestException e  = new ConformanceTestException("Failed to retrieve data object for OID " + oid + " from the card");
-			fail(e);				
-		}
-
-		if (o.decode() != true) {
-			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
-			fail(e);
-		}
-		
-		return o;		
+		return false;
 	}
-
+	
 	/**
 	 * 
 	 * Helper function that checks whether a data object is present based on
