@@ -84,6 +84,8 @@ public class AtomHelper {
 		
 		try {
 			CardUtils.setUpPivAppHandleInSingleton();
+			if (APDUConstants.isProtectedContainer(oid))
+				CardUtils.authenticateInSingleton(false); // TODO: Not always needed
 		} catch (ConformanceTestException e) {
 			fail(e);
 		}
@@ -193,7 +195,7 @@ public class AtomHelper {
     * @param data PIVDataObject object that will store retrieved data content
     * @return MiddlewareStatus value indicating the result of the function call
     */
-	public static PIVDataObject getDataObjectWithAuth(String oid) {
+	public static PIVDataObject getDataObjectWithXXXXAuth(String oid) {
 		
 		//Check that the oid passed in is not null
 		if (oid == null) {
@@ -275,10 +277,18 @@ public class AtomHelper {
 		// Get data from the card corresponding to the OID value
 		MiddlewareStatus result = piv.pivGetData(ch, oid, o);
 
-		if (result != MiddlewareStatus.PIV_OK) {
-			ConformanceTestException e  = new
-					ConformanceTestException("Failed to retrieve data object for OID " + oid + " from the card");
-			fail(e);
+		switch (result) {
+		case PIV_DATA_OBJECT_NOT_FOUND:	// Only fail mandatory containers 
+			if (APDUConstants.isContainerMandatory(oid)) {
+				ConformanceTestException e  = new ConformanceTestException("Failed to find " + APDUConstants.oidNameMAP.get(oid) + " container");
+				fail(e);
+			}
+			break;
+		case PIV_OK:
+			break;
+		default:
+			ConformanceTestException e  = new ConformanceTestException("Failed to retrieve data object for OID " + oid + " from the card");
+			fail(e);				
 		}
 
 		if (o.decode() != true) {

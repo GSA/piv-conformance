@@ -27,6 +27,7 @@ public class PIVDataObject {
     private String m_OID;
     private boolean m_signed;
     private boolean m_mandatory;
+    private boolean m_requiresPin;
     protected List<BerTag> m_tagList;
     private boolean m_error_Detection_Code;
     private boolean m_error_Detection_Code_Has_Data;
@@ -34,10 +35,10 @@ public class PIVDataObject {
     private boolean m_lengthOk;
     // TODO: Cache these tags
     protected static HashMap<BerTag, byte[]> m_content;
-    // This will be either the embedded cert in the signature or the CHUID signing cert
+    // This will be either the embedded cert in the signature, if present, otherwise null
     private X509Certificate m_signerCert;
-    // This is always here and is the default used by a consumer if m_hasOwnSignerCert is false
-    private X509Certificate m_chuidSignerCert;
+    // This is always here (via DataModelSingleton) and is the default used by a consumer if m_hasOwnSignerCert is false
+    //private X509Certificate m_chuidSignerCert;
     // This will be zero or one, and reflects the number of certs in this object
     private int m_signerCertCount;
     // This will be true *only* when this object has its own cert
@@ -51,11 +52,11 @@ public class PIVDataObject {
         m_OID = null;
         m_signed = false;
         m_mandatory = false;
+        m_requiresPin = false;
         m_tagList = new ArrayList<BerTag>();
         m_lengthOk = false;
         m_content = new HashMap<BerTag, byte[]>();
         m_signerCert = null;
-        m_chuidSignerCert = null;
         m_signerCertCount = 0;
         m_hasOwnSignerCert = false;
     }
@@ -157,7 +158,7 @@ public class PIVDataObject {
     * @return X509Certificate object containing the CHUID signer cert for this card
     */
    public X509Certificate getChuidSignerCert() {
-       return m_chuidSignerCert;
+       return DataModelSingleton.getInstance().getChuidSignerCert(); // TODO: Temporary home until refactor
    }
 
    /**
@@ -168,7 +169,7 @@ public class PIVDataObject {
     * @param cert X509Certificate object containing the CHUID signing certificate
     */
    public void setChuidSignerCert(X509Certificate cert) {
-       m_chuidSignerCert = cert;
+	   DataModelSingleton.getInstance().setChuidSignerCert(cert); // TODO: Temporary
    }
 
    /**
@@ -178,6 +179,24 @@ public class PIVDataObject {
    
    public boolean isMandatory(String oid) {
 	   return m_mandatory;
+   }
+
+   /**
+    * Indicates whether the object associated with the subclass
+    * is requires a pin.
+    */
+   
+   public boolean requiresPin(String oid) {
+	   return m_requiresPin;
+   } 
+   
+   /**
+    * Sets the flag indicating that this container OID requires a PIN to access
+    * 
+    */
+   
+   public void setRequiresPin(boolean required) {
+	   m_requiresPin = required;
    }
    
    /**

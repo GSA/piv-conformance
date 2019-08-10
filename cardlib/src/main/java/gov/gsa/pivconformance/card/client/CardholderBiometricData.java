@@ -435,6 +435,7 @@ public class CardholderBiometricData extends PIVDataObject {
         }
 
         super.setSigned(true);
+        // This gets set in case hasOwnSignerCert() is false
         super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());
         
         String message = APDUConstants.oidNameMAP.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";

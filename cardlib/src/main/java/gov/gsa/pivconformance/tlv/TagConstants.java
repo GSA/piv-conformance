@@ -95,6 +95,7 @@ public class TagConstants {
 	public static final byte[] GUID_TAG = { 0x34 };
 	public static final byte[] CHUID_EXPIRATION_DATE_TAG = { 0x35 }; 
 	public static final byte[] CARDHOLDER_UUID_TAG = { 0x36 };
+	public static final byte[] DEPRECATED_AUTHENTICATION_KEY_MAP ={ 0x3D };
 	public static final byte[] ISSUER_ASYMMETRIC_SIGNATURE_TAG = { 0x3E };
 
 	/**

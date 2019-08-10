@@ -334,7 +334,7 @@ public class PrintedInformation extends PIVDataObject {
                     m_signedContent = scos.toByteArray();
                 }
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;
@@ -343,7 +343,8 @@ public class PrintedInformation extends PIVDataObject {
         if (m_name == "" || m_employeeAffiliation == "" || m_expirationDate == "" ||
                 m_agencyCardSerialNumber == "" || m_issuerIdentification == "")
             return false;
-
+        
+        super.setRequiresPin(true);
         return true;
     }
 }

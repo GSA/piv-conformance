@@ -62,7 +62,7 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_34(String oid, TestReporter reporter) {
 
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
         
         boolean decoded = o.decode();
 		assertTrue(decoded);
@@ -89,7 +89,7 @@ public class SP800_73_4SecurityObjectTests {
     void sp800_73_4_Test_35(String oid, TestReporter reporter) {
 		String logTag = "SP800-73-4.35: " + oid;
 
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
 		// Get tag list
 		List<BerTag> tagList = ((SecurityObject) o).getTagList();
@@ -126,7 +126,7 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_36(String oid, TestReporter reporter) {
 
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
         boolean decoded = o.decode();
 		assertTrue(decoded);
@@ -139,7 +139,7 @@ public class SP800_73_4SecurityObjectTests {
 		
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
 
-            PIVDataObject tmpObj = AtomHelper.getDataObjectWithAuth(entry.getValue());
+            PIVDataObject tmpObj = AtomHelper.getDataObject(entry.getValue());
             assertNotNull(tmpObj);;
 		}
     }
@@ -158,10 +158,10 @@ public class SP800_73_4SecurityObjectTests {
 		PIVDataObject o = null;
 		
 		if((oid == null) || oid.isEmpty()) {
-			o = AtomHelper.getDataObjectWithAuth(APDUConstants.SECURITY_OBJECT_OID);
+			o = AtomHelper.getDataObject(APDUConstants.SECURITY_OBJECT_OID);
 		} else {
 			// a log message to help confirm no other uses of this parameter that were unexpected
-			o = AtomHelper.getDataObjectWithAuth(oid);
+			o = AtomHelper.getDataObject(oid);
 			s_logger.warn("SP800-73-4.37 was called with an OID of {}. Confirm that this is correct on the spreadsheet.", oid);
 		}
         
@@ -177,7 +177,7 @@ public class SP800_73_4SecurityObjectTests {
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
             s_logger.debug("[Security object: 0x{} about to read {} from card", Integer.toHexString(entry.getKey()), entry.getValue());
-            PIVDataObject dataObject = AtomHelper.getDataObjectWithAuth(entry.getValue());
+            PIVDataObject dataObject = AtomHelper.getDataObject(entry.getValue());
             
             decoded = dataObject.decode();
     		assertTrue(decoded);
@@ -268,7 +268,7 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_54(String oid, TestReporter reporter) {
 		try {
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			PIVDataObject o = AtomHelper.getDataObject(oid);
 	        
 	        boolean decoded = o.decode();
 			assertTrue(decoded);

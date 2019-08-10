@@ -53,7 +53,7 @@ public class SP800_73_4PrintedInfoTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_28(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		//Get tag list
 		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
@@ -79,7 +79,7 @@ public class SP800_73_4PrintedInfoTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_29(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
 		
@@ -114,7 +114,7 @@ public class SP800_73_4PrintedInfoTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_30(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
 		
@@ -131,7 +131,7 @@ public class SP800_73_4PrintedInfoTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_31(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 				
 		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
 		
@@ -159,7 +159,7 @@ public class SP800_73_4PrintedInfoTests {
 	@DisplayName("SP800-73-4.52 test")
 	void sp800_73_4_Test_52 (String oid, TestReporter reporter) {
 		try {
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 			//Get tag list
 			List<BerTag> tagList = ((PrintedInformation) o).getTagList();
@@ -225,7 +225,7 @@ public class SP800_73_4PrintedInfoTests {
 	@DisplayName("SP800-73-4.53 test")
 	void sp800_73_4_Test_53 (String oid, TestReporter reporter) {
 		try {
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 			List<BerTag> tagList = ((PrintedInformation) o).getTagList();
 			

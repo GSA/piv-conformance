@@ -99,6 +99,7 @@ public class DataModelSingleton {
 	 */
 	
 	public void setChuidSignerCert(X509Certificate cert) {
-		m_chuidSignerCert = cert;
+		if (m_chuidSignerCert == null && cert != null) // Set once and protect
+			m_chuidSignerCert = cert;
 	}
 }

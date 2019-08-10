@@ -52,7 +52,7 @@ public class SP800_73_4FingerprintsTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_25(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardholderBiometricData) o).getTagList();
 		
@@ -78,7 +78,7 @@ public class SP800_73_4FingerprintsTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_26(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		List<BerTag> tagList = ((CardholderBiometricData) o).getTagList();
 		

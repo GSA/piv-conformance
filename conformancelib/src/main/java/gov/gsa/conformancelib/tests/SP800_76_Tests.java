@@ -50,7 +50,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -87,7 +87,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
@@ -128,7 +128,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -164,7 +164,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -208,7 +208,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -234,7 +234,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -260,7 +260,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -287,7 +287,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -333,7 +333,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -363,7 +363,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -392,7 +392,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -426,7 +426,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -467,7 +467,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -500,7 +500,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -531,7 +531,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -566,7 +566,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -605,7 +605,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -638,7 +638,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -671,7 +671,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -697,7 +697,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -720,7 +720,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -768,7 +768,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -817,7 +817,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -865,7 +865,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 				
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -912,7 +912,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -964,7 +964,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1016,7 +1016,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1067,7 +1067,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1118,7 +1118,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1167,7 +1167,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1197,7 +1197,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1227,7 +1227,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1261,7 +1261,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1293,7 +1293,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		//Make sure biometric data block is present
@@ -1324,7 +1324,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1359,7 +1359,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1394,7 +1394,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1429,7 +1429,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1484,7 +1484,7 @@ public class SP800_76_Tests {
 				fail(e);
 			}
 			
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+			PIVDataObject o = AtomHelper.getDataObject(containerOid);
 				
 			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 			
@@ -1514,7 +1514,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -1563,7 +1563,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -1657,7 +1657,7 @@ public class SP800_76_Tests {
 					fail(e);
 				}
 
-				PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+				PIVDataObject o = AtomHelper.getDataObject(containerOid);
 					
 				byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 				
@@ -1712,7 +1712,7 @@ public class SP800_76_Tests {
 					fail(e);
 				}
 
-				PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+				PIVDataObject o = AtomHelper.getDataObject(containerOid);
 					
 				byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 				
@@ -1743,7 +1743,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -1777,7 +1777,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -1810,7 +1810,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
@@ -1843,7 +1843,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		
@@ -1874,7 +1874,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
 		
@@ -1927,7 +1927,7 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
 		byte[] signature = ((CardholderBiometricData) o).getSignatureBlock();
