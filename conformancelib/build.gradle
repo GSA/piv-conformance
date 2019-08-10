@@ -67,8 +67,9 @@ configurations {
 }
 
 dependencies {
-    compile 'org.bouncycastle:bcprov-jdk15on:1.59+'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.59+'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.62+'
+    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.62+'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.62+'
     compile 'commons-cli:commons-cli:1.4'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.6'
     compile 'commons-codec:commons-codec:1.11'
