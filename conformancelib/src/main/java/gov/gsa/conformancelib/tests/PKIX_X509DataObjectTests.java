@@ -944,15 +944,15 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.24 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_24(String containerOid, String oid, TestReporter reporter) {
+    void PKIX_Test_24(String oid, String extensionOid, TestReporter reporter) {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + containerOid);
-		assertNotNull(oid, "NULL oid passed to atom");
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+		assertNotNull(extensionOid, "Null OID passed to atom");
 				 
-        byte[] extVal = cert.getExtensionValue(oid);
+        byte[] extVal = cert.getExtensionValue(extensionOid);
         assertNotNull(extVal);
         
-        if(oid.compareTo("1.3.6.1.5.5.7.1.1") == 0) {
+        if(extensionOid.compareTo("1.3.6.1.5.5.7.1.1") == 0) {
         	try {
 				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
 		        assertNotNull(aia);
@@ -973,7 +973,7 @@ public class PKIX_X509DataObjectTests {
 			}
         }
         
-        if(oid.compareTo("2.5.29.31") == 0) {
+        if(extensionOid.compareTo("2.5.29.31") == 0) {
         	try {
         		
         		CRLDistPoint crlDP = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));

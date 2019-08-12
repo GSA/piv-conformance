@@ -292,7 +292,6 @@ public class CardholderBiometricData extends PIVDataObject {
     public boolean decode() {
 
     	boolean certFound = false;
-        ByteArrayOutputStream signedContentOutputStream = new ByteArrayOutputStream();
 
         try {
             byte[] rawBytes = this.getBytes();
@@ -323,49 +322,55 @@ public class CardholderBiometricData extends PIVDataObject {
                         s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
                         return false;
                     }
+                    
+                    ByteArrayOutputStream signedContentOutputStream = new ByteArrayOutputStream();
 
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
                             s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
-                        	super.m_tagList.add(tlv2.getTag());
-                            if (Arrays.equals(tlv2.getTag().bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
+                        	BerTag tag = tlv2.getTag();
+                        	byte[] value = tlv2.getBytesValue();
 
-                                m_biometricData = tlv2.getBytesValue();
-                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
+                        	super.m_tagList.add(tag);
+                            if (Arrays.equals(tag.bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
 
-                            } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG)) {
+                                m_biometricData = value;
+                                m_content.put(tag, value);
+                                if (m_biometricData != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
 
-                                m_biometricData = tlv2.getBytesValue();
-                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG, m_biometricData));
+                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG)) {
 
-                            } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.IMAGES_FOR_IRIS_TAG)) {
+                                m_biometricData = value;
+                                m_content.put(tag, value);
+                               if (m_biometricData != null)
+                            	   signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG, m_biometricData));
 
-                                m_biometricData = tlv2.getBytesValue();
-                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.IMAGES_FOR_IRIS_TAG, m_biometricData));
+                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGES_FOR_IRIS_TAG)) {
 
-                            } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
+                                m_biometricData = value;
+                                m_content.put(tag, value);
+                                if (m_biometricData != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.IMAGES_FOR_IRIS_TAG, m_biometricData));
+
+                            } else if (Arrays.equals(tag.bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 
                                 m_errorDetectionCode = true;
-                                m_content.put(tlv2.getTag(), tlv2.getBytesValue());
-
-                                signedContentOutputStream.write(TagConstants.ERROR_DETECTION_CODE_TAG);
-                                signedContentOutputStream.write((byte) 0x00);
-
+                                m_content.put(tag, value);
+                                signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));
                             } else {
-                                s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                                s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
 
                             m_cbeffContainer = signedContentOutputStream.toByteArray();
                         }
                     }
 
+                    // Break BC tag into Patron CBEFF header + BDB + SB
                     if (m_biometricData != null) {
-
+                        s_logger.debug("m_biometricData: {}", Hex.encodeHexString(m_biometricData));
                         //Get Biometric data block (BDB) Length
                         byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 2, 6);
                         //Get Signature block (SB) Length
@@ -442,7 +447,6 @@ public class CardholderBiometricData extends PIVDataObject {
         }
 
         super.setSigned(true);
-        m_signedContent = signedContentOutputStream.toByteArray();
         // This gets set in case hasOwnSignerCert() is false
         super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());
         

@@ -389,35 +389,44 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                         	BerTag tag = tlv2.getTag();
                         	byte[] value = tlv2.getBytesValue();
                         	
-                        	// 3 deprecated tags that can't be part of the data model after we note them here
+                        	// 2 deprecated tags that can't be part of the data model after we note them here
                         	
-                            if (Arrays.equals(tag.bytes, TagConstants.BUFFER_LENGTH_TAG)) { // EE - Don't use in hash
+                            if (Arrays.equals(tag.bytes, TagConstants.BUFFER_LENGTH_TAG)) { // EE - Don't use in hash (don't add to digest input)
                                 s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
-                            //} else if (Arrays.equals(tag.bytes, TagConstants.DEPRECATED_AUTHENTICATION_KEY_MAP)) { // Really old Authentication Key Map
-                            //  s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
+                            } else if (Arrays.equals(tag.bytes, TagConstants.DEPRECATED_AUTHENTICATION_KEY_MAP)) { // 3D - Don't use in hash (don't add to digest input)
+                                s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
+     
                             } else if (Arrays.equals(tag.bytes, TagConstants.FASC_N_TAG)) {
   
                             	m_fASCN = value;
-                                m_content.put(tlv2.getTag(), value);
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.FASC_N_TAG, m_fASCN));
+                                m_content.put(tag, value);
+                                super.m_tagList.add(tag);
+                                if (m_fASCN != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.FASC_N_TAG, m_fASCN));
 
                             } else if (Arrays.equals(tag.bytes, TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG)) {
 
                                 m_organizationalIdentifier = value;
-                                m_content.put(tlv2.getTag(), value);
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG, m_organizationalIdentifier));
+                                m_content.put(tag, value);
+                                super.m_tagList.add(tag);
+                                if (m_organizationalIdentifier != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG, m_organizationalIdentifier));
 
                             } else if (Arrays.equals(tag.bytes, TagConstants.DUNS_TAG)) {
 
                                 m_dUNS = value;
                                 m_content.put(tag, value);
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.DUNS_TAG, m_dUNS));
+                                super.m_tagList.add(tag);
+                                if (m_dUNS != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.DUNS_TAG, m_dUNS));
 
-                            } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.GUID_TAG)) {
+                            } else if (Arrays.equals(tag.bytes, TagConstants.GUID_TAG)) {
 
                                 m_gUID = value;
                                 m_content.put(tag, value);
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.GUID_TAG, m_gUID));
+                                super.m_tagList.add(tag);
+                                if (m_gUID != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.GUID_TAG, m_gUID));
 
                             } else if (Arrays.equals(tag.bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG)) {
 
@@ -425,20 +434,24 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                 m_content.put(tag, value);
                                 Date date = new SimpleDateFormat("yyyyMMdd").parse(s);
                                 m_expirationDate = date;
-                                signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.CHUID_EXPIRATION_DATE_TAG, value));
+                                super.m_tagList.add(tag);
+                                if (m_expirationDate != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.CHUID_EXPIRATION_DATE_TAG, value));
 
-                            } else if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CARDHOLDER_UUID_TAG)) {
+                            } else if (Arrays.equals(tag.bytes, TagConstants.CARDHOLDER_UUID_TAG)) {
 
                                 m_cardholderUUID = value;
                                 m_content.put(tag, value);
-                                if(m_cardholderUUID != null)
+                                super.m_tagList.add(tag);
+                                if(m_cardholderUUID != null) {
                                     signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.CARDHOLDER_UUID_TAG, value));
+                                }
 
                             } else if (Arrays.equals(tag.bytes, TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)) {
 
                                 issuerAsymmetricSignature = value;
                                 m_content.put(tag, value);
-                                
+                                super.m_tagList.add(tag);
                                 if(issuerAsymmetricSignature != null) {
                                     //Decode the ContentInfo and get SignedData object.
                                     ByteArrayInputStream bIn = new ByteArrayInputStream(issuerAsymmetricSignature);
@@ -477,15 +490,15 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                 }
 
                             } else if (Arrays.equals(tag.bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
+                            	ecAdded = true;
                             	m_content.put(tag, value);
-                                if(!ecAdded) {
-                                    m_errorDetectionCode = true;
-                                    signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));
-                                }
+                                m_errorDetectionCode = true;
+                            	super.m_tagList.add(tag);
+                                signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));
                             } else {
-                            	
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
                                 // Unexpected tags (for future) - we could simply ignore
+                                super.m_tagList.add(tag);
                                 signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));
                             }
                         }
@@ -494,9 +507,16 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
             }
 
             containerOutputStream.write(signedContentOutputStream.toByteArray());
-            
+              
+            // Append signature to full container output
             if(issuerAsymmetricSignature != null)
             	containerOutputStream.write(APDUUtils.getTLV(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG, issuerAsymmetricSignature));
+            
+            // Append EC if in the original
+            if(ecAdded) {
+            	containerOutputStream.write(TagConstants.ERROR_DETECTION_CODE_TAG);
+            	containerOutputStream.write((byte) 0x00);
+            }
             
             super.setSigned(true);
 

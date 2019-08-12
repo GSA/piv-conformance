@@ -9,12 +9,16 @@ import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameStyle;
@@ -335,18 +339,19 @@ public class CMSTests {
 	// TODO: CMS.11 should digest the content and compare against message digest in signed attributes 
 
 	@DisplayName("CMS.11 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
+	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void CMS_Test_11(String oid, String params, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+	void CMS_Test_11(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		try {
-			String[] oidList = params.split(",");
 			PIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
 			o = AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-			// Underlying decoder for OID identified containers with embedded content signing certs
+			// Underlying decoder for OID identified containers with embedded content
+			// signing certs
 			// Now, select the appropriate signature cert for the object
 			X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
 			assertNotNull(signingCert, "No signing cert found for OID " + oid);
@@ -354,11 +359,43 @@ public class CMSTests {
 			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 			if (signers == null) {
 				ConformanceTestException e = new ConformanceTestException("Signers in CMS is null");
-				throw(e);
+				throw (e);
 			}
-			byte[] soContentBytes = ((DEROctetString) asymmetricSignature.getSignedContent().getContent()).getOctets();
-			ASN1Sequence seq = ASN1Sequence.getInstance(soContentBytes);
-			ContentInfo ci = new ContentInfo(seq);
+			AttributeTable at;
+			
+			// Temporarily nest these with no error logging until unit test passes
+			for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+				SignerInformation signer = i.next();
+				at = signer.getSignedAttributes();
+				if (at != null) {
+					Attribute a = at.get(ASN1ObjectIdentifier.getInstance(CMSAttributes.messageDigest)); // messageDigest
+					if (a != null) {
+						DERSet attrValSet = (DERSet) a.getAttrValues();
+						byte[] digest = attrValSet.getEncoded();
+						
+						if (digest != null) {
+							s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
+							// Get data object
+							byte[] contentBytes = null;
+					        if (o instanceof CardholderBiometricData) {
+					    		 contentBytes = ((CardholderBiometricData) o).getSignedContent();
+					        } else if (o instanceof SecurityObject) {
+					    		 contentBytes = ((SecurityObject) o).getSecurityObject();
+					        } else 
+					        	contentBytes = ((CardHolderUniqueIdentifier) o).getSignedContent();
+					        
+					        if (contentBytes != null) {
+								s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
+					            MessageDigest md = MessageDigest.getInstance("SHA-256");
+					            md.update(contentBytes);
+					            byte[] computedDigest = md.digest();
+								s_logger.debug("Computed digest: " + Hex.encodeHexString(computedDigest));
+					            assertTrue(Arrays.equals(digest, computedDigest));
+					        }
+						}
+					}
+				}
+			}
 		} catch (Exception e) {
 			fail(e);
 		}
