@@ -12,8 +12,10 @@ import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.*;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.operator.*;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.jcajce.util.MessageDigestUtils;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.DEROctetString;
@@ -28,6 +30,9 @@ import org.bouncycastle.asn1.x500.style.RFC4519Style;
 import org.bouncycastle.cms.*;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
+import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.util.Store;
 
 import java.util.List;
@@ -352,53 +357,11 @@ public class CMSTests {
 			o = AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-			// Underlying decoder for OID identified containers with embedded content
-			// signing certs
-			// Now, select the appropriate signature cert for the object
-			X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-			assertNotNull(signingCert, "No signing cert found for OID " + oid);
-			// Find messageDigest 1.2.840.113549.1.9.4 in signedAttributeSet
-			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
-			if (signers == null) {
-				ConformanceTestException e = new ConformanceTestException("Signers in CMS is null");
-				throw (e);
-			}
-			AttributeTable at;
-			
-			// Temporarily nest these with no error logging until unit test passes
-			for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-				SignerInformation signer = i.next();
-				at = signer.getSignedAttributes();	
-				if (at != null) {
-					Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
-					if (a != null) {
-						DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
-						byte[] digest = dos.getOctets();
-						if (digest != null) {
-							s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
-							// Get data object
-							byte[] contentBytes = null;
-					        if (o instanceof CardholderBiometricData) {
-					    		 contentBytes = ((CardholderBiometricData) o).getSignedContent();
-					        } else if (o instanceof SecurityObject) {
-					    		 contentBytes = ((SecurityObject) o).getSecurityObject();
-					        } else 
-					        	contentBytes = ((CardHolderUniqueIdentifier) o).getSignedContent();
-					        
-					        if (contentBytes != null) {
-								s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
-								
-								String aName = signer.getDigestAlgOID();
-								MessageDigest md = MessageDigest.getInstance(aName, "BC");
-					            md.update(contentBytes);
-					            byte[] computedDigest = md.digest();
-								s_logger.debug("Computed digest: " + Hex.encodeHexString(computedDigest));
-					            assertTrue(Arrays.equals(digest, computedDigest));
-					        }
-						}
-					}
-				}
-			}
+
+			byte[] signedAttrsDigest = ((PIVDataObject) o).getSignedAttrsDigest();
+			byte[] computedDigest = ((PIVDataObject) o).getComputedDigest();
+			assertTrue(Arrays.equals(signedAttrsDigest, computedDigest));
+
 		} catch (Exception e) {
 			fail(e);
 		}

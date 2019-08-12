@@ -1,18 +1,23 @@
 package gov.gsa.pivconformance.card.client;
 
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.jcajce.util.MessageDigestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.gsa.pivconformance.card.client.DataModelSingleton;
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
 
@@ -192,7 +197,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         m_fASCN = fASCN;
     }
 
-
     /**
      *
      * Returns byte array containing Organizational Identifier value
@@ -203,7 +207,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         return m_organizationalIdentifier;
     }
 
-
     /**
      *
      * Sets Organizational Identifier value
@@ -213,7 +216,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     public void setOrganizationalIdentifier(byte[] organizationalIdentifier) {
         m_organizationalIdentifier = organizationalIdentifier;
     }
-
 
     /**
      *
@@ -234,7 +236,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     public void setdUNS(byte[] dUNS) {
         m_dUNS = dUNS;
     }
-
 
     /**
      *
@@ -296,7 +297,6 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
         m_cardholderUUID = cardholderUUID;
     }
 
-
     /**
      *
      * Returns CMSSignedData object containing Issuer Asymmetric Signature value
@@ -345,6 +345,9 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
      */
     public boolean decode() {
 
+    	SignerInformationStore signers = null;
+    	SignerInformation signer = null;
+    	
         try {
             byte[] rawBytes = this.getBytes();
 
@@ -466,11 +469,11 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                         return false;
                                     }
                                     Store<X509CertificateHolder> certs = m_issuerAsymmetricSignature.getCertificates();
-                                    SignerInformationStore signers = m_issuerAsymmetricSignature.getSignerInfos();
+                                    signers = m_issuerAsymmetricSignature.getSignerInfos();
 
                                     for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-                                        SignerInformation signer = i.next();
-
+                                        signer = i.next();
+                                        // Get signer cert
                                         Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                                         Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                                         if (certIt.hasNext()) {
@@ -519,9 +522,13 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
             }
             
             super.setSigned(true);
+            this.setSignedContent(signedContentOutputStream.toByteArray());
+            // Grab signed digest
+            this.setSignedAttrsDigest(signers);
+            // Precompute digest but don't compare -- let consumers do that
+            this.setComputedDigest(signer);
 
-            m_signedContent = signedContentOutputStream.toByteArray();
-            m_chuidContainer = containerOutputStream.toByteArray();
+            m_chuidContainer = this.getSignedContent();
 
         } catch (Exception ex) {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
@@ -534,6 +541,103 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
         return true;
     }
+    
+	/**
+	 * Gets the precomputed message digest for the content
+	 * 
+	 * @return bytes in the digest
+	 */
+    	
+	public byte[] getSignedAttrsDigest() {
+		return super.getSignedAttrsDigest();
+	}
+    
+	/**
+	 * Extracts and sets the message digest in the signed attributes
+	 * 
+	 * @param the SignerInformationStore in the CMS
+	 * 
+	 */	
+	private void setSignedAttrsDigest(SignerInformationStore signers) {
+    	if (m_issuerAsymmetricSignature != null) {
+			if (signers != null) {
+				AttributeTable at;				
+				// Temporarily nest these until unit test passes
+				for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+					SignerInformation signer = i.next();
+					at = signer.getSignedAttributes();	
+					if (at != null) {
+						Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
+						if (a != null) {
+							DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
+							if (dos != null) {
+								byte[] digest = dos.getOctets();
+								if (digest != null) {
+									super.setSignedAttrsDigest(digest);
+									s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
+								} else {
+									s_logger.error("Failed to compute digest");
+								}
+							} else {
+								s_logger.error("Failed to decode octets");
+							}
+						} else {
+							s_logger.error("Null messageDigest attribute");
+						}
+					} else {
+						s_logger.error("Null signed attribute set");
+					}
+				} // End for
+			} else {
+				s_logger.error("Null SignerInfos");
+			}
+    	}
+    }
+	
+    /**
+     * Computes and sets the digest
+     * 
+     * @param the SignerInfo of the content signer
+     * 
+     * @returns the bytes of the digest
+     */
+
+	private void setComputedDigest(SignerInformation signer) {
+		if (m_issuerAsymmetricSignature != null) {
+			try {
+				AttributeTable at = signer.getSignedAttributes();	
+				if (at != null) {
+					Attribute a = at.get(CMSAttributes.messageDigest);
+					if (a != null) {
+						byte[] contentBytes = this.getSignedContent();
+
+						if (contentBytes != null) {
+							s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
+							String aName = MessageDigestUtils.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
+							MessageDigest md = MessageDigest.getInstance(aName, "BC");
+							md.update(contentBytes);
+							byte[] digest = md.digest();
+							if (digest != null) {
+								super.setComputedDigest(digest);
+								s_logger.debug("Computed digest: " + Hex.encodeHexString(digest));
+							} else {
+								s_logger.error("Failed to digest content");
+							}
+						} else {
+							s_logger.error("Null contentBytes");
+						}
+					} else {
+						s_logger.error("Null messageDigest attribute");
+					}
+				} else {
+					s_logger.error("Null signed attribute set");
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
     /**
      *
@@ -610,6 +714,4 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 
         return rv_result;
     }
-
-
 }

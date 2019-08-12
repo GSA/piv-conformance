@@ -43,7 +43,10 @@ public class PIVDataObject {
     private int m_signerCertCount;
     // This will be true *only* when this object has its own cert
     private boolean m_hasOwnSignerCert;
-
+    // Prefetch
+    private byte[] m_signedAttrsDigest;
+    private byte[] m_computedDigest;
+    
     /**
      * Initialize an invalid PIV data object
      */
@@ -59,6 +62,8 @@ public class PIVDataObject {
         m_signerCert = null;
         m_signerCertCount = 0;
         m_hasOwnSignerCert = false;
+        m_signedAttrsDigest = null;
+        m_computedDigest = null;
     }
 
     /**
@@ -271,6 +276,49 @@ public class PIVDataObject {
         }
         return true;
     }   
+ 
+    
+	/**
+	 * Gets the signed attributes message digest extracted from SignerInfo
+	 * 
+	 * @return bytes in the digest
+	 */
+    	
+	public byte[] getSignedAttrsDigest() {
+		return m_signedAttrsDigest;
+	}
+    
+	/**
+	 * Sets the message digest in the signed attributes
+	 * 
+	 * @param the bytes of the digest
+	 * 
+	 */	
+	public void setSignedAttrsDigest(byte[] digest) {
+		m_signedAttrsDigest = digest;
+    }
+	
+	/**
+	 * Gets the precomputed message digest of the content
+	 * 
+	 * @return bytes in the digest
+	 */
+    	
+	public byte[] getComputedDigest() {
+		return m_computedDigest;
+	}
+    	
+    /**
+     * Sets the computed digest of the object
+     * 
+     * @param the bytes of the digest
+     * 
+     * @returns the bytes of the digest
+     */
+    
+	public void setComputedDigest(byte[] digest) {
+        m_computedDigest = digest;
+	}
     
     /**
      *

@@ -10,6 +10,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.jcajce.util.MessageDigestUtils;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
@@ -20,6 +21,9 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 import java.io.ByteArrayInputStream;
 
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
 
 /**
@@ -111,6 +115,26 @@ public class SecurityObject extends PIVDataObject {
      */
     public void setMapping(byte[] mapping) {
         m_mapping = mapping;
+    }
+
+    /**
+     *
+     * Returns byte array with signed content
+     *
+     * @return Byte array with signed content buffer
+     */
+    public byte[] getSignedContent() {
+        return m_so;
+    }
+
+    /**
+     *
+     * Sets the signed content value
+     *
+     * @param signedContent Byte array with signed content buffer
+     */
+    public void setSignedContent(byte[] signedContent) {
+        m_so = signedContent;
     }
 
 
@@ -206,7 +230,8 @@ public class SecurityObject extends PIVDataObject {
      * @return True if decode was successful, false otherwise
      */
     public boolean decode() {
-
+        SignerInformationStore signers = null;
+        SignerInformation signer = null;
         try {
         	super.m_tagList.clear();
             byte[] rawBytes = this.getBytes();
@@ -270,6 +295,22 @@ public class SecurityObject extends PIVDataObject {
                     super.setSigned(true);
                     aIn.close();
 
+                    CMSSignedData s = new CMSSignedData(m_contentInfo);
+                    signers = s.getSignerInfos();
+
+                    for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+                        signer = i.next();                               
+                    }
+
+                    // This gets set in case hasOwnSignerCert() is false
+                    super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());                  
+                    // Only the security object tag is content
+                    this.setSignedContent(m_so);
+                    // Grab signed digest
+                    this.setSignedAttrsDigest(signers);
+                    // Precompute digest but don't compare -- let consumers do that
+                    this.setComputedDigest(signer);
+
                 } else {
                     if (!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
                         s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
@@ -277,7 +318,6 @@ public class SecurityObject extends PIVDataObject {
                     else{
                         m_errorDetectionCode = true;
                     }
-
                 }
             }
         }
@@ -292,7 +332,95 @@ public class SecurityObject extends PIVDataObject {
 
         return true;
     }
+    
+	/**
+	 * Extracts and sets the message digest in the signed attributes
+	 * 
+	 * @param the SignerInformationStore in the CMS
+	 * 
+	 */	
+	private void setSignedAttrsDigest(SignerInformationStore signers) {
+    	if (m_so != null) {
+			if (signers != null) {
+				AttributeTable at;				
+				// Temporarily nest these until unit test passes
+				for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+					SignerInformation signer = i.next();
+					at = signer.getSignedAttributes();	
+					if (at != null) {
+						Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
+						if (a != null) {
+							DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
+							if (dos != null) {
+								byte[] digest = dos.getOctets();
+								if (digest != null) {
+									super.setSignedAttrsDigest(digest);
+									s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
+								} else {
+									s_logger.error("Failed to compute digest");
+								}
+							} else {
+								s_logger.error("Failed to decode octets");
+							}
+						} else {
+							s_logger.error("Null messageDigest attribute");
+						}
+					} else {
+						s_logger.error("Null signed attribute set");
+					}
+				} // End for
+			} else {
+				s_logger.error("Null SignerInfos");
+			}
+    	}
+    }
+	
 
+    /**
+     * Computes and sets the digest
+     * 
+     * @param the SignerInfo of the content signer
+     * 
+     * @returns the bytes of the digest
+     */
+
+	private void setComputedDigest(SignerInformation signer) {
+		if (m_so != null) {
+			try {
+				AttributeTable at = signer.getSignedAttributes();	
+				if (at != null) {
+					Attribute a = at.get(CMSAttributes.messageDigest);
+					if (a != null) {
+						byte[] contentBytes = this.getSignedContent();
+
+						if (contentBytes != null) {
+							s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
+							String aName = MessageDigestUtils.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
+							MessageDigest md = MessageDigest.getInstance(aName, "BC");
+							md.update(contentBytes);
+							byte[] digest = md.digest();
+							if (digest != null) {
+								super.setComputedDigest(digest);
+								s_logger.debug("Computed digest: " + Hex.encodeHexString(digest));
+							} else {
+								s_logger.error("Failed to digest content");
+							}
+						} else {
+							s_logger.error("Null contentBytes");
+						}
+					} else {
+						s_logger.error("Null messageDigest attribute");
+					}
+				} else {
+					s_logger.error("Null signed attribute set");
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
     /**
      *
      * Verifies the signature on the Security Object

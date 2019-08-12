@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.security.MessageDigest;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +23,11 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSProcessable;
@@ -31,6 +37,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.jcajce.util.MessageDigestUtils;
 
 /**
  *
@@ -291,8 +298,10 @@ public class CardholderBiometricData extends PIVDataObject {
      */
     public boolean decode() {
 
-    	boolean certFound = false;
-
+    	boolean certFound = false;        
+        ByteArrayOutputStream signedContentOutputStream = new ByteArrayOutputStream();
+        SignerInformationStore signers = null;
+        SignerInformation signer = null;
         try {
             byte[] rawBytes = this.getBytes();
 
@@ -322,8 +331,6 @@ public class CardholderBiometricData extends PIVDataObject {
                         s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
                         return false;
                     }
-                    
-                    ByteArrayOutputStream signedContentOutputStream = new ByteArrayOutputStream();
 
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
@@ -359,11 +366,10 @@ public class CardholderBiometricData extends PIVDataObject {
 
                                 m_errorDetectionCode = true;
                                 m_content.put(tag, value);
-                                signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));
+                               
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
-
                             m_cbeffContainer = signedContentOutputStream.toByteArray();
                         }
                     }
@@ -391,7 +397,7 @@ public class CardholderBiometricData extends PIVDataObject {
                         wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
                         int signatureDataBlockLength = (int) wrapped.getShort();
 
-                        m_signedContent = Arrays.copyOfRange(m_biometricData, 0, 88 + biometricDataBlockLength - 4);
+                        m_signedContent = Arrays.copyOfRange(m_biometricData, 0, 88 + biometricDataBlockLength);
 
                         m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);
 
@@ -419,10 +425,9 @@ public class CardholderBiometricData extends PIVDataObject {
                                 return false;
                             }
                             Store<X509CertificateHolder> certs = m_signedData.getCertificates();
-                            SignerInformationStore signers = m_signedData.getSignerInfos();
-
+                            signers = m_signedData.getSignerInfos();
                             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext(); ) {
-                                SignerInformation signer = i.next();
+                                signer = i.next();
                                 Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                                 Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                                 if (certIt.hasNext()) {
@@ -445,11 +450,16 @@ public class CardholderBiometricData extends PIVDataObject {
             s_logger.error("Error parsing {}", APDUConstants.oidNameMAP.get(super.getOID()), ex);
             return false;
         }
-
+  
         super.setSigned(true);
         // This gets set in case hasOwnSignerCert() is false
         super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());
-        
+        this.setSignedContent(m_signedContent);
+        // Grab signed digest
+        this.setSignedAttrsDigest(signers);
+        // Precompute digest but don't compare -- let consumers do that
+        this.setComputedDigest(signer);        
+
         String message = APDUConstants.oidNameMAP.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
         s_logger.debug(message);
         
@@ -458,6 +468,94 @@ public class CardholderBiometricData extends PIVDataObject {
 
         return true;
     }
+    
+	/**
+	 * Extracts and sets the message digest in the signed attributes
+	 * 
+	 * @param the SignerInformationStore in the CMS
+	 * 
+	 */	
+	private void setSignedAttrsDigest(SignerInformationStore signers) {
+    	if (m_signedContent != null) {
+			if (signers != null) {
+				AttributeTable at;				
+				// Temporarily nest these until unit test passes
+				for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+					SignerInformation signer = i.next();
+					at = signer.getSignedAttributes();	
+					if (at != null) {
+						Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
+						if (a != null) {
+							DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
+							if (dos != null) {
+								byte[] digest = dos.getOctets();
+								if (digest != null) {
+									super.setSignedAttrsDigest(digest);
+									s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
+								} else {
+									s_logger.error("Failed to compute digest");
+								}
+							} else {
+								s_logger.error("Failed to decode octets");
+							}
+						} else {
+							s_logger.error("Null messageDigest attribute");
+						}
+					} else {
+						s_logger.error("Null signed attribute set");
+					}
+				} // End for
+			} else {
+				s_logger.error("Null SignerInfos");
+			}
+    	}
+    }
+	
+
+    /**
+     * Computes and sets the digest
+     * 
+     * @param the SignerInfo of the content signer
+     * 
+     * @returns the bytes of the digest
+     */
+
+	private void setComputedDigest(SignerInformation signer) {
+		if (m_signedContent != null) {
+			try {
+				AttributeTable at = signer.getSignedAttributes();	
+				if (at != null) {
+					Attribute a = at.get(CMSAttributes.messageDigest);
+					if (a != null) {
+						byte[] contentBytes = this.getSignedContent();
+
+						if (contentBytes != null) {
+							s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
+							String aName = MessageDigestUtils.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
+							MessageDigest md = MessageDigest.getInstance(aName, "BC");
+							md.update(contentBytes);
+							byte[] digest = md.digest();
+							if (digest != null) {
+								super.setComputedDigest(digest);
+								s_logger.debug("Computed digest: " + Hex.encodeHexString(digest));
+							} else {
+								s_logger.error("Failed to digest content");
+							}
+						} else {
+							s_logger.error("Null contentBytes");
+						}
+					} else {
+						s_logger.error("Null messageDigest attribute");
+					}
+				} else {
+					s_logger.error("Null signed attribute set");
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
     /**
      *
