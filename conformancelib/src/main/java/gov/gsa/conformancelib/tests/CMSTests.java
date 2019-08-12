@@ -8,6 +8,8 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.*;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -366,13 +368,12 @@ public class CMSTests {
 			// Temporarily nest these with no error logging until unit test passes
 			for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
 				SignerInformation signer = i.next();
-				at = signer.getSignedAttributes();
+				at = signer.getSignedAttributes();	
 				if (at != null) {
-					Attribute a = at.get(ASN1ObjectIdentifier.getInstance(CMSAttributes.messageDigest)); // messageDigest
+					Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
 					if (a != null) {
-						DERSet attrValSet = (DERSet) a.getAttrValues();
-						byte[] digest = attrValSet.getEncoded();
-						
+						DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
+						byte[] digest = dos.getOctets();
 						if (digest != null) {
 							s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
 							// Get data object
@@ -386,7 +387,9 @@ public class CMSTests {
 					        
 					        if (contentBytes != null) {
 								s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
-					            MessageDigest md = MessageDigest.getInstance("SHA-256");
+								
+								String aName = signer.getDigestAlgOID();
+								MessageDigest md = MessageDigest.getInstance(aName, "BC");
 					            md.update(contentBytes);
 					            byte[] computedDigest = md.digest();
 								s_logger.debug("Computed digest: " + Hex.encodeHexString(computedDigest));

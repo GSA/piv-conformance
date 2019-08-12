@@ -391,7 +391,7 @@ public class CardholderBiometricData extends PIVDataObject {
                         wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
                         int signatureDataBlockLength = (int) wrapped.getShort();
 
-                        m_signedContent = Arrays.copyOfRange(m_biometricData, 0, 88 + biometricDataBlockLength);
+                        m_signedContent = Arrays.copyOfRange(m_biometricData, 0, 88 + biometricDataBlockLength - 4);
 
                         m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);
 
