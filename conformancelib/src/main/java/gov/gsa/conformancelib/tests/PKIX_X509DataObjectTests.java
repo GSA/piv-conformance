@@ -51,12 +51,13 @@ import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.util.Store;
-import org.bouncycastle.x509.extension.X509ExtensionUtil;
+import org.bouncycastle.x509.extension.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -711,7 +712,7 @@ public class PKIX_X509DataObjectTests {
 		
 		CertificatePolicies policies = null;
 		try {
-			policies = CertificatePolicies.getInstance(X509ExtensionUtil.fromExtensionValue(cpex));
+			policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(cpex));
 		} catch (IOException e) {
 			fail(e);
 		}
