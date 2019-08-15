@@ -1,62 +1,47 @@
 package gov.gsa.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x9.ECNamedCurveTable;
-import org.bouncycastle.asn1.x9.X9ECParameters;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.*;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.operator.*;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.jcajce.util.MessageDigestUtils;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1Set;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSet;
-import org.bouncycastle.asn1.cms.Attribute;
-import org.bouncycastle.asn1.cms.AttributeTable;
-import org.bouncycastle.asn1.cms.CMSAttributes;
-import org.bouncycastle.asn1.cms.ContentInfo;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.X500NameStyle;
-import org.bouncycastle.asn1.x500.style.RFC4519Style;
-import org.bouncycastle.cms.*;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
-import org.bouncycastle.jce.spec.ECParameterSpec;
-import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
-import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
-import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
-import org.bouncycastle.util.Store;
-
+import java.io.IOException;
+import java.security.Principal;
+import java.security.PublicKey;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.security.auth.x500.X500Principal;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.Principal;
-import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPublicKey;
-
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameStyle;
+import org.bouncycastle.asn1.x500.style.RFC4519Style;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x9.ECNamedCurveTable;
+import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSTypedData;
+import org.bouncycastle.cms.SignerId;
+import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.SignerInformationStore;
+import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -93,7 +78,7 @@ public class CMSTests {
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
 		// Confirm that no encapsulated content present
-		assertTrue(asymmetricSignature.isDetachedSignature());
+		assertTrue(asymmetricSignature.isDetachedSignature(), "Signature is not detached as specified");
 	}
 
 	// Verify that version is set to 3
@@ -111,7 +96,7 @@ public class CMSTests {
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
 		// Confirm version is 3
-		assertTrue(asymmetricSignature.getVersion() == 3);
+		assertTrue(asymmetricSignature.getVersion() == 3, "Version was " + asymmetricSignature.getVersion());
 	}
 
 	// Validate the content signing key length against SP 800-78-4, Table 3-2
@@ -881,7 +866,7 @@ public class CMSTests {
 			while (it.hasNext()) {
 				SignerInformation signer = (SignerInformation) it.next();
 				AlgorithmIdentifier algID = signer.getDigestAlgorithmID();
-				assertTrue(digestAlgSet.contains(algID));
+				assertTrue(digestAlgSet.contains(algID), "Digest algorithm " + algID.toString() + " is unspported in PIV");
 			}
 		} catch (Exception e) {
 			fail(e);
@@ -945,6 +930,7 @@ public class CMSTests {
 			PIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
 			o = AtomHelper.getDataObject(oid);
+			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
 			// signing certs
@@ -1030,7 +1016,7 @@ public class CMSTests {
 							attr.getAttrValues().getObjectAt(0).toASN1Primitive().getEncoded());
 
 					// Confirm issuer from the cert matcher issuer from the signer info
-					assertTrue(subjectFromCert.equals(dnFromAttribute));
+					assertTrue(subjectFromCert.equals(dnFromAttribute), "Issuer from signer info doens't match issuer on signing cert");
 
 				} catch (IOException e) {
 					fail(e);
@@ -1099,7 +1085,6 @@ public class CMSTests {
 					ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(attrOid);
 					Attribute attr = attributeTable.get(pivFASCN_OID);
 
-					// XXX Need to revisit this test to figure out why is it failing.
 					if (attr == null) {
 						Exception e = new Exception("attr is null");
 						throw e;
@@ -1110,7 +1095,7 @@ public class CMSTests {
 
 							byte[] fascnEncoded = attr.getEncoded();
 							// Confirm issuer from the cert matcher issuer from the signer info
-							assertTrue(Arrays.equals(fascn, fascnEncoded));
+							assertTrue(Arrays.equals(fascn, fascnEncoded), "FASC-N mismatch with CHUID");
 
 						} catch (IOException e) {
 							throw e;
@@ -1188,7 +1173,7 @@ public class CMSTests {
 						try {
 							byte[] guidEncoded = attr.getEncoded();
 							// Confirm issuer from the cert matcher issuer from the signer info
-							assertTrue(Arrays.equals(guid, guidEncoded));
+							assertTrue(Arrays.equals(guid, guidEncoded), "GUID mismatch with CHUID");
 						} catch (IOException e) {
 							throw e;
 						}
@@ -1219,5 +1204,4 @@ public class CMSTests {
 		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));
 
 	}
-
 }
