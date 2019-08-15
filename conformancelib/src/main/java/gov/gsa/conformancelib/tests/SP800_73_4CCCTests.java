@@ -86,7 +86,7 @@ public class SP800_73_4CCCTests {
 				 
 	}
 	
-	//CCC Optional Tags 0xE3 and 0xE4 may be present or absent; if present are after tags listed in 73-4.3and are in that order
+	//CCC Optional Tags 0xE3 and 0xB4 may be present or absent; if present are after tags listed in 73-4.3and are in that order
 	@DisplayName("SP800-73-4.4 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_CCCTestProvider")
