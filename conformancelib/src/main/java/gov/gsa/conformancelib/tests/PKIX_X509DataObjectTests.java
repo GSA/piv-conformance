@@ -57,7 +57,6 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.util.Store;
-import org.bouncycastle.x509.extension.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -320,7 +319,7 @@ public class PKIX_X509DataObjectTests {
 		
 		CertificatePolicies policies = null;
 		try {
-			policies = CertificatePolicies.getInstance(X509ExtensionUtil.fromExtensionValue(cpex));
+			policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(cpex));
 		} catch (IOException e) {
 			fail(e);
 		}
@@ -374,7 +373,7 @@ public class PKIX_X509DataObjectTests {
 		if (aiaex != null) {
 			AuthorityInformationAccess aia = null;
 			try {
-				aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
+				aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
 				
 				if (aia != null) {
 					boolean ocsppresent = false;
@@ -418,7 +417,7 @@ public class PKIX_X509DataObjectTests {
 			AuthorityInformationAccess aia = null;
 			
 			try {
-				aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(aiaex));
+				aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
 				if (aia != null) {
 					AccessDescription[] ads = aia.getAccessDescriptions();
 			        for (int i = 0; i < ads.length; i++)
@@ -782,7 +781,7 @@ public class PKIX_X509DataObjectTests {
 		
 		ExtendedKeyUsage eku = null;
 		try {
-			eku = ExtendedKeyUsage.getInstance(X509ExtensionUtil.fromExtensionValue(ekuex));
+			eku = ExtendedKeyUsage.getInstance(JcaX509ExtensionUtils.parseExtensionValue(ekuex));
 		} catch (IOException e) {
 			fail(e);
 		}
@@ -813,7 +812,7 @@ public class PKIX_X509DataObjectTests {
 		
 		ExtendedKeyUsage eku = null;
 		try {
-			eku = ExtendedKeyUsage.getInstance(X509ExtensionUtil.fromExtensionValue(ekuex));
+			eku = ExtendedKeyUsage.getInstance(JcaX509ExtensionUtils.parseExtensionValue(ekuex));
 		} catch (IOException e) {
 			fail(e);
 		}
@@ -839,7 +838,7 @@ public class PKIX_X509DataObjectTests {
         
         if (extVal != null) {		
 	    	try {		
-	    		CRLDistPoint crlDP = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+	    		CRLDistPoint crlDP = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
 	    		assertNotNull(crlDP);
 	    		
 	    		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
@@ -879,7 +878,7 @@ public class PKIX_X509DataObjectTests {
         byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
 	    if (extVal != null) {
 	    	try {
-				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
 		        assertNotNull(aia);
 				
 		        boolean caIssuersPresent = false;
@@ -914,7 +913,7 @@ public class PKIX_X509DataObjectTests {
         
         if (extVal != null) {  
 	    	try {
-				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
 		        assertNotNull(aia);
 				
 		        boolean uriOK = false;
@@ -955,7 +954,7 @@ public class PKIX_X509DataObjectTests {
         
         if(extensionOid.compareTo("1.3.6.1.5.5.7.1.1") == 0) {
         	try {
-				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
 		        assertNotNull(aia);
 				
 				AccessDescription[] descriptions = aia.getAccessDescriptions();
@@ -977,7 +976,7 @@ public class PKIX_X509DataObjectTests {
         if(extensionOid.compareTo("2.5.29.31") == 0) {
         	try {
         		
-        		CRLDistPoint crlDP = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+        		CRLDistPoint crlDP = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
         		assertNotNull(crlDP);
         		
         		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
@@ -1022,7 +1021,7 @@ public class PKIX_X509DataObjectTests {
         assertNotNull(extVal);
         
     	try {
-			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(X509ExtensionUtil.fromExtensionValue(extVal));
+			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
 	        assertNotNull(aia);
 	        
 			AccessDescription[] descriptions = aia.getAccessDescriptions();
