@@ -479,7 +479,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                         if (certIt.hasNext()) {
                                             X509CertificateHolder certHolder = certIt.next();
 
-                                            // Note that setSignerCert internally increments the cert back counter. 
+                                            // Note that setSignerCert internally increments the cert bag counter. 
                                             // Using the getter, consumers can quickly determine if there were more
                                             // than one cert in PKCS7 cert bag and throw an exception.
                                             
