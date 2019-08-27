@@ -7,6 +7,7 @@ import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
@@ -29,6 +30,8 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
 /**
  *
@@ -52,6 +55,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
     X509Certificate m_signingCertificate;
     private byte[] m_signedContent;
     private byte[] m_chuidContainer;
+
     // TODO: Cache this 
     //HashMap<BerTag, byte[]> m_content;
 
@@ -398,7 +402,8 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
                                 s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
                             } else if (Arrays.equals(tag.bytes, TagConstants.DEPRECATED_AUTHENTICATION_KEY_MAP)) { // 3D - Don't use in hash (don't add to digest input)
                                 s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
-     
+                                super.m_tagList.add(tag); // TODO: Re-visit this strategy
+                                signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));     
                             } else if (Arrays.equals(tag.bytes, TagConstants.FASC_N_TAG)) {
   
                             	m_fASCN = value;
@@ -553,7 +558,7 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 	}
     
 	/**
-	 * Extracts and sets the message digest in the signed attributes
+	 * Extracts and sets the message digest algorithm and message digest in the signed attributes
 	 * 
 	 * @param the SignerInformationStore in the CMS
 	 * 
@@ -561,18 +566,34 @@ public class CardHolderUniqueIdentifier extends PIVDataObject {
 	private void setSignedAttrsDigest(SignerInformationStore signers) {
     	if (m_issuerAsymmetricSignature != null) {
 			if (signers != null) {
-				AttributeTable at;				
+				AttributeTable at = null;
+				MessageDigest md = null;
 				// Temporarily nest these until unit test passes
 				for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
 					SignerInformation signer = i.next();
+					AlgorithmIdentifier aid = signer.getDigestAlgorithmID(); 
+		            try {
+						md = MessageDigest.getInstance(aid.getAlgorithm().toString(), "BC");
+						// Set digest name for later signature verification
+						super.setDigestAlgorithmName(md.getAlgorithm());
+						s_logger.debug("Digest Algorithm is " + super.getDigestAlgorithmName());
+					} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+						s_logger.error("Could not instantiate Digest Algorithm " + aid.getAlgorithm().toString());
+						e.printStackTrace();
+					} catch (Exception e1) {
+						// TODO handle 
+						e1.printStackTrace();
+					}
+
 					at = signer.getSignedAttributes();	
 					if (at != null) {
-						Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
+						Attribute a = at.get(CMSAttributes.messageDigest);
 						if (a != null) {
 							DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
 							if (dos != null) {
 								byte[] digest = dos.getOctets();
 								if (digest != null) {
+									// Set message digest extracted from signed attributes
 									super.setSignedAttrsDigest(digest);
 									s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
 								} else {
