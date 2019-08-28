@@ -36,17 +36,7 @@ public class PIVDataObject {
     // TODO: Cache these tags
     protected static HashMap<BerTag, byte[]> m_content;
     // This will be either the embedded cert in the signature, if present, otherwise null
-    private X509Certificate m_signerCert;
-    // This is always here (via DataModelSingleton) and is the default used by a consumer if m_hasOwnSignerCert is false
-    //private X509Certificate m_chuidSignerCert;
-    // This will be zero or one, and reflects the number of certs in this object
-    private int m_signerCertCount;
-    // This will be true *only* when this object has its own cert
-    private boolean m_hasOwnSignerCert;
-    // Prefetch
-    private byte[] m_signedAttrsDigest;
-    private byte[] m_computedDigest;
-    
+
     /**
      * Initialize an invalid PIV data object
      */
@@ -59,11 +49,7 @@ public class PIVDataObject {
         m_tagList = new ArrayList<BerTag>();
         m_lengthOk = false;
         m_content = new HashMap<BerTag, byte[]>();
-        m_signerCert = null;
-        m_signerCertCount = 0;
-        m_hasOwnSignerCert = false;
-        m_signedAttrsDigest = null;
-        m_computedDigest = null;
+
     }
 
     /**
@@ -116,16 +102,6 @@ public class PIVDataObject {
     }
 
     /**
-    *
-    * Returns the number of certs found in this object
-    *
-    * @return number of certs found in this object
-    */
-   public int getCertCount() {
-       return m_signerCertCount;
-   }
-
-    /**
      *
      * Returns friendly  name of PIV data object
      *
@@ -134,48 +110,6 @@ public class PIVDataObject {
     public String getFriendlyName() {
         return APDUConstants.oidNameMAP.getOrDefault(m_OID, "Undefined");
     }
-
-    /**
-     *
-     * Returns the certificate in this object
-     *
-     * @return X509Certificate object containing the certificate or null if no cert exists
-     */
-    public X509Certificate getSignerCert() {
-        return m_signerCert;
-    }
-
-    /**
-     *
-     * Sets the certificate embedded in this object
-     *
-     * @param cert X509Certificate object containing the certificate
-     */
-    public void setSignerCert(X509Certificate cert) {
-        m_signerCert = cert;
-        m_signerCertCount++; // TODO: Sneaky; should use a private setter to set this
-    }
-  
-    /**
-    *
-    * Returns the CHUID signer certificate in this object
-    *
-    * @return X509Certificate object containing the CHUID signer cert for this card
-    */
-   public X509Certificate getChuidSignerCert() {
-       return DataModelSingleton.getInstance().getChuidSignerCert(); // TODO: Temporary home until refactor
-   }
-
-   /**
-    *
-    * Sets the CHUID signing certificate for this object in the event it doesn't have its own
-    * signing cert (which is probably almost always).
-    *
-    * @param cert X509Certificate object containing the CHUID signing certificate
-    */
-   public void setChuidSignerCert(X509Certificate cert) {
-	   DataModelSingleton.getInstance().setChuidSignerCert(cert); // TODO: Temporary
-   }
 
    /**
     * Indicates whether the object associated with the subclass
@@ -203,16 +137,7 @@ public class PIVDataObject {
    public void setRequiresPin(boolean required) {
 	   m_requiresPin = required;
    }
-   
-   /**
-    * Indicates whether this object has an embedded content signer cert 
-    *
-    */
-   
-   public boolean hasOwnSignerCert() {
-	   return m_signerCertCount > 0;
-   }
-   
+
     /**
      *
      * Returns the tag value for the current PIV data object
@@ -277,49 +202,14 @@ public class PIVDataObject {
         return true;
     }   
  
-    
-	/**
-	 * Gets the signed attributes message digest extracted from SignerInfo
-	 * 
-	 * @return bytes in the digest
-	 */
-    	
-	public byte[] getSignedAttrsDigest() {
-		return m_signedAttrsDigest;
-	}
-    
-	/**
-	 * Sets the message digest in the signed attributes
-	 * 
-	 * @param the bytes of the digest
-	 * 
-	 */	
-	public void setSignedAttrsDigest(byte[] digest) {
-		m_signedAttrsDigest = digest;
-    }
+
 	
 	/**
 	 * Gets the precomputed message digest of the content
 	 * 
 	 * @return bytes in the digest
 	 */
-    	
-	public byte[] getComputedDigest() {
-		return m_computedDigest;
-	}
-    	
-    /**
-     * Sets the computed digest of the object
-     * 
-     * @param the bytes of the digest
-     * 
-     * @returns the bytes of the digest
-     */
-    
-	public void setComputedDigest(byte[] digest) {
-        m_computedDigest = digest;
-	}
-    
+
     /**
      *
      * Place holder that will throw RuntimeError if the is a missing implementations of decode
@@ -415,26 +305,7 @@ public class PIVDataObject {
     public boolean getErrorDetectionCodeHasData() {
 		return m_error_Detection_Code_Has_Data;
 	}
-    
-    /**
-     * Sets a flag indicating that this object has an embedded content signer cert.
-     * 
-     * @param hasOwnSignerCert boolean value indicating if this object has its own embedded signer cert
-     */
-    
-    public void setHasOwnSignerCert(boolean hasOwnSignerCert) {
-		m_hasOwnSignerCert = hasOwnSignerCert;
-    }
-
-    /**
-     * Returns boolean value indicating if this object has its own embedded signer cert
-     *
-     * @return Boolean value indicating if this object has its own embedded signer cert
-     */
-    public boolean getHasOwnSignerCert() {
-		return m_hasOwnSignerCert;
-	}
-    
+  
     public void setErrorDetectionCodeHasData(boolean hasData) {
 		m_error_Detection_Code_Has_Data = hasData;
     }

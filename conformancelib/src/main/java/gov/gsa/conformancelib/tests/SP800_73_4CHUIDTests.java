@@ -299,7 +299,7 @@ public class SP800_73_4CHUIDTests {
 		List<byte[]> allCHUIDTags = TagConstants.AllCHUIDTags();
 		for(BerTag tag : tagList) {
 
-			//Check that the tag is present in the all CCC tags list
+			//Check that the tag is present in the all CHUID tags list
 			boolean present = false;
 			for (int i = 0; i < allCHUIDTags.size(); i++) {
 				

@@ -1,6 +1,11 @@
 package gov.gsa.pivconformancetest;
 
-import gov.gsa.pivconformance.card.client.*;
+import gov.gsa.pivconformance.card.client.APDUConstants;
+import gov.gsa.pivconformance.card.client.APDUUtils;
+import gov.gsa.pivconformance.card.client.PIVDataObject;
+import gov.gsa.pivconformance.card.client.SecurityObject;
+import gov.gsa.pivconformance.card.client.SignedPIVDataObject;
+import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.utils.OSUtils;
 
 import org.junit.jupiter.api.DisplayName;
@@ -46,8 +51,7 @@ public class SecurityObjectDataObjectTests {
         assertNotNull(((SecurityObject) o).getMapping());
         assertNotNull(((SecurityObject) o).getContainerIDList());
 
-        assertNotNull(((SecurityObject) o).getSignedData());
-
+        assertNotNull(((SignedPIVDataObject) o).getAsymmetricSignature());
         assertTrue(((SecurityObject) o).getErrorDetectionCode());
     }
 

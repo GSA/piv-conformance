@@ -214,7 +214,7 @@ public class PIVCheck {
                         s_logger.info("Cardholder UUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getCardholderUUID()));
                         s_logger.info("Issuer Asymmetric Signature Info:");
 
-                        CMSSignedData sd = ((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
@@ -235,8 +235,9 @@ public class PIVCheck {
                                 s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
+
                         s_logger.info("Signature valid: {}", ((CardHolderUniqueIdentifier) dataObject).verifySignature());
-                        signingCertificate = dataObject.getChuidSignerCert();
+                        signingCertificate = ((SignedPIVDataObject) dataObject).getChuidSignerCert();
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
 
@@ -261,7 +262,7 @@ public class PIVCheck {
                         s_logger.info("Validity Period To: {}",((CardholderBiometricData) dataObject).getValidityPeriodTo());
 
 
-                        CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
@@ -283,7 +284,7 @@ public class PIVCheck {
 
                         }
                         if(signingCertificate != null)
-                            s_logger.info("Is signatue valid: {}",((CardholderBiometricData) dataObject).verifySignature(signingCertificate));
+                            s_logger.info("Is signatue valid: {}",((SignedPIVDataObject) dataObject).verifySignature());
                         else
                             s_logger.info("Missing signing certificate to verify signature.");
 
@@ -306,7 +307,7 @@ public class PIVCheck {
                             s_logger.info("Container ID: {}, Container Name: {}, Container OID: {}",entry.getKey(), entry.getValue(), APDUConstants.oidNameMAP.get(entry.getValue()));
                         }
 
-                        CMSSignedData sd = ((SecurityObject) dataObject).getSignedData();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
@@ -329,7 +330,7 @@ public class PIVCheck {
                         }
                         //s_logger.info("Error Detection Code Tag Present: {}", ((SecurityObject) dataObject).getErrorDetectionCode());
 
-                        s_logger.info("SecurityObject signatue valid: {}",((SecurityObject) dataObject).verifySignature(signingCertificate));
+                        s_logger.info("SecurityObject signatue valid: {}",((SignedPIVDataObject) dataObject).verifySignature());
 
                         securityObject = dataObject;
 
@@ -344,7 +345,7 @@ public class PIVCheck {
                         s_logger.info("Validity Period To: {}", ((CardholderBiometricData) dataObject).getValidityPeriodTo());
 
 
-                        CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
@@ -367,7 +368,7 @@ public class PIVCheck {
                         }
 
                         if(signingCertificate != null)
-                            s_logger.info("Is signatue valid: {}",((CardholderBiometricData) dataObject).verifySignature(signingCertificate));
+                            s_logger.info("Is signatue valid: {}",((SignedPIVDataObject) dataObject).verifySignature());
                         else
                             s_logger.info("Missing signing certificate to verify signature.");
 
@@ -466,7 +467,7 @@ public class PIVCheck {
                             s_logger.info("Validity Period To: {}", ((CardholderBiometricData) cardholderIrisImages).getValidityPeriodTo());
 
 
-                            CMSSignedData sd = ((CardholderBiometricData) cardholderIrisImages).getSignedData();
+                            CMSSignedData sd = ((SignedPIVDataObject) cardholderIrisImages).getAsymmetricSignature();
                             SignerInformationStore signers = sd.getSignerInfos();
                             Collection<SignerInformation> collection = signers.getSigners();
                             Iterator<SignerInformation> it = collection.iterator();
@@ -489,7 +490,7 @@ public class PIVCheck {
                             }
 
                             if(signingCertificate != null)
-                                s_logger.info("Is signatue valid: {}",((CardholderBiometricData) cardholderIrisImages).verifySignature(signingCertificate));
+                                s_logger.info("Is signatue valid: {}",((SignedPIVDataObject) cardholderIrisImages).verifySignature());
                             else
                                 s_logger.info("Missing signing certificate to verify signature.");
                         }

@@ -491,8 +491,9 @@ public class CMSTests {
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		// Underlying decoder for OID identified containers with embedded content
-		// signing certs
-		// Now, select the appropriate signature cert for the object
+		// signing certs. Select the appropriate signature cert for the object. It
+		// also creates a CMSSignedData object with content (Security Object) and
+		// without (CHUID and biometrics don't encapsulate their content).
 		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(signingCert, "No signing cert found for OID " + oid);
 
@@ -519,15 +520,8 @@ public class CMSTests {
 
 		PIVDataObject o = null;
 		o = AtomHelper.getDataObject(oid);
-		// Underlying decoder for OID identified containers with embedded content
-		// signing certs
-		// Now, select the appropriate signature cert for the object
 		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(signingCert, "No cert found for OID " + oid);
-
-		// Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature
-		// field and creates CMSSignedData object
-		assertNotNull(signingCert);
 
 		List<String> ekuList = new ArrayList<String>();
 		try {
@@ -543,7 +537,7 @@ public class CMSTests {
 	}
 
 	// Confirm that signed attributes include pivFASC-N attribute and that it
-	// matches FACSC-N read from CHUID container
+	// matches FASC-N read from CHUID container
 	@DisplayName("CMS.17 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	// @MethodSource("CMS_TestProvider2")

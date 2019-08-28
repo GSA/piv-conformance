@@ -70,37 +70,37 @@ public class PIVSignatureVerificationTests {
             assertEquals(true, decoded);
 
             if (containerOID.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
-                signingCertificate = dataObject.getChuidSignerCert();
-                CMSSignedData sd = ((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature();
+                signingCertificate =  ((SignedPIVDataObject) dataObject).getChuidSignerCert();
+                CMSSignedData sd = ((CardHolderUniqueIdentifier) dataObject).getAsymmetricSignature();
                 assertNotNull(sd);
                 boolean rv = ((CardHolderUniqueIdentifier) dataObject).verifySignature();
                 assertEquals(true, rv);
 
-                signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getChuidSignerCert();
+                signingCertificate =  ((SignedPIVDataObject) dataObject).getChuidSignerCert();
 
                 assertNotNull(signingCertificate);
             }
 
             if (containerOID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)) {
-                signingCertificate = dataObject.getSignerCert();
+                signingCertificate = ((SignedPIVDataObject) dataObject).getSignerCert();
                 if(signingCertificate != null) {
-                    boolean rv = ((CardholderBiometricData) dataObject).verifySignature(signingCertificate);
+                    boolean rv =  ((SignedPIVDataObject) dataObject).verifySignature();
                     assertEquals(true, rv);
                 }
             }
 
             if (containerOID.equals(APDUConstants.SECURITY_OBJECT_OID)) {
-                signingCertificate = dataObject.getSignerCert();
+                signingCertificate =  ((SignedPIVDataObject) dataObject).getSignerCert();
                 if(signingCertificate != null) {
-                    boolean rv = ((SecurityObject) dataObject).verifySignature(signingCertificate);
+                    boolean rv =  ((SignedPIVDataObject) dataObject).verifySignature();
                     assertEquals(true, rv);
                 }
             }
 
             if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
-                signingCertificate = dataObject.getSignerCert();
+                signingCertificate =  ((SignedPIVDataObject) dataObject).getSignerCert();
                 if(signingCertificate != null) {
-                    boolean rv = ((CardholderBiometricData) dataObject).verifySignature(signingCertificate);
+                    boolean rv =  ((SignedPIVDataObject) dataObject).verifySignature();
                     assertEquals(true, rv);
                 }
             }

@@ -31,7 +31,7 @@ import org.bouncycastle.asn1.cms.ContentInfo;
  * Encapsulates a Security Object data object  as defined by SP800-73-4 Part 2 Appendix A Table 12
  *
  */
-public class SecurityObject extends PIVDataObject {
+public class SecurityObject extends SignedPIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(SecurityObject.class);
     private byte[] m_mapping;
@@ -42,7 +42,6 @@ public class SecurityObject extends PIVDataObject {
     HashMap<String, byte[]> m_mapOfDataElements;
     HashMap<Integer, byte[]> m_dghList;
     private boolean m_errorDetectionCode;
-
 
     /**
      * SecurityObject class constructor, initializes all the class fields.
@@ -79,26 +78,6 @@ public class SecurityObject extends PIVDataObject {
 
     /**
      *
-     * Returns ContentInfo object
-     *
-     * @return ContentInfo object
-     */
-    public ContentInfo getContentInfo() {
-        return m_contentInfo;
-    }
-
-    /**
-     *
-     * Sets the ContentInfo object
-     *
-     * @param contentInfo ContentInfo object
-     */
-    public void setContentInfo(ContentInfo contentInfo) {
-        m_contentInfo = contentInfo;
-    }
-
-    /**
-     *
      * Returns byte array containing Mapping of DG to ContainerID
      *
      * @return Byte array containing Mapping of DG to ContainerID
@@ -116,27 +95,6 @@ public class SecurityObject extends PIVDataObject {
     public void setMapping(byte[] mapping) {
         m_mapping = mapping;
     }
-
-    /**
-     *
-     * Returns byte array with signed content
-     *
-     * @return Byte array with signed content buffer
-     */
-    public byte[] getSignedContent() {
-        return m_so;
-    }
-
-    /**
-     *
-     * Sets the signed content value
-     *
-     * @param signedContent Byte array with signed content buffer
-     */
-    public void setSignedContent(byte[] signedContent) {
-        m_so = signedContent;
-    }
-
 
     /**
      *
@@ -160,27 +118,6 @@ public class SecurityObject extends PIVDataObject {
 
     /**
      *
-     * Returns CMSSignedData object containing signed data
-     *
-     * @return CMSSignedData object containing signed data
-     */
-    public CMSSignedData getSignedData() {
-        return m_signedData;
-    }
-
-    /**
-     *
-     * Sets the CMSSignedData object containing Issuer signed data
-     *
-     * @param signedData CMSSignedData object containing signed data
-     */
-    public void setSignedData(CMSSignedData signedData) {
-        m_signedData = signedData;
-    }
-
-
-    /**
-     *
      * Returns a map containing container ID list
      *
      * @return HashMap containing container ID list
@@ -198,7 +135,6 @@ public class SecurityObject extends PIVDataObject {
     public void setContainerIDList(HashMap<Integer, String> containerIDList) {
         m_containerIDList = containerIDList;
     }
-
 
     //XXX Move this
 
@@ -276,8 +212,6 @@ public class SecurityObject extends PIVDataObject {
                         //Add the container oid to the list will be easier to look up.
                         m_containerIDList.put(id, cc);
                     }
-
-
                 } else if (Arrays.equals(tag, TagConstants.SECURITY_OBJECT_TAG)) {
                     m_so = tlv.getBytesValue();
                     m_content.put(tlv.getTag(), tlv.getBytesValue());
@@ -290,11 +224,18 @@ public class SecurityObject extends PIVDataObject {
                     //Decode the ContentInfo and get SignedData object.
                     ByteArrayInputStream bIn = new ByteArrayInputStream(m_so);
                     ASN1InputStream      aIn = new ASN1InputStream(bIn);
-                    m_contentInfo = ContentInfo.getInstance(aIn.readObject());
-                    m_signedData = new CMSSignedData(m_contentInfo);
-                    super.setSigned(true);
-                    aIn.close();
-
+                    
+                    // Set the ContentInfo structure in super class
+                    setContentInfo(ContentInfo.getInstance(aIn.readObject())); aIn.close();
+                    // Set the CMSSignedData object
+                    setAsymmetricSignature(new CMSSignedData(getContentInfo()));
+                    // This gets set in case hasOwnSignerCert() is false
+                    setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());   
+                    // The security object tag is the (encapsulated) signed content
+                    setSignedContent(m_so);
+                    // Indicate this object needs a signature verification
+                    setSigned(true);
+                    
                     CMSSignedData s = new CMSSignedData(m_contentInfo);
                     signers = s.getSignerInfos();
 
@@ -302,14 +243,11 @@ public class SecurityObject extends PIVDataObject {
                         signer = i.next();                               
                     }
 
-                    // This gets set in case hasOwnSignerCert() is false
-                    super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());                  
-                    // Only the security object tag is content
-                    this.setSignedContent(m_so);
-                    // Grab signed digest
-                    this.setSignedAttrsDigest(signers);
-                    // Precompute digest but don't compare -- let consumers do that
-                    this.setComputedDigest(signer);
+                    // Grab last signed digest
+                    setSignedAttrsDigest(signers);
+                    // Precompute digest but don't compare -- let consumers do that so they can throw their own
+                    // exception
+                    setComputedDigest(signer, m_so);
 
                 } else {
                     if (!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
@@ -332,183 +270,6 @@ public class SecurityObject extends PIVDataObject {
 
         return true;
     }
-    
-	/**
-	 * Extracts and sets the message digest in the signed attributes
-	 * 
-	 * @param the SignerInformationStore in the CMS
-	 * 
-	 */	
-	private void setSignedAttrsDigest(SignerInformationStore signers) {
-    	if (m_so != null) {
-			if (signers != null) {
-				AttributeTable at;				
-				// Temporarily nest these until unit test passes
-				for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-					SignerInformation signer = i.next();
-					at = signer.getSignedAttributes();	
-					if (at != null) {
-						Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
-						if (a != null) {
-							DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
-							if (dos != null) {
-								byte[] digest = dos.getOctets();
-								if (digest != null) {
-									super.setSignedAttrsDigest(digest);
-									s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
-								} else {
-									s_logger.error("Failed to compute digest");
-								}
-							} else {
-								s_logger.error("Failed to decode octets");
-							}
-						} else {
-							s_logger.error("Null messageDigest attribute");
-						}
-					} else {
-						s_logger.error("Null signed attribute set");
-					}
-				} // End for
-			} else {
-				s_logger.error("Null SignerInfos");
-			}
-    	}
-    }
-	
-
-    /**
-     * Computes and sets the digest
-     * 
-     * @param the SignerInfo of the content signer
-     * 
-     * @returns the bytes of the digest
-     */
-
-	private void setComputedDigest(SignerInformation signer) {
-		if (m_so != null) {
-			try {
-				AttributeTable at = signer.getSignedAttributes();	
-				if (at != null) {
-					Attribute a = at.get(CMSAttributes.messageDigest);
-					if (a != null) {
-						byte[] contentBytes = this.getSignedContent();
-
-						if (contentBytes != null) {
-							s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
-							String aName = MessageDigestUtils.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
-							MessageDigest md = MessageDigest.getInstance(aName, "BC");
-							md.update(contentBytes);
-							byte[] digest = md.digest();
-							if (digest != null) {
-								super.setComputedDigest(digest);
-								s_logger.debug("Computed digest: " + Hex.encodeHexString(digest));
-							} else {
-								s_logger.error("Failed to digest content");
-							}
-						} else {
-							s_logger.error("Null contentBytes");
-						}
-					} else {
-						s_logger.error("Null messageDigest attribute");
-					}
-				} else {
-					s_logger.error("Null signed attribute set");
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-    /**
-     *
-     * Verifies the signature on the Security Object
-     *
-     * @param signingCertificate X509Certificate object containing signing certificate
-     * @return True if signature successfully verified, false otherwise
-     */
-    public boolean verifySignature(X509Certificate signingCertificate) {
-        boolean rv_result = false;
-
-        try {
-            DEROctetString newRawSo = null;
-            //Create signed content if availble
-            if(m_mapOfDataElements != null) {
-
-                String defaultDigAlgName = "SHA-256";
-                AlgorithmIdentifier digestAlgorithmAid = new AlgorithmIdentifier(APDUUtils.getAlgorithmIdentifier("MessageDigest", defaultDigAlgName));
-                int count = 0;
-                DataGroupHash ndghArray[] = new DataGroupHash[m_containerIDList.size()];
-
-                for (HashMap.Entry<Integer, String> entry : m_containerIDList.entrySet()) {
-
-                    byte[] containerBufferBytes = m_mapOfDataElements.get(entry.getValue());
-                    MessageDigest contentDigest = MessageDigest.getInstance(defaultDigAlgName);
-                    byte[] containerDigestBytes = contentDigest.digest(containerBufferBytes);
-                    DataGroupHash dgHash = new DataGroupHash(entry.getKey(), (new DEROctetString(containerDigestBytes)));
-
-                    ndghArray[count++] = dgHash;
-                }
-
-                LDSSecurityObject nldsso = new LDSSecurityObject(digestAlgorithmAid, ndghArray);
-
-                newRawSo = new DEROctetString(nldsso.getEncoded("DER"));
-            }
-
-
-            CMSSignedData s = new CMSSignedData(m_contentInfo);
-
-            //Check if signature is detached and if so used created signed content above.
-            if (s.isDetachedSignature()) {
-                if(newRawSo != null) {
-                    CMSProcessable procesableContentBytes = new CMSProcessableByteArray(newRawSo.getOctets());
-                    s = new CMSSignedData(procesableContentBytes, m_contentInfo);
-                }
-                else
-                    s_logger.error("Error verifying signature on {}: missing signed content", APDUConstants.oidNameMAP.get(super.getOID()));
-            }
-
-            Store<X509CertificateHolder> certs = s.getCertificates();
-            SignerInformationStore signers = s.getSignerInfos();
-
-            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-                SignerInformation signer = i.next();
-
-                //Check if signing certificate was included
-                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
-                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
-                if (certIt.hasNext()) {
-                    X509CertificateHolder certHolder = certIt.next();
-                    signingCertificate = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
-                }
-
-                //Check that we have a signer certificate either from the SignedData or passed in
-                if(signingCertificate == null)
-                    s_logger.error("Unable to find signing certificate for {}", APDUConstants.oidNameMAP.get(super.getOID()));
-
-                try {
-                    //Verify signature
-                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCertificate))) {
-                        rv_result = true;
-                    }
-                } catch (CMSSignerDigestMismatchException e) {
-                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                } catch (OperatorCreationException | CMSException e) {
-                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                }
-            }
-
-
-
-        } catch (Exception ex) {
-            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
-            return false;
-        }
-
-        return rv_result;
-    }
-
 
     /**
      *
