@@ -34,7 +34,7 @@ public class PIVDataObject {
     private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
     private boolean m_lengthOk;
     // TODO: Cache these tags
-    protected static HashMap<BerTag, byte[]> m_content;
+    static HashMap<BerTag, byte[]> m_content;
     // This will be either the embedded cert in the signature, if present, otherwise null
 
     /**

@@ -55,9 +55,7 @@ import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
-import gov.gsa.pivconformance.card.client.CardholderBiometricData;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.SecurityObject;
+import gov.gsa.pivconformance.card.client.SignedPIVDataObject;
 
 public class CMSTests {
 	static Logger s_logger = LoggerFactory.getLogger(CMSTests.class);
@@ -71,9 +69,9 @@ public class CMSTests {
 	void CMS_Test_1(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
@@ -89,9 +87,9 @@ public class CMSTests {
 	void CMS_Test_2(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
@@ -107,9 +105,9 @@ public class CMSTests {
 	void CMS_Test_3(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		
@@ -168,15 +166,15 @@ public class CMSTests {
 	void CMS_Test_4(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
 		// Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature
 		// field and creates CMSSignedData object
-		assertNotNull(asymmetricSignature);
+
 		assertNotNull(asymmetricSignature.getDigestAlgorithmIDs(), "Digest algorithms are not present in CMS");
 	}
 
@@ -189,9 +187,9 @@ public class CMSTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
@@ -216,9 +214,9 @@ public class CMSTests {
 	void CMS_Test_6(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
@@ -240,9 +238,9 @@ public class CMSTests {
 	void CMS_Test_7(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
@@ -262,9 +260,9 @@ public class CMSTests {
 	void CMS_Test_8(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
@@ -297,9 +295,9 @@ public class CMSTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -343,15 +341,12 @@ public class CMSTests {
 	void CMS_Test_10(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 	}
-
-	// TODO: CMS.11 should digest the content and compare against message digest in
-	// signed attributes
 
 	@DisplayName("CMS.11 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
@@ -360,14 +355,14 @@ public class CMSTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
-			byte[] signedAttrsDigest = ((PIVDataObject) o).getSignedAttrsDigest();
-			byte[] computedDigest = ((PIVDataObject) o).getComputedDigest();
+			byte[] signedAttrsDigest = o.getSignedAttrsDigest();
+			byte[] computedDigest = o.getComputedDigest();
 			assertTrue(Arrays.equals(signedAttrsDigest, computedDigest), "Digests don't match");
 
 		} catch (Exception e) {
@@ -384,9 +379,9 @@ public class CMSTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -434,20 +429,9 @@ public class CMSTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0
-				|| oid.compareTo(APDUConstants.SECURITY_OBJECT_OID) == 0) {
-			o = AtomHelper.getDataObject(oid);
-		} else {
-			if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0
-					|| oid.compareTo(APDUConstants.SECURITY_OBJECT_OID) == 0
-					|| oid.compareTo(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID) == 0) {
-				o = AtomHelper.getDataObject(oid);
-			} else {
-				o = AtomHelper.getDataObject(oid);
-			}
-		}
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
@@ -485,9 +469,9 @@ public class CMSTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		// Underlying decoder for OID identified containers with embedded content
@@ -495,15 +479,13 @@ public class CMSTests {
 		// also creates a CMSSignedData object with content (Security Object) and
 		// without (CHUID and biometrics don't encapsulate their content).
 		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-		assertNotNull(signingCert, "No signing cert found for OID " + oid);
-
-		if (o instanceof CardholderBiometricData) {
-			assertTrue(((CardholderBiometricData) o).verifySignature(signingCert),
-					"Biometric object signature does not verify");
-		} else if (o instanceof SecurityObject) {
-			assertTrue(((SecurityObject) o).verifySignature(signingCert), "Security object signature does not verify");
-		} else
-			assertTrue(((CardHolderUniqueIdentifier) o).verifySignature(), "CHUID signature does not verify");
+//		if (signingCert == null ) {
+//			SignedPIVDataObject o2 = null;
+//			o2 =  (SignedPIVDataObject) AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+//			asymmetricSignature = AtomHelper.getSignedDataForObject(o2);
+//			o = o2;
+//		}
+		assertTrue(o.verifySignature(), "Object signature does not verify");
 	}
 
 	// Confirm that signing certificate contains id-PIV-content-signing (or PIV-I
@@ -518,8 +500,8 @@ public class CMSTests {
 
 		String[] oidList = params.split(",");
 
-		PIVDataObject o = null;
-		o = AtomHelper.getDataObject(oid);
+		SignedPIVDataObject o = null;
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(signingCert, "No cert found for OID " + oid);
 
@@ -548,9 +530,9 @@ public class CMSTests {
 
 		try {
 			String[] oidList = params.split(",");
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -601,9 +583,9 @@ public class CMSTests {
 	void CMS_Test_18(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		// Underlying decoder for OID identified containers with embedded content
@@ -611,11 +593,8 @@ public class CMSTests {
 		// Now, select the appropriate signature cert for the object
 		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(signingCert, "No signing cert found for OID " + oid);
-
-		CMSSignedData signedData = ((SecurityObject) o).getSignedData();
-
+		CMSSignedData signedData = o.getAsymmetricSignature();
 		assertTrue(signedData.getVersion() == 3, "CMSSignedData version is not 3 (three)");
-
 	}
 
 	// Verify that eContent contains a security object
@@ -626,9 +605,9 @@ public class CMSTests {
 	void CMS_Test_19(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		// Underlying decoder for OID identified containers with embedded content
@@ -652,9 +631,9 @@ public class CMSTests {
 	void CMS_Test_20(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		// Underlying decoder for OID identified containers with embedded content
@@ -678,9 +657,9 @@ public class CMSTests {
 	void CMS_Test_21(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		// Underlying decoder for OID identified containers with embedded content
@@ -754,9 +733,9 @@ public class CMSTests {
 	void CMS_Test_23(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
-		PIVDataObject o = null;
+		SignedPIVDataObject o = null;
 		CMSSignedData asymmetricSignature = null;
-		o = AtomHelper.getDataObject(oid);
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 		// Underlying decoder for OID identified containers with embedded content
@@ -802,9 +781,9 @@ public class CMSTests {
 			return;
 
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -835,9 +814,9 @@ public class CMSTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -878,9 +857,9 @@ public class CMSTests {
 			return;
 
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -894,7 +873,7 @@ public class CMSTests {
 				Exception e = new Exception("isDetachedSignature is false");
 				throw e;
 			}
-			ContentInfo contentInfo = ((CardHolderUniqueIdentifier) o).getContentInfo();
+			ContentInfo contentInfo = o.getContentInfo();
 			ASN1Encodable content = contentInfo.getContent();
 			// Confirm that encapsulated content is absent
 			if (content != null) {
@@ -921,9 +900,9 @@ public class CMSTests {
 			return;
 
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -965,9 +944,9 @@ public class CMSTests {
 			return;
 
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -1034,9 +1013,9 @@ public class CMSTests {
 			return;
 
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content
@@ -1113,9 +1092,9 @@ public class CMSTests {
 			return;
 
 		try {
-			PIVDataObject o = null;
+			SignedPIVDataObject o = null;
 			CMSSignedData asymmetricSignature = null;
-			o = AtomHelper.getDataObject(oid);
+			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 			// Underlying decoder for OID identified containers with embedded content

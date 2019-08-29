@@ -21,6 +21,7 @@ import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.card.client.SecurityObject;
+import gov.gsa.pivconformance.card.client.SignedPIVDataObject;
 import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 
 public class AtomHelper {
@@ -137,7 +138,7 @@ public class AtomHelper {
 			fail(e);
 		}
 		
-		if (o.getCertCount() > 1) {
+		if ((o instanceof SignedPIVDataObject) && ((SignedPIVDataObject) o).getCertCount() > 1) {
 			ConformanceTestException e  = new ConformanceTestException("More than one cert found in " + APDUConstants.oidNameMAP.get(oid) + " container");
 			fail(e);			
 		}
@@ -154,37 +155,18 @@ public class AtomHelper {
 	 * @param oid the OID for the container
 	 * @return Certificate from container
 	 */
-	public static X509Certificate getCertificateForContainer(PIVDataObject o) {
+	public static X509Certificate getCertificateForContainer(SignedPIVDataObject pivDataObject) {
 		X509Certificate cert = null;
-		String oid = o.getOID();
-		if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0 || oid.compareTo(APDUConstants.SECURITY_OBJECT_OID) == 0) {		
-			cert = o.getChuidSignerCert();		
-		} else if (oid.compareTo(APDUConstants.CARDHOLDER_FINGERPRINTS_OID) == 0 ||
-			oid.compareTo(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID) == 0 ||
-			oid.compareTo(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID) == 0) {
-			cert = o.getHasOwnSignerCert() ? o.getSignerCert() : o.getChuidSignerCert();
-		} else {
-			cert = ((X509CertificateDataObject) o).getCertificate();
-		}
+		cert = pivDataObject.hasOwnSignerCert() ? pivDataObject.getSignerCert() : pivDataObject.getChuidSignerCert();
 		return cert;
 	}
 	
-	public static CMSSignedData getSignedDataForObject(PIVDataObject o) {
+	public static CMSSignedData getSignedDataForObject(SignedPIVDataObject o) {
 		CMSSignedData rv = null;
 		if(!o.isSigned()) {
 			return null;
 		}
-		if(o instanceof CardHolderUniqueIdentifier) {
-			rv = ((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature();
-		} else if (o instanceof SecurityObject) {
-			rv = ((SecurityObject) o).getSignedData();
-		} else if(o instanceof CardholderBiometricData) {
-			rv = ((CardholderBiometricData) o).getSignedData();
-		} else {
-			// XXX handle error condition
-			ConformanceTestException e  = new ConformanceTestException("Container " + o.getOID() + " should have no CMS");
-			fail(e);
-		}
+		rv = o.getAsymmetricSignature();
 		return rv;
 	}
 	

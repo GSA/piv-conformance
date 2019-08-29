@@ -54,7 +54,7 @@ public class BiometricDataObjectTests {
         assertNotSame(((CardholderBiometricData) o).getValidityPeriodFrom(), "");
         assertNotSame(((CardholderBiometricData) o).getValidityPeriodTo(), "");
 
-        assertNotNull(((CardholderBiometricData) o).getSignedData());
+        assertNotNull(((SignedPIVDataObject) o).getAsymmetricSignature());
 
         assertTrue(((CardholderBiometricData) o).getErrorDetectionCode());
 

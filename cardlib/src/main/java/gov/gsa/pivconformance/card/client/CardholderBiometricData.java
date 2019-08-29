@@ -45,7 +45,7 @@ import org.bouncycastle.jcajce.util.MessageDigestUtils;
  * Cardholder Facial Image and  Cardholder Iris Image as defined by SP800-73-4 Part 2 Appendix A Table 11, Table 13 and Table 40
  *
  */
-public class CardholderBiometricData extends PIVDataObject {
+public class CardholderBiometricData extends SignedPIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(CardholderBiometricData.class);
 
@@ -56,25 +56,20 @@ public class CardholderBiometricData extends PIVDataObject {
     private String m_validityPeriodTo;
     private byte[] m_biometricDataBlock;
     private byte[] m_signatureBlock;
-    private CMSSignedData m_signedData;
-    private ContentInfo m_contentInfo;
-    private byte[] m_signedContent;
     private byte[] m_cbeffContainer;
 
     /**
      * CardholderBiometricData class constructor, initializes all the class fields.
      */
     public CardholderBiometricData() {
+    	super();
         m_biometricData = null;
         m_errorDetectionCode = false;
         m_biometricCreationDate = null;
         m_validityPeriodFrom = null;
         m_validityPeriodTo = null;
-        m_signedData = null;
         m_biometricDataBlock = null;
         m_signatureBlock = null;
-        m_contentInfo = null;
-        m_signedContent = null;
         m_cbeffContainer = null;
         m_content = new HashMap<BerTag, byte[]>();
     }
@@ -97,46 +92,6 @@ public class CardholderBiometricData extends PIVDataObject {
      */
     public void setCbeffContainer(byte[] cbeffContainer) {
         m_cbeffContainer = cbeffContainer;
-    }
-
-    /**
-     *
-     * Returns byte array with signed content buffer
-     *
-     * @return Byte array with signed content buffer
-     */
-    public byte[] getSignedContent() {
-        return m_signedContent;
-    }
-
-    /**
-     *
-     * Sets the signed content buffer
-     *
-     * @param signedContent Byte array with signed content buffer
-     */
-    public void setSignedContent(byte[] signedContent) {
-        m_signedContent = signedContent;
-    }
-
-    /**
-     *
-     * Returns the ContentInfo object
-     *
-     * @return ContentInfo object
-     */
-    public ContentInfo getContentInfo() {
-        return m_contentInfo;
-    }
-
-    /**
-     *
-     * Sets the ContentInfo object
-     *
-     * @param contentInfo ContentInfo object
-     */
-    public void setContentInfo(ContentInfo contentInfo) {
-        m_contentInfo = contentInfo;
     }
 
     /**
@@ -271,27 +226,6 @@ public class CardholderBiometricData extends PIVDataObject {
 
     /**
      *
-     * Returns the CMSSignedData object
-     *
-     * @return CMSSignedData object
-     */
-    public CMSSignedData getSignedData() {
-        return m_signedData;
-    }
-
-    /**
-     *
-     * Sets the CMSSignedData object
-     *
-     * @param signedData CMSSignedData object
-     */
-    public void setSignedData(CMSSignedData signedData) {
-        m_signedData = signedData;
-    }
-
-
-    /**
-     *
      * Decode function that decodes biometric data object retrieved from the card and populates various class fields.
      *
      * @return True if decode was successful, false otherwise
@@ -397,35 +331,40 @@ public class CardholderBiometricData extends PIVDataObject {
                         wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
                         int signatureDataBlockLength = (int) wrapped.getShort();
 
-                        m_signedContent = Arrays.copyOfRange(m_biometricData, 0, 88 + biometricDataBlockLength);
 
                         m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);
 
                         m_signatureBlock = Arrays.copyOfRange(m_biometricData, 88 + biometricDataBlockLength, 88 + biometricDataBlockLength + signatureDataBlockLength);
-
-                        //Decode the ContentInfo and get SignedData object.
+         			
+                        // Decode the ContentInfo and get SignedData objects.
                         ByteArrayInputStream bIn = new ByteArrayInputStream(m_signatureBlock);
-                        ASN1InputStream aIn = new ASN1InputStream(bIn);
-                        m_contentInfo = ContentInfo.getInstance(aIn.readObject()); aIn.close();  			
-
-                        CMSSignedData s = new CMSSignedData(m_signatureBlock);
-            			if (s.isDetachedSignature()) {
-            				CMSProcessableByteArray procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
-            				s = new CMSSignedData(procesableContentBytes, m_signatureBlock);
-            			}
-            			
-            			m_signedData = s;
+                        ASN1InputStream      aIn = new ASN1InputStream(bIn);                      
+                        // Set the ContentInfo structure in super class
+                        setContentInfo(ContentInfo.getInstance(aIn.readObject())); aIn.close();
+                        // Set the CMSSignedData object
+                        setAsymmetricSignature(new CMSSignedData(getContentInfo()));
+                        // Finally, see if there's a separate signer cert
+                        CMSSignedData cmsSignedData = getAsymmetricSignature();
                         
-                        if(m_signedData != null) {
+                        if(cmsSignedData != null) {
+                        	signers = cmsSignedData.getSignerInfos();
+
+                        	for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+                        		signer = i.next();                               
+                        	}
+
+                            // The biometric data block is the detached signed content
+                            setSignedContent(Arrays.copyOfRange(m_biometricData, 0, 88 + biometricDataBlockLength));
+                            // Grab signed digest
+                            setSignedAttrsDigest(signers);
+                            // Precompute digest but don't compare -- let consumers do that
+                            setComputedDigest(signer, getSignedContent());        
+                            // Indicate this object needs a signature verification
+                            setSigned(true);
+            			
                             //Decode the ContentInfo and get SignedData object.
-                            try {
-                                Security.addProvider(new BouncyCastleProvider());
-                            } catch (Exception e) {
-                                s_logger.error("Unable to add provider for signature verification: {}" , e.getMessage());
-                                return false;
-                            }
-                            Store<X509CertificateHolder> certs = m_signedData.getCertificates();
-                            signers = m_signedData.getSignerInfos();
+                            Store<X509CertificateHolder> certs = cmsSignedData.getCertificates();
+                            signers = cmsSignedData.getSignerInfos();
                             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext(); ) {
                                 signer = i.next();
                                 Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
@@ -436,29 +375,21 @@ public class CardholderBiometricData extends PIVDataObject {
                                     // Note that setSignerCert internally increments a counter. If there are more than one
                                     // cert in PKCS7 cert bags then the consumer class should throw an exception.
 
-                                    super.setSignerCert(new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder));
-                                    super.setHasOwnSignerCert(true);
+                                    setSignerCert(new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder));
+                                    setHasOwnSignerCert(true);
                                     certFound = true;
                                 }
                             }
+                        } else {
+                        	s_logger.error("Null CMSSignedData");
                         }
                     }
                 }
             }
         } catch (Exception ex) {
-
             s_logger.error("Error parsing {}", APDUConstants.oidNameMAP.get(super.getOID()), ex);
             return false;
         }
-  
-        super.setSigned(true);
-        // This gets set in case hasOwnSignerCert() is false
-        super.setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());
-        this.setSignedContent(m_signedContent);
-        // Grab signed digest
-        this.setSignedAttrsDigest(signers);
-        // Precompute digest but don't compare -- let consumers do that
-        this.setComputedDigest(signer);        
 
         String message = APDUConstants.oidNameMAP.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
         s_logger.debug(message);
@@ -469,161 +400,66 @@ public class CardholderBiometricData extends PIVDataObject {
         return true;
     }
     
-	/**
-	 * Extracts and sets the message digest in the signed attributes
-	 * 
-	 * @param the SignerInformationStore in the CMS
-	 * 
-	 */	
-	private void setSignedAttrsDigest(SignerInformationStore signers) {
-    	if (m_signedContent != null) {
-			if (signers != null) {
-				AttributeTable at;				
-				// Temporarily nest these until unit test passes
-				for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-					SignerInformation signer = i.next();
-					at = signer.getSignedAttributes();	
-					if (at != null) {
-						Attribute a = at.get(CMSAttributes.messageDigest); // messageDigest
-						if (a != null) {
-							DEROctetString dos = (DEROctetString) a.getAttrValues().getObjectAt(0);
-							if (dos != null) {
-								byte[] digest = dos.getOctets();
-								if (digest != null) {
-									super.setSignedAttrsDigest(digest);
-									s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
-								} else {
-									s_logger.error("Failed to compute digest");
-								}
-							} else {
-								s_logger.error("Failed to decode octets");
-							}
-						} else {
-							s_logger.error("Null messageDigest attribute");
-						}
-					} else {
-						s_logger.error("Null signed attribute set");
-					}
-				} // End for
-			} else {
-				s_logger.error("Null SignerInfos");
-			}
-    	}
-    }
-	
-
-    /**
-     * Computes and sets the digest
-     * 
-     * @param the SignerInfo of the content signer
-     * 
-     * @returns the bytes of the digest
-     */
-
-	private void setComputedDigest(SignerInformation signer) {
-		if (m_signedContent != null) {
-			try {
-				AttributeTable at = signer.getSignedAttributes();	
-				if (at != null) {
-					Attribute a = at.get(CMSAttributes.messageDigest);
-					if (a != null) {
-						byte[] contentBytes = this.getSignedContent();
-
-						if (contentBytes != null) {
-							s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
-							String aName = MessageDigestUtils.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
-							MessageDigest md = MessageDigest.getInstance(aName, "BC");
-							md.update(contentBytes);
-							byte[] digest = md.digest();
-							if (digest != null) {
-								super.setComputedDigest(digest);
-								s_logger.debug("Computed digest: " + Hex.encodeHexString(digest));
-							} else {
-								s_logger.error("Failed to digest content");
-							}
-						} else {
-							s_logger.error("Null contentBytes");
-						}
-					} else {
-						s_logger.error("Null messageDigest attribute");
-					}
-				} else {
-					s_logger.error("Null signed attribute set");
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-    /**
-     *
-     * Verifies the signature on the biometric data object
-     *
-     * @param signingCertificate X509Certificate object containing signing certificate
-     * @return True if signature successfully verified, false otherwise
-     */
-    public boolean verifySignature(X509Certificate signingCertificate) {
-        boolean rv_result = false;
-
-        if(signingCertificate == null) {
-            s_logger.error("Signing certificate is not provided for {}", APDUConstants.oidNameMAP.get(super.getOID()));
-        }
-
-        try {
-            Security.addProvider(new BouncyCastleProvider());
-        } catch (Exception e) {
-            s_logger.error("Unable to add provider for signature verification: {}" , e.getMessage());
-            return rv_result;
-        }
-
-        CMSSignedData s;
-        try {
-            s = new CMSSignedData(m_contentInfo);
-            if (m_signedData.isDetachedSignature()) {
-                CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
-                s = new CMSSignedData(procesableContentBytes, m_contentInfo);
-            }
-
-            Store<X509CertificateHolder> certs = s.getCertificates();
-            SignerInformationStore signers = s.getSignerInfos();
-            X509Certificate signingCert = null;
-
-            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-                SignerInformation signer = i.next();
-
-                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
-                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
-                if (certIt.hasNext()) {
-                    X509CertificateHolder certHolder = certIt.next();
-                    signingCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
-                }
-                else if(signingCertificate != null) {
-                    signingCert = signingCertificate;
-                }
-                else {
-                    s_logger.error("Missing signing certificate to verify signature on {}", APDUConstants.oidNameMAP.get(super.getOID()));
-                    rv_result = false;
-                    return rv_result;
-                }
-
-                try {
-                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCert))) {
-                        rv_result = true;
-                    }
-                } catch (CMSSignerDigestMismatchException e) {
-                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                } catch (OperatorCreationException | CMSException e) {
-                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                }
-            }
-        } catch ( Exception ex) {
-            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
-        }
-
-        return rv_result;
-    }
+//    /**
+//     *
+//     * Verifies the signature on the biometric data object
+//     *
+//     * @param signingCertificate X509Certificate object containing signing certificate
+//     * @return True if signature successfully verified, false otherwise
+//     */
+//    public boolean verifySignature(X509Certificate signingCertificate) {
+//        boolean rv_result = false;
+//
+//        if(signingCertificate == null) {
+//            s_logger.error("Signing certificate is not provided for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+//        }
+//
+//        CMSSignedData s;
+//        try {
+//            s = new CMSSignedData(m_contentInfo);
+//            if (m_signedData.isDetachedSignature()) {
+//                CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
+//                s = new CMSSignedData(procesableContentBytes, m_contentInfo);
+//            }
+//
+//            Store<X509CertificateHolder> certs = s.getCertificates();
+//            SignerInformationStore signers = s.getSignerInfos();
+//            X509Certificate signingCert = null;
+//
+//            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+//                SignerInformation signer = i.next();
+//
+//                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+//                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+//                if (certIt.hasNext()) {
+//                    X509CertificateHolder certHolder = certIt.next();
+//                    signingCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+//                }
+//                else if(signingCertificate != null) {
+//                    signingCert = signingCertificate;
+//                }
+//                else {
+//                    s_logger.error("Missing signing certificate to verify signature on {}", APDUConstants.oidNameMAP.get(super.getOID()));
+//                    rv_result = false;
+//                    return rv_result;
+//                }
+//
+//                try {
+//                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCert))) {
+//                        rv_result = true;
+//                    }
+//                } catch (CMSSignerDigestMismatchException e) {
+//                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+//                } catch (OperatorCreationException | CMSException e) {
+//                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+//                }
+//            }
+//        } catch ( Exception ex) {
+//            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+//        }
+//
+//        return rv_result;
+//    }
 
 
     /**

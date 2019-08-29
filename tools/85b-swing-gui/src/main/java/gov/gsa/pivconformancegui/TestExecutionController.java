@@ -4,6 +4,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMetho
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -49,6 +51,7 @@ public class TestExecutionController {
 	}
 	
 	private void reset() {
+		Security.addProvider(new BouncyCastleProvider());
 		m_testTreePanel = null;
 		m_testExecutionPanel = null;
 		m_running = false;

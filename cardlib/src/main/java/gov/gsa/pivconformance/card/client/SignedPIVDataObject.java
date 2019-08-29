@@ -4,6 +4,7 @@
 package gov.gsa.pivconformance.card.client;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -61,7 +62,6 @@ public class SignedPIVDataObject extends PIVDataObject {
 
 	public SignedPIVDataObject() {
 		super();
-		// TODO: Add code to pull the CHUID signing cert as standard signed PIV data object processing
 		m_signerCert = null;
 		m_signerCertCount = 0;
 		m_hasOwnSignerCert = false;
@@ -97,7 +97,7 @@ public class SignedPIVDataObject extends PIVDataObject {
      * @return X509Certificate object containing the signing certificate
      */
     public X509Certificate getSignerCert() {
-        return (m_signerCert != null) ? m_signerCert : m_chuidSignerCert;
+        return (m_signerCert != null) ? m_signerCert : getChuidSignerCert();
     }
 
     /**
@@ -117,6 +117,11 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 * @return X509Certificate object containing the CHUID signer cert for this card
 	 */
 	public X509Certificate getChuidSignerCert() {
+		// Cache if not already cached
+		if (DataModelSingleton.getInstance().getChuidSignerCert() == null) {
+			CardHolderUniqueIdentifier o = (CardHolderUniqueIdentifier) new PIVDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+			o.decode();  // Caches it
+		}
 		return DataModelSingleton.getInstance().getChuidSignerCert();
 	}
 
@@ -172,13 +177,34 @@ public class SignedPIVDataObject extends PIVDataObject {
 	}
 
 	/**
-	 * Sets the message digest in the signed attributes
+	 * Sets the extracted message digest in the signed attributes
 	 * 
 	 * @param the bytes of the digest
 	 * 
 	 */	
 	public void setSignedAttrsDigest(byte[] digest) {
 		m_signedAttrsDigest = digest;
+	}
+	
+	/**0000000
+	 * Gets the computed message digest of the signed objects's content
+	 * @return the computed message digest of the object's content
+	 */
+
+	public byte[] getComputedDigest() {
+		return m_computedDigest;
+	}
+
+	/**
+	 * Sets the computed digest of the object
+	 * 
+	 * @param the bytes of the digest
+	 * 
+	 * @returns the bytes of the digest
+	 */
+
+	private void setComputedDigest(byte[] digest) {
+		m_computedDigest = digest;
 	}
 
 	/**
@@ -201,22 +227,6 @@ public class SignedPIVDataObject extends PIVDataObject {
 	public void setDigestAlgorithmName(String name) {
 		m_digestAlgorithmName = name;
 	}   
-
-	public byte[] getComputedDigest() {
-		return m_computedDigest;
-	}
-
-	/**
-	 * Sets the computed digest of the object
-	 * 
-	 * @param the bytes of the digest
-	 * 
-	 * @returns the bytes of the digest
-	 */
-
-	private void setComputedDigest(byte[] digest) {
-		m_computedDigest = digest;
-	}
 
     /**
      *
@@ -259,7 +269,7 @@ public class SignedPIVDataObject extends PIVDataObject {
     					if (dos != null) {
     						byte[] digest = dos.getOctets();
     						if (digest != null) {
-    							m_computedDigest = digest;
+    							m_signedAttrsDigest = digest;
     							s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
     						} else {
     							s_logger.error("Failed to compute digest");
@@ -278,7 +288,7 @@ public class SignedPIVDataObject extends PIVDataObject {
     		s_logger.error("Null SignerInfos");
     	}
     }
-
+    
     /**
      * Computes a digest of the content in this object and stores it
      * 
@@ -303,22 +313,30 @@ public class SignedPIVDataObject extends PIVDataObject {
 							md.update(contentBytes);
 							byte[] digest = md.digest();
 							if (digest != null) {
+								setDigestAlgorithmName(aName);
 								setComputedDigest(digest);
 								s_logger.debug("Computed digest: " + Hex.encodeHexString(digest));
 							} else {
 								s_logger.error("Failed to digest content");
 							}
 						} else {
-							s_logger.error("Null contentBytes");
+							String msg = "Null contentBytes";
+							s_logger.error(msg);
+							throw new CardClientException(msg);
 						}
 					} else {
-						s_logger.error("Null messageDigest attribute");
+						String msg = "Null messageDigest attribute";
+						s_logger.error(msg);
+						throw new CardClientException(msg);
 					}
 				} else {
-					s_logger.error("Null signed attribute set");
+					String msg = "Null signed attribute set";
+					s_logger.error(msg);
+					throw new CardClientException(msg);
 				}
-
 			} catch (Exception e) {
+				String msg = e.getMessage();
+				s_logger.error(msg);
 				e.printStackTrace();
 			}
 		}
@@ -365,22 +383,15 @@ public class SignedPIVDataObject extends PIVDataObject {
         s_logger.debug("m_signedContent HEX value: {} ", Hex.encodeHexString(m_signedContent));
 
         try {
-        	//TODO: Need to be replaced with digest alg from the digestAlgorithms attribute
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-
+            MessageDigest md = MessageDigest.getInstance(getDigestAlgorithmName());
             md.update(m_signedContent);
-
             byte[] digest = md.digest();
-
             s_logger.debug("message digest value: {} ", Hex.encodeHexString(digest));
-        } catch (Exception ex) {
-            s_logger.error("Error calculating hash value: {}", ex.getMessage());
+        } catch (NoSuchAlgorithmException nsa) {
+        	s_logger.error("No such algorithm (" + getDigestAlgorithmName() + ")");
         }
-
-        try {
-            Security.addProvider(new BouncyCastleProvider());
-        } catch (Exception e) {
-            s_logger.error("Unable to add provider for signature verification: {}" , e.getMessage());
+        catch (Exception ex) {
+            s_logger.error("Error calculating hash value: {}", ex.getMessage());
             return rv_result;
         }
 
@@ -399,32 +410,36 @@ public class SignedPIVDataObject extends PIVDataObject {
 
             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
                 SignerInformation signer = i.next();
-                X509Certificate signerCert = null;
+                X509Certificate signerCert = getChuidSignerCert(); // Ensures there is a content signer
+                if (signerCert != null) {
+	                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+	                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+	                if (certIt.hasNext()) {
+	                    X509CertificateHolder certHolder = certIt.next();
+	                    signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+	                    // Housekeeping
+	                    if (signerCert != null)
+	                    	setSignerCert(signerCert);
+	                }
 
-                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
-                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
-                if (certIt.hasNext()) {
-                    X509CertificateHolder certHolder = certIt.next();
-                    signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
-                }
-
-                if(signerCert == null)
-                    s_logger.error("Unable to find signing certificate for {}", APDUConstants.oidNameMAP.get(super.getOID()));
-
-                try {
-                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert))) {
-                        rv_result = true;
+                    try {
+                        rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
+                    } catch (CMSSignerDigestMismatchException e) {
+                        s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+                    } catch (OperatorCreationException e) {
+                        s_logger.error("Operator creation exception while verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+                    } catch (CMSException e) {
+                    	s_logger.error("CMS exception while verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
                     }
-                } catch (CMSSignerDigestMismatchException e) {
-                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                } catch (OperatorCreationException | CMSException e) {
-                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+                } else {
+                    s_logger.error("Unable to find content signer certificate for {}", APDUConstants.oidNameMAP.get(super.getOID()));
                 }
             }
-        } catch (CMSException | CertificateException ex) {
-            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
-            return false;
-        }
+        } catch (CertificateException e) {
+            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+        } catch (CMSException e) {
+        	s_logger.error("CMS exception while verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+		}
 
         return rv_result;
     }
