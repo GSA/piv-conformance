@@ -9,6 +9,10 @@ import javax.swing.JTextPane;
 import java.awt.BorderLayout;
 
 public class DebugWindow extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	RawLogPanel m_logPane;
 
 	public DebugWindow() throws HeadlessException {

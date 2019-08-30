@@ -1,15 +1,9 @@
 package gov.gsa.pivconformance.card.client;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Encapsulates a PIV application identifier
  */
 public class ApplicationAID {
-    // slf4j will thunk this through to an appropriately configured logging library
-    private static final Logger s_logger = LoggerFactory.getLogger(ApplicationAID.class);
-
     /**
      * ApplicationAID class constructor, initializes all the class fields.
      */

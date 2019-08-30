@@ -1458,6 +1458,7 @@ public class SP800_76_Tests {
 	//@MethodSource("sp800_76_BiometricParamTestProvider1")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_38(String oid, String paramsString, TestReporter reporter) {
+		@SuppressWarnings("unchecked")
 		HashMap<String, List<String>> mp = (HashMap) ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
 		for (Map.Entry<String,List<String>> entry : mp.entrySet()) {

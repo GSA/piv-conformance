@@ -5,12 +5,12 @@ package gov.gsa.pivconformance.card.client;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
@@ -31,8 +31,8 @@ import org.bouncycastle.cms.CMSSignerDigestMismatchException;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.jcajce.provider.util.DigestFactory;
 import org.bouncycastle.jcajce.util.MessageDigestUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
@@ -52,8 +52,6 @@ public class SignedPIVDataObject extends PIVDataObject {
     private byte[] m_signedContent;
     // The effective signing cert.
 	private X509Certificate m_signerCert;
-	// This is always here (via DataModelSingleton) and is the default used by a consumer if m_hasOwnSignerCert is false
-	private X509Certificate m_chuidSignerCert;
 	// This will be zero or one, and reflects the number of certs in this object
 	private int m_signerCertCount;
 	// This will be true *only* when this object has its own cert
@@ -407,16 +405,22 @@ public class SignedPIVDataObject extends PIVDataObject {
             SignerInformationStore signers = s.getSignerInfos();
             Set<AlgorithmIdentifier> digAlgSet = s.getDigestAlgorithmIDs();
             Iterator<AlgorithmIdentifier> dai = digAlgSet.iterator();
+            
+            ArrayList<String> allowedDigestAlgOids = new ArrayList<String>();
+            allowedDigestAlgOids.add("2.16.840.1.101.3.4.2.1");
+            allowedDigestAlgOids.add("2.16.840.1.101.3.4.2.2");
+        	String daOid = null;
             while (dai.hasNext()) {
             	// Check against allowed signing algorithms
             	AlgorithmIdentifier ai = dai.next();
-            	String aName = MessageDigestUtils.getDigestName(ai.getAlgorithm());
-            	if (!allowedAlgMap.contains(aName)) {
-            		s_logger.error("Unsupported digest algorithm: {}", aName);
-            		return rv_result;
+            	daOid = ai.getAlgorithm().getId();
+            	if (!allowedDigestAlgOids.contains(daOid)) {
+            		s_logger.error("Unsupported digest algorithm for PIV/PIV-I: {}", daOid);
+            		return rv_result; 
             	}
+            	break; // TODO: Should we handle multiple?
             }
-            String ct = s.getSignedContent().getContentType().toString();
+            
             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
                 SignerInformation signer = i.next();
 				/*
@@ -432,9 +436,8 @@ public class SignedPIVDataObject extends PIVDataObject {
                 if (at == null) {
                     s_logger.debug("No signed attributes");
                 } else {
-                    s_logger.debug("There are {} signed attributes: ", at.size());
-                    s_logger.debug("Digest algorithm", at.get(new ASN1ObjectIdentifier("XXXXXXXXXX")));
-                    s_logger.debug("Digest algorithm", at.get(new ASN1ObjectIdentifier("XXXXXXXXXX")));
+                    s_logger.debug("There are {} signed attributes", at.size());
+                    Attribute a = at.get(new ASN1ObjectIdentifier("1.2.840.113549.1.9.4"));
                 }
                 X509Certificate signerCert = getChuidSignerCert(); // Ensures there is a content signer
                 if (signerCert != null) {

@@ -247,7 +247,6 @@ public class BerTlvBuilder {
     }
 
     private final int theBufferOffset;
-    private int theLengthPosition;
     private int thePos;
     private final byte[] theBuffer;
     private final BerTag theTemplate;

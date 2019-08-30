@@ -1,9 +1,6 @@
 package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -11,8 +8,6 @@ import java.util.List;
  * in SP800-73
  */
 public class PIVAuthenticators {
-    // slf4j will thunk this through to an appropriately configured logging library
-    private static final Logger s_logger = LoggerFactory.getLogger(PIVAuthenticators.class);
     private ArrayList<PIVAuthenticator> m_authenticators = new ArrayList<PIVAuthenticator>();
 
     /**

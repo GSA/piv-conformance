@@ -7,6 +7,11 @@ import javax.swing.ImageIcon;
 
 public class RunAllTestsAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public RunAllTestsAction(String name) {
 		super(name);
 	}

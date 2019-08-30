@@ -33,7 +33,6 @@ public class GuiRunnerAppController {
 	private DisplayTestReportAction m_displayTestReportAction;
 	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
 	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
-	private boolean m_logBeenWrittenTo = false;
 	private String m_logPath = "constructor: No file name available";
 	
 	public void reset() {
@@ -165,7 +164,6 @@ public class GuiRunnerAppController {
 				p = new PrintStream(f);
 				p.println("Date,Test Id,Description,Expected Result,Actual Result");
 				p.close();
-				m_logBeenWrittenTo = true;
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

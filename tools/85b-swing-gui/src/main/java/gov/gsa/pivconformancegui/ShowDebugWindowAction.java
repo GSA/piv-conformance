@@ -7,6 +7,11 @@ import javax.swing.Icon;
 
 public class ShowDebugWindowAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public ShowDebugWindowAction() {
 		
 	}

@@ -1,7 +1,6 @@
 package gov.gsa.pivconformancegui;
 
 import java.awt.Component;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
@@ -10,7 +9,6 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
-import javax.swing.KeyStroke;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.slf4j.Logger;

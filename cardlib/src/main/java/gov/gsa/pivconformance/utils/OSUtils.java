@@ -7,10 +7,7 @@ public class OSUtils {
 		OSX(20),
 		LINUX(30);
 		   
-        private int ostypeValue;
-
         private OSTYPE (int ostypeValue) {
-                this.ostypeValue = ostypeValue;
         }
 	}
 

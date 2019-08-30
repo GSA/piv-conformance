@@ -19,6 +19,10 @@ import gov.gsa.conformancelib.configuration.TestStepModel;
 
 public class TestTreePanel extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	List<TestCaseModel> m_testCases;
 	DefaultTreeModel m_treeModel;
 	Map<String, TestCaseTreeNode> m_testCaseDict;

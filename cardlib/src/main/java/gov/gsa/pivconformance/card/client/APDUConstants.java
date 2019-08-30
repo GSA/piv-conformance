@@ -576,6 +576,11 @@ public class APDUConstants {
 	};
 
 	public static final HashMap<Integer, ContainerPurpose> containerPurposeMap = new HashMap<Integer, ContainerPurpose>() {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		{
 			put(new Integer(DIGITAL_SIGNATURE_KEY_ID), ContainerPurpose.SIGNATURE);
 			put(new Integer(KEY_MANAGEMENT_KEY_ID), ContainerPurpose.ENCRYPTION);

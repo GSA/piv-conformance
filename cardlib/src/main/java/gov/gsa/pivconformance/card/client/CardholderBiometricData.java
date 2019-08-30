@@ -2,42 +2,26 @@ package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.*;
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.security.MessageDigest;
-import java.security.Security;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
 import java.nio.ByteBuffer;
-import java.security.cert.X509Certificate;
 import org.bouncycastle.util.Store;
 
-import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.cms.Attribute;
-import org.bouncycastle.asn1.cms.AttributeTable;
-import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.cms.CMSProcessable;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.cms.CMSSignerDigestMismatchException;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
-import org.bouncycastle.jcajce.util.MessageDigestUtils;
 
 /**
  *

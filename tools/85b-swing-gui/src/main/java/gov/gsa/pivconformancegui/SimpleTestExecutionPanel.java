@@ -42,6 +42,11 @@ import java.awt.Component;
 
 public class SimpleTestExecutionPanel extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger s_logger = LoggerFactory.getLogger(SimpleTestExecutionPanel.class);
 	
 	private JComboBox<String> m_readerComboBox;

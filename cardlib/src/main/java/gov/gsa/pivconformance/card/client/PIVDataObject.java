@@ -1,6 +1,5 @@
 package gov.gsa.pivconformance.card.client;
 
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
