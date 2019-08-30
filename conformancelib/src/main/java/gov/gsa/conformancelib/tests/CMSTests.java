@@ -466,25 +466,10 @@ public class CMSTests {
 	// @MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_14(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 
-		SignedPIVDataObject o = null;
-		CMSSignedData asymmetricSignature = null;
-		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
-		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
-		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-		// Underlying decoder for OID identified containers with embedded content
-		// signing certs. Select the appropriate signature cert for the object. It
-		// also creates a CMSSignedData object with content (Security Object) and
-		// without (CHUID and biometrics don't encapsulate their content).
-		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-//		if (signingCert == null ) {
-//			SignedPIVDataObject o2 = null;
-//			o2 =  (SignedPIVDataObject) AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-//			asymmetricSignature = AtomHelper.getSignedDataForObject(o2);
-//			o = o2;
-//		}
+		SignedPIVDataObject o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
+		assertNotNull(AtomHelper.getSignedDataForObject(o), "No signature found for OID " + oid);
 		assertTrue(o.verifySignature(), "Object signature does not verify");
 	}
 

@@ -37,8 +37,6 @@ public class SecurityObject extends SignedPIVDataObject {
     private byte[] m_mapping;
     private byte[] m_so;
     private HashMap<Integer, String> m_containerIDList;
-    private CMSSignedData m_signedData;
-    private ContentInfo m_contentInfo;
     HashMap<String, byte[]> m_mapOfDataElements;
     HashMap<Integer, byte[]> m_dghList;
     private boolean m_errorDetectionCode;
@@ -49,9 +47,7 @@ public class SecurityObject extends SignedPIVDataObject {
     public SecurityObject() {
         m_mapping = null;
         m_so = null;
-        m_signedData = null;
         m_containerIDList = null;
-        m_contentInfo = null;
         m_mapOfDataElements = null;
         m_dghList = null;
         m_errorDetectionCode = false;
@@ -230,14 +226,13 @@ public class SecurityObject extends SignedPIVDataObject {
                     // Set the CMSSignedData object
                     setAsymmetricSignature(new CMSSignedData(getContentInfo()));
                     // This gets set in case hasOwnSignerCert() is false
-                    setChuidSignerCert(DataModelSingleton.getInstance().getChuidSignerCert());   
-                    // The security object tag is the (encapsulated) signed content
                     setSignedContent(m_so);
                     // Indicate this object needs a signature verification
                     setSigned(true);
-                    
-                    CMSSignedData s = new CMSSignedData(m_contentInfo);
-                    signers = s.getSignerInfos();
+
+                    CMSSignedData cmsSignedData = getAsymmetricSignature();                    
+
+                    signers = cmsSignedData.getSignerInfos();
 
                     for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
                         signer = i.next();                               
@@ -288,9 +283,9 @@ public class SecurityObject extends SignedPIVDataObject {
                     return false;
                 }
 
-                CMSProcessableByteArray signedContent = (CMSProcessableByteArray) m_signedData.getSignedContent();
+                CMSSignedData s = new CMSSignedData(getContentInfo());
 
-                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream((byte[]) signedContent.getContent()));
+                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream((byte[]) s.getEncoded()));
                 ASN1Sequence soSeq;
                 soSeq = (ASN1Sequence) asn1is.readObject();
                 asn1is.close();
@@ -346,7 +341,15 @@ public class SecurityObject extends SignedPIVDataObject {
     public boolean verifyHash(Integer id){
         boolean rv_result = true;
 
+        String oid = m_containerIDList.get(id);
+
+        if (oid == null) {
+            s_logger.error("Missing object to hash for ID {}: ", id);
+            return false;
+        }
+        
         try {
+            CMSSignedData s = new CMSSignedData(getContentInfo());
 
             if(m_dghList == null) {
                 if (m_mapOfDataElements == null) {
@@ -354,9 +357,7 @@ public class SecurityObject extends SignedPIVDataObject {
                     return false;
                 }
 
-                CMSProcessableByteArray signedContent = (CMSProcessableByteArray) m_signedData.getSignedContent();
-
-                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream((byte[]) signedContent.getContent()));
+                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream((byte[]) s.getEncoded()));
                 ASN1Sequence soSeq;
                 soSeq = (ASN1Sequence) asn1is.readObject();
                 asn1is.close();
@@ -370,16 +371,17 @@ public class SecurityObject extends SignedPIVDataObject {
                 }
             }
 
-            String oid = m_containerIDList.get(id);
-
-            if(oid == null) {
-                s_logger.error("Missing object to hash for ID {}: ", id);
-                return false;
-            }
-
             byte[] bytesToHash = m_mapOfDataElements.get(oid);
-
-            MessageDigest md = MessageDigest.getInstance(APDUConstants.DEFAULTHASHALG);
+            
+			String aName = APDUConstants.DEFAULTHASHALG;
+            SignerInformationStore signers = s.getSignerInfos();
+            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+                SignerInformation signer = i.next();
+                aName = signer.getDigestAlgOID();
+                break;
+            }
+ 
+            MessageDigest md = MessageDigest.getInstance(aName);
             md.update(bytesToHash);
             byte[] digest = md.digest();
 

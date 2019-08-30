@@ -10,6 +10,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -18,6 +20,7 @@ import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.CMSException;
@@ -380,19 +383,15 @@ public class SignedPIVDataObject extends PIVDataObject {
     public boolean verifySignature() {
         boolean rv_result = false;
 
-        s_logger.debug("m_signedContent HEX value: {} ", Hex.encodeHexString(m_signedContent));
+        s_logger.debug("Digested content: {} ", Hex.encodeHexString(m_signedContent));
 
         try {
             MessageDigest md = MessageDigest.getInstance(getDigestAlgorithmName());
             md.update(m_signedContent);
             byte[] digest = md.digest();
-            s_logger.debug("message digest value: {} ", Hex.encodeHexString(digest));
+            s_logger.debug("Message digest value: {} ", Hex.encodeHexString(digest));
         } catch (NoSuchAlgorithmException nsa) {
         	s_logger.error("No such algorithm (" + getDigestAlgorithmName() + ")");
-        }
-        catch (Exception ex) {
-            s_logger.error("Error calculating hash value: {}", ex.getMessage());
-            return rv_result;
         }
 
         CMSSignedData s;
@@ -406,10 +405,37 @@ public class SignedPIVDataObject extends PIVDataObject {
 
             Store<X509CertificateHolder> certs = s.getCertificates();
             SignerInformationStore signers = s.getSignerInfos();
+            Set<AlgorithmIdentifier> digAlgSet = s.getDigestAlgorithmIDs();
+            Iterator<AlgorithmIdentifier> dai = digAlgSet.iterator();
+            while (dai.hasNext()) {
+            	// Check against allowed signing algorithms
+            	AlgorithmIdentifier ai = dai.next();
+            	String aName = MessageDigestUtils.getDigestName(ai.getAlgorithm());
+            	if (!allowedAlgMap.contains(aName)) {
+            		s_logger.error("Unsupported digest algorithm: {}", aName);
+            		return rv_result;
+            	}
+            }
             String ct = s.getSignedContent().getContentType().toString();
-
             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
                 SignerInformation signer = i.next();
+				/*
+				 * RFC 5250 5.4
+				 * 
+				 * The result of the message digest calculation process depends on whether the
+				 * signedAttrs field is present. When the field is absent, the result is just
+				 * the message digest of the content as described above. When the field is
+				 * present, however, the result is the message digest of the complete DER
+				 * encoding of the SignedAttrs value contained in the signedAttrs field.
+				 */
+                AttributeTable at = signer.getSignedAttributes();
+                if (at == null) {
+                    s_logger.debug("No signed attributes");
+                } else {
+                    s_logger.debug("There are {} signed attributes: ", at.size());
+                    s_logger.debug("Digest algorithm", at.get(new ASN1ObjectIdentifier("XXXXXXXXXX")));
+                    s_logger.debug("Digest algorithm", at.get(new ASN1ObjectIdentifier("XXXXXXXXXX")));
+                }
                 X509Certificate signerCert = getChuidSignerCert(); // Ensures there is a content signer
                 if (signerCert != null) {
 	                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
@@ -423,7 +449,9 @@ public class SignedPIVDataObject extends PIVDataObject {
 	                }
 
                     try {
-                        rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
+                    	rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().build(certCollection.iterator().next()));
+                        //rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
+                        s_logger.debug("Result is " + rv_result);
                     } catch (CMSSignerDigestMismatchException e) {
                         s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
                     } catch (OperatorCreationException e) {
