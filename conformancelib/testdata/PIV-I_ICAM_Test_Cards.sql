@@ -256,7 +256,7 @@ INSERT INTO "TestStepParameters" VALUES(19, 147,NULL,'CARD_HOLDER_UNIQUE_IDENTIF
 INSERT INTO "TestStepParameters" VALUES(20, 159,NULL,'2.16.840.1.101.3.2.1.3.19',0);
 INSERT INTO "TestStepParameters" VALUES(21, 161,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.6.7',0);
 INSERT INTO "TestStepParameters" VALUES(22, 161,NULL,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:2.16.840.1.101.3.6.7',1);
-INSERT INTO "TestStepParameters" VALUES(23, 162,NULL,'1.3.6.1.4.1.45606.3.1.22',0);
+INSERT INTO "TestStepParameters" VALUES(23, 162,NULL,'2.16.840.1.101.3.2.1.48.252',0);
 INSERT INTO "TestStepParameters" VALUES(24, 165,NULL,'2.5.29.31',0);
 INSERT INTO "TestStepParameters" VALUES(25, 168,NULL,'1.3.6.1.1.16.4',0);
 INSERT INTO "TestStepParameters" VALUES(26, 171,NULL,'1',0);
@@ -337,12 +337,12 @@ INSERT INTO "TestCases" VALUES(69, NULL,'8.5.0.2','Tag encoded as 3 bytes','PRIN
 INSERT INTO "TestCases" VALUES(70, NULL,'8.5.0.3','Each data object returned with 2 byte status word (90 00)','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(71, NULL,'8.5.0.4','If a variable length field has length of 0, tag length is followed immediately by next tag if applicable','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(72, NULL,'8.5.1.1','Printed Information value lengths comply with Table 14 of SP 800-73-4','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(73, NULL,'8.5.1.2','Tags 0x01, 0x02, 0x05, 0x06 are present in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(74, NULL,'8.5.1.3','Tags 0x01, 0x02, 0x05, 0x06 are in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(75, NULL,'8.5.1.4','Tag 0xFE follows Tag 0x06, 0x07, or 0x08','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(76, NULL,'8.5.1.5','Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(77, NULL,'8.5.1.6','Tag 0xFE is present and follows tags from 73-4.28, 73-4.29','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(78, NULL,'8.5.1.7','No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(73, NULL,'8.5.1.2','Printed Information Tags 0x01, 0x02, 0x05, 0x06 are present in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(74, NULL,'8.5.1.3','Printed Information Tags 0x01, 0x02, 0x05, 0x06 are in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(75, NULL,'8.5.1.4','Printed Information Tag 0xFE follows Tag 0x06, or optional Tags 0x07 or 0x08','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(76, NULL,'8.5.1.5','Printed Information Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(77, NULL,'8.5.1.6','Printed Information Tag 0xFE is present','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(78, NULL,'8.5.1.7','No Printed Information tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(79, NULL,'8.5.1.8','Tag 0xFE has length of 0','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(80, NULL,'8.6 Facial Image','Card Holder Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(81, NULL,'8.6.0','SP 800-73-4 Data Model','',NULL, 1, 1);
@@ -556,7 +556,7 @@ INSERT INTO "TestCases" VALUES(288, NULL,'10.2.1.10','Value of the subject DN ob
 INSERT INTO "TestCases" VALUES(289, NULL,'10.2.1.11','Signature algorithm value for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm is in accordance with Table 3-3 of SP80078.','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(290, NULL,'10.2.1.12','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(291, NULL,'10.2.1.13','The content signing certificate contains id-piv-content-signing or directly-asserted id-fpki-pivi-content-signing (for PIV-I) EKU extension.','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(292, NULL,'10.2.1.14','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(292, NULL,'10.2.1.14','signedAttrs of the SignerInfo includes the pivFASC-N and entryUUID (2.16.840.1.101.3.6.6 and 1.3.6.1.1.16.4) attributes and that they are the same valuew as the FASC-N and GUID data element of the PIV card CHUID data object.','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(293, NULL,'10.3 Facial Image','Biometric Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(294, NULL,'10.3.1','Signature Block Contents','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(295, NULL,'10.3.1.1','CBEFF_SIGNATURE_BLOCK is present in the biometric CBEFF structure containing an asymmetric digital signature that is implemented as a SignedData type according to RFC 5652.','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
@@ -574,7 +574,7 @@ INSERT INTO "TestCases" VALUES(306, NULL,'10.3.1.10','Value of the subject DN ob
 INSERT INTO "TestCases" VALUES(307, NULL,'10.3.1.11','Signature algorithm value for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm is in accordance with Table 3-3 of SP80078.','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(308, NULL,'10.3.1.12','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(309, NULL,'10.3.1.13','The content signing certificate contains id-piv-content-signing or directly-asserted id-fpki-pivi-content-signing (for PIV-I) EKU extension.','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(310, NULL,'10.3.1.14','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(310, NULL,'10.3.1.14','signedAttrs of the SignerInfo includes the pivFASC-N and entryUUID  (2.16.840.1.101.3.6.6 and 1.3.6.1.1.16.4) attributes and that they are the same valuew as the FASC-N and GUID data element of the PIV card CHUID data object.','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(311, NULL,'10.4 Security Object','Security Object','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(312, NULL,'10.4.1','Data Integrity','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(313, NULL,'10.4.1.1','The actual hash of the data elements on the PIV card are identical to their corresponding hash values present in the security object.','SECURITY_OBJECT_OID',NULL, 1, 1);
@@ -603,7 +603,7 @@ INSERT INTO "TestCases" VALUES(335, NULL,'10.5.1.12','Value of the subject DN ob
 INSERT INTO "TestCases" VALUES(336, NULL,'10.5.1.13','Signature algorithm value for RSA with PKCS #1 v1.5 padding specifies the rsaEncryption OID (as per Section 3.2 of RFC 3370) and for ECDSA and RSA with PSS padding, the signatureAlgorithm is in accordance with Table 3-3 of SP80078.','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(337, NULL,'10.5.1.14','Certificates field in the SignedData contains a single certificate that can be used to verify the digital signature in the SignerInfo. If the certificates field is omitted, then the certificates field of the SignedData for the CHUID contains the certificate that can be used to verify the digital signature.','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(338, NULL,'10.5.1.15','The content signing certificate contains id-piv-content-signing or directly-asserted id-fpki-pivi-content-signing (for PIV-I) EKU extension.','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(339, NULL,'10.5.1.16','signedAttrs of the SignerInfo includes the entryUUID (OID = 1.3.6.1.1.16.4) attribute and that it is the same value as the Card UUID in the GUID data element of the PIV card CHUID data object.','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(339, NULL,'10.5.1.16','signedAttrs of the SignerInfo includes the pivFASC-N and entryUUID (2.16.840.1.101.3.6.6 and 1.3.6.1.1.16.4) attributes and that they are the same valuew as the FASC-N and GUID data element of the PIV card CHUID data object.','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(340, NULL,'11 X.509 Certificate Profiles','PKI Certificate Profile Test Assertions','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(341, NULL,'11.1','PIV Authentication Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(342, NULL,'11.1.1','Algorithm Conformance','',NULL, 1, 1);

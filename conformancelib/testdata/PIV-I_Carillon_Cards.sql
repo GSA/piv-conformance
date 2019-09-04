@@ -303,7 +303,7 @@ INSERT INTO "TestCases" VALUES(35, NULL,'8.2.2.14','Tag 0xFE follows Tag 0x3E','
 INSERT INTO "TestCases" VALUES(36, NULL,'8.2.2.15','If CHUID tag 0xEE is present, it is the first tag in the blob','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(37, NULL,'8.2.2.16','No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(38, NULL,'8.2.3','Expiration Date is formatted YYYYMMDD','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(39, NULL,'8.2.4','Expiration Date is within the next 15 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(39, NULL,'8.2.4','Expiration Date is within the next 5 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(40, NULL,'8.2.5','If the CHUID contains the optional Cardholder UUID, then the data element shall be in accordance with 800 73-4 Part 1 Section 3.4.2.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(41, NULL,'8.2.6','The retired key map is not present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(42, NULL,'8.2.7','Tag 0xFE has length of 0','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
@@ -337,12 +337,12 @@ INSERT INTO "TestCases" VALUES(69, NULL,'8.5.0.2','Tag encoded as 3 bytes','PRIN
 INSERT INTO "TestCases" VALUES(70, NULL,'8.5.0.3','Each data object returned with 2 byte status word (90 00)','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(71, NULL,'8.5.0.4','If a variable length field has length of 0, tag length is followed immediately by next tag if applicable','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(72, NULL,'8.5.1.1','Printed Information value lengths comply with Table 14 of SP 800-73-4','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(73, NULL,'8.5.1.2','Tags 0x01, 0x02, 0x05, 0x06 are present in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(74, NULL,'8.5.1.3','Tags 0x01, 0x02, 0x05, 0x06 are in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(75, NULL,'8.5.1.4','Tag 0xFE follows Tag 0x06, 0x07, or 0x08','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(76, NULL,'8.5.1.5','Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(77, NULL,'8.5.1.6','Tag 0xFE is present and follows tags from 73-4.28, 73-4.29','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(78, NULL,'8.5.1.7','No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(73, NULL,'8.5.1.2','Printed Information Tags 0x01, 0x02, 0x05, 0x06 are present in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(74, NULL,'8.5.1.3','Printed Information Tags 0x01, 0x02, 0x05, 0x06 are in that order','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(75, NULL,'8.5.1.4','Printed Information Tag 0xFE follows Tag 0x06, or optional Tags 0x07 or 0x08','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(76, NULL,'8.5.1.5','Printed Information Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(77, NULL,'8.5.1.6','Printed Information Tag 0xFE is present','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(78, NULL,'8.5.1.7','No Printed Information tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(79, NULL,'8.5.1.8','Tag 0xFE has length of 0','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(80, NULL,'8.6 Facial Image','Card Holder Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(81, NULL,'8.6.0','SP 800-73-4 Data Model','',NULL, 1, 1);

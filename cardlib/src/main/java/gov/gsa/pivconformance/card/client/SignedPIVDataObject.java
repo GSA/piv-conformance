@@ -3,8 +3,15 @@
  */
 package gov.gsa.pivconformance.card.client;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Provider;
+import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -14,6 +21,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.cms.Attribute;
@@ -31,8 +40,12 @@ import org.bouncycastle.cms.CMSSignerDigestMismatchException;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.crypto.Signer;
+import org.bouncycastle.crypto.signers.RSADigestSigner;
 import org.bouncycastle.jcajce.provider.util.DigestFactory;
 import org.bouncycastle.jcajce.util.MessageDigestUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
@@ -60,7 +73,10 @@ public class SignedPIVDataObject extends PIVDataObject {
 	private byte[] m_signedAttrsDigest;
 	private byte[] m_computedDigest;
 	private String m_digestAlgorithmName;
-
+	private String m_encryptionAlgorithmName;
+	static {
+	    Security.addProvider(new BouncyCastleProvider());
+	}
 	public SignedPIVDataObject() {
 		super();
 		m_signerCert = null;
@@ -227,7 +243,28 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 */
 	public void setDigestAlgorithmName(String name) {
 		m_digestAlgorithmName = name;
+	}		
+	
+	/**
+	 *
+	 * Sets the message Encryption algorithm name extracted from the signer information of
+	 * the associated CMS.
+	 *
+	 * @param errorDetectionCode True if error Error Detection Code is present, false otherwise
+	 */
+	public void setEncryptionAlgorithmName(String name) {
+		m_encryptionAlgorithmName = name;
 	}   
+
+	/**
+	 *
+	 * Gets the message Encryption algorithm name extracted from the signer information
+	 *
+	 * @return the message Encryption algorithm name extracted from the signer information
+	 */
+	public String getEncryptionAlgorithmName() {
+		return m_encryptionAlgorithmName;
+	}
 
     /**
      *
@@ -320,6 +357,8 @@ public class SignedPIVDataObject extends PIVDataObject {
 							} else {
 								s_logger.error("Failed to digest content");
 							}
+							Signature sig = Signature.getInstance("RSA");
+							setEncryptionAlgorithmName("RSA");
 						} else {
 							String msg = "Null contentBytes";
 							s_logger.error(msg);
@@ -378,7 +417,7 @@ public class SignedPIVDataObject extends PIVDataObject {
      *
      * @return True if signature successfully verified, false otherwise
      */
-    public boolean verifySignature() {
+	public boolean verifySignature() {
         boolean rv_result = false;
 
         s_logger.debug("Digested content: {} ", Hex.encodeHexString(m_signedContent));
@@ -432,13 +471,32 @@ public class SignedPIVDataObject extends PIVDataObject {
 				 * present, however, the result is the message digest of the complete DER
 				 * encoding of the SignedAttrs value contained in the signedAttrs field.
 				 */
+                Attribute md = null;
+                Attribute ct = null;
                 AttributeTable at = signer.getSignedAttributes();
+                ASN1EncodableVector av = at.toASN1EncodableVector();
+
                 if (at == null) {
                     s_logger.debug("No signed attributes");
                 } else {
                     s_logger.debug("There are {} signed attributes", at.size());
-                    Attribute a = at.get(new ASN1ObjectIdentifier("1.2.840.113549.1.9.4"));
+                    // Message digest
+                    md = at.get(new ASN1ObjectIdentifier("1.2.840.113549.1.9.4")); 
+                    if (md == null) {
+                    	s_logger.error("Required messageDigest attribute is missing");
+                    }
+                  
+                    // Content type
+					ct = at.get(new ASN1ObjectIdentifier("1.2.840.113549.1.9.3"));
+                    if (ct == null) {
+                    	s_logger.error("Required contentType attribute is missing");
+                    }
                 }
+                
+                if (md == null || ct == null) {
+                	s_logger.error("Required signed attribute is missing");
+                }
+                
                 X509Certificate signerCert = getChuidSignerCert(); // Ensures there is a content signer
                 if (signerCert != null) {
 	                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
@@ -452,16 +510,34 @@ public class SignedPIVDataObject extends PIVDataObject {
 	                }
 
                     try {
-                    	rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().build(certCollection.iterator().next()));
+                        String digOid = signer.getDigestAlgOID();
+                        String encOid = signer.getEncryptionAlgOID();
+                    	// rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().build(certCollection.iterator().next()));
                         //rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
-                        s_logger.debug("Result is " + rv_result);
-                    } catch (CMSSignerDigestMismatchException e) {
-                        s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                    } catch (OperatorCreationException e) {
-                        s_logger.error("Operator creation exception while verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                    } catch (CMSException e) {
-                    	s_logger.error("CMS exception while verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-                    }
+                        Signature sig = Signature.getInstance("sha256WithRSAEncryption", "BC"); 
+                       
+                        sig.initVerify(signerCert.getPublicKey());
+
+						sig.update(signer.getEncodedSignedAttributes());
+						rv_result = sig.verify(signer.getSignature());
+						s_logger.debug("Signature verification returned: {}", rv_result);
+
+                    } catch (InvalidKeyException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (SignatureException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (NoSuchAlgorithmException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (NoSuchProviderException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 } else {
                     s_logger.error("Unable to find content signer certificate for {}", APDUConstants.oidNameMAP.get(super.getOID()));
                 }

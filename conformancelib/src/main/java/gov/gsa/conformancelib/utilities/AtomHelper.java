@@ -15,10 +15,14 @@ import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
+import gov.gsa.pivconformance.card.client.CardholderBiometricData;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.SecurityObject;
 import gov.gsa.pivconformance.card.client.SignedPIVDataObject;
+import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 
 public class AtomHelper {
     private static final Logger s_logger = LoggerFactory.getLogger(AtomHelper.class);
@@ -151,9 +155,17 @@ public class AtomHelper {
 	 * @param oid the OID for the container
 	 * @return Certificate from container
 	 */
-	public static X509Certificate getCertificateForContainer(SignedPIVDataObject pivDataObject) {
+	public static X509Certificate getCertificateForContainer(PIVDataObject pivDataObject) {
 		X509Certificate cert = null;
-		cert = pivDataObject.hasOwnSignerCert() ? pivDataObject.getSignerCert() : pivDataObject.getChuidSignerCert();
+		if (pivDataObject instanceof CardHolderUniqueIdentifier ||
+			pivDataObject instanceof CardholderBiometricData ||
+			pivDataObject instanceof SecurityObject) {
+			cert = ((SignedPIVDataObject) pivDataObject).hasOwnSignerCert() ? 
+					((SignedPIVDataObject) pivDataObject).getSignerCert() : 
+					((SignedPIVDataObject) pivDataObject).getChuidSignerCert();
+		} else {
+			cert = ((X509CertificateDataObject) pivDataObject).getCertificate();
+		}
 		return cert;
 	}
 	
