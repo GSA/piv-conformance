@@ -199,7 +199,8 @@ public class DiscoveryObject extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
         byte[] rawBytes = this.getBytes();
         s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
         if(rawBytes.length == 0) {

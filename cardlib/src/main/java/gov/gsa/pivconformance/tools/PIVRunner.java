@@ -191,7 +191,7 @@ public class PIVRunner {
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -237,7 +237,7 @@ public class PIVRunner {
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -280,7 +280,7 @@ public class PIVRunner {
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -316,7 +316,7 @@ public class PIVRunner {
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -428,7 +428,7 @@ public class PIVRunner {
 
                             while (it.hasNext())
                             {
-                                SignerInformation signer = (SignerInformation)it.next();
+                                SignerInformation signer = it.next();
                                 SignerId sid = signer.getSID();
                                 String issuer = sid.getIssuer().toString();
                                 String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());

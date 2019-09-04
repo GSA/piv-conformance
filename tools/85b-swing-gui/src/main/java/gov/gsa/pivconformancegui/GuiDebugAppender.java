@@ -23,16 +23,16 @@ public class GuiDebugAppender extends AppenderBase<ILoggingEvent> {
 	
 	static {
 		s_errorAttributes = new SimpleAttributeSet();
-		s_errorAttributes.addAttribute(StyleConstants.CharacterConstants.Bold, Boolean.TRUE);
-		s_errorAttributes.addAttribute(StyleConstants.CharacterConstants.Foreground, Color.RED);
+		s_errorAttributes.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+		s_errorAttributes.addAttribute(StyleConstants.Foreground, Color.RED);
 		s_warningAttributes = new SimpleAttributeSet();
-		s_warningAttributes.addAttribute(StyleConstants.CharacterConstants.Bold, Boolean.TRUE);
-		s_warningAttributes.addAttribute(StyleConstants.CharacterConstants.Foreground, Color.ORANGE);
+		s_warningAttributes.addAttribute(StyleConstants.Bold, Boolean.TRUE);
+		s_warningAttributes.addAttribute(StyleConstants.Foreground, Color.ORANGE);
 		s_infoAttributes = new SimpleAttributeSet();
-		s_infoAttributes.addAttribute(StyleConstants.CharacterConstants.Foreground, Color.BLACK);
+		s_infoAttributes.addAttribute(StyleConstants.Foreground, Color.BLACK);
 		s_otherAttributes = new SimpleAttributeSet();
-		s_otherAttributes.addAttribute(StyleConstants.CharacterConstants.Foreground, Color.GRAY);
-		s_otherAttributes.addAttribute(StyleConstants.CharacterConstants.Italic, Boolean.TRUE);
+		s_otherAttributes.addAttribute(StyleConstants.Foreground, Color.GRAY);
+		s_otherAttributes.addAttribute(StyleConstants.Italic, Boolean.TRUE);
 	}
 	
 	public GuiDebugAppender(String pattern) {

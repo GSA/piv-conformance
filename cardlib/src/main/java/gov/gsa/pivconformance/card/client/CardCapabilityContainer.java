@@ -243,7 +243,8 @@ public class CardCapabilityContainer extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
         try{
             byte [] raw = super.getBytes();

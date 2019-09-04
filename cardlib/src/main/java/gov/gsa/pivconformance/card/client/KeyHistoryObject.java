@@ -100,7 +100,8 @@ public class KeyHistoryObject extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
         byte[] rawBytes = this.getBytes();
         BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
         BerTlvs outer = tlvp.parse(rawBytes);

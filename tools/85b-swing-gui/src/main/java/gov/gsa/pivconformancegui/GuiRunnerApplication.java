@@ -91,6 +91,7 @@ public class GuiRunnerApplication {
 		
 		
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					PCSCUtils.ConfigureUserProperties();
@@ -102,7 +103,7 @@ public class GuiRunnerApplication {
 					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
 					a.setContext(lc);
 					a.start();
-					Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 					logger.addAppender(a);
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 					String dbFilename = "85b_tests.db";
@@ -172,6 +173,7 @@ public class GuiRunnerApplication {
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}

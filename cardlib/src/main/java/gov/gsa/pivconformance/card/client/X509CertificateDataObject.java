@@ -52,7 +52,8 @@ public class X509CertificateDataObject extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
         if(m_cert == null){
 

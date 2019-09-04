@@ -26,6 +26,7 @@ public class RawLogPanel extends JPanel {
 		buttonPane.add(Box.createHorizontalGlue());
 		JButton btnNewButton = new JButton("Clear");
 		btnNewButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				m_debugTextPane.setText("");
 			}

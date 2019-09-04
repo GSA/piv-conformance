@@ -96,7 +96,8 @@ public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
         try{
             byte[] rawBytes = this.getBytes();

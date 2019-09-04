@@ -224,7 +224,8 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
      *
      * @return True if error Error Detection Code is present, false otherwise
      */
-    public boolean getErrorDetectionCode() {
+    @Override
+	public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
@@ -234,7 +235,8 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
      *
      * @param errorDetectionCode True if error Error Detection Code is present, false otherwise
      */
-    public void setErrorDetectionCode(boolean errorDetectionCode) {
+    @Override
+	public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
@@ -244,7 +246,8 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
     	SignerInformationStore signers = null;
     	SignerInformation signer = null;

@@ -43,7 +43,8 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
      *
      * @return True if error Error Detection Code is present, false otherwise
      */
-    public boolean getErrorDetectionCode() {
+    @Override
+	public boolean getErrorDetectionCode() {
 
         return m_error_Detection_Code;
     }
@@ -84,7 +85,8 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
         if(m_pivAuthCert == null){
 

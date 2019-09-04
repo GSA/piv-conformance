@@ -190,7 +190,7 @@ public class PIVDataObject {
     	// Iterate over each tag and corresponding value
     	Iterator<Map.Entry<BerTag, byte[]>> it = m_content.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
+            Map.Entry pair = it.next();
             BerTag tag = (BerTag) pair.getKey();
             byte value[] = (byte[]) pair.getValue();
             // Check length

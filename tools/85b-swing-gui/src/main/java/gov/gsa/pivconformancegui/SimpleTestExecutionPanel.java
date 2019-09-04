@@ -62,6 +62,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		
 		m_readerComboBox = new JComboBox<String>();
 		m_readerComboBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selected = m_readerComboBox.getSelectedIndex();
 				s_logger.debug("Selected reader: {}: {}", selected, m_readerComboBox.getSelectedItem());
@@ -106,6 +107,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		
 		m_runButton = new JButton("Verify PIN and Execute Tests");
 		m_runButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					//Armen -- Added this snippet to refresh card information before each run, otherwise if cards are swapped and 
@@ -203,6 +205,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		
 		JButton btnRefreshReaders = new JButton("Refresh Readers");
 		btnRefreshReaders.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshReaderState();
 				refreshReaderStatus(CardSettingsSingleton.getInstance());

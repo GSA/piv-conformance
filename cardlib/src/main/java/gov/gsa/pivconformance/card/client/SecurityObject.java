@@ -48,7 +48,8 @@ public class SecurityObject extends SignedPIVDataObject {
      *
      * @return Boolean value indicating if error detection code is present
      */
-    public boolean getErrorDetectionCode() {
+    @Override
+	public boolean getErrorDetectionCode() {
 
         return m_errorDetectionCode;
     }
@@ -150,7 +151,8 @@ public class SecurityObject extends SignedPIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
         SignerInformationStore signers = null;
         SignerInformation signer = null;
         try {
@@ -189,7 +191,7 @@ public class SecurityObject extends SignedPIVDataObject {
 
                         byte idByte = b[0];
                         byte[] tg = Arrays.copyOfRange(b, 1, 3);
-                        int i = (int) APDUUtils.bytesToInt(tg);
+                        int i = APDUUtils.bytesToInt(tg);
                         String cc = APDUConstants.idMAP.get(i);
 
                         int tmp = idByte;
@@ -274,7 +276,7 @@ public class SecurityObject extends SignedPIVDataObject {
 
                 CMSSignedData s = new CMSSignedData(getContentInfo());
 
-                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream((byte[]) s.getEncoded()));
+                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(s.getEncoded()));
                 ASN1Sequence soSeq;
                 soSeq = (ASN1Sequence) asn1is.readObject();
                 asn1is.close();
@@ -346,7 +348,7 @@ public class SecurityObject extends SignedPIVDataObject {
                     return false;
                 }
 
-                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream((byte[]) s.getEncoded()));
+                ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(s.getEncoded()));
                 ASN1Sequence soSeq;
                 soSeq = (ASN1Sequence) asn1is.readObject();
                 asn1is.close();

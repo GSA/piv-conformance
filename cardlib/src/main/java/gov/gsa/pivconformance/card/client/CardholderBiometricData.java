@@ -113,7 +113,8 @@ public class CardholderBiometricData extends SignedPIVDataObject {
      *
      * @return Returns true if error detection code is present, false otherwise
      */
-    public boolean getErrorDetectionCode() {
+    @Override
+	public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
@@ -123,7 +124,8 @@ public class CardholderBiometricData extends SignedPIVDataObject {
      *
      * @param errorDetectionCode Boolean indicating if error detection code is present
      */
-    public void setErrorDetectionCode(boolean errorDetectionCode) {
+    @Override
+	public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
@@ -214,7 +216,8 @@ public class CardholderBiometricData extends SignedPIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
     	boolean certFound = false;        
         ByteArrayOutputStream signedContentOutputStream = new ByteArrayOutputStream();
@@ -313,7 +316,7 @@ public class CardholderBiometricData extends SignedPIVDataObject {
 
                         //Convert Signature block (SB) Length byte[] value to int
                         wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-                        int signatureDataBlockLength = (int) wrapped.getShort();
+                        int signatureDataBlockLength = wrapped.getShort();
 
 
                         m_biometricDataBlock = Arrays.copyOfRange(m_biometricData, 88, 88 + biometricDataBlockLength);

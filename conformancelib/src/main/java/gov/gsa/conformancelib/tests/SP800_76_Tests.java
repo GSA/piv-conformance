@@ -145,7 +145,7 @@ public class SP800_76_Tests {
      		
      		 //Convert Signature block (SB) Length byte[] value to int
      		ByteBuffer wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-            int signatureDataBlockLength = (int) wrapped.getShort();
+            int signatureDataBlockLength = wrapped.getShort();
             
             assertTrue(signatureDataBlockLength > 0, "Signature data block length is not greater than 0");
 		 }
@@ -188,7 +188,7 @@ public class SP800_76_Tests {
 			
 			//Convert Signature block (SB) Length byte[] value to int
 			wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-			int signatureDataBlockLength = (int) wrapped.getShort();
+			int signatureDataBlockLength = wrapped.getShort();
 			
 			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength),  "Signature data block length does not matche actual length");;
 
@@ -311,7 +311,7 @@ public class SP800_76_Tests {
 			
 			//Convert Signature block (SB) Length byte[] value to int
 			wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-			int signatureDataBlockLength = (int) wrapped.getShort();
+			int signatureDataBlockLength = wrapped.getShort();
 			
 			
 			//Confirm Card Holder Facial Image object length equals sum of CBEFF header length + BDB length + SB length
@@ -1462,7 +1462,7 @@ public class SP800_76_Tests {
 		HashMap<String, List<String>> mp = (HashMap) ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
 		for (Map.Entry<String,List<String>> entry : mp.entrySet()) {
-	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>) entry;	    	
+	    	Map.Entry<String,List<String>> pair = entry;	    	
 	        String containerName = pair.getKey();
 	        s_logger.debug("called with oid parameter {} and container name {}", oid, containerName);
 	        List<String> valueStr =  pair.getValue();
@@ -1633,9 +1633,9 @@ public class SP800_76_Tests {
 		void sp800_76Test_41(String oid, String paramsString, TestReporter reporter) {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
-			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet().iterator();
+			Iterator<Map.Entry<String,List<String>>> it = mp.entrySet().iterator();
 		    while (it.hasNext()) {
-		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+		    	Map.Entry<String,List<String>> pair = it.next();	    	
 		        String containerName = pair.getKey();
 		        List<String> valueStr =  pair.getValue();
 				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.41 test: " + valueStr.size());
@@ -1653,7 +1653,7 @@ public class SP800_76_Tests {
 
 				int value = 0;
 				try {
-					value = Integer.parseInt((String) valueStr.get(0));
+					value = Integer.parseInt(valueStr.get(0));
 				} catch(NumberFormatException e) {
 					fail(e);
 				}
@@ -1689,9 +1689,9 @@ public class SP800_76_Tests {
 		void sp800_76Test_42(String oid, String paramsString, TestReporter reporter) {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
-			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet().iterator();
+			Iterator<Map.Entry<String,List<String>>> it = mp.entrySet().iterator();
 		    while (it.hasNext()) {
-		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+		    	Map.Entry<String,List<String>> pair = it.next();	    	
 		        String containerName = pair.getKey();
 		        List<String> valueStr =  pair.getValue();
 				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.42 test: " + valueStr.size());
