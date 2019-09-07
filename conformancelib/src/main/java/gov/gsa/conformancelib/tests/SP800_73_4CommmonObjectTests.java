@@ -46,7 +46,6 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
  *    should run with no unexpected failures and no popups. If either occurs, investigate, fix, and repeat 7-9.
  * 10. The old atoms can be removed from the appropriate test class and the system can be rebuilt.
  * 
- * @author Bob.Fontana
  *
  */
 

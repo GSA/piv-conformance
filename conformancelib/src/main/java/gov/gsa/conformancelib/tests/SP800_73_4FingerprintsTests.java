@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.CardholderBiometricData;
+import gov.gsa.pivconformance.card.client.CardHolderBiometricData;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.TagConstants;
@@ -54,7 +54,7 @@ public class SP800_73_4FingerprintsTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardholderBiometricData) o).getTagList();
+		List<BerTag> tagList = ((CardHolderBiometricData) o).getTagList();
 		
 		BerTag berFingerprintTag = new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG);
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
@@ -80,7 +80,7 @@ public class SP800_73_4FingerprintsTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardholderBiometricData) o).getTagList();
+		List<BerTag> tagList = ((CardHolderBiometricData) o).getTagList();
 		
 		BerTag berFingerprintTag = new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG);
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);

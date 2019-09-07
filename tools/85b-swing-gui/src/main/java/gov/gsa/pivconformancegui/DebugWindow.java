@@ -5,6 +5,7 @@ import java.awt.HeadlessException;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
 
 import java.awt.BorderLayout;
 
@@ -20,7 +21,7 @@ public class DebugWindow extends JFrame {
 	}
 
 	public DebugWindow(String title) throws HeadlessException {	
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		m_logPane = new RawLogPanel();
 		tabbedPane.addTab("Log View", m_logPane);

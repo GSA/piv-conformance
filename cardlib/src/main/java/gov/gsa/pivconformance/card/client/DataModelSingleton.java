@@ -12,8 +12,6 @@ import gov.gsa.pivconformance.tlv.*;
  * known SP 800-73 rules. Initially being used to manage the container lengths
  * in Tables 8-43.
  * 
- * @author Bob.Fontana
- *
  */
 
 public class DataModelSingleton {

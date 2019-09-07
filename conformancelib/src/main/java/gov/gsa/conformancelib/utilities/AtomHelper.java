@@ -16,7 +16,7 @@ import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
-import gov.gsa.pivconformance.card.client.CardholderBiometricData;
+import gov.gsa.pivconformance.card.client.CardHolderBiometricData;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
@@ -158,7 +158,7 @@ public class AtomHelper {
 	public static X509Certificate getCertificateForContainer(PIVDataObject pivDataObject) {
 		X509Certificate cert = null;
 		if (pivDataObject instanceof CardHolderUniqueIdentifier ||
-			pivDataObject instanceof CardholderBiometricData ||
+			pivDataObject instanceof CardHolderBiometricData ||
 			pivDataObject instanceof SecurityObject) {
 			cert = ((SignedPIVDataObject) pivDataObject).hasOwnSignerCert() ? 
 					((SignedPIVDataObject) pivDataObject).getSignerCert() : 

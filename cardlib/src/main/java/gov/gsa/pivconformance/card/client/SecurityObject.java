@@ -5,11 +5,15 @@ import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.icao.DataGroupHash;
 import org.bouncycastle.asn1.icao.LDSSecurityObject;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
+import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.MessageDigest;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.io.ByteArrayInputStream;
 
@@ -155,6 +159,7 @@ public class SecurityObject extends SignedPIVDataObject {
 	public boolean decode() {
         SignerInformationStore signers = null;
         SignerInformation signer = null;
+        boolean certFound = false;
         try {
         	super.m_tagList.clear();
             byte[] rawBytes = this.getBytes();
@@ -222,11 +227,30 @@ public class SecurityObject extends SignedPIVDataObject {
                     setSigned(true);
 
                     CMSSignedData cmsSignedData = getAsymmetricSignature();                    
-
+                    Store<X509CertificateHolder> certs = cmsSignedData.getCertificates();
                     signers = cmsSignedData.getSignerInfos();
-
-                    for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-                        signer = i.next();                               
+                    
+                    for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext(); ) {
+                        signer = i.next();
+                        setDigestAlgorithmName(Algorithm.digAlgOidToNameMap.get(signer.getDigestAlgOID()));
+                        setEncryptionAlgorithmName(Algorithm.encAlgOidToNameMap.get(signer.getEncryptionAlgOID()));
+                        Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                        Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+                        if (certIt.hasNext()) {
+                            X509CertificateHolder certHolder = certIt.next();
+                            // Note that setSignerCert internally increments a counter. If there are more than one
+                            // cert in PKCS7 cert bags then the consumer class should throw an exception.
+                            X509Certificate signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                            if (signerCert != null) {
+                            	setSignerCert(signerCert);
+                            	setHasOwnSignerCert(true);
+                            	certFound = true;
+                            	// Extract signer's signature algorithm name and hang on to it.
+                            	setSignatureAlgorithmName(signerCert.getSigAlgName());
+                            } else {
+                            	s_logger.error("Can't extract signer certificate");
+                            }
+                        }
                     }
 
                     // Grab last signed digest
@@ -245,12 +269,13 @@ public class SecurityObject extends SignedPIVDataObject {
                 }
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage(), e);
             return false;
         }
-
+        
+        String message = APDUConstants.oidNameMAP.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
+        s_logger.debug(message);
         if (m_mapping == null || m_so == null)
             return false;
 
@@ -303,7 +328,7 @@ public class SecurityObject extends SignedPIVDataObject {
                 byte[] bytesToHash = m_mapOfDataElements.get(oid);
                 s_logger.debug("Bytes to hash: {}", Hex.encodeHexString(bytesToHash));
 
-                MessageDigest md = MessageDigest.getInstance(APDUConstants.DEFAULTHASHALG);
+                MessageDigest md = MessageDigest.getInstance(getDigestAlgorithmName());
                 md.update(bytesToHash);
                 byte[] digest = md.digest();
                 s_logger.debug("Digest: {}", Hex.encodeHexString(digest));
@@ -364,7 +389,7 @@ public class SecurityObject extends SignedPIVDataObject {
 
             byte[] bytesToHash = m_mapOfDataElements.get(oid);
             
-			String aName = APDUConstants.DEFAULTHASHALG;
+			String aName = getDigestAlgorithmName();
             SignerInformationStore signers = s.getSignerInfos();
             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
                 SignerInformation signer = i.next();

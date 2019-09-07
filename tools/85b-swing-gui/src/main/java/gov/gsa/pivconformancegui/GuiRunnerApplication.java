@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.security.Provider;
+import java.security.Security;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -37,6 +39,8 @@ public class GuiRunnerApplication {
 	private DebugWindow m_debugFrame;
 	//private TestTreePanel m_treePanel;
 	private MainWindowContentPane m_mainContent;
+	private static Provider bc = Security.getProvider("BC");
+	private static Provider sun = Security.getProvider("SunRsaSign");
 
 	/**
 	 * Launch the application.
@@ -85,11 +89,7 @@ public class GuiRunnerApplication {
 		}
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
-		//Security.insertProviderAt(new jnasmartcardio.Smartcardio(), 1);
 
-		//Security.insertProviderAt(new de.intarsys.security.smartcard.smartcardio.SmartcardioProvider(), 1);
-		
-		
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {

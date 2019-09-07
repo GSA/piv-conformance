@@ -254,12 +254,12 @@ public class PIVCheck {
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)) {
 
-                        s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+                        s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardHolderBiometricData) dataObject).getBiometricData()));
 
 
-                        s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) dataObject).getBiometricCreationDate());
-                        s_logger.info("Validity Period From: {}", ((CardholderBiometricData) dataObject).getValidityPeriodFrom());
-                        s_logger.info("Validity Period To: {}",((CardholderBiometricData) dataObject).getValidityPeriodTo());
+                        s_logger.info("Biometric Creation Date: {}", ((CardHolderBiometricData) dataObject).getBiometricCreationDate());
+                        s_logger.info("Validity Period From: {}", ((CardHolderBiometricData) dataObject).getValidityPeriodFrom());
+                        s_logger.info("Validity Period To: {}",((CardHolderBiometricData) dataObject).getValidityPeriodTo());
 
 
                         CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
@@ -289,9 +289,9 @@ public class PIVCheck {
                             s_logger.info("Missing signing certificate to verify signature.");
 
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCbeffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
 
                     }
 
@@ -338,11 +338,11 @@ public class PIVCheck {
                     }
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
-                        s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+                        s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardHolderBiometricData) dataObject).getBiometricData()));
 
-                        s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) dataObject).getBiometricCreationDate());
-                        s_logger.info("Validity Period From: {}", ((CardholderBiometricData) dataObject).getValidityPeriodFrom());
-                        s_logger.info("Validity Period To: {}", ((CardholderBiometricData) dataObject).getValidityPeriodTo());
+                        s_logger.info("Biometric Creation Date: {}", ((CardHolderBiometricData) dataObject).getBiometricCreationDate());
+                        s_logger.info("Validity Period From: {}", ((CardHolderBiometricData) dataObject).getValidityPeriodFrom());
+                        s_logger.info("Validity Period To: {}", ((CardHolderBiometricData) dataObject).getValidityPeriodTo());
 
 
                         CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
@@ -372,9 +372,9 @@ public class PIVCheck {
                         else
                             s_logger.info("Missing signing certificate to verify signature.");
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCbeffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
                     }
 
 
@@ -459,12 +459,12 @@ public class PIVCheck {
                     s_logger.info("{} {}", cardholderIrisImages.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
                     if (decoded) {
-                        if (((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null) {
-                            s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
+                        if (((CardHolderBiometricData) cardholderIrisImages).getBiometricData() != null) {
+                            s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardHolderBiometricData) cardholderIrisImages).getBiometricData()));
 
-                            s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) cardholderIrisImages).getBiometricCreationDate());
-                            s_logger.info("Validity Period From: {}", ((CardholderBiometricData) cardholderIrisImages).getValidityPeriodFrom());
-                            s_logger.info("Validity Period To: {}", ((CardholderBiometricData) cardholderIrisImages).getValidityPeriodTo());
+                            s_logger.info("Biometric Creation Date: {}", ((CardHolderBiometricData) cardholderIrisImages).getBiometricCreationDate());
+                            s_logger.info("Validity Period From: {}", ((CardHolderBiometricData) cardholderIrisImages).getValidityPeriodFrom());
+                            s_logger.info("Validity Period To: {}", ((CardHolderBiometricData) cardholderIrisImages).getValidityPeriodTo());
 
 
                             CMSSignedData sd = ((SignedPIVDataObject) cardholderIrisImages).getAsymmetricSignature();
@@ -494,7 +494,7 @@ public class PIVCheck {
                             else
                                 s_logger.info("Missing signing certificate to verify signature.");
                         }
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) cardholderIrisImages).getErrorDetectionCode());
 
                     }
                 }

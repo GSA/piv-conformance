@@ -51,7 +51,7 @@ public class TestExecutionController {
 	}
 	
 	private void reset() {
-		Security.addProvider(new BouncyCastleProvider());
+		//Security.addProvider(new BouncyCastleProvider());
 		m_testTreePanel = null;
 		m_testExecutionPanel = null;
 		m_running = false;

@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Iterator;
 import java.nio.ByteBuffer;
+import java.security.cert.X509Certificate;
+
 import org.bouncycastle.util.Store;
 
 import org.bouncycastle.cms.SignerInformationStore;
@@ -29,9 +31,9 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
  * Cardholder Facial Image and  Cardholder Iris Image as defined by SP800-73-4 Part 2 Appendix A Table 11, Table 13 and Table 40
  *
  */
-public class CardholderBiometricData extends SignedPIVDataObject {
+public class CardHolderBiometricData extends SignedPIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
-    private static final Logger s_logger = LoggerFactory.getLogger(CardholderBiometricData.class);
+    private static final Logger s_logger = LoggerFactory.getLogger(CardHolderBiometricData.class);
 
     private byte[] m_biometricData;
     private String m_biometricCreationDate;
@@ -45,7 +47,7 @@ public class CardholderBiometricData extends SignedPIVDataObject {
     /**
      * CardholderBiometricData class constructor, initializes all the class fields.
      */
-    public CardholderBiometricData() {
+    public CardHolderBiometricData() {
     	super();
         m_biometricData = null;
         m_errorDetectionCode = false;
@@ -354,17 +356,24 @@ public class CardholderBiometricData extends SignedPIVDataObject {
                             signers = cmsSignedData.getSignerInfos();
                             for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext(); ) {
                                 signer = i.next();
+                                setDigestAlgorithmName(Algorithm.digAlgOidToNameMap.get(signer.getDigestAlgOID()));
+                                setEncryptionAlgorithmName(Algorithm.encAlgOidToNameMap.get(signer.getEncryptionAlgOID()));
                                 Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                                 Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                                 if (certIt.hasNext()) {
                                     X509CertificateHolder certHolder = certIt.next();
-
                                     // Note that setSignerCert internally increments a counter. If there are more than one
                                     // cert in PKCS7 cert bags then the consumer class should throw an exception.
-
-                                    setSignerCert(new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder));
-                                    setHasOwnSignerCert(true);
-                                    certFound = true;
+                                    X509Certificate signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                                    if (signerCert != null) {
+                                    	setSignerCert(signerCert);
+                                    	setHasOwnSignerCert(true);
+                                    	certFound = true;
+                                    	// Extract signer's signature algorithm name and hang on to it.
+                                    	setSignatureAlgorithmName(signerCert.getSigAlgName());
+                                    } else {
+                                    	s_logger.error("Can't extract signer certificate");
+                                    }
                                 }
                             }
                         } else {

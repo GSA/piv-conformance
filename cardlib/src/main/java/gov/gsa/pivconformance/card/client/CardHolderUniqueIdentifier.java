@@ -1,15 +1,25 @@
 package gov.gsa.pivconformance.card.client;
 
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
+import org.bouncycastle.jcajce.util.MessageDigestUtils;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.gsa.pivconformance.tlv.*;
+import gov.gsa.pivconformance.card.client.Algorithm;
+import gov.gsa.pivconformance.card.client.SignedPIVDataObject;
+import gov.gsa.pivconformance.tlv.BerTag;
+import gov.gsa.pivconformance.tlv.BerTlv;
+import gov.gsa.pivconformance.tlv.BerTlvParser;
+import gov.gsa.pivconformance.tlv.BerTlvs;
+import gov.gsa.pivconformance.tlv.CCTTlvLogger;
+import gov.gsa.pivconformance.tlv.TagConstants;
+
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.ByteArrayInputStream;
@@ -374,21 +384,28 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 
                                     for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
                                         signer = i.next();
+                                        setDigestAlgorithmName(Algorithm.digAlgOidToNameMap.get(signer.getDigestAlgOID()));
+                                        setEncryptionAlgorithmName(Algorithm.encAlgOidToNameMap.get(signer.getEncryptionAlgOID()));
+                                        //String encOid = signer.getEncryptionAlgOID();
                                         // Get signer cert
                                         Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                                         Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                                         if (certIt.hasNext()) {
                                             X509CertificateHolder certHolder = certIt.next();
-
-                                            // Note that setSignerCert internally increments the cert bag counter. 
-                                            // Using the getter, consumers can quickly determine if there were more
-                                            // than one cert in PKCS7 cert bag and throw an exception.
-                                            X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
-                                            setSignerCert(cert);
-                                            setHasOwnSignerCert(true);
-                                            // Hang the CHUID signer cert here so that any test runner
-                                            // consumer can access it.                        
-                                            setChuidSignerCert(cert);
+                                            // Note that setSignerCert internally increments a counter. If there are more than one
+                                            // cert in PKCS7 cert bags then the consumer class should throw an exception.
+                                            X509Certificate signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                                            if (signerCert != null) {
+                                            	setSignerCert(signerCert);
+                                            	setHasOwnSignerCert(true);
+                                            	// Extract signer's signature algorithm name and hang on to it.
+                                            	setSignatureAlgorithmName(signerCert.getSigAlgName());
+                                                // Hang the CHUID signer cert here so that any test runner
+                                                // consumer can access it.                        
+                                                setChuidSignerCert(signerCert);
+                                            } else {
+                                            	s_logger.error("Can't extract signer certificate");
+                                            }
                                         }
                                     }
                                 }
