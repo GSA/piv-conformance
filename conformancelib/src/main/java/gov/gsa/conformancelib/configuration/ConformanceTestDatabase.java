@@ -90,6 +90,7 @@ public class ConformanceTestDatabase {
                 testCase.retrieveForId(rs.getInt("Id"));
                 rv.add(testCase);
             }
+            m_conn.close();
 		} catch(SQLException e) {
 			s_logger.error("Failed to retrieve test cases from database");
 		}
