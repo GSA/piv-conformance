@@ -1,5 +1,6 @@
 package gov.gsa.pivconformancegui;
 
+import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -7,12 +8,23 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.layout.ColumnSpec;
+import com.jgoodies.forms.layout.RowSpec;
+import com.jgoodies.forms.layout.FormSpecs;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.JTextArea;
+import java.awt.Font;
+import javax.swing.UIManager;
+import javax.swing.JButton;
 
 public class GuiRunnerAppController {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiRunnerAppController.class);
@@ -28,12 +40,14 @@ public class GuiRunnerAppController {
 	private ShowDebugWindowAction m_showDebugWindowAction;
 	private RunAllTestsAction m_runAllTestsAction;
 	private ShowOidDialogAction m_showOidDialogAction;
+	private SaveOidsAction m_saveOidsAction;
 	private ToggleTestTreeAction m_toggleTreeAction;
 	private DisplayAboutDialogAction m_displayAboutDialogAction;
 	private DisplayTestReportAction m_displayTestReportAction;
 	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
 	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
 	private String m_logPath = "constructor: No file name available";
+
 	
 	public void reset() {
 		m_testDatabase = null;
@@ -45,12 +59,13 @@ public class GuiRunnerAppController {
 		m_toggleTreeAction = null;
 		m_displayAboutDialogAction = null;
 		m_displayTestReportAction = null;
+		m_saveOidsAction = null;
 		m_openDefaultPIVDatabaseAction = null;
 		m_openDefaultPIVIDatabaseAction = null;
 		m_logPath = "reset: No file name available";
 		createActions();
 	}
-	
+
 	private GuiRunnerAppController() {
 		reset();
 	}
@@ -138,6 +153,7 @@ public class GuiRunnerAppController {
 	
 	public void showOidDialog() {
 		s_logger.error("Stubbed out showOidDialog() is still here");
+
 	}
 
 	public void showAboutDialog() {
@@ -179,12 +195,13 @@ public class GuiRunnerAppController {
 	    ImageIcon debugIcon = getActionIcon("application_xp_terminal", "Debug");
 	    m_showDebugWindowAction = new ShowDebugWindowAction("Show Debugging tools", debugIcon, "Show detailed log and debugging tools");
 	    ImageIcon oidIcon = getActionIcon("application_view_list", "Override OIDs");
-	    m_showOidDialogAction = new ShowOidDialogAction("Override test OIDs...", oidIcon, "Use alternative Policy OIDs and EKU OIDs");
+	    m_showOidDialogAction = new ShowOidDialogAction("Override test OIDs...", oidIcon, "Use alternative certificate policy OIDs");
 	    ImageIcon toggleIcon = getActionIcon("application_side_tree", "Toggle Tree");
 	    m_toggleTreeAction = new ToggleTestTreeAction("Toggle test tree view", toggleIcon, "Show or hide the test tree");
 	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");
 	    m_displayTestReportAction = new DisplayTestReportAction("Display Test Report", displayReportIcon, "Display test report for current log");
-
+	    ImageIcon savingIcon = getActionIcon("folder", "Saving");
+	    m_saveOidsAction = new SaveOidsAction("Saving", savingIcon, "Saving OID overrides");
 
 	    ImageIcon pivIcon = getActionIcon("PIV", "Open");
 	    m_openDefaultPIVDatabaseAction = new OpenDefaultPIVDatabaseAction("Open Default PIV Database", pivIcon, "Open Default PIV conformance test database");

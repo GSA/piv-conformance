@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -38,6 +39,7 @@ public class TestExecutionController {
 	
 	TestTreePanel m_testTreePanel;
 	SimpleTestExecutionPanel m_testExecutionPanel;
+	GuiRunnerToolbar m_toolBar;
 	boolean m_running;
 	Date m_startDate;
 	Date m_stopDate;
@@ -51,10 +53,10 @@ public class TestExecutionController {
 	}
 	
 	private void reset() {
-		//Security.addProvider(new BouncyCastleProvider());
 		m_testTreePanel = null;
 		m_testExecutionPanel = null;
 		m_running = false;
+		m_toolBar = null;
 		m_startDate = new Date();
 		m_stopDate = null; // will get set by new appender plugin
 	}
@@ -73,6 +75,14 @@ public class TestExecutionController {
 
 	public void setTestExecutionPanel(SimpleTestExecutionPanel testExecutionPanel) {
 		m_testExecutionPanel = testExecutionPanel;
+	}
+	
+	public void setToolBar(GuiRunnerToolbar toolBar) {
+		m_toolBar = toolBar;
+	}
+	
+	public GuiRunnerToolbar getToolBar() {
+		return m_toolBar;
 	}
 
 	public boolean isRunning() {
@@ -96,6 +106,8 @@ public class TestExecutionController {
 		try {
 			SwingUtilities.invokeAndWait(() -> {			
 				m_testExecutionPanel.getRunButton().setEnabled(false);
+				// TODO: Fix this or else
+				m_toolBar.getComponents()[0].setEnabled(false);
 				progress.setMaximum(root.getChildCount());
 				progress.setValue(0);
 				progress.setVisible(true);
@@ -199,11 +211,13 @@ public class TestExecutionController {
             curr = (TestCaseTreeNode) curr.getNextSibling();
 		}
 		
-		// After this call, we need a known CSV file name
+		// TODO: After this call, we need a known CSV file name
     	// GuiRunnerAppController.getInstance().rollConformanceCSV(false);
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
+				// TODO: Fix this or else
+				m_toolBar.getComponents()[0].setEnabled(true);
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
 			s_logger.error("Failed to enable run button", e);

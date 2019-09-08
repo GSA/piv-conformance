@@ -67,13 +67,11 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 			int row, boolean hasFocus) {
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 		TestStatus status = TestStatus.NONE;
-		addMouseListener(this);
 		if(value instanceof TestCaseTreeNode) {
 			TestCaseTreeNode node = (TestCaseTreeNode)value;
 			TestCaseModel test = node.getTestCase();
 			if(test != null) {
-				status = test.getTestStatus();;
-				setToolTipText(test.getDescription());
+				status = test.getTestStatus();
 			}
 		} else if(value instanceof TestStepTreeNode) {
 			TestStepTreeNode node = (TestStepTreeNode)value;
@@ -107,32 +105,27 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		s_logger.debug("Mouse clicked");
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		s_logger.debug("Mouse pressed");
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		s_logger.debug("Mouse released");
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		s_logger.debug("Mouse entered");
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		s_logger.debug("Mouse exited");
 	}
 
 }

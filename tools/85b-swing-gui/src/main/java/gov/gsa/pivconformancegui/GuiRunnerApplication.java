@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
@@ -37,10 +38,9 @@ public class GuiRunnerApplication {
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
+	private GuiRunnerToolbar m_toolBar;
 	//private TestTreePanel m_treePanel;
 	private MainWindowContentPane m_mainContent;
-	private static Provider bc = Security.getProvider("BC");
-	private static Provider sun = Security.getProvider("SunRsaSign");
 
 	/**
 	 * Launch the application.
@@ -106,7 +106,7 @@ public class GuiRunnerApplication {
 					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 					logger.addAppender(a);
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
-					String dbFilename = "85b_tests.db";
+					String dbFilename = "PIV_Production_Cards.db";
 					boolean opened = false;
 					try {
 						db.openDatabaseInFile(dbFilename);
@@ -134,6 +134,7 @@ public class GuiRunnerApplication {
 					TestExecutionController tc = TestExecutionController.getInstance();
 					tc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
 					tc.setTestTreePanel(window.m_mainContent.getTreePanel());
+					tc.setToolBar(window.m_toolBar);
 					
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -220,13 +221,12 @@ public class GuiRunnerApplication {
 		mntmShowDebugWindow.setIcon(debugIcon);
 		mnHelp.add(mntmShowDebugWindow);
 		
-		m_mainFrame.getContentPane().add(new GuiRunnerToolbar(), BorderLayout.NORTH);
+		m_toolBar = new GuiRunnerToolbar();
+		m_mainFrame.getContentPane().add(m_toolBar, BorderLayout.NORTH);
 		
 		m_mainContent = new MainWindowContentPane();
 		m_mainFrame.getContentPane().add(m_mainContent.getSplitPane(), BorderLayout.CENTER);
 		
-		
-
 		m_debugFrame = new DebugWindow("Debugging Tools");
 		m_debugFrame.setTitle("Debugging Tools");
 		m_debugFrame.setBounds(150, 150, 640, 600);
@@ -240,6 +240,10 @@ public class GuiRunnerApplication {
 		return m_debugFrame;
 	}
 
+	public JToolBar getToolBar() {
+		return m_toolBar;
+	}
+	
 	public void setMainFrame(JFrame mainFrame) {
 		m_mainFrame = mainFrame;
 	}

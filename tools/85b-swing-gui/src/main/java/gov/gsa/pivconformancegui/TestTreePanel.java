@@ -18,7 +18,7 @@ import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 
 public class TestTreePanel extends JPanel {
-	
+	// TODO: Look at tooltips here
 	/**
 	 * 
 	 */
