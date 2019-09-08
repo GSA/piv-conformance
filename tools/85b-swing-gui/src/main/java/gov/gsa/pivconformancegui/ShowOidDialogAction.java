@@ -1,20 +1,43 @@
 package gov.gsa.pivconformancegui;
 
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import org.apache.commons.codec.binary.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
+
+import gov.gsa.conformancelib.configuration.CardInfoController;
+import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.pivconformance.card.client.APDUConstants;
+import gov.gsa.pivconformance.card.client.ApplicationAID;
+import gov.gsa.pivconformance.card.client.ApplicationProperties;
+import gov.gsa.pivconformance.card.client.CardHandle;
+import gov.gsa.pivconformance.card.client.ConnectionDescription;
+import gov.gsa.pivconformance.card.client.DefaultPIVApplication;
+import gov.gsa.pivconformance.card.client.MiddlewareStatus;
+import gov.gsa.pivconformance.card.client.PIVAuthenticators;
+import gov.gsa.pivconformance.card.client.PIVDataObject;
+import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
+import gov.gsa.pivconformance.card.client.PIVMiddleware;
 
 public class ShowOidDialogAction extends AbstractAction {
 	private JTextField pivAuthOverrideTextField;
@@ -26,6 +49,7 @@ public class ShowOidDialogAction extends AbstractAction {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private static final Logger s_logger = LoggerFactory.getLogger(ShowOidDialogAction.class);
 
 	public ShowOidDialogAction(String name, Icon icon, String toolTip) {
 		super(name, icon);
@@ -34,6 +58,7 @@ public class ShowOidDialogAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+				
         JFrame frame=new JFrame();
         frame.getContentPane().setBackground(UIManager.getColor("Button.background"));
         frame.setAlwaysOnTop(true);
@@ -111,13 +136,36 @@ public class ShowOidDialogAction extends AbstractAction {
         contentSigningOverrideTextField.setColumns(10);
         
         JButton saveButton = new JButton("OK");
-        frame.getContentPane().add(saveButton, "2, 16, right, default");
-        //saveButton.addActionListener(l);
+        frame.getContentPane().add(saveButton, "2, 16, right, default");	
         
         JButton cancelButton = new JButton("Cancel");
         frame.getContentPane().add(cancelButton, "4, 16, left, default");
 
+        saveButton.addActionListener(new ActionListener()  {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				s_logger.debug("Save override OIDS action performed");
+
+				// TODO: Save changes to database
+				
+				closeDialog(e);
+			}
+		});
+        
+        cancelButton.addActionListener(new ActionListener()  {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				s_logger.debug("Cancel override OIDS action performed");
+				closeDialog(e);
+			}
+		});        
         frame.setVisible(true);	
 	}
 
+    void closeDialog(ActionEvent e) {
+		JComponent comp = (JComponent) e.getSource();
+		Window win = SwingUtilities.getWindowAncestor(comp);
+		win.dispose();
+    }
+    
 }

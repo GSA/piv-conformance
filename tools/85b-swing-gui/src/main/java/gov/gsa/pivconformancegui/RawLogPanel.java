@@ -11,6 +11,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class RawLogPanel extends JPanel {
+
+	private static final long serialVersionUID = -91080473504561866L;
+	private JTextPane m_debugTextPane;
+	
 	public RawLogPanel() {
 		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -33,12 +37,7 @@ public class RawLogPanel extends JPanel {
 		});
 		buttonPane.add(btnNewButton);
 		add(buttonPane);
-		
-		
 	}
-
-	private static final long serialVersionUID = -91080473504561866L;
-	private JTextPane m_debugTextPane;
 
 	public JTextPane getDebugTextPane() {
 		return m_debugTextPane;
