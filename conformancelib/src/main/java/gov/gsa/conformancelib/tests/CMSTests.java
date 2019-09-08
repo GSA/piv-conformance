@@ -440,23 +440,16 @@ public class CMSTests {
 
 		assertNotNull(signers);
 
-		List<String> digestAlgList = new ArrayList<String>();
-
-		digestAlgList.add("2.16.840.1.101.3.4.2.1");
-
-		List<String> encryptionAlgList = new ArrayList<String>();
-
-		encryptionAlgList.add("1.2.840.113549.1.1.1");
-
 		Iterator<?> it = signers.getSigners().iterator();
 		while (it.hasNext()) {
 			SignerInformation signer = (SignerInformation) it.next();
-
-			String algOID1 = signer.getDigestAlgOID();
-			String algOID2 = signer.getEncryptionAlgOID();
-
-			assertTrue(digestAlgList.contains(algOID1), "Digest algorithm list does not contain" + algOID1);
-			assertTrue(encryptionAlgList.contains(algOID2), "Encryption algorithm list does not contain" + algOID2);
+			assertTrue(Algorithm.digAlgOidToNameMap.containsKey(
+				signer.getDigestAlgOID()), "Digest algorithm list does not contain" + signer.getDigestAlgOID());
+			assertTrue(Algorithm.encAlgOidToNameMap.containsKey(
+				signer.getEncryptionAlgOID()), "Encryption algorithm list does not contain" + signer.getEncryptionAlgOID());
+			if (it.hasNext()) {
+				s_logger.warn("More than one signer");
+			}
 		}
 	}
 
@@ -734,28 +727,18 @@ public class CMSTests {
 
 		assertNotNull(signers);
 
-		List<String> digestAlgList = new ArrayList<String>();
-
-		digestAlgList.add("2.16.840.1.101.3.4.2.1"); // SHA-256
-		digestAlgList.add("2.16.840.1.101.3.4.2.1"); // SHA-384
-
-		List<String> encryptionAlgList = new ArrayList<String>();
-
-		encryptionAlgList.add("1.2.840.113549.1.1.1"); // RSA Encryption
-
 		Iterator<?> it = signers.getSigners().iterator();
 		while (it.hasNext()) {
 			SignerInformation signer = (SignerInformation) it.next();
-
-			String algOID1 = signer.getDigestAlgOID();
-			String algOID2 = signer.getEncryptionAlgOID();
-
-			assertTrue(digestAlgList.contains(algOID1),
-					"Security Object signature hashing algorithm " + algOID1 + " doesn't comply with SP 800-78-4");
-			assertTrue(encryptionAlgList.contains(algOID2),
-					"Security Object signature encryption algorithm " + algOID2 + " doesn't comply with 800-78-4");
+			assertTrue(Algorithm.digAlgOidToNameMap.containsKey(
+				signer.getDigestAlgOID()), "Digest algorithm list does not contain" + signer.getDigestAlgOID());
+			assertTrue(Algorithm.encAlgOidToNameMap.containsKey(
+				signer.getEncryptionAlgOID()), "Encryption algorithm list does not contain" + signer.getEncryptionAlgOID());
+			if (it.hasNext()) {
+				s_logger.warn("More than one signer");
+			}
 		}
-	}
+	}	
 
 	// Verify digest algorithm is present (extended from CMS.4)
 	@DisplayName("CMS.24 Test")

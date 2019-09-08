@@ -79,7 +79,7 @@ public class CardAuthTest {
 		}
 		ASN1Sequence certSeq = null;
 		try {
-			certSeq = (ASN1Sequence) bcAis.readObject();
+			certSeq = (ASN1Sequence) bcAis.readObject(); bcAis.close();
 		} catch (IOException e) {
 			s_logger.error("Cert encoding would not round-trip", e);
 			return null;

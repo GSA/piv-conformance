@@ -375,7 +375,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
                                     ByteArrayInputStream bIn = new ByteArrayInputStream(issuerAsymmetricSignature);
                                     ASN1InputStream aIn = new ASN1InputStream(bIn);
                                     // Set the ContentInfo structure in super class
-                                    setContentInfo(ContentInfo.getInstance(aIn.readObject()));
+                                    setContentInfo(ContentInfo.getInstance(aIn.readObject())); aIn.close();
                                     // Set the CMSSignedData object
                                     setAsymmetricSignature(new CMSSignedData(getContentInfo()));
 
