@@ -4,12 +4,8 @@
 package gov.gsa.pivconformance.card.client;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Security;
-import java.security.Signature;
 //import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;

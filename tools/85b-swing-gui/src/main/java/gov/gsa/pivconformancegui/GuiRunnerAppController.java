@@ -1,6 +1,5 @@
 package gov.gsa.pivconformancegui;
 
-import java.awt.GridLayout;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -8,23 +7,12 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.FormSpecs;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.JTextArea;
-import java.awt.Font;
-import javax.swing.UIManager;
-import javax.swing.JButton;
 
 public class GuiRunnerAppController {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiRunnerAppController.class);

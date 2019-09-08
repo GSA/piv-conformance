@@ -16,7 +16,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,19 +24,8 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
-import gov.gsa.conformancelib.configuration.CardInfoController;
-import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
-import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.ApplicationAID;
-import gov.gsa.pivconformance.card.client.ApplicationProperties;
-import gov.gsa.pivconformance.card.client.CardHandle;
-import gov.gsa.pivconformance.card.client.ConnectionDescription;
-import gov.gsa.pivconformance.card.client.DefaultPIVApplication;
-import gov.gsa.pivconformance.card.client.MiddlewareStatus;
-import gov.gsa.pivconformance.card.client.PIVAuthenticators;
-import gov.gsa.pivconformance.card.client.PIVDataObject;
-import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
-import gov.gsa.pivconformance.card.client.PIVMiddleware;
+import gov.gsa.conformancelib.configuration.ConfigurationException;
+import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 
 public class ShowOidDialogAction extends AbstractAction {
 	private JTextField pivAuthOverrideTextField;
@@ -147,7 +135,14 @@ public class ShowOidDialogAction extends AbstractAction {
 				s_logger.debug("Save override OIDS action performed");
 
 				// TODO: Save changes to database
-				
+				ConformanceTestDatabase db = new ConformanceTestDatabase(null);
+				String path = GuiRunnerAppController.getInstance().getApp().getMainContent().getTestExecutionPanel().getDatabaseNameField().getText();
+				try {
+					db.openDatabaseInFile(path);
+					s_logger.debug("Opened database file {}", path);
+				} catch (ConfigurationException e1) {
+					s_logger.debug("Database error: {}", e1.getMessage());
+				}
 				closeDialog(e);
 			}
 		});

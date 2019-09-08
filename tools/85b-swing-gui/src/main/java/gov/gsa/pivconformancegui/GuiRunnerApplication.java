@@ -6,8 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.security.Provider;
-import java.security.Security;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;

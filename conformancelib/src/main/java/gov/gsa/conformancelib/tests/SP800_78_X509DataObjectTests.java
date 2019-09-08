@@ -201,6 +201,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     }
     
     //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
+    // TODO: Refactor using Algorithm class
     @DisplayName("SP800-78.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
@@ -294,6 +295,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
      * This atom might be weirdly abstracted but should work for all
      * certificate containers
      */
+    // TODO: Refactor using Algorithm class
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
@@ -316,13 +318,8 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		
 		List<String> databaseSigAlgParams = new ArrayList<String>();
 		if(signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0) {
-			
 			byte[] params = cert.getSigAlgParams(); 
-			//byte [] xNULL = {0x05, 0x00};
-			// java is returning null for RSA params
-			///assertTrue(Arrays.equals(params, xNULL), "No such algorithm or parameters not available for (" + cert.getSigAlgName());
-			assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
-			
+			assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());			
 		} else if(signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
 			databaseSigAlgParams.add(sha256Oid);	
 		} else if(signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
