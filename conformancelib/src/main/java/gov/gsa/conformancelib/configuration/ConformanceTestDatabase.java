@@ -124,6 +124,34 @@ public class ConformanceTestDatabase {
 			throw new ConfigurationException("Failed to close sql file", e);
 		}
 	}
+		
+	public void updateTestStepParameter(String testStepDescription, String oldVal, String newVal) throws ConfigurationException {
+		// User knows the test step description only.  We must find the
+		// test parameters record that points to it.
+		String query1 = 
+				String.format(
+				"SELECT TestStepParameters.Id, TestStepParameters.Value FROM TestStepParameters " + 
+				"JOIN TestSteps ON TestStepParameters.TestStepId = TestSteps.Id " + 
+				"WHERE TestStepParameters.value LIKE 'X509_CERTIFICATE_FOR_PIV_AUTHENTICATION;%{}%'", oldVal);
+		
+		if(m_conn == null) {
+			s_logger.error("getTestCases() called without any database");
+			throw new ConfigurationException("updateTestStepParameter() called without any database.");
+		}
+		
+		ArrayList<TestCaseModel> rv = new ArrayList<TestCaseModel>();
+		try (Statement testStatement = m_conn.createStatement()) {
+            ResultSet rs = testStatement.executeQuery(query1);
+            while(rs.next()) {
+            	String id = rs.getString("TestStepParameters.Id");
+                String value = rs.getString("TestStepParameters.Value");
+                s_logger.debug("Found {}:{}", id, value);
+            }
+            m_conn.close();
+		} catch(SQLException e) {
+			s_logger.error("Failed to retrieve test cases from database");
+		}
+	}
 	
 	public void addTestCase(String[] testCaseDescription ) throws ConfigurationException {
 		if(m_conn == null) {
