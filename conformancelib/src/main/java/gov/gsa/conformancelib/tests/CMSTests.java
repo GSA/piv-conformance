@@ -323,11 +323,12 @@ public class CMSTests {
 					throw e;
 				}
 				Principal issuerFromCert = signingCert.getIssuerDN();
-				X500Name tmp = new X500Name(issuerFromCert.getName());
+				X500Name tmp1 = new X500Name(issuerFromCert.getName());
+				X500Name tmp2 = signerId.getIssuer();
 				X500NameStyle style = RFC4519Style.INSTANCE;
 				// Confirm issuer from the cert matcher issuer from the signer info
-				assertTrue(style.areEqual(signerId.getIssuer(), tmp),
-						"Issuer is not the same as issuer on signing cert");
+				assertTrue(style.areEqual(tmp1, tmp2),
+					"Issuer is not the same as issuer on signing cert");
 			}
 		} catch (Exception e) {
 			fail(e);
