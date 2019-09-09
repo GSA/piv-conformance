@@ -37,6 +37,7 @@ public class GuiRunnerApplication {
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
 	private GuiRunnerToolbar m_toolBar;
+	private JFrame m_oidOverrideFrame;
 	//private TestTreePanel m_treePanel;
 	private MainWindowContentPane m_mainContent;
 
