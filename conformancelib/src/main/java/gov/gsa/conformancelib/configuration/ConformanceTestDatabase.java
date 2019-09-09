@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class ConformanceTestDatabase {
 	private static final Logger s_logger = LoggerFactory.getLogger(ConformanceTestDatabase.class);
-	private static final String TEST_SET = "SELECT * from TestCases where Enabled=1";
+	private static final String TEST_SET = "SELECT * FROM TestCases WHERE Enabled = 1";
 	
 	public ConformanceTestDatabase(Connection conn) {
 		setConnconnection(conn);
@@ -35,6 +35,12 @@ public class ConformanceTestDatabase {
 	public void setConnconnection(Connection conn) {
 		m_conn = conn;
 	}
+	
+	/**
+	 * Opens the Sqlite database in the file and makes the connection handle available
+	 * @param filename of the file to be opened
+	 * @throws ConfigurationException
+	 */
 	
 	public void openDatabaseInFile(String filename) throws ConfigurationException {
 		Connection conn = null;
@@ -124,6 +130,20 @@ public class ConformanceTestDatabase {
 			throw new ConfigurationException("Failed to close sql file", e);
 		}
 	}
+	
+	/*
+	 * SELECT
+	 *   TestStepParameters.Id,
+	 *   TestStepParameters.Value
+	 * FROM
+	 *   TestStepParameters
+	 * JOIN
+	 *   TestSteps
+	 * ON
+	 *   TestStepParameters.TestStepId = TestSteps.Id
+	 * WHERE
+	 *   TestStepParameters.value LIKE 'X509_CERTIFICATE_FOR_PIV_AUTHENTICATION:%{}%'
+	 */
 		
 	public void updateTestStepParameter(String testStepDescription, String oldVal, String newVal) throws ConfigurationException {
 		// User knows the test step description only.  We must find the
@@ -132,7 +152,7 @@ public class ConformanceTestDatabase {
 				String.format(
 				"SELECT TestStepParameters.Id, TestStepParameters.Value FROM TestStepParameters " + 
 				"JOIN TestSteps ON TestStepParameters.TestStepId = TestSteps.Id " + 
-				"WHERE TestStepParameters.value LIKE 'X509_CERTIFICATE_FOR_PIV_AUTHENTICATION;%{}%'", oldVal);
+				"WHERE TestStepParameters.value LIKE 'X509_CERTIFICATE_FOR_PIV_AUTHENTICATION:%{}%'", oldVal);
 		
 		if(m_conn == null) {
 			s_logger.error("getTestCases() called without any database");
