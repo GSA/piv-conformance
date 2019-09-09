@@ -243,9 +243,9 @@ public class PKIX_X509DataObjectTests {
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
 		
 		for(String p : paramList) {
-			String[] paramList2 = p.split(";");
+			String[] paramList2 = p.split(":");
 					
-			List<String> paramList3 = Arrays.asList(paramList2[1].split(":"));
+			List<String> paramList3 = Arrays.asList(paramList2[1].split("\\|"));
 			String containerOid = APDUConstants.getStringForFieldNamed(paramList2[0]);
 			rv.put(containerOid, paramList3);
 		}
