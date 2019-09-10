@@ -30,7 +30,7 @@ import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
-import gov.gsa.pivconformance.card.client.CardholderBiometricData;
+import gov.gsa.pivconformance.card.client.CardHolderBiometricData;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 
 public class SP800_76_Tests {
@@ -50,12 +50,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 
@@ -63,7 +63,7 @@ public class SP800_76_Tests {
              byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
              
 
-     		assertNotNull(biometricDataBlockLengthBytes, "Biometric data block length bytes is absent in CardholderBiometricData object");
+     		assertNotNull(biometricDataBlockLengthBytes, "Biometric data block length bytes is absent in CardHolderBiometricData object");
      		
      		//Convert Biometric data block (BDB) Length byte[] value to int
             ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -87,14 +87,14 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 
@@ -102,7 +102,7 @@ public class SP800_76_Tests {
              byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
              
 
-     		assertNotNull(biometricData, "Biometric data block length is absent in CardholderBiometricData object");
+     		assertNotNull(biometricData, "Biometric data block length is absent in CardHolderBiometricData object");
      		
      		//Convert Biometric data block (BDB) Length byte[] value to int
             ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -128,12 +128,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 			 
@@ -141,11 +141,11 @@ public class SP800_76_Tests {
              byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);
              
 
-     		assertNotNull(signatureDataBlockLengthBytes, "Signature data block length is absent in CardholderBiometricData object");
+     		assertNotNull(signatureDataBlockLengthBytes, "Signature data block length is absent in CardHolderBiometricData object");
      		
      		 //Convert Signature block (SB) Length byte[] value to int
      		ByteBuffer wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-            int signatureDataBlockLength = (int) wrapped.getShort();
+            int signatureDataBlockLength = wrapped.getShort();
             
             assertTrue(signatureDataBlockLength > 0, "Signature data block length is not greater than 0");
 		 }
@@ -164,19 +164,19 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 			 
 			//Get Biometric data block (BDB) Length
 			byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
 			
-			assertNotNull(biometricData, "Biometric data block length  is absent in CardholderBiometricData object");
+			assertNotNull(biometricData, "Biometric data block length  is absent in CardHolderBiometricData object");
 			
 			//Convert Biometric data block (BDB) Length byte[] value to int
 			ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -184,11 +184,11 @@ public class SP800_76_Tests {
 			           
 			//Get Signature block (SB) Length
 			byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);	
-			assertNotNull(signatureDataBlockLengthBytes, "Signature data block length is absent in CardholderBiometricData object");
+			assertNotNull(signatureDataBlockLengthBytes, "Signature data block length is absent in CardHolderBiometricData object");
 			
 			//Convert Signature block (SB) Length byte[] value to int
 			wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-			int signatureDataBlockLength = (int) wrapped.getShort();
+			int signatureDataBlockLength = wrapped.getShort();
 			
 			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength),  "Signature data block length does not matche actual length");;
 
@@ -208,12 +208,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length > 1);
 		
@@ -234,12 +234,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length > 2);
 		
@@ -260,12 +260,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length >= 10);
 		
@@ -287,19 +287,19 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 			 
 			//Get Biometric data block (BDB) Length
 			byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 2, 6);
 			
-			assertNotNull(biometricData, "Biometric data block length  is absent in CardholderBiometricData object");
+			assertNotNull(biometricData, "Biometric data block length  is absent in CardHolderBiometricData object");
 			
 			//Convert Biometric data block (BDB) Length byte[] value to int
 			ByteBuffer wrapped = ByteBuffer.wrap(biometricDataBlockLengthBytes);
@@ -307,11 +307,11 @@ public class SP800_76_Tests {
 			           
 			//Get Signature block (SB) Length
 			byte[] signatureDataBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);	
-			assertNotNull(signatureDataBlockLengthBytes, "Biometric data block length  is absent in CardholderBiometricData object");
+			assertNotNull(signatureDataBlockLengthBytes, "Biometric data block length  is absent in CardHolderBiometricData object");
 			
 			//Convert Signature block (SB) Length byte[] value to int
 			wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
-			int signatureDataBlockLength = (int) wrapped.getShort();
+			int signatureDataBlockLength = wrapped.getShort();
 			
 			
 			//Confirm Card Holder Facial Image object length equals sum of CBEFF header length + BDB length + SB length
@@ -333,12 +333,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 4);
 		
@@ -363,12 +363,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 8);
 		
@@ -392,12 +392,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 10);
 		
@@ -426,12 +426,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 14);
 		
@@ -467,12 +467,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		assertTrue(biometricDataBlock.length >= 15);
 		
 		//Check the second byte of biometric data to confirm its high order bit is set 1000b (0x80)
@@ -500,12 +500,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 16);
 
@@ -531,12 +531,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		//Is it located on the 20th byte?
 		assertTrue(biometricDataBlock.length >= 21);
@@ -566,12 +566,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		//Is it located on the 20th byte?
 		assertTrue(biometricDataBlock.length >= 21);
@@ -605,12 +605,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		assertTrue(biometricDataBlock.length >= 25);
 
 		byte [] resolutionXBuff  = Arrays.copyOfRange(biometricDataBlock, 20, 22);
@@ -638,12 +638,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricDataBlock.length >= 26);
 
@@ -671,12 +671,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 26);
 		
@@ -697,12 +697,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		//This test needs to be removed
 	}
@@ -720,12 +720,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		        
 		assertTrue(biometricDataBlock.length >= 27);
 							
@@ -768,12 +768,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		        
 		assertTrue(biometricDataBlock.length >= 27);
 							
@@ -817,12 +817,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 
 		assertTrue(biometricDataBlock.length >= 27);
 		
@@ -865,12 +865,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 				
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");		
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");		
 		        
 		assertTrue(biometricDataBlock.length >= 29);
 							
@@ -912,12 +912,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");		
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");		
 		
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -964,12 +964,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1016,12 +1016,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1067,12 +1067,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1118,12 +1118,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 29);
 		
@@ -1167,12 +1167,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 4);
 		
@@ -1197,12 +1197,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 8);
 		
@@ -1227,12 +1227,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 12);
 		
@@ -1261,12 +1261,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 14);
 		
@@ -1293,11 +1293,11 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -1324,12 +1324,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -1359,12 +1359,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -1394,12 +1394,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -1429,12 +1429,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
 		
@@ -1458,10 +1458,11 @@ public class SP800_76_Tests {
 	//@MethodSource("sp800_76_BiometricParamTestProvider1")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_38(String oid, String paramsString, TestReporter reporter) {
+		@SuppressWarnings("unchecked")
 		HashMap<String, List<String>> mp = (HashMap) ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
 		for (Map.Entry<String,List<String>> entry : mp.entrySet()) {
-	    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>) entry;	    	
+	    	Map.Entry<String,List<String>> pair = entry;	    	
 	        String containerName = pair.getKey();
 	        s_logger.debug("called with oid parameter {} and container name {}", oid, containerName);
 	        List<String> valueStr =  pair.getValue();
@@ -1484,12 +1485,12 @@ public class SP800_76_Tests {
 				fail(e);
 			}
 			
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+			PIVDataObject o = AtomHelper.getDataObject(containerOid);
 				
-			byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+			byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 			
 			//Make sure biometric data is present
-			assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+			assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 			
 			assertTrue(biometricData.length >= 12, "Biometric data must be at least 12 bytes long");
 			
@@ -1514,12 +1515,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length >= 21);
 		
@@ -1563,12 +1564,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length >= 37);
 		
@@ -1632,9 +1633,9 @@ public class SP800_76_Tests {
 		void sp800_76Test_41(String oid, String paramsString, TestReporter reporter) {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
-			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet().iterator();
+			Iterator<Map.Entry<String,List<String>>> it = mp.entrySet().iterator();
 		    while (it.hasNext()) {
-		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+		    	Map.Entry<String,List<String>> pair = it.next();	    	
 		        String containerName = pair.getKey();
 		        List<String> valueStr =  pair.getValue();
 				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.41 test: " + valueStr.size());
@@ -1652,17 +1653,17 @@ public class SP800_76_Tests {
 
 				int value = 0;
 				try {
-					value = Integer.parseInt((String) valueStr.get(0));
+					value = Integer.parseInt(valueStr.get(0));
 				} catch(NumberFormatException e) {
 					fail(e);
 				}
 
-				PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+				PIVDataObject o = AtomHelper.getDataObject(containerOid);
 					
-				byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+				byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 				
 				//Make sure biometric data is present
-				assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+				assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 				
 				assertTrue(biometricData.length >= 40);
 				
@@ -1688,9 +1689,9 @@ public class SP800_76_Tests {
 		void sp800_76Test_42(String oid, String paramsString, TestReporter reporter) {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
-			Iterator<Map.Entry<String,List<String>>> it = (Iterator<Map.Entry<String, List<String>>>) mp.entrySet().iterator();
+			Iterator<Map.Entry<String,List<String>>> it = mp.entrySet().iterator();
 		    while (it.hasNext()) {
-		    	Map.Entry<String,List<String>> pair = (Map.Entry<String,List<String>>)it.next();	    	
+		    	Map.Entry<String,List<String>> pair = it.next();	    	
 		        String containerName = pair.getKey();
 		        List<String> valueStr =  pair.getValue();
 				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.42 test: " + valueStr.size());
@@ -1712,12 +1713,12 @@ public class SP800_76_Tests {
 					fail(e);
 				}
 
-				PIVDataObject o = AtomHelper.getDataObjectWithAuth(containerOid);
+				PIVDataObject o = AtomHelper.getDataObject(containerOid);
 					
-				byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+				byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 				
 				//Make sure biometric data is present
-				assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+				assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 				
 				assertTrue(biometricData.length >= 41);
 				
@@ -1743,12 +1744,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length >= 42);
 		
@@ -1777,12 +1778,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length >= 61);
 		
@@ -1810,13 +1811,13 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length >= 85);
 		
@@ -1827,8 +1828,7 @@ public class SP800_76_Tests {
 		assertTrue(fASCN.length == fASCN2.length);
 		
 		//Confirm fascn match
-		assertTrue(Arrays.equals(fASCN, fASCN2), "FASCN values to not match");
-		
+		assertTrue(Arrays.equals(fASCN, fASCN2), "FASC-N value in biometric does not match FASC-N in CHUID");	
 	}
 	
 	//Validate that the 'Reserved for Future Use' field is equal to 0x00000000
@@ -1844,12 +1844,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 		
 		//Make sure biometric data is present
-		assertNotNull(biometricData, "Biometric data is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
 		
 		assertTrue(biometricData.length >= 89);
 		
@@ -1875,12 +1875,12 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricDataBlock = ((CardholderBiometricData) o).getBiometricDataBlock();
+		byte[] biometricDataBlock = ((CardHolderBiometricData) o).getBiometricDataBlock();
 		
 		//Make sure biometric data block is present
-		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardholderBiometricData object");
+		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 		        
 		assertTrue(biometricDataBlock.length >= 27);
 							
@@ -1911,11 +1911,11 @@ public class SP800_76_Tests {
 			b4.intValue();
 			
 
-	        assertTrue(qList.contains(fingerQuality), "Finger qulity is not the right value " + fingerQuality + " Expected values are " + qList.toString());
+	        assertTrue(qList.contains(fingerQuality), "Finger quality is not the right value " + fingerQuality + " Expected values are " + qList.toString());
         }
 	}
 		
-	//Recorded length matches actual SB length
+	//Recorded SB length matches actual SB length
 	@DisplayName("SP800-76.48 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@MethodSource("sp800_76_BiometricTestProvider")
@@ -1928,28 +1928,27 @@ public class SP800_76_Tests {
 		} else {
 			s_logger.info("Optional container {} is present on the card. Proceeding with test.", oid);
 		}
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-		byte[] biometricData = ((CardholderBiometricData) o).getBiometricData();
-		byte[] signature = ((CardholderBiometricData) o).getSignatureBlock();
+		byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
+		byte[] signature = ((CardHolderBiometricData) o).getSignatureBlock();
 				
 		//Make sure signature is present
-		assertNotNull(biometricData, "biometricData is absent in CardholderBiometricData object");
-		assertNotNull(biometricData, "Signature is absent in CardholderBiometricData object");
+		assertNotNull(biometricData, "biometricData is absent in CardHolderBiometricData object");
+		assertNotNull(biometricData, "Signature is absent in CardHolderBiometricData object");
 		
 		 if (biometricData != null && biometricData.length > 8) {
 
              //Get signature block (SB) Length
              byte[] signatureBlockLengthBytes = Arrays.copyOfRange(biometricData, 6, 8);
              
-     		assertNotNull(signatureBlockLengthBytes, "Signature block length is absent in CardholderBiometricData object");
+     		assertNotNull(signatureBlockLengthBytes, "Signature block length is absent in CardHolderBiometricData object");
      		
      		//Convert signature block (SB) Length byte[] value to int
             int signatureBlockLength = ((signatureBlockLengthBytes[0] & 0xff) << 8) | (signatureBlockLengthBytes[1] & 0xff);
             assertTrue(signatureBlockLength > 0);
             
-            assertTrue(signature.length == signatureBlockLength,  "Biometric data block length does not matche actual length");
-            
+            assertTrue(signature.length == signatureBlockLength,  "Biometric data block length does not match actual length");            
 		 }
 	}
 	

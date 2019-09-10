@@ -22,8 +22,6 @@ import gov.gsa.pivconformance.tlv.ContainerRuleset;
  * we only know that it is allowed in-contecxt if the container also contains a separate signing cert.  That gets
  * determined when the container is loaded and we've determined that there is or is not a cert.  Whether the tool looks
  * for that needs to be flushed out.
- * 
- * @author Bob.Fontana
  *
  */
 public class TagBoundaryManager {

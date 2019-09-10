@@ -245,7 +245,7 @@ public class SP800_73_4CHUIDTests {
 
     }
 	
-	//Expiration Date is with in 5 years
+	//Expiration Date is with in N years
 	@DisplayName("SP800-73-4.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_73_4_CHUIDTestProvider2")
@@ -283,8 +283,6 @@ public class SP800_73_4CHUIDTests {
 		
 		assertTrue(expirationDate.compareTo(today) >= 0);
 		assertTrue(expirationDate.compareTo(todayPlus5Years) <= 0);
-		
-
     }
 	
 	//No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are present
@@ -301,7 +299,7 @@ public class SP800_73_4CHUIDTests {
 		List<byte[]> allCHUIDTags = TagConstants.AllCHUIDTags();
 		for(BerTag tag : tagList) {
 
-			//Check that the tag is present in the all CCC tags list
+			//Check that the tag is present in the all CHUID tags list
 			boolean present = false;
 			for (int i = 0; i < allCHUIDTags.size(); i++) {
 				

@@ -8,9 +8,10 @@ import org.slf4j.LoggerFactory;
 public class CachingDefaultPIVApplication extends DefaultPIVApplication {
     private static final Logger s_logger = LoggerFactory.getLogger(CachingDefaultPIVApplication.class);
     
-    HashMap<String, byte[]> m_containerMap = new HashMap<String, byte[]>();
-
+    static HashMap<String, byte[]> m_containerMap = new HashMap<String, byte[]>();
+    
     // Cache the buffers coming back from pivGetData to minimize churn
+	@Override
 	public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
     	MiddlewareStatus result = MiddlewareStatus.PIV_OK;
     	byte[] dataBytes = m_containerMap.get(OID);
@@ -25,9 +26,11 @@ public class CachingDefaultPIVApplication extends DefaultPIVApplication {
     	}
     	return result;
     }
-    
+	
+	/**
+	 * Clear cache
+	 */
     public void clearCache() {
     	m_containerMap.clear();
-    }
-    
+    }    
 }

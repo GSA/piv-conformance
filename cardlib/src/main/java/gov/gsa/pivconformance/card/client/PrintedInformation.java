@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -42,6 +43,7 @@ public class PrintedInformation extends PIVDataObject {
         m_organizationAffiliation2 = "";
         m_errorDetectionCode = false;
         m_signedContent = null;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**
@@ -212,7 +214,8 @@ public class PrintedInformation extends PIVDataObject {
      *
      * @return True if error Error Detection Code is present, false otherwise
      */
-    public boolean getErrorDetectionCode() {
+    @Override
+	public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
@@ -222,7 +225,8 @@ public class PrintedInformation extends PIVDataObject {
      *
      * @param errorDetectionCode True if error Error Detection Code is present, false otherwise
      */
-    public void setErrorDetectionCode(boolean errorDetectionCode) {
+    @Override
+	public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
@@ -232,7 +236,8 @@ public class PrintedInformation extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
         try{
             byte[] rawBytes = this.getBytes();
@@ -332,7 +337,7 @@ public class PrintedInformation extends PIVDataObject {
                     m_signedContent = scos.toByteArray();
                 }
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
             s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
             return false;
@@ -341,7 +346,8 @@ public class PrintedInformation extends PIVDataObject {
         if (m_name == "" || m_employeeAffiliation == "" || m_expirationDate == "" ||
                 m_agencyCardSerialNumber == "" || m_issuerIdentification == "")
             return false;
-
+        
+        super.setRequiresPin(true);
         return true;
     }
 }

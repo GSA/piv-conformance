@@ -130,6 +130,6 @@ public class PCSCUtils {
     		s_logger.error("bytes do not contain password retry count.");
     		return -1;
     	}
-    	return (int) 0x0F & sw2;
+    	return 0x0F & sw2;
     }
 }

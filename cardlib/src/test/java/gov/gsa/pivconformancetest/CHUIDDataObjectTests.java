@@ -47,10 +47,10 @@ public class CHUIDDataObjectTests {
         assertNotNull(((CardHolderUniqueIdentifier) o).getgUID());
         assertNotNull(((CardHolderUniqueIdentifier) o).getExpirationDate());
 
-        assertNotNull(((CardHolderUniqueIdentifier) o).getIssuerAsymmetricSignature());
+        assertNotNull(((SignedPIVDataObject) o).getAsymmetricSignature());
 
-        ((CardHolderUniqueIdentifier) o).verifySignature();
-        assertNotNull(((CardHolderUniqueIdentifier) o).getSigningCertificate());
+        ((SignedPIVDataObject) o).verifySignature();
+        assertNotNull(((SignedPIVDataObject) o).getSignerCert());
 
         assertTrue(((CardHolderUniqueIdentifier) o).getErrorDetectionCode());
     }

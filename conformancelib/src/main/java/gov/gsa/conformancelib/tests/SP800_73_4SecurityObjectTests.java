@@ -22,7 +22,7 @@ import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardCapabilityContainer;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
-import gov.gsa.pivconformance.card.client.CardholderBiometricData;
+import gov.gsa.pivconformance.card.client.CardHolderBiometricData;
 import gov.gsa.pivconformance.card.client.DiscoveryObject;
 import gov.gsa.pivconformance.card.client.KeyHistoryObject;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
@@ -62,7 +62,7 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_34(String oid, TestReporter reporter) {
 
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
         
         boolean decoded = o.decode();
 		assertTrue(decoded);
@@ -89,7 +89,7 @@ public class SP800_73_4SecurityObjectTests {
     void sp800_73_4_Test_35(String oid, TestReporter reporter) {
 		String logTag = "SP800-73-4.35: " + oid;
 
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
 		// Get tag list
 		List<BerTag> tagList = ((SecurityObject) o).getTagList();
@@ -126,7 +126,7 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_36(String oid, TestReporter reporter) {
 
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
         boolean decoded = o.decode();
 		assertTrue(decoded);
@@ -139,7 +139,7 @@ public class SP800_73_4SecurityObjectTests {
 		
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
 
-            PIVDataObject tmpObj = AtomHelper.getDataObjectWithAuth(entry.getValue());
+            PIVDataObject tmpObj = AtomHelper.getDataObject(entry.getValue());
             assertNotNull(tmpObj);;
 		}
     }
@@ -158,10 +158,10 @@ public class SP800_73_4SecurityObjectTests {
 		PIVDataObject o = null;
 		
 		if((oid == null) || oid.isEmpty()) {
-			o = AtomHelper.getDataObjectWithAuth(APDUConstants.SECURITY_OBJECT_OID);
+			o = AtomHelper.getDataObject(APDUConstants.SECURITY_OBJECT_OID);
 		} else {
 			// a log message to help confirm no other uses of this parameter that were unexpected
-			o = AtomHelper.getDataObjectWithAuth(oid);
+			o = AtomHelper.getDataObject(oid);
 			s_logger.warn("SP800-73-4.37 was called with an OID of {}. Confirm that this is correct on the spreadsheet.", oid);
 		}
         
@@ -177,7 +177,7 @@ public class SP800_73_4SecurityObjectTests {
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
             s_logger.debug("[Security object: 0x{} about to read {} from card", Integer.toHexString(entry.getKey()), entry.getValue());
-            PIVDataObject dataObject = AtomHelper.getDataObjectWithAuth(entry.getValue());
+            PIVDataObject dataObject = AtomHelper.getDataObject(entry.getValue());
             
             decoded = dataObject.decode();
     		assertTrue(decoded);
@@ -187,68 +187,68 @@ public class SP800_73_4SecurityObjectTests {
             } else if(entry.getValue().equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
         		soDataElements.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, ((CardHolderUniqueIdentifier) dataObject).getChuidContainer());            	
             } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)) {
-        		soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCceffContainer());           	
+        		soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());           	
             } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
-        		soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCceffContainer());        	
+        		soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());        	
             } else if(entry.getValue().equals(APDUConstants.PRINTED_INFORMATION_OID)) {
         		soDataElements.put(APDUConstants.PRINTED_INFORMATION_OID, ((PrintedInformation) dataObject).getSignedContent());       	
             } else if(entry.getValue().equals(APDUConstants.DISCOVERY_OBJECT_OID)) {
         		soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, ((DiscoveryObject) dataObject).getSignedContent());       	
             } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-        		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardholderBiometricData) dataObject).getCceffContainer());        	
+        		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());        	
             } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-        		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+        		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
             } else if(entry.getValue().equals(APDUConstants.KEY_HISTORY_OBJECT_OID)) {
             	s_logger.debug("Adding key history to soDataElements");
             	soDataElements.put(APDUConstants.KEY_HISTORY_OBJECT_OID, ((KeyHistoryObject) dataObject).getTlvBuf());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID)) {
-                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-                soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID)) {
-                soDataElements.put(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID)) {
-                soDataElements.put(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, ((PIVDataObject) dataObject).getBytes());
+                soDataElements.put(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID)) {
-                soDataElements.put(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, ((PIVDataObject) dataObject).getBytes());             
+                soDataElements.put(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, dataObject.getBytes());             
             }  else {
             	fail("Unrecongnized container OID (" + oid + ")");
             }
@@ -268,7 +268,7 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_54(String oid, TestReporter reporter) {
 		try {
-			PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+			PIVDataObject o = AtomHelper.getDataObject(oid);
 	        
 	        boolean decoded = o.decode();
 			assertTrue(decoded);

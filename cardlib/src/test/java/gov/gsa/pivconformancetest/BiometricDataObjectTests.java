@@ -46,17 +46,17 @@ public class BiometricDataObjectTests {
         boolean decoded = o.decode();
         assert(decoded == true);
 
-        assertNotNull(((CardholderBiometricData) o).getBiometricCreationDate());
-        assertNotNull(((CardholderBiometricData) o).getValidityPeriodFrom());
-        assertNotNull(((CardholderBiometricData) o).getValidityPeriodTo());
+        assertNotNull(((CardHolderBiometricData) o).getBiometricCreationDate());
+        assertNotNull(((CardHolderBiometricData) o).getValidityPeriodFrom());
+        assertNotNull(((CardHolderBiometricData) o).getValidityPeriodTo());
 
-        assertNotSame(((CardholderBiometricData) o).getBiometricCreationDate(), "");
-        assertNotSame(((CardholderBiometricData) o).getValidityPeriodFrom(), "");
-        assertNotSame(((CardholderBiometricData) o).getValidityPeriodTo(), "");
+        assertNotSame(((CardHolderBiometricData) o).getBiometricCreationDate(), "");
+        assertNotSame(((CardHolderBiometricData) o).getValidityPeriodFrom(), "");
+        assertNotSame(((CardHolderBiometricData) o).getValidityPeriodTo(), "");
 
-        assertNotNull(((CardholderBiometricData) o).getSignedData());
+        assertNotNull(((SignedPIVDataObject) o).getAsymmetricSignature());
 
-        assertTrue(((CardholderBiometricData) o).getErrorDetectionCode());
+        assertTrue(((CardHolderBiometricData) o).getErrorDetectionCode());
 
     }
 

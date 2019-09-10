@@ -9,6 +9,10 @@ import javax.swing.JSplitPane;
 
 public class ToggleTestTreeAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JSplitPane m_splitPane;
 	SimpleTestExecutionPanel m_testPane;
 

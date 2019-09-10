@@ -40,9 +40,44 @@ Map<String, List<String, String>>
 add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113549.1.1.1+NULL","1.2.840.10045.2.1+1.2.840.10045.3.1.7");
 
 
-	
-
-	*/
+	 * TODO: Evaluate this atom for suitability as a 78-3 table. Table 3-1
+	 * establishes specific requirements for cryptographic algorithms and key sizes
+	 * for each key type. In addition to the key sizes, keys must be generated using
+	 * secure parameters. Rivest, Shamir, Adleman (RSA) keys must be generated using
+	 * a public exponent of 65 537. Elliptic curve keys must correspond to one of
+	 * the following recommended curves from [FIPS186]: + Curve P-256; or + Curve
+	 * P-384. To promote interoperability, this specification further limits PIV
+	 * Authentication and Card Authentication elliptic curve keys to a single curve
+	 * (P-256).2 PIV cryptographic keys for digital signatures and key management
+	 * may use P-256 or P-384, based on application requirements. There is no phase
+	 * out date specified for either curve. If the PIV Card Application supports the
+	 * virtual contact interface [SP800-73] and the digital signature key, the key
+	 * management key, or any of the retired key management keys are elliptic curve
+	 * keys corresponding to Curve P-384, then the PIV Secure Messaging key shall
+	 * use P-384, otherwise it may use P-256 or P-384.
+	 *  
+	 *           Table 3-1. Algorithm and Key Size Requirements for PIV Key Types
+	 * -----------------------------------+-----------------------------------------------
+	 * PIV Key Type                       | Algorithms and Key Sizes PIV
+	 * -----------------------------------+-----------------------------------------------
+	 * PIV Authentication key             | RSA (2048 bits)
+	 *                                    | ECDSA (Curve P-256)
+	 * -----------------------------------+-----------------------------------------------
+	 * Asymmetric Card Authentication key | RSA (2048 bits)
+	 *                                    | ECDSA (Curve P-256)
+	 * -----------------------------------+-----------------------------------------------
+	 * Symmetric Card Authentication key  | 3TDEA3 AES-128, AES-192, or AES-256
+	 * -----------------------------------+-----------------------------------------------
+	 * Digital signature key              | RSA (2048 bits) 
+	 *                                    | ECDSA (Curve P-256 or P-384)
+	 * -----------------------------------+-----------------------------------------------
+	 * Key Management Key                 | RSA key transport (2048 bits); 
+	 *                                    | ECDH (Curve P-256 or P-384)
+	 * -----------------------------------+-----------------------------------------------
+	 * PIV Secure Messaging key           | ECDH (Curve P-256 or P-384)
+	 * -----------------------------------+-----------------------------------------------
+	 * 
+	 */
 	// The key size and types used are in accordance with Table 3-1 of SP80078.
 	// Expect to see paramsString contain an containerOid:keyAlgorithmOid
     @DisplayName("SP800-78.1 test")
@@ -51,7 +86,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_1(String oid, TestReporter reporter) {
     	
-		PIVDataObject o = AtomHelper.getDataObject(oid);		
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		if(cert == null) {
 			Exception e = new Exception("getCertificate returned a null");
@@ -77,13 +112,14 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			
 			RSAPublicKey pk = (RSAPublicKey) pubKey;
 			modulus = pk.getModulus().bitLength();
-		}else if(pubKey instanceof ECPublicKey) {
+			
+		} else if(pubKey instanceof ECPublicKey) {
 			
 			ECPublicKey pk = (ECPublicKey) pubKey;
 	        ECParameterSpec ecParameterSpec = pk.getParameters();
 	        
 	        
-	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
+	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements(); ) {
 	        	
 		        String name = (String)names.nextElement();
 	
@@ -100,9 +136,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		
 		
 		String supportedCurve1 = "prime256v1";
-		String supportedCurve2 = "secp384r1";
-
-		
+		String supportedCurve2 = "secp384r1";	
 		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0) {
 			
 			if(certAlgorithm.compareTo("RSA") == 0) {
@@ -160,10 +194,14 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 				assertTrue(false);
 			}
 		}
-		
+		else {
+			// Let's for now assume this is a content signing cert. 
+			// TODO: Make special block to handle content signing cert and SMCS (CVC)
+		}
     }
     
     //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
+    // TODO: Refactor using Algorithm class
     @DisplayName("SP800-78.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
@@ -257,6 +295,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
      * This atom might be weirdly abstracted but should work for all
      * certificate containers
      */
+    // TODO: Refactor using Algorithm class
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
@@ -279,13 +318,8 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		
 		List<String> databaseSigAlgParams = new ArrayList<String>();
 		if(signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0) {
-			
 			byte[] params = cert.getSigAlgParams(); 
-			//byte [] xNULL = {0x05, 0x00};
-			// java is returning null for RSA params
-			///assertTrue(Arrays.equals(params, xNULL), "No such algorithm or parameters not available for (" + cert.getSigAlgName());
-			assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
-			
+			assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());			
 		} else if(signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
 			databaseSigAlgParams.add(sha256Oid);	
 		} else if(signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {

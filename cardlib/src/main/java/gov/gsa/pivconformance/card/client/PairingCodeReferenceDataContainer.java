@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -26,6 +27,7 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
     public PairingCodeReferenceDataContainer() {
         m_pairingCode = "";
         m_errorDetectionCode = false;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**
@@ -54,7 +56,8 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
      *
      * @return True if error Error Detection Code is present, false otherwise
      */
-    public boolean getErrorDetectionCode() {
+    @Override
+	public boolean getErrorDetectionCode() {
         return m_errorDetectionCode;
     }
 
@@ -64,7 +67,8 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
      *
      * @param errorDetectionCode True if error Error Detection Code is present, false otherwise
      */
-    public void setErrorDetectionCode(boolean errorDetectionCode) {
+    @Override
+	public void setErrorDetectionCode(boolean errorDetectionCode) {
         m_errorDetectionCode = errorDetectionCode;
     }
 
@@ -74,7 +78,8 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
         try{
             byte[] rawBytes = this.getBytes();

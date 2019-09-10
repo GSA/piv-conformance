@@ -29,7 +29,7 @@ public class BER_TLVTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_1(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
         	
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
@@ -104,7 +104,7 @@ public class BER_TLVTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_2(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
         byte[] bertlv = o.getBytes();
         
@@ -120,7 +120,7 @@ public class BER_TLVTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_3(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
         byte[] bertlv = o.getBytes();           
         assertNotNull(bertlv);
@@ -133,7 +133,7 @@ public class BER_TLVTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_4(String oid, TestReporter reporter) {
 		
-		PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
 
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
@@ -149,7 +149,7 @@ public class BER_TLVTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_5(String oid, TestReporter reporter) {
 
-    	PIVDataObject o = AtomHelper.getDataObjectWithAuth(oid);
+    	PIVDataObject o = AtomHelper.getDataObject(oid);
         
         boolean decoded = o.decode();
         

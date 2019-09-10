@@ -1,6 +1,8 @@
 package gov.gsa.pivconformancegui;
 
 import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +18,7 @@ import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStatus;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 
-public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer {
+public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements MouseListener {
 	
 	private static final long serialVersionUID = -7279235468508117069L;
     private static final Logger s_logger = LoggerFactory.getLogger(TestCaseTreeCellRenderer.class);
@@ -68,11 +70,15 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer {
 		if(value instanceof TestCaseTreeNode) {
 			TestCaseTreeNode node = (TestCaseTreeNode)value;
 			TestCaseModel test = node.getTestCase();
-			if(test != null) status = test.getTestStatus();
+			if(test != null) {
+				status = test.getTestStatus();
+			}
 		} else if(value instanceof TestStepTreeNode) {
 			TestStepTreeNode node = (TestStepTreeNode)value;
 			TestStepModel step = node.getTestStep();
-			if(step != null) status = step.getTestStatus();
+			if(step != null) {
+				status = step.getTestStatus();
+			}
 		}
 		ImageIcon icon = s_statusIcons.get(status);
 		if(icon != null) {
@@ -95,6 +101,31 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer {
 			return null;
 		}
 		return new ImageIcon(imageUrl, imgLocation);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		s_logger.debug("Mouse clicked");
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		s_logger.debug("Mouse pressed");
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		s_logger.debug("Mouse released");
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		s_logger.debug("Mouse entered");
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		s_logger.debug("Mouse exited");
 	}
 
 }

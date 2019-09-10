@@ -450,7 +450,8 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
      * @param publicKey PIVDataObject object defining the public key of the generated key pair
      * @return MiddlewareStatus value indicating the result of the function call
      */
-    public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey){
+    @Override
+	public MiddlewareStatus pivGenerateKeyPair(CardHandle cardHandle, byte keyReference, byte cryptographicMechanism, PIVDataObject publicKey){
         try {
             // Establishing channel
             Card card = cardHandle.getCard();

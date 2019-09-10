@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.io.ByteArrayInputStream;
 import java.util.zip.GZIPInputStream;
@@ -22,20 +23,18 @@ public class X509CertificateDataObject extends PIVDataObject {
     // slf4j will thunk this through to an appropriately configured logging library
     private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateDataObject.class);
 
-    private X509Certificate m_pivAuthCert;
-
-    
+    private X509Certificate m_cert;
 
 	/**
      * CardCapabilityContainer class constructor, initializes all the class fields.
      */
     public X509CertificateDataObject() {
 
-        m_pivAuthCert = null;
+        m_cert = null;
         setErrorDetectionCode(false);
         setErrorDetectionCodeHasData(false);
+        m_content = new HashMap<BerTag, byte[]>();
     }
-
 
     /**
      *
@@ -44,18 +43,19 @@ public class X509CertificateDataObject extends PIVDataObject {
      * @return X509Certificate object containing the certificate in the PIV data object
      */
     public X509Certificate getCertificate() {
-        return m_pivAuthCert;
+        return m_cert;
     }
-
+    
     /**
      *
      * Decode function that decodes PIV data object object containing x509 certificate retrieved from the card and populates various class fields.
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
 
-        if(m_pivAuthCert == null){
+        if(m_cert == null){
 
             try{
                 byte [] raw = super.getBytes();
@@ -136,22 +136,22 @@ public class X509CertificateDataObject extends PIVDataObject {
                         }
 
                         CertificateFactory cf = CertificateFactory.getInstance("X509");
-                        m_pivAuthCert = (X509Certificate)cf.generateCertificate(certIS);
-                        s_logger.debug(m_pivAuthCert.getSubjectDN().toString());
+                        m_cert = (X509Certificate)cf.generateCertificate(certIS);
+                        s_logger.debug(m_cert.getSubjectDN().toString());
                     } else {
                         s_logger.debug("Object: {}", Hex.encodeHexString(tlv.getTag().bytes));
                     }
                 }
-            }catch (Exception ex) {
-
+            } catch (Exception ex) {
                 s_logger.error("Error parsing X.509 Certificate", ex);
                 return false;
             }
 
-            if (m_pivAuthCert == null)
+            if (m_cert == null)
                 return false;
 
         }
+        super.setRequiresPin(true);
         return true;
     }
 }

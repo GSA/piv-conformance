@@ -6,6 +6,11 @@ package gov.gsa.pivconformance.card.client;
 public class CardClientException extends Exception {
 
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      *
      * Default constructor for CardClientException class
      *

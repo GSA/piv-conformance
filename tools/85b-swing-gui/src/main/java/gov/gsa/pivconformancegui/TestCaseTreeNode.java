@@ -6,6 +6,10 @@ import gov.gsa.conformancelib.configuration.TestCaseModel;
 
 public class TestCaseTreeNode extends DefaultMutableTreeNode {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	TestCaseModel m_testCase;
 
 	public TestCaseModel getTestCase() {

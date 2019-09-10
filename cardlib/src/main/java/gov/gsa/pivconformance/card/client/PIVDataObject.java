@@ -25,12 +25,16 @@ public class PIVDataObject {
     private byte[] m_dataBytes;
     private String m_OID;
     private boolean m_signed;
+    private boolean m_mandatory;
+    private boolean m_requiresPin;
     protected List<BerTag> m_tagList;
     private boolean m_error_Detection_Code;
     private boolean m_error_Detection_Code_Has_Data;
     private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
     private boolean m_lengthOk;
-    protected static HashMap<BerTag, byte[]> m_content;
+    // TODO: Cache these tags
+    static HashMap<BerTag, byte[]> m_content;
+    // This will be either the embedded cert in the signature, if present, otherwise null
 
     /**
      * Initialize an invalid PIV data object
@@ -39,9 +43,12 @@ public class PIVDataObject {
 
         m_OID = null;
         m_signed = false;
+        m_mandatory = false;
+        m_requiresPin = false;
         m_tagList = new ArrayList<BerTag>();
         m_lengthOk = false;
         m_content = new HashMap<BerTag, byte[]>();
+
     }
 
     /**
@@ -52,6 +59,7 @@ public class PIVDataObject {
      */
     public PIVDataObject(String OID) {
         m_OID = OID;
+        m_mandatory = APDUConstants.isContainerMandatory(m_OID);
     }
 
     /**
@@ -82,7 +90,6 @@ public class PIVDataObject {
         return m_OID;
     }
 
-
     /**
      *
      * Sets the OID that identifies PIV data object
@@ -93,7 +100,6 @@ public class PIVDataObject {
         m_OID = OID;
     }
 
-
     /**
      *
      * Returns friendly  name of PIV data object
@@ -103,6 +109,33 @@ public class PIVDataObject {
     public String getFriendlyName() {
         return APDUConstants.oidNameMAP.getOrDefault(m_OID, "Undefined");
     }
+
+   /**
+    * Indicates whether the object associated with the subclass
+    * is mandatory.
+    */
+   
+   public boolean isMandatory(String oid) {
+	   return m_mandatory;
+   }
+
+   /**
+    * Indicates whether the object associated with the subclass
+    * is requires a pin.
+    */
+   
+   public boolean requiresPin(String oid) {
+	   return m_requiresPin;
+   } 
+   
+   /**
+    * Sets the flag indicating that this container OID requires a PIN to access
+    * 
+    */
+   
+   public void setRequiresPin(boolean required) {
+	   m_requiresPin = required;
+   }
 
     /**
      *
@@ -157,7 +190,7 @@ public class PIVDataObject {
     	// Iterate over each tag and corresponding value
     	Iterator<Map.Entry<BerTag, byte[]>> it = m_content.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
+            Map.Entry pair = it.next();
             BerTag tag = (BerTag) pair.getKey();
             byte value[] = (byte[]) pair.getValue();
             // Check length
@@ -167,7 +200,15 @@ public class PIVDataObject {
         }
         return true;
     }   
-    
+ 
+
+	
+	/**
+	 * Gets the precomputed message digest of the content
+	 * 
+	 * @return bytes in the digest
+	 */
+
     /**
      *
      * Place holder that will throw RuntimeError if the is a missing implementations of decode
@@ -259,14 +300,15 @@ public class PIVDataObject {
      *
      * @return Boolean value indicating if error detection code had any bytes
      */
+	
     public boolean getErrorDetectionCodeHasData() {
 		return m_error_Detection_Code_Has_Data;
 	}
-    
+  
     public void setErrorDetectionCodeHasData(boolean hasData) {
 		m_error_Detection_Code_Has_Data = hasData;
     }
-    
+       
     public void setErrorDetectionCode(boolean present) {
     	m_error_Detection_Code = present;
     }

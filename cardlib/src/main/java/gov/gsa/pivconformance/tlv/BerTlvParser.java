@@ -222,11 +222,13 @@ public class BerTlvParser {
 
 
     private static final IBerTlvLogger EMPTY_LOGGER = new IBerTlvLogger() {
-        public boolean isDebugEnabled() {
+        @Override
+		public boolean isDebugEnabled() {
             return false;
         }
 
-        public void debug(String aFormat, Object... args) {
+        @Override
+		public void debug(String aFormat, Object... args) {
         }
     };
 

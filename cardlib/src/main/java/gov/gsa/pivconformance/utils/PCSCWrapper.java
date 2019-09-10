@@ -17,7 +17,6 @@ import gov.gsa.pivconformance.card.client.ResponseAPDUWrapper;
 
 public class PCSCWrapper implements ITransmitCounter{
     private static final Logger s_logger = LoggerFactory.getLogger(PCSCWrapper.class);
-    private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
     private static PCSCWrapper INSTANCE = new PCSCWrapper();
     
     private int m_connectCount = 0;
@@ -92,6 +91,7 @@ public class PCSCWrapper implements ITransmitCounter{
 		m_transmitCount = 0;
 	}
 	
+	@Override
 	public void incrementTransmitCount() {
 		m_transmitCount++;
 	}

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  *
@@ -34,6 +35,7 @@ public class DiscoveryObject extends PIVDataObject {
         m_aid = null;
         m_pinPolicy = null;
         m_signedContent = null;
+        m_content = new HashMap<BerTag, byte[]>();
     }
 
     /**
@@ -197,7 +199,8 @@ public class DiscoveryObject extends PIVDataObject {
      *
      * @return True if decode was successful, false otherwise
      */
-    public boolean decode() {
+    @Override
+	public boolean decode() {
         byte[] rawBytes = this.getBytes();
         s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
         if(rawBytes.length == 0) {

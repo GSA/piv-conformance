@@ -14,7 +14,7 @@ public class GuiRunnerToolbar extends JToolBar {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiRunnerToolbar.class);
 	
 	public GuiRunnerToolbar() {
-		super("85b GUI Runner");
+		super("GSA FIPS 201 Conformance GUI Runner");
 		addButtons();				
 	}
 	
@@ -27,7 +27,7 @@ public class GuiRunnerToolbar extends JToolBar {
 	    
 	    this.addSeparator();
 	    this.add(c.getShowDebugWindowAction());
-	    //this.add(c.getShowOidDialogAction());
+	    this.add(c.getShowOidDialogAction());
 	    
 	    this.addSeparator();
 	    this.add(c.getDisplayTestReportAction());

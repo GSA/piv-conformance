@@ -21,6 +21,11 @@ import gov.gsa.conformancelib.utilities.Csv2Html;
 
 public class DisplayTestReportAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public DisplayTestReportAction(String name, Icon icon, String toolTip) {
 		super(name, icon);
 		putValue(SHORT_DESCRIPTION, toolTip);

@@ -30,6 +30,7 @@ public class UtilitiesPane extends JPanel {
 		
 		JButton btnRunTest = new JButton("Run Test");
 		btnRunTest.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				s_logger.error("Running test...");
 				byte[] atr = CardInfoController.getATR();

@@ -6,6 +6,10 @@ import gov.gsa.conformancelib.configuration.TestStepModel;
 
 public class TestStepTreeNode extends DefaultMutableTreeNode {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	TestStepModel m_testStep;
 	
 	public TestStepTreeNode() {

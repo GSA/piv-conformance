@@ -6,6 +6,10 @@ import javax.swing.JProgressBar;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 
 public class ColorChangingProgressBar extends JProgressBar {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private ColorChangingProgressBarUi m_ui;
 	public ColorChangingProgressBar() {
 		m_ui = new ColorChangingProgressBarUi();
@@ -16,12 +20,7 @@ public class ColorChangingProgressBar extends JProgressBar {
 		m_ui.setCurrentUiColor(currentColor);
 	}
 	private class ColorChangingProgressBarUi extends BasicProgressBarUI {
-		private Color m_currentUiColor;
-		public Color getCurrentUiColor() {
-			return m_currentUiColor;
-		}
 		public void setCurrentUiColor(Color currentColor) {
-			m_currentUiColor = currentColor;
 		}
 		/*protected Color getSelectionBackground() {
 			return m_currentColor;

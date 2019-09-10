@@ -214,14 +214,14 @@ public class PIVCheck {
                         s_logger.info("Cardholder UUID: {}", Hex.encodeHexString(((CardHolderUniqueIdentifier) dataObject).getCardholderUUID()));
                         s_logger.info("Issuer Asymmetric Signature Info:");
 
-                        CMSSignedData sd = ((CardHolderUniqueIdentifier) dataObject).getIssuerAsymmetricSignature();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -235,8 +235,9 @@ public class PIVCheck {
                                 s_logger.info("Signer Issuer: {}, Serial Number: {} ", issuer, serial);
 
                         }
+
                         s_logger.info("Signature valid: {}", ((CardHolderUniqueIdentifier) dataObject).verifySignature());
-                        signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSigningCertificate();
+                        signingCertificate = ((SignedPIVDataObject) dataObject).getChuidSignerCert();
 
                         s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
 
@@ -253,22 +254,22 @@ public class PIVCheck {
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FINGERPRINTS_OID)) {
 
-                        s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+                        s_logger.info("Fingerprint I & II: {}", Hex.encodeHexString(((CardHolderBiometricData) dataObject).getBiometricData()));
 
 
-                        s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) dataObject).getBiometricCreationDate());
-                        s_logger.info("Validity Period From: {}", ((CardholderBiometricData) dataObject).getValidityPeriodFrom());
-                        s_logger.info("Validity Period To: {}",((CardholderBiometricData) dataObject).getValidityPeriodTo());
+                        s_logger.info("Biometric Creation Date: {}", ((CardHolderBiometricData) dataObject).getBiometricCreationDate());
+                        s_logger.info("Validity Period From: {}", ((CardHolderBiometricData) dataObject).getValidityPeriodFrom());
+                        s_logger.info("Validity Period To: {}",((CardHolderBiometricData) dataObject).getValidityPeriodTo());
 
 
-                        CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -283,14 +284,14 @@ public class PIVCheck {
 
                         }
                         if(signingCertificate != null)
-                            s_logger.info("Is signatue valid: {}",((CardholderBiometricData) dataObject).verifySignature(signingCertificate));
+                            s_logger.info("Is signatue valid: {}",((SignedPIVDataObject) dataObject).verifySignature());
                         else
                             s_logger.info("Missing signing certificate to verify signature.");
 
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
 
                     }
 
@@ -306,14 +307,14 @@ public class PIVCheck {
                             s_logger.info("Container ID: {}, Container Name: {}, Container OID: {}",entry.getKey(), entry.getValue(), APDUConstants.oidNameMAP.get(entry.getValue()));
                         }
 
-                        CMSSignedData sd = ((SecurityObject) dataObject).getSignedData();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -329,7 +330,7 @@ public class PIVCheck {
                         }
                         //s_logger.info("Error Detection Code Tag Present: {}", ((SecurityObject) dataObject).getErrorDetectionCode());
 
-                        s_logger.info("SecurityObject signatue valid: {}",((SecurityObject) dataObject).verifySignature(signingCertificate));
+                        s_logger.info("SecurityObject signatue valid: {}",((SignedPIVDataObject) dataObject).verifySignature());
 
                         securityObject = dataObject;
 
@@ -337,21 +338,21 @@ public class PIVCheck {
                     }
 
                     if (containerOID.equals(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID)) {
-                        s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardholderBiometricData) dataObject).getBiometricData()));
+                        s_logger.info("Image for Visual Verification: {}", Hex.encodeHexString(((CardHolderBiometricData) dataObject).getBiometricData()));
 
-                        s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) dataObject).getBiometricCreationDate());
-                        s_logger.info("Validity Period From: {}", ((CardholderBiometricData) dataObject).getValidityPeriodFrom());
-                        s_logger.info("Validity Period To: {}", ((CardholderBiometricData) dataObject).getValidityPeriodTo());
+                        s_logger.info("Biometric Creation Date: {}", ((CardHolderBiometricData) dataObject).getBiometricCreationDate());
+                        s_logger.info("Validity Period From: {}", ((CardHolderBiometricData) dataObject).getValidityPeriodFrom());
+                        s_logger.info("Validity Period To: {}", ((CardHolderBiometricData) dataObject).getValidityPeriodTo());
 
 
-                        CMSSignedData sd = ((CardholderBiometricData) dataObject).getSignedData();
+                        CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
                         SignerInformationStore signers = sd.getSignerInfos();
                         Collection<SignerInformation> collection = signers.getSigners();
                         Iterator<SignerInformation> it = collection.iterator();
 
                         while (it.hasNext())
                         {
-                            SignerInformation signer = (SignerInformation)it.next();
+                            SignerInformation signer = it.next();
                             SignerId sid = signer.getSID();
                             String issuer = sid.getIssuer().toString();
                             String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -367,13 +368,13 @@ public class PIVCheck {
                         }
 
                         if(signingCertificate != null)
-                            s_logger.info("Is signatue valid: {}",((CardholderBiometricData) dataObject).verifySignature(signingCertificate));
+                            s_logger.info("Is signatue valid: {}",((SignedPIVDataObject) dataObject).verifySignature());
                         else
                             s_logger.info("Missing signing certificate to verify signature.");
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) dataObject).getErrorDetectionCode());
 
-                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardholderBiometricData) dataObject).getCceffContainer());
+                        soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
                     }
 
 
@@ -458,22 +459,22 @@ public class PIVCheck {
                     s_logger.info("{} {}", cardholderIrisImages.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
                     if (decoded) {
-                        if (((CardholderBiometricData) cardholderIrisImages).getBiometricData() != null) {
-                            s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardholderBiometricData) cardholderIrisImages).getBiometricData()));
+                        if (((CardHolderBiometricData) cardholderIrisImages).getBiometricData() != null) {
+                            s_logger.info("Images for Iris: {}", Hex.encodeHexString(((CardHolderBiometricData) cardholderIrisImages).getBiometricData()));
 
-                            s_logger.info("Biometric Creation Date: {}", ((CardholderBiometricData) cardholderIrisImages).getBiometricCreationDate());
-                            s_logger.info("Validity Period From: {}", ((CardholderBiometricData) cardholderIrisImages).getValidityPeriodFrom());
-                            s_logger.info("Validity Period To: {}", ((CardholderBiometricData) cardholderIrisImages).getValidityPeriodTo());
+                            s_logger.info("Biometric Creation Date: {}", ((CardHolderBiometricData) cardholderIrisImages).getBiometricCreationDate());
+                            s_logger.info("Validity Period From: {}", ((CardHolderBiometricData) cardholderIrisImages).getValidityPeriodFrom());
+                            s_logger.info("Validity Period To: {}", ((CardHolderBiometricData) cardholderIrisImages).getValidityPeriodTo());
 
 
-                            CMSSignedData sd = ((CardholderBiometricData) cardholderIrisImages).getSignedData();
+                            CMSSignedData sd = ((SignedPIVDataObject) cardholderIrisImages).getAsymmetricSignature();
                             SignerInformationStore signers = sd.getSignerInfos();
                             Collection<SignerInformation> collection = signers.getSigners();
                             Iterator<SignerInformation> it = collection.iterator();
 
                             while (it.hasNext())
                             {
-                                SignerInformation signer = (SignerInformation)it.next();
+                                SignerInformation signer = it.next();
                                 SignerId sid = signer.getSID();
                                 String issuer = sid.getIssuer().toString();
                                 String serial = Hex.encodeHexString(sid.getSerialNumber().toByteArray());
@@ -489,11 +490,11 @@ public class PIVCheck {
                             }
 
                             if(signingCertificate != null)
-                                s_logger.info("Is signatue valid: {}",((CardholderBiometricData) cardholderIrisImages).verifySignature(signingCertificate));
+                                s_logger.info("Is signatue valid: {}",((SignedPIVDataObject) cardholderIrisImages).verifySignature());
                             else
                                 s_logger.info("Missing signing certificate to verify signature.");
                         }
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardholderBiometricData) cardholderIrisImages).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) cardholderIrisImages).getErrorDetectionCode());
 
                     }
                 }
