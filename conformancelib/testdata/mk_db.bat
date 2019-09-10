@@ -37,7 +37,7 @@ FOR %%x IN (
 	PIV_Production_Cards
 	PIV-I_Production_Cards
 	PIV-I_Carillon_Cards
-	PIV-I_Production_IdenTrust_Cards
+	PIV-I_IdenTrust_Cards
 ) do (
 	ECHO "Processing %%x.xlsx"
 	IF EXIST %%x.db DEL %%x.db
