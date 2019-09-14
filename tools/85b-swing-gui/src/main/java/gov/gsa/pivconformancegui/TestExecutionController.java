@@ -2,8 +2,12 @@ package gov.gsa.pivconformancegui;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Date;
@@ -102,7 +106,8 @@ public class TestExecutionController {
 		}
 		m_running = true;
 		PCSCWrapper pcsc = PCSCWrapper.getInstance();
-		//pcsc.resetCounters();
+		DataModelSingleton.getInstance().reset();
+
 		int atomCount = 0;
 		JProgressBar progress = m_testExecutionPanel.getTestProgressBar();
 		try {
@@ -110,13 +115,11 @@ public class TestExecutionController {
 				m_testExecutionPanel.getRunButton().setEnabled(false);
 				// TODO: Fix this or else
 				m_toolBar.getComponents()[0].setEnabled(false);
-				DataModelSingleton.getInstance().reset();
 				progress.setMaximum(root.getChildCount());
 				progress.setValue(0);
 				progress.setVisible(true);
 				progress.setStringPainted(true);
 				progress.setString("");
-				//progress.setForeground(Color.GREEN);
 			});
 		} catch (InvocationTargetException | InterruptedException e1) {
 			s_logger.error("Unable to launch tests", e1);
@@ -126,7 +129,7 @@ public class TestExecutionController {
 
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
-		
+
 		/* Workaround to ensure that the tool is primed with the CHUID cert.
 		 * TODO: Create "factory" database with 8.2.2.1 as the only test, open,
 		 * run, then open actual database.
@@ -165,11 +168,11 @@ public class TestExecutionController {
 									fqmn += "#" + m.getName() + "(";
 									Class<?>[] methodParameters = m.getParameterTypes();
 									int nMethodParameters = 0;
-									for(Class<?> c : methodParameters) {
+									for(Class<?> mp : methodParameters) {
 										if(nMethodParameters >= 1) {
 											fqmn += ", ";
 										}
-										fqmn += c.getName();
+										fqmn += mp.getName();
 										nMethodParameters++;
 									}
 									fqmn += ")";
@@ -231,9 +234,9 @@ public class TestExecutionController {
 				curr = (TestCaseTreeNode) curr.getNextSibling();
 			}
 		} while (++passes < 2); // End of CHUID priming workaround
-		
-		// TODO: After this call, we need a known CSV file name
-		// GuiRunnerAppController.getInstance().rollConformanceCSV(false);
+
+		TestRunLogGroup lg = new TestRunLogGroup();
+
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
@@ -248,6 +251,7 @@ public class TestExecutionController {
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
 		m_running = false;
+		lg.setStopTime();
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();

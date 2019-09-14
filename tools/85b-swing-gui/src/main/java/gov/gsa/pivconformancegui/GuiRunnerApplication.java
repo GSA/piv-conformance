@@ -24,7 +24,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
@@ -37,8 +36,6 @@ public class GuiRunnerApplication {
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
 	private GuiRunnerToolbar m_toolBar;
-	private JFrame m_oidOverrideFrame;
-	//private TestTreePanel m_treePanel;
 	private MainWindowContentPane m_mainContent;
 
 	/**
@@ -46,14 +43,12 @@ public class GuiRunnerApplication {
 	 */
 	public static void main(String[] args) {
 		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
-		RollingFileAppender<?> csvAppender = null;
 		try {
 			System.out.println("Working Directory = " +
 		              System.getProperty("user.dir"));
 			File logConfigFile = new File("user_log_config.xml");
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
-				ctx.reset();
 				configurator.setContext(ctx);
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
 			}
@@ -64,6 +59,9 @@ public class GuiRunnerApplication {
 			e.printStackTrace();
 		}
 		StatusPrinter.printIfErrorsOccured(ctx);
+
+		/*
+		 *
 		Appender<?> a = null;
 		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
 		if(testResultsLogger == null) {
@@ -71,21 +69,24 @@ public class GuiRunnerApplication {
 		} else {
 			a = testResultsLogger.getAppender("CONFORMANCELOG");
 			if(a == null) s_logger.warn("CONFORMANCELOG appender was not configured. No CSV will be produced.");
-			csvAppender = (RollingFileAppender<?>) a;
+			csvAppender = (TimeStampedFileAppender<?>) a;
 		}
-		final RollingFileAppender<?> foundAppender = csvAppender;
-		RollingFileAppender<?> apduAppender = null;
+		final TimeStampedFileAppender<?> foundAppender = csvAppender;
+		TimeStampedFileAppender<?> apduAppender = null;
 		Logger apduLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
 		if(apduLogger == null) {
 			s_logger.info("No APDU logger is available");
 		} else {
-			apduAppender = (RollingFileAppender<?>) apduLogger.getAppender("APDULOG");
+			apduAppender = (TimeStampedFileAppender<?>) apduLogger.getAppender("APDULOG");
 			if(apduAppender == null) {
 				s_logger.info("No APDU log appender was configured. Disabling APDU logs.");
 				apduLogger.setLevel(Level.OFF);
 			}
-			apduAppender.rollover();
 		}
+		*/
+		// Logging setup complete
+		
+		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
 
@@ -114,22 +115,13 @@ public class GuiRunnerApplication {
 						ce.getMessage();
 					}
 					c.setTestDatabase(db);
-					c.setConformanceTestCsvAppender(foundAppender);
+					//c.setConformanceTestCsvAppender(foundAppender);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 					// XXX *** find out why this isn't coming from user info
 					window.m_mainFrame.setVisible(true);
 					if(opened) {
 						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
-					} else {
-						//OpenDatabaseAction dbAction = new OpenDatabaseAction("startup database");
-						//dbAction.actionPerformed(new ActionEvent(window, ActionEvent.ACTION_PERFORMED, "open startup database"));
 					}
-					/*if(errorMessage != null) {
-						JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
-						JDialog dialog = msgBox.createDialog(window.m_mainFrame, "Error");
-						dialog.setAlwaysOnTop(true);
-						dialog.setVisible(true);
-					}*/
 					TestExecutionController tc = TestExecutionController.getInstance();
 					tc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
 					tc.setTestTreePanel(window.m_mainContent.getTreePanel());
@@ -138,6 +130,7 @@ public class GuiRunnerApplication {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
 			}
 		});
 	}

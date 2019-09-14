@@ -23,7 +23,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
-import ch.qos.logback.core.rolling.RollingFileAppender;
 import gov.gsa.conformancelib.configuration.ConfigurationException;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import java.awt.event.ActionListener;
@@ -37,8 +36,12 @@ public class GuiRunnerAppController {
 	
 	private ConformanceTestDatabase m_testDatabase;
 	private GuiRunnerApplication m_app;
-	private RollingFileAppender<?> m_ConformanceTestCsvAppender;
-	
+	private TimeStampedFileAppender<?> m_conformanceTestCsvAppender;
+	private String m_timeStampLogPath = "constructor: No time-stamped file name available";
+
+	private TimeStampedFileAppender<?> m_apduLogAppender;
+	private String m_timeStampedApduLogPath = "constructor: No time-stamped file name available";
+
 	private OpenDatabaseAction m_openDatabaseAction;
 	private ShowDebugWindowAction m_showDebugWindowAction;
 	private RunAllTestsAction m_runAllTestsAction;
@@ -49,7 +52,6 @@ public class GuiRunnerAppController {
 	private DisplayTestReportAction m_displayTestReportAction;
 	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
 	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
-	private String m_logPath = "constructor: No file name available";
 
 	private JTextField pivAuthOverrideTextField;
 	private JTextField digitalSignatureOverrideTextField;
@@ -59,7 +61,7 @@ public class GuiRunnerAppController {
 	public void reset() {
 		m_testDatabase = null;
 		m_app = null;
-		m_ConformanceTestCsvAppender = null;
+		m_conformanceTestCsvAppender = null;
 		m_openDatabaseAction = null;
 		m_showDebugWindowAction = null;
 		m_runAllTestsAction = null;
@@ -69,7 +71,6 @@ public class GuiRunnerAppController {
 		m_saveOidsAction = null;
 		m_openDefaultPIVDatabaseAction = null;
 		m_openDefaultPIVIDatabaseAction = null;
-		m_logPath = "reset: No file name available";
 		createActions();
 	}
 
@@ -98,14 +99,21 @@ public class GuiRunnerAppController {
 		m_app = app;
 	}
 	
-	public RollingFileAppender<?> getConformanceTestCsvAppender() {
-		return m_ConformanceTestCsvAppender;
+	public TimeStampedFileAppender<?> getConformanceTestCsvAppender() {
+		return m_conformanceTestCsvAppender;
 	}
 
-	public void setConformanceTestCsvAppender(RollingFileAppender<?> conformanceTestCsvAppender) {
-		m_ConformanceTestCsvAppender = conformanceTestCsvAppender;
+	public void setConformanceTestCsvAppender(TimeStampedFileAppender<?> conformanceTestCsvAppender) {
+		m_conformanceTestCsvAppender = conformanceTestCsvAppender;
+	}
+	
+	public TimeStampedFileAppender<?> getApduLogAppender() {
+		return m_apduLogAppender;
 	}
 
+	public void setApduLogAppender(TimeStampedFileAppender<?> apduLogAppender) {
+		m_apduLogAppender = apduLogAppender;
+	}
 	public JFrame getMainFrame() {
 		return m_app.getMainFrame();
 	}
@@ -144,10 +152,6 @@ public class GuiRunnerAppController {
 
 	public DisplayTestReportAction getDisplayTestReportAction() {
 		return m_displayTestReportAction;
-	}
-	
-	public String getLogPath() {
-		return m_logPath;
 	}
 
 	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
@@ -292,17 +296,18 @@ public class GuiRunnerAppController {
 		TestTreePanel tree = m_app.getTreePanel();
 		tree.refresh();
 	}
-	
-	public void rollConformanceCSV(boolean nextHeader) {
-		if(m_ConformanceTestCsvAppender == null) {
-			s_logger.warn("rollConformanceCSV was called without any appender configured.");
+	/*
+	public String logRollover(TimeStampedFileAppender<?> appender, boolean nextHeader) {
+		String rv = null;
+		
+		if(m_conformanceTestCsvAppender == null) {
+			s_logger.warn("logRollover was called without any appender configured.");
 		}
 		
-		m_logPath = m_ConformanceTestCsvAppender.getFile();
-		m_ConformanceTestCsvAppender.rollover(); // new file returned from getFile() method
-		Logger conformanceLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
-		if(conformanceLogger != null && nextHeader == true) {
-			File f = new File(m_ConformanceTestCsvAppender.getFile());
+		rv = appender.createTimeStampLog(); // Timestamped name of copy of log returned from getFile() 
+		
+		if(nextHeader == true) {
+			File f = new File(m_conformanceTestCsvAppender.getFile());
 			PrintStream p;
 			try {
 				p = new PrintStream(f);
@@ -313,8 +318,10 @@ public class GuiRunnerAppController {
 				e.printStackTrace();
 			}
 		}
+		m_conformanceTestCsvAppender.setImmediateFlush(true);
+		return rv;
 	}
-	
+	*/
 	protected void createActions() {
 		ImageIcon openIcon = getActionIcon("folder", "Open");
 		m_openDatabaseAction = new OpenDatabaseAction("Open Database", openIcon, "Open a conformance test database");

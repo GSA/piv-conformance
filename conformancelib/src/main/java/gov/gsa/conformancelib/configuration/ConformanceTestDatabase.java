@@ -96,9 +96,9 @@ public class ConformanceTestDatabase {
                 testCase.retrieveForId(rs.getInt("Id"));
                 rv.add(testCase);
             }
-            m_conn.close();
+            //m_conn.close();
 		} catch(SQLException e) {
-			s_logger.error("Failed to retrieve test cases from database");
+			s_logger.error("Failed to retrieve test cases from database: {}", e.getMessage());
 		}
 		return rv;
 	}
@@ -169,7 +169,7 @@ public class ConformanceTestDatabase {
             }
             m_conn.close();
 		} catch(SQLException e) {
-			s_logger.error("Failed to retrieve test cases from database");
+			s_logger.error("Failed to retrieve test step parameters from database");
 		}
 	}
 	

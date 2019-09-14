@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.rolling.RollingFileAppender;
 import gov.gsa.conformancelib.utilities.Csv2Html;
 
 public class DisplayTestReportAction extends AbstractAction {
@@ -34,7 +33,7 @@ public class DisplayTestReportAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
-		RollingFileAppender<?> csvAppender = null;
+		TimeStampedFileAppender<?> csvAppender = null;
 		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
 		if(testResultsLogger == null) {
 			JOptionPane msgBox = new JOptionPane("Unable to get CSV logger.", JOptionPane.ERROR_MESSAGE);
@@ -49,10 +48,10 @@ public class DisplayTestReportAction extends AbstractAction {
 				dialog.setAlwaysOnTop(true);
 				dialog.setVisible(true);
 			}
-			csvAppender = (RollingFileAppender<?>) a;
+			csvAppender = (TimeStampedFileAppender<?>) a;
 		}
 		if(csvAppender != null) {
-			String fn = csvAppender.getFile();
+			String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampLogPath();
 			String rfn = fn + ".html";
 			try {
 				PrintStream writer  = new PrintStream(rfn);
