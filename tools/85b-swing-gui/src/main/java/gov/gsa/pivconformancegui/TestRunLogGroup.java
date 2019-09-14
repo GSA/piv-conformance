@@ -44,6 +44,7 @@ public class TestRunLogGroup {
 	}
 	
 	private HashMap<String, TimeStampedFileAppender<?>> m_appenders = null;
+	private boolean m_initialized = false;
 	private String m_timeStampedLogPath = null;
 	private Date m_startTime = null;
 	private Date m_stopTime = null;
@@ -86,23 +87,36 @@ public class TestRunLogGroup {
 				m_appenders.put(loggerName, (TimeStampedFileAppender<?>) logger.getAppender(loggerName));
 		}
 		m_startTime = new Date();
+		GuiRunnerAppController.getInstance().setConformanceTestCsvAppender(m_appenders.get("CONFORMANCELOG"));
+		GuiRunnerAppController.getInstance().setApduLogAppender(m_appenders.get("APDU"));
+		m_initialized = true;
 		s_logger.debug("Logging has been initialized");
 	}
 	
 	String getTimeStampedLogPath() {
+		if (!m_initialized) {
+			s_logger.error("*** getTimeStampedLogPath(): Not initialized ***");
+		}
 		return m_timeStampedLogPath;
 	}
 	
 	/**
 	 * Forces a timestamp based on start time and the current time
 	 */
-	public void setStopTime() {		
+	public void setStopTime() {
+		if (!m_initialized) {
+			s_logger.error("*** setStopTime(): Not initialized ***");
+		}
 		if (m_startTime == null) {
-			s_logger.warn("Test log group not started"); // TODO: Figure out what to do here. Does it matter?
+			s_logger.warn("*** Test run log group not started"); // TODO: Figure out what to do here. Does it matter?
 		}
 		
 		m_stopTime = new Date();
 		setTimeStamp();
+	}
+	
+	public TimeStampedFileAppender<?> getAppender(String appenderName) {
+		return m_appenders.get(appenderName);
 	}
 	
 	/**
@@ -110,7 +124,9 @@ public class TestRunLogGroup {
 	 * 
 	 */
 	private void setTimeStamp() {
-		
+		if (!m_initialized) {
+			s_logger.error("*** setTimeStamp(): Not initialized ***");
+		}
 		String startTs = null;
 		String stopTs = null;
 		

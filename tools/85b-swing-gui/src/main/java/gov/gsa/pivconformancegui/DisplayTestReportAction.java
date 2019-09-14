@@ -32,26 +32,14 @@ public class DisplayTestReportAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
-		TimeStampedFileAppender<?> csvAppender = null;
-		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
-		if(testResultsLogger == null) {
-			JOptionPane msgBox = new JOptionPane("Unable to get CSV logger.", JOptionPane.ERROR_MESSAGE);
+		TimeStampedFileAppender<?> csvAppender = GuiRunnerAppController.getInstance().getConformanceTestCsvAppender();
+		if(csvAppender == null) {
+			JOptionPane msgBox = new JOptionPane("Unable to get CSV appender.", JOptionPane.ERROR_MESSAGE);
 			JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
 			dialog.setAlwaysOnTop(true);
 			dialog.setVisible(true);
 		} else {
-			Appender<ILoggingEvent> a = testResultsLogger.getAppender("CONFORMANCELOG");
-			if(a == null) {
-				JOptionPane msgBox = new JOptionPane("Unable to get CSV logger.", JOptionPane.ERROR_MESSAGE);
-				JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
-				dialog.setAlwaysOnTop(true);
-				dialog.setVisible(true);
-			}
-			csvAppender = (TimeStampedFileAppender<?>) a;
-		}
-		if(csvAppender != null) {
-			String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampLogPath();
+			String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
 			String rfn = fn + ".html";
 			try {
 				PrintStream writer  = new PrintStream(rfn);
@@ -69,7 +57,5 @@ public class DisplayTestReportAction extends AbstractAction {
 				e1.printStackTrace();
 			}
 		}
-
 	}
-
 }

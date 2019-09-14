@@ -59,32 +59,8 @@ public class GuiRunnerApplication {
 			e.printStackTrace();
 		}
 		StatusPrinter.printIfErrorsOccured(ctx);
-
-		/*
-		 *
-		Appender<?> a = null;
-		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
-		if(testResultsLogger == null) {
-			s_logger.warn("No logger was configured for test results CSV");
-		} else {
-			a = testResultsLogger.getAppender("CONFORMANCELOG");
-			if(a == null) s_logger.warn("CONFORMANCELOG appender was not configured. No CSV will be produced.");
-			csvAppender = (TimeStampedFileAppender<?>) a;
-		}
-		final TimeStampedFileAppender<?> foundAppender = csvAppender;
-		TimeStampedFileAppender<?> apduAppender = null;
-		Logger apduLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
-		if(apduLogger == null) {
-			s_logger.info("No APDU logger is available");
-		} else {
-			apduAppender = (TimeStampedFileAppender<?>) apduLogger.getAppender("APDULOG");
-			if(apduAppender == null) {
-				s_logger.info("No APDU log appender was configured. Disabling APDU logs.");
-				apduLogger.setLevel(Level.OFF);
-			}
-		}
-		*/
-		// Logging setup complete
+		
+		// Logging
 		
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
@@ -115,7 +91,9 @@ public class GuiRunnerApplication {
 						ce.getMessage();
 					}
 					c.setTestDatabase(db);
-					//c.setConformanceTestCsvAppender(foundAppender);
+					TestRunLogGroup lg = new TestRunLogGroup();
+					lg.initialize();
+					c.setConformanceTestCsvAppender(lg.getAppender("CONFORMANCELOG"));
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 					// XXX *** find out why this isn't coming from user info
 					window.m_mainFrame.setVisible(true);

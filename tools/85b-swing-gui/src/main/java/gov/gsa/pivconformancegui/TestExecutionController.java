@@ -251,7 +251,7 @@ public class TestExecutionController {
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
 		m_running = false;
-		lg.setStopTime();
+		lg.setStopTime(); // Forces a log snapshot
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();
