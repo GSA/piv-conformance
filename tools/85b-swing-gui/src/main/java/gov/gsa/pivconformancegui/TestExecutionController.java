@@ -87,7 +87,7 @@ public class TestExecutionController {
 		m_testExecutionPanel = testExecutionPanel;
 	}
 	
-	public void setTestRunLogGroup(TestRunLogController logGroup) {
+	public void setTestRunLogController(TestRunLogController logGroup) {
 		m_lg = logGroup;
 	}
 	
