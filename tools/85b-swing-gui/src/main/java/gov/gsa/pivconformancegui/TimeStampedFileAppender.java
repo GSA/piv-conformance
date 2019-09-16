@@ -12,7 +12,7 @@ import ch.qos.logback.core.FileAppender;
  * of events into log files whose names are start/stop timestamps.
  */
 public class TimeStampedFileAppender<E> extends FileAppender<E> {
-	private static final Logger s_logger = LoggerFactory.getLogger(GuiRunnerAppController.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(TimeStampedFileAppender.class);
 	private String m_timeStampedLogPath = "not initialized";
 
 	@Override

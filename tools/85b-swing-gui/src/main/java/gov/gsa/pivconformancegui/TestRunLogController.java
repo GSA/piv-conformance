@@ -22,6 +22,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
@@ -29,19 +31,21 @@ import ch.qos.logback.core.util.StatusPrinter;
  * Class that consolidates the four appenders into a single disposable group
  *
  */
-public class TestRunLogGroup {
-	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
+public class TestRunLogController {
+	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(TestRunLogController.class);
 	/*
 	 * Note that these names MUST match the user_log_config.xml appender names.
 	 * start time, end time, log file path name.  It instantiates and destroys
 	 * appenders as a group, but is ephemeral, so we can re-create a group
 	 * each run.
 	 */
-	static final HashMap<String,String> m_loggers = null;
-	static {
-		m_loggers.put("CONFORMANCELOG", "gov.gsa.pivconformance.testResults");
-		m_loggers.put("APDULOG", "gov.gsa.pivconformance.apdu");
-	}
+	static final HashMap<String,String> m_loggers = new HashMap<String,String>() {
+		static final long serialVersionUID = 1L;
+		{
+			put("CONFORMANCELOG", "gov.gsa.pivconformance.testResults");
+			put("APDULOG", "gov.gsa.pivconformance.apdu");
+		}
+	};
 	
 	private HashMap<String, TimeStampedFileAppender<?>> m_appenders = null;
 	private boolean m_initialized = false;
@@ -49,19 +53,10 @@ public class TestRunLogGroup {
 	private Date m_startTime = null;
 	private Date m_stopTime = null;
 	
-	public TestRunLogGroup() {
-		/*
-		 * 
-		 *
-		 **/
-		this.initialize();
-	}
-	
-	void initialize() {
-		// Set up all of the loggers
-		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
-		TimeStampedFileAppender<?> csvAppender = null;
+	public TestRunLogController(LoggerContext ctx) {
 		try {
+			System.out.println("Working Directory = " +
+		              System.getProperty("user.dir"));
 			File logConfigFile = new File("user_log_config.xml");
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
@@ -75,20 +70,36 @@ public class TestRunLogGroup {
 			e.printStackTrace();
 		}
 		StatusPrinter.printIfErrorsOccured(ctx);
+		this.initialize(ctx);
+	}
+	
+	void initialize(LoggerContext ctx) {
+		m_appenders = new HashMap<String,TimeStampedFileAppender<?>>();
+		
+		// Bootstrap the Logging
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+		
+		a.setContext(lc);
+
 		Map.Entry me = null;
 		Iterator<?> i = m_loggers.entrySet().iterator();
 		while (i.hasNext()) {
 			me = (Map.Entry<String,String>) i.next();
 			String loggerName = (String) me.getKey();
-			Logger logger = (Logger) LoggerFactory.getLogger(loggerName);
-			if (logger == null) {
-				s_logger.warn("No logger was configured for {}", loggerName);
-			} else 
-				m_appenders.put(loggerName, (TimeStampedFileAppender<?>) logger.getAppender(loggerName));
+			String loggerClass = (String) me.getValue();
+			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
+			TimeStampedFileAppender<ILoggingEvent> appender = null;
+			appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
+			if (appender == null) {
+				s_logger.warn("No appender was configured for {}", loggerName);
+			} else {
+				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
+				m_appenders.put(loggerName, appender);
+				s_logger.debug("Configured {}", loggerName);
+			}
 		}
 		m_startTime = new Date();
-		GuiRunnerAppController.getInstance().setConformanceTestCsvAppender(m_appenders.get("CONFORMANCELOG"));
-		GuiRunnerAppController.getInstance().setApduLogAppender(m_appenders.get("APDU"));
 		m_initialized = true;
 		s_logger.debug("Logging has been initialized");
 	}
@@ -119,6 +130,10 @@ public class TestRunLogGroup {
 		return m_appenders.get(appenderName);
 	}
 	
+	public void setAppender(String name, TimeStampedFileAppender<?> appender) {
+		m_appenders.put(name, appender);
+	}
+	
 	/**
 	 * Creates the path names of the timestamped copy of each configured log
 	 * 
@@ -138,7 +153,7 @@ public class TestRunLogGroup {
 				startCal.get(Calendar.YEAR), startCal.get(Calendar.MONTH) + 1, startCal.get(Calendar.DAY_OF_MONTH),
 				startCal.get(Calendar.HOUR_OF_DAY), startCal.get(Calendar.MINUTE), startCal.get(Calendar.SECOND));
 		stopTs = String.format("%04d%02d%02d_%02d%02d%02d", 
-				startCal.get(Calendar.YEAR), startCal.get(Calendar.MONTH + 1), startCal.get(Calendar.DAY_OF_MONTH),
+				startCal.get(Calendar.YEAR), startCal.get(Calendar.MONTH) + 1, startCal.get(Calendar.DAY_OF_MONTH),
 				startCal.get(Calendar.HOUR_OF_DAY), startCal.get(Calendar.MINUTE), startCal.get(Calendar.SECOND));
 		
 		// Loop on appenders
@@ -150,14 +165,14 @@ public class TestRunLogGroup {
 			TimeStampedFileAppender<?> a = (TimeStampedFileAppender<?>) me.getValue();
 			
 			// Get separators straight		
-			s_logger.debug("Conformance Log CSV file path: " + this.m_appenders.get("CONFORMANCELOG").getFile());
+			s_logger.debug("{} file path: {}", logName, a.getFile());
 			File testFile = new File(a.getFile()); // Normalize by instantiating a File
 			s_logger.debug("System canonical path: " + testFile.getPath());
 			String currPath = testFile.getPath();
 			// Check whether we're in a situation where separators are different than logger config (/)
 			if (testFile.getAbsolutePath().lastIndexOf("/") < 0) {
 				// Windows
-				currPath.replaceAll("\\\\", "/");
+				currPath = currPath.replaceAll("\\\\", "/");
 			}
 			
 			// Synchronize timestamp portion of path
@@ -179,6 +194,29 @@ public class TestRunLogGroup {
 		} catch (IOException e) {
 			s_logger.error("IOException: " + e.getMessage());
 		}
+		return rv;
+	}
+
+	public boolean appendersConfigOk() {
+		boolean rv = false;
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+		Map<String, Appender<ILoggingEvent>> appendersMap = new HashMap<>();
+		for (Logger logger : loggerContext.getLoggerList()) {
+
+			Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
+			while (appenderIterator.hasNext()) {
+				Appender<ILoggingEvent> appender = appenderIterator.next();
+				if (!m_appenders.containsKey(appender.getName())) {
+					s_logger.warn("No appender found for {}", appender.getName());
+				} else {
+					appendersMap.put(appender.getName(), (Appender<ILoggingEvent>) m_appenders.get(appender.getName()));
+				}
+			}
+		}
+		
+		// Iterate through the configured logs to be sure we have appenders for CSV and APDU.
+
 		return rv;
 	}
 }

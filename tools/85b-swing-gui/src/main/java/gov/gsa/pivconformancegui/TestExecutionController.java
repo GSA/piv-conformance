@@ -29,6 +29,7 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
@@ -47,6 +48,8 @@ public class TestExecutionController {
 	SimpleTestExecutionPanel m_testExecutionPanel;
 	GuiRunnerToolbar m_toolBar;
 	boolean m_running;
+	LoggerContext m_ctx;
+	TestRunLogController m_lg;
 	Date m_startDate;
 	Date m_stopDate;
 
@@ -63,6 +66,7 @@ public class TestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
+		m_lg = null;
 		m_startDate = new Date();
 		m_stopDate = null; // will get set by new appender plugin
 	}
@@ -82,6 +86,14 @@ public class TestExecutionController {
 	public void setTestExecutionPanel(SimpleTestExecutionPanel testExecutionPanel) {
 		m_testExecutionPanel = testExecutionPanel;
 	}
+	
+	public void setTestRunLogGroup(TestRunLogController logGroup) {
+		m_lg = logGroup;
+	}
+	
+	public TestRunLogController getTestRunLogGroup() {
+		return m_lg;
+	}
 
 	public void setToolBar(GuiRunnerToolbar toolBar) {
 		m_toolBar = toolBar;
@@ -94,6 +106,15 @@ public class TestExecutionController {
 	public boolean isRunning() {
 		return m_running;
 	}
+	
+	public LoggerContext getLoggerContext() {
+		return m_ctx;
+	}
+	
+	public void setLoggerContext(LoggerContext ctx) {
+		m_ctx = ctx;
+	}
+	
 
 	void runAllTests(TestCaseTreeNode root) {
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
@@ -129,6 +150,8 @@ public class TestExecutionController {
 
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
+		TestRunLogController lg = new TestRunLogController(m_ctx);
+		m_lg = lg;
 
 		/* Workaround to ensure that the tool is primed with the CHUID cert.
 		 * TODO: Create "factory" database with 8.2.2.1 as the only test, open,
@@ -235,7 +258,6 @@ public class TestExecutionController {
 			}
 		} while (++passes < 2); // End of CHUID priming workaround
 
-		TestRunLogGroup lg = new TestRunLogGroup();
 
 		try {
 			SwingUtilities.invokeAndWait(() -> {
@@ -246,12 +268,13 @@ public class TestExecutionController {
 		} catch (InvocationTargetException | InterruptedException e) {
 			s_logger.error("Failed to enable run button", e);
 		}
+		
+		lg.setStopTime(); // Forces a log snapshot
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
 		m_running = false;
-		lg.setStopTime(); // Forces a log snapshot
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();

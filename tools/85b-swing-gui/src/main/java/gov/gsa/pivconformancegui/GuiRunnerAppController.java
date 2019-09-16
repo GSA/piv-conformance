@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,12 +37,6 @@ public class GuiRunnerAppController {
 	
 	private ConformanceTestDatabase m_testDatabase;
 	private GuiRunnerApplication m_app;
-	private TimeStampedFileAppender<?> m_conformanceTestCsvAppender;
-	private String m_timeStampLogPath = "constructor: No time-stamped file name available";
-
-	private TimeStampedFileAppender<?> m_apduLogAppender;
-	private String m_timeStampedApduLogPath = "constructor: No time-stamped file name available";
-
 	private OpenDatabaseAction m_openDatabaseAction;
 	private ShowDebugWindowAction m_showDebugWindowAction;
 	private RunAllTestsAction m_runAllTestsAction;
@@ -61,7 +56,6 @@ public class GuiRunnerAppController {
 	public void reset() {
 		m_testDatabase = null;
 		m_app = null;
-		m_conformanceTestCsvAppender = null;
 		m_openDatabaseAction = null;
 		m_showDebugWindowAction = null;
 		m_runAllTestsAction = null;
@@ -71,6 +65,7 @@ public class GuiRunnerAppController {
 		m_saveOidsAction = null;
 		m_openDefaultPIVDatabaseAction = null;
 		m_openDefaultPIVIDatabaseAction = null;
+		
 		createActions();
 	}
 
@@ -98,22 +93,7 @@ public class GuiRunnerAppController {
 	public void setApp(GuiRunnerApplication app) {
 		m_app = app;
 	}
-	
-	public TimeStampedFileAppender<?> getConformanceTestCsvAppender() {
-		return m_conformanceTestCsvAppender;
-	}
 
-	public void setConformanceTestCsvAppender(TimeStampedFileAppender<?> conformanceTestCsvAppender) {
-		m_conformanceTestCsvAppender = conformanceTestCsvAppender;
-	}
-	
-	public TimeStampedFileAppender<?> getApduLogAppender() {
-		return m_apduLogAppender;
-	}
-
-	public void setApduLogAppender(TimeStampedFileAppender<?> apduLogAppender) {
-		m_apduLogAppender = apduLogAppender;
-	}
 	public JFrame getMainFrame() {
 		return m_app.getMainFrame();
 	}

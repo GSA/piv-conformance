@@ -22,6 +22,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
@@ -38,30 +39,14 @@ public class GuiRunnerApplication {
 	private GuiRunnerToolbar m_toolBar;
 	private MainWindowContentPane m_mainContent;
 
+
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
-		try {
-			System.out.println("Working Directory = " +
-		              System.getProperty("user.dir"));
-			File logConfigFile = new File("user_log_config.xml");
-			if(logConfigFile.exists() && logConfigFile.canRead()) {
-				JoranConfigurator configurator = new JoranConfigurator();
-				configurator.setContext(ctx);
-				configurator.doConfigure(logConfigFile.getCanonicalPath());
-			}
-		} catch(JoranException e) {
-			// handled by status printer
-		} catch (IOException e) {
-			System.err.println("Unable to resolve logging config to a readable file");
-			e.printStackTrace();
-		}
-		StatusPrinter.printIfErrorsOccured(ctx);
-		
-		// Logging
-		
+
+		bootstrapLogging();
+
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
@@ -77,6 +62,7 @@ public class GuiRunnerApplication {
 					c.setApp(window);
 					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+					
 					a.setContext(lc);
 					a.start();
 					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
@@ -91,9 +77,6 @@ public class GuiRunnerApplication {
 						ce.getMessage();
 					}
 					c.setTestDatabase(db);
-					TestRunLogGroup lg = new TestRunLogGroup();
-					lg.initialize();
-					c.setConformanceTestCsvAppender(lg.getAppender("CONFORMANCELOG"));
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 					// XXX *** find out why this isn't coming from user info
 					window.m_mainFrame.setVisible(true);
@@ -118,6 +101,57 @@ public class GuiRunnerApplication {
 	 */
 	public GuiRunnerApplication() {
 		initialize();
+	}
+	
+	static void bootstrapLogging() {
+		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+		try {
+			System.out.println("Working Directory = " +
+		              System.getProperty("user.dir"));
+			File logConfigFile = new File("user_log_config.xml");
+			if(logConfigFile.exists() && logConfigFile.canRead()) {
+				JoranConfigurator configurator = new JoranConfigurator();
+				configurator.setContext(ctx);
+				configurator.doConfigure(logConfigFile.getCanonicalPath());
+			}
+		} catch(JoranException e) {
+			// handled by status printer
+		} catch (IOException e) {
+			System.err.println("Unable to resolve logging config to a readable file");
+			e.printStackTrace();
+		}
+		StatusPrinter.printIfErrorsOccured(ctx);
+		TestExecutionController tc = TestExecutionController.getInstance();
+		tc.setLoggerContext(ctx);
+		tc.setTestRunLogGroup(new TestRunLogController(ctx));
+
+//		// Bootstrap the Logging
+//		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+//		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+//		
+//		a.setContext(lc);
+//		
+//		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
+//		if(testResultsLogger == null) {
+//			s_logger.warn("No logger was configured for test results CSV");
+//		} else {
+//			a = testResultsLogger.getAppender("CONFORMANCELOG");
+//			if(a == null) s_logger.warn("CONFORMANCELOG appender was not configured. No CSV will be produced.");
+//			//TestExecutionController.getInstance(). = (TimeStampedFileAppender<?>) a;
+//			//m_appenders.put();
+//		}
+//		
+//		Logger apduLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
+//		if(apduLogger == null) {
+//			s_logger.info("No APDU logger is available");
+//		} else {
+//			a = testResultsLogger.getAppender("APDULOG");
+//			//m_apduLogAppender = (TimeStampedFileAppender<?>) apduLogger.getAppender("APDULOG");
+//			if(a == null) {
+//				s_logger.info("No APDU log appender was configured. Disabling APDU logs.");
+//				apduLogger.setLevel(Level.OFF);
+//			}
+//		}
 	}
 
 	/**

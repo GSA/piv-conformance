@@ -32,7 +32,7 @@ public class DisplayTestReportAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		TimeStampedFileAppender<?> csvAppender = GuiRunnerAppController.getInstance().getConformanceTestCsvAppender();
+		TimeStampedFileAppender<?> csvAppender = TestExecutionController.getInstance().getTestRunLogGroup().getAppender("CONFORMANCELOG");
 		if(csvAppender == null) {
 			JOptionPane msgBox = new JOptionPane("Unable to get CSV appender.", JOptionPane.ERROR_MESSAGE);
 			JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
