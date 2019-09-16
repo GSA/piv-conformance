@@ -251,24 +251,17 @@ public class SP800_73_4CHUIDTests {
     //@MethodSource("sp800_73_4_CHUIDTestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_16(String oid, String yearsStr, TestReporter reporter) {
-        
+        int years = 0;
 		//Check that the yearsStr passed in is not null
 		if (yearsStr == null) {
 			ConformanceTestException e  = new ConformanceTestException("OID is null");
 			fail(e);
 		}
-        
-		int years = 0;
-		
-		if(yearsStr.contains(":")) {
-			String [] split = yearsStr.split(":");
-			
-			yearsStr = split[1];
-		}
 		
 		try {
 			years = Integer.parseInt(yearsStr);
 		} catch(NumberFormatException e) {
+			s_logger.error("Integer parsing error {} on '{}'", e.getMessage(), yearsStr);
 			fail(e);
 		}
 		
@@ -279,10 +272,10 @@ public class SP800_73_4CHUIDTests {
 		Calendar cal = Calendar.getInstance();
 		Date today = cal.getTime();
 		cal.add(Calendar.YEAR, years); 
-		Date todayPlus5Years = cal.getTime();
+		Date todayPlus6Years = cal.getTime();
 		
 		assertTrue(expirationDate.compareTo(today) >= 0);
-		assertTrue(expirationDate.compareTo(todayPlus5Years) <= 0);
+		assertTrue(expirationDate.compareTo(todayPlus6Years) <= 0);
     }
 	
 	//No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are present
