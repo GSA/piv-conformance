@@ -45,7 +45,7 @@ public class GuiRunnerApplication {
 	 */
 	public static void main(String[] args) {
 
-		bootstrapLogging();
+		TestRunLogController.bootStrapLogging();
 
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
@@ -101,57 +101,6 @@ public class GuiRunnerApplication {
 	 */
 	public GuiRunnerApplication() {
 		initialize();
-	}
-	
-	static void bootstrapLogging() {
-		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
-		try {
-			System.out.println("Working Directory = " +
-		              System.getProperty("user.dir"));
-			File logConfigFile = new File("user_log_config.xml");
-			if(logConfigFile.exists() && logConfigFile.canRead()) {
-				JoranConfigurator configurator = new JoranConfigurator();
-				configurator.setContext(ctx);
-				configurator.doConfigure(logConfigFile.getCanonicalPath());
-			}
-		} catch(JoranException e) {
-			// handled by status printer
-		} catch (IOException e) {
-			System.err.println("Unable to resolve logging config to a readable file");
-			e.printStackTrace();
-		}
-		StatusPrinter.printIfErrorsOccured(ctx);
-		TestExecutionController tc = TestExecutionController.getInstance();
-		tc.setLoggerContext(ctx);
-		tc.setTestRunLogController(new TestRunLogController());
-
-//		// Bootstrap the Logging
-//		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-//		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-//		
-//		a.setContext(lc);
-//		
-//		Logger testResultsLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
-//		if(testResultsLogger == null) {
-//			s_logger.warn("No logger was configured for test results CSV");
-//		} else {
-//			a = testResultsLogger.getAppender("CONFORMANCELOG");
-//			if(a == null) s_logger.warn("CONFORMANCELOG appender was not configured. No CSV will be produced.");
-//			//TestExecutionController.getInstance(). = (TimeStampedFileAppender<?>) a;
-//			//m_appenders.put();
-//		}
-//		
-//		Logger apduLogger = (Logger) LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
-//		if(apduLogger == null) {
-//			s_logger.info("No APDU logger is available");
-//		} else {
-//			a = testResultsLogger.getAppender("APDULOG");
-//			//m_apduLogAppender = (TimeStampedFileAppender<?>) apduLogger.getAppender("APDULOG");
-//			if(a == null) {
-//				s_logger.info("No APDU log appender was configured. Disabling APDU logs.");
-//				apduLogger.setLevel(Level.OFF);
-//			}
-//		}
 	}
 
 	/**
