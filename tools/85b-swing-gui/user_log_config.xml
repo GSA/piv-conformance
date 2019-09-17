@@ -2,7 +2,7 @@
 
     <!-- this is a file appender that the root logger will post events to. Setting the level on the root logger
             will moderate verbosity. Individual facilities can be turned off as shown below. -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <appender name="FILE" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <file>logs/file/85b-swing-gui.log</file>
         <encoder>
             <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
@@ -10,7 +10,7 @@
     </appender>
 
     <!-- this log is used by conformance tests/atoms in progress. it can be omitted if there's no need to crack this stream out into a separate file. -->
-    <appender name="TESTLOG" class="ch.qos.logback.core.FileAppender">
+    <appender name="TESTLOG" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <file>logs/testlog/test_progress.log</file>
         <encoder>
             <pattern>%date,%level,"%msg"%n</pattern>
@@ -42,7 +42,7 @@
     </appender>
 
     <!-- this is fully optional and probably only desirable during development -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <encoder>
             <pattern>%msg%n</pattern>
         </encoder>
