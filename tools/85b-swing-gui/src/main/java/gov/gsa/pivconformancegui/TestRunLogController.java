@@ -239,7 +239,9 @@ public class TestRunLogController {
 			}
 			// Do a bunch of random stuff to truncate the file - maybe one thing will work
 			// and I can eliminate the others.
-			logger.detachAppender(appender);
+			if (!logger.detachAppender(appender))
+				s_logger.error("Error detaching from ", appender.getName());
+
 		}
 	}
 
