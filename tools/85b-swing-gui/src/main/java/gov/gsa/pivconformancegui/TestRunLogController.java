@@ -4,8 +4,10 @@
 package gov.gsa.pivconformancegui;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -94,7 +96,16 @@ public class TestRunLogController {
 				appender.setImmediateFlush(true);
 				appender.setAppend(false);
 				if (appender.getName().equals("CONFORMANCELOG")) {
-					logger.info("Test Id,Description,Expected Result,Actual Result");
+					File f = new File(appender.getFile());
+					PrintStream p;
+					try {
+						p = new PrintStream(f);
+						p.println("Date,Test Id,Description,Expected Result,Actual Result");
+						p.close();
+						s_logger.debug("Wrote header to {}", appender.getFile());
+					} catch (Exception e) {
+						s_logger.error("Can't initialize {}", appender.getFile());
+					}
 				}
 				s_logger.debug("Initialized and configured {}", loggerName);
 			}
@@ -269,7 +280,7 @@ public class TestRunLogController {
 			}
 			rv = true;
 		} catch (IOException e) {
-			s_logger.error("IOException: " + e.getMessage());
+			s_logger.error("IOException '{}' while rolling files", e.getMessage());
 		}
 		return rv;
 	}
