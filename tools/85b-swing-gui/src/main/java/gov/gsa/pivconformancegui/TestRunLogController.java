@@ -247,6 +247,14 @@ public class TestRunLogController {
 			s_logger.debug("Copying log {} to: {}", logName, timeStampedLogPath);
 			if (rollFile(currPath, timeStampedLogPath)) {
 				s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
+				File f = new File(".lastlog" + appender.getName().toLowerCase());
+				try {
+					PrintStream p = new PrintStream(f);
+					p.println(timeStampedLogPath);
+					p.close();
+				} catch (IOException e) {
+					s_logger.debug("Couldn't write last log name to .lastlog: {}", e.getMessage());
+				}
 			} else {
 				s_logger.error("Error copying {} to {}", currPath, timeStampedLogPath);
 			}
