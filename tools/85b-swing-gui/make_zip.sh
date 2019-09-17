@@ -3,7 +3,7 @@
 bash ./ensuredeps.sh
 ./gradlew shadowJar
 
-DESTDIR=${DESTDIR:-FIPS-201-Card-Conformance-Tool}
+DESTDIR=${DESTDIR:-fips201-cct}
 STAMP=$(date +'%Y%m%d%H%M')
 
 if [[ -d ${DESTDIR} ]]; then
