@@ -234,7 +234,7 @@ INSERT INTO "TestSteps" VALUES(169,'PKIX.28','gov.gsa.conformancelib.tests.PKIX_
 INSERT INTO "TestSteps" VALUES(170,'PlaceholderTest.1','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_1',NULL);
 INSERT INTO "TestSteps" VALUES(171,'PlaceholderTest.2','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_2',NULL);
 INSERT INTO "TestSteps" VALUES(172,'PlaceholderTest.3','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_3',NULL);
-INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:5',0);
+INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'5',0);
 INSERT INTO "TestStepParameters" VALUES(2, 99,NULL,'CARDHOLDER_FINGERPRINTS_OID:513',0);
 INSERT INTO "TestStepParameters" VALUES(3, 99,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:1281',1);
 INSERT INTO "TestStepParameters" VALUES(4, 99,NULL,'CARDHOLDER_IRIS_IMAGES_OID:9',2);
