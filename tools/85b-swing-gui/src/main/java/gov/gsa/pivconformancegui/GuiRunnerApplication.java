@@ -123,7 +123,7 @@ public class GuiRunnerApplication {
 		StatusPrinter.printIfErrorsOccured(ctx);
 		TestExecutionController tc = TestExecutionController.getInstance();
 		tc.setLoggerContext(ctx);
-		tc.setTestRunLogController(new TestRunLogController(ctx));
+		tc.setTestRunLogController(new TestRunLogController());
 
 //		// Bootstrap the Logging
 //		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

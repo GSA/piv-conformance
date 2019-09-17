@@ -20,11 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.FileSize;
 
 /**
  * Class that consolidates the appenders into a single disposable group
@@ -55,22 +53,8 @@ public class TestRunLogController {
 	/*
 	 * Constructor
 	 */
-	public TestRunLogController(LoggerContext ctx) {
-		try {
-			System.out.println("Working Directory = " + System.getProperty("user.dir"));
-			File logConfigFile = new File("user_log_config.xml");
-			if (logConfigFile.exists() && logConfigFile.canRead()) {
-				JoranConfigurator configurator = new JoranConfigurator();
-				configurator.setContext(ctx);
-				configurator.doConfigure(logConfigFile.getCanonicalPath());
-			}
-		} catch (JoranException e) {
-			// handled by status printer
-		} catch (IOException e) {
-			System.err.println("Unable to resolve logging config to a readable file");
-			e.printStackTrace();
-		}
-		StatusPrinter.printIfErrorsOccured(ctx);
+	public TestRunLogController() {
+		LoggerContext ctx = TestExecutionController.getInstance().getLoggerContext();
 		this.initialize(ctx);
 		if (this.appendersConfigured()) {
 			s_logger.error("Logger configuration error");
@@ -87,10 +71,10 @@ public class TestRunLogController {
 		m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
 
 		// Bootstrap the Logging
-		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
 
-		a.setContext(lc);
+		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+		a.setContext(ctx);
 
 		Map.Entry<String, String> me = null;
 		Iterator<?> i = m_loggers.entrySet().iterator();
@@ -105,6 +89,7 @@ public class TestRunLogController {
 				s_logger.warn("No appender was configured for {}", loggerName);
 			} else {
 				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
+				appender.setImmediateFlush(true);
 				m_appenders.put(loggerName, appender);
 				s_logger.debug("Configured {}", loggerName);
 			}
@@ -200,13 +185,44 @@ public class TestRunLogController {
 			}
 
 			// Synchronize timestamp portion of path
-			String dirName = currPath.substring(0, currPath.lastIndexOf("/"));
-			String logFileName = currPath.substring(currPath.lastIndexOf("/") + 1);
+			String dirName = null;
+			if (currPath.lastIndexOf("/") > -1)
+				dirName = currPath.substring(0, currPath.lastIndexOf("/"));
+			else
+				dirName = currPath;
+
+			String logFileName = null;
+			if (currPath.lastIndexOf("/") > -1)
+				logFileName = currPath.substring(currPath.lastIndexOf("/") + 1);
+			else
+				logFileName = currPath;
+			
 			String baseName = (startTs + "-" + stopTs + "-" + logFileName);
-			s_logger.debug("Setting {} to: {}", logName, dirName + File.separator + baseName);
-			a.setTimeStampedLogPath(dirName + File.separator + baseName);
-			// Make the copy
-			copyFile(currPath, a.getTimeStampedLogPath());
+			String timeStampedLogPath = dirName + "/" + baseName;
+			a.setTimeStampedLogPath(timeStampedLogPath);
+			s_logger.debug("Setting {} to: {}", logName, timeStampedLogPath);
+
+			try {
+				a.stop();
+				a.setBufferSize(new FileSize(0));
+				a.openFile(a.getFile());
+				a.start();
+				a.stop();
+				a.setBufferSize(new FileSize(8192));
+				if (copyFile(currPath, timeStampedLogPath)) {
+					if (!new File(currPath).delete()) {
+						s_logger.warn("Couldn't delete {}", currPath);
+					}
+					s_logger.debug("Succesfully extracted {}", timeStampedLogPath);
+				} else {
+					s_logger.error("Error extracting {}", timeStampedLogPath);
+				}
+				// Make the copy
+				a.setImmediateFlush(true);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				s_logger.error("Error copying {}", a.getFile());
+			}
 		}
 	}
 
@@ -220,7 +236,7 @@ public class TestRunLogController {
 
 	private boolean copyFile(String oldPath, String newPath) {
 		boolean rv = false;
-		s_logger.debug(String.format("Copying {} to {}", oldPath, newPath));
+		s_logger.debug("Copying {} to {}", oldPath, newPath);
 		try {
 			Files.copy(Paths.get(oldPath), Paths.get(newPath), StandardCopyOption.REPLACE_EXISTING,
 					StandardCopyOption.COPY_ATTRIBUTES);
@@ -236,13 +252,13 @@ public class TestRunLogController {
 	 * @return true if required appenders are configured, false otherwise
 	 */
 
+	@SuppressWarnings("unchecked")
 	public boolean appendersConfigured() {
 		boolean rv = false;
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
 		Map<String, Appender<ILoggingEvent>> appendersMap = new HashMap<>();
 		for (Logger logger : loggerContext.getLoggerList()) {
-
 			Iterator<Appender<ILoggingEvent>> appenderIterator = logger.iteratorForAppenders();
 			while (appenderIterator.hasNext()) {
 				Appender<ILoggingEvent> appender = appenderIterator.next();

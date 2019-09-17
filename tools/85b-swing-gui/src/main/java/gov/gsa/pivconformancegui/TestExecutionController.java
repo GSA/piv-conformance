@@ -150,7 +150,7 @@ public class TestExecutionController {
 
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
-		TestRunLogController lg = new TestRunLogController(m_ctx);
+		TestRunLogController lg = new TestRunLogController();
 		m_lg = lg;
 
 		/* Workaround to ensure that the tool is primed with the CHUID cert.
