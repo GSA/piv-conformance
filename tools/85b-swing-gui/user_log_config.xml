@@ -1,5 +1,5 @@
 <configuration>
-
+	<!-- <timestamp key="timestamp" datePattern="yyyyMMdd'-'HHmmss.SSS"/> -->
     <!-- this is a file appender that the root logger will post events to. Setting the level on the root logger
             will moderate verbosity. Individual facilities can be turned off as shown below. -->
     <appender name="FILE" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
@@ -30,7 +30,7 @@
     </appender>
 
     <!-- This is the appender that produces the APDU traces.
-        In order to get traces, it **MUST** be called APDULOG -->
+         In order to get traces, it **MUST** be called APDULOG -->
     <appender name="APDULOG" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <file>logs/apdu/apdu_transmission.log</file>
         <!-- the application will search out this appender by name and manually rotate it at the beginning of each conformance run.

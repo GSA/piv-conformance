@@ -5,6 +5,7 @@ package gov.gsa.pivconformancegui;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -57,9 +58,6 @@ public class TestRunLogController {
 	 */
 	public TestRunLogController() {
 		LoggerContext ctx = TestExecutionController.getInstance().getLoggerContext();
-
-		// Bootstrap the Logging
-		//bootStrapLogging();
 		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
 		a.setContext(ctx);
 		
@@ -79,7 +77,6 @@ public class TestRunLogController {
 	void initialize(LoggerContext ctx) {
 		bootStrapLogging();
 		m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
-
 		Map.Entry<String, String> me = null;
 		Iterator<?> i = m_loggers.entrySet().iterator();
 		while (i.hasNext()) {
@@ -92,10 +89,14 @@ public class TestRunLogController {
 			if (appender == null) {
 				s_logger.warn("No appender was configured for {}", loggerName);
 			} else {
+				m_appenders.put(loggerName, appender);
 				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
 				appender.setImmediateFlush(true);
-				m_appenders.put(loggerName, appender);
-				s_logger.debug("Configured {}", loggerName);
+				appender.setAppend(false);
+				if (appender.getName().equals("CONFORMANCELOG")) {
+					logger.info("Test Id,Description,Expected Result,Actual Result");
+				}
+				s_logger.debug("Initialized and configured {}", loggerName);
 			}
 		}
 		m_startTime = new Date();
@@ -229,24 +230,23 @@ public class TestRunLogController {
 			String baseName = (startTs + "-" + stopTs + "-" + logFileName);
 			String timeStampedLogPath = dirName + "/" + baseName;
 			appender.setTimeStampedLogPath(timeStampedLogPath);
-
-			// Make the copy
+			appender.stop();
+			
+			// Roll the log
 			s_logger.debug("Copying log {} to: {}", logName, timeStampedLogPath);
 			if (rollFile(currPath, timeStampedLogPath)) {
 				s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
 			} else {
 				s_logger.error("Error copying {} to {}", currPath, timeStampedLogPath);
 			}
-			// Do a bunch of random stuff to truncate the file - maybe one thing will work
-			// and I can eliminate the others.
-			if (!logger.detachAppender(appender))
-				s_logger.error("Error detaching from ", appender.getName());
-
+			
+			// Halt the appenders
+			logger.detachAndStopAllAppenders();
 		}
 	}
 
 	/**
-	 * Copies the contents of oldPath to newPath
+	 * Copies the contents of oldPath to newPath and removes the existing
 	 * 
 	 * @param oldPath the original file
 	 * @param newPath the new copy
