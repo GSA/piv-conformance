@@ -36,35 +36,39 @@ public class DisplayTestReportAction extends AbstractAction {
 	public void actionPerformed(ActionEvent e) {
 		String errorMessage = null;
 		TestRunLogController lg = TestExecutionController.getInstance().getTestRunLogController();
-		if (lg != null) {	
+		if (lg != null) {
 			TimeStampedFileAppender<?> csvAppender = lg.getAppender("CONFORMANCELOG");
 			String htmlPathName = null;
 			if (csvAppender != null) {
-				String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
-				if (Files.isReadable(Paths.get(fn))) {
-					// TODO: Create list of MRU paths instead of a :hidden: file
-					fn = fetchFromLastLog(".lastlog" + "-" + csvAppender.getName().toLowerCase());
-					if (fn != null) {
-						htmlPathName = fn + ".html";
-						try {
-							PrintStream writer  = new PrintStream(htmlPathName);
-							Csv2Html.generateHtml(fn, writer, true);
-							writer.close();
-							
-							File htmlFile = new File(htmlPathName);
-							try {
-								Desktop.getDesktop().browse(htmlFile.toURI());
-							} catch (IOException e1) {
-								errorMessage = String.format("Couldn't render HTML results page: %s", e1.getMessage());
-							}
-						} catch (Exception e1) {
-							errorMessage = String.format("Coudn't generate HTML file: %s", e1.getMessage());
-						}
+				String lp = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
+				if (!Files.isReadable(Paths.get(lp))) {
+					String fn = fetchFromLastLog(".lastlog" + "-" + csvAppender.getName().toLowerCase());
+					if (fn == null) {
+						errorMessage = String.format("Couldn't extract last log file name from %s",
+								".lastlog" + "-" + csvAppender.getName().toLowerCase());
 					} else {
-						errorMessage = String.format("Couldn't extract last log file name from %s", ".lastlog" + "-" + csvAppender.getName().toLowerCase());					
+						lp = fn;
+					}
+				}
+
+				if (lp != null) {
+					htmlPathName = lp + ".html";
+					try {
+						PrintStream writer = new PrintStream(htmlPathName);
+						Csv2Html.generateHtml(lp, writer, true);
+						writer.close();
+
+						File htmlFile = new File(htmlPathName);
+						try {
+							Desktop.getDesktop().browse(htmlFile.toURI());
+						} catch (IOException e1) {
+							errorMessage = String.format("Couldn't render HTML results page: %s", e1.getMessage());
+						}
+					} catch (Exception e1) {
+						errorMessage = String.format("Coudn't generate HTML file: %s", e1.getMessage());
 					}
 				} else {
-					errorMessage = String.format("Log %s is is not readable", fn);
+					errorMessage = String.format("Log %s is is not readable", lp);
 				}
 			} else {
 				errorMessage = "Unable to get the CSV appender";
@@ -72,7 +76,7 @@ public class DisplayTestReportAction extends AbstractAction {
 		} else {
 			errorMessage = "No tests have been run yet";
 		}
-		
+
 		if (errorMessage != null) {
 			JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
 			JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
@@ -80,20 +84,23 @@ public class DisplayTestReportAction extends AbstractAction {
 			dialog.setVisible(true);
 		}
 	}
-	
+
 	/**
-	 * Gets the last known log file from a persistent file, .lastlog-{appendername}.toLowerCase()
+	 * Gets the last known log file from a persistent file,
+	 * .lastlog-{appendername}.toLowerCase()
+	 * 
 	 * @param name
 	 * @return
 	 */
-	
+
 	private String fetchFromLastLog(String name) {
 		String fileName = null;
 		try (BufferedReader br = new BufferedReader(new FileReader(name))) {
-		    fileName = br.readLine();
+			fileName = br.readLine();
 		} catch (Exception e) {
 			String s = TestRunLogController.getCwd("gov.gsa.pivconformancegui.GuiRunnerApplication");
-			s_logger.error("Can't open {}", TestRunLogController.getCwd("gov.gsa.pivconformancegui.GuiRunnerApplication") + "/" + name);
+			s_logger.error("Can't open {}",
+					TestRunLogController.getCwd("gov.gsa.pivconformancegui.GuiRunnerApplication") + "/" + name);
 		}
 		return fileName;
 	}
