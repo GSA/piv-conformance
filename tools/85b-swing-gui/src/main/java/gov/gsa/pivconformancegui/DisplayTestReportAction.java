@@ -42,44 +42,50 @@ public class DisplayTestReportAction extends AbstractAction {
 	public void actionPerformed(ActionEvent e) {
 		TimeStampedFileAppender<?> csvAppender = TestExecutionController.getInstance().getTestRunLogGroup().getAppender("CONFORMANCELOG");
 		String htmlPathName = null;
+		String errorMessage = null;
 		if(csvAppender == null) {
-			JOptionPane msgBox = new JOptionPane("Unable to get CSV appender.", JOptionPane.ERROR_MESSAGE);
-			JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
-			dialog.setAlwaysOnTop(true);
-			dialog.setVisible(true);
+			errorMessage = "Unable to obtain CSV appender";
 		} else {
 			String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
 			htmlPathName = fn + ".html";
 			if (!Files.isReadable(Paths.get(htmlPathName))) {
+				// TODO: Swap last log file into a mostRecentLog slot in the controller
 				fn = fetchFromLastLog(".lastLog" + "-" + csvAppender.getName().toLowerCase());
 				if (fn == null) {
-					s_logger.error("Couldn't extract last log file from .lastLog");
-					return;
-				} else
+					errorMessage = String.format("Couldn't extract last log file from {}", fn);
+				} else {
 					htmlPathName = fn + ".html";
+				}
+				
+				if (errorMessage != null) {
+					
+					try {
+						PrintStream writer  = new PrintStream(htmlPathName);
+						Csv2Html.generateHtml(fn, writer, true);
+						writer.close();
+					} catch (Exception e1) {
+						errorMessage = String.format("Error generating HTML output: {}", e1.getMessage());
+					}
+					
+					File htmlFile = new File(htmlPathName);
+					try {
+						Desktop.getDesktop().browse(htmlFile.toURI());
+					} catch (IOException e1) {
+						errorMessage = String.format("Error displaying HTML output: {}", e1.getMessage());
+					}
+				} else {
+					JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
+					JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
+					dialog.setAlwaysOnTop(true);
+					dialog.setVisible(true);
+				}
 			}
-						
-			try {
-				PrintStream writer  = new PrintStream(htmlPathName);
-				Csv2Html.generateHtml(fn, writer, true);
-				writer.close();
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			File htmlFile = new File(htmlPathName);
-			try {
-				Desktop.getDesktop().browse(htmlFile.toURI());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+
 		}
 	}
 	
 	/**
-	 * Gets the last known log file from a persistent file, .lastLog.[appendername]
+	 * Gets the last known log file from a persistent file, .lastLog-[appendername]
 	 * @param name
 	 * @return
 	 */
@@ -91,7 +97,7 @@ public class DisplayTestReportAction extends AbstractAction {
 		    	;
 		    }
 		} catch (Exception e) {
-			s_logger.error("Can't open .lastlog");
+			s_logger.error("Can't open {}", name);
 		}
 		return fileName;
 	}
