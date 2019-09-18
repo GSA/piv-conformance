@@ -134,6 +134,14 @@ public class GuiRunnerAppController {
 		return m_displayTestReportAction;
 	}
 
+	public SaveOidsAction getSaveOidsAction() {
+		return m_saveOidsAction;
+	}
+
+	public void setSaveOidsAction(SaveOidsAction action) {
+		m_saveOidsAction = action;
+	}
+	
 	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
 	public void showDebugWindow() {
 		DebugWindow window = m_app.getDebugFrame();
@@ -183,6 +191,7 @@ public class GuiRunnerAppController {
         		FormSpecs.RELATED_GAP_ROWSPEC,}));
         
         JTextArea txtDefinitionTextArea = new JTextArea();
+        txtDefinitionTextArea.setWrapStyleWord(true);
         txtDefinitionTextArea.setBackground(UIManager.getColor("Button.background"));
         txtDefinitionTextArea.setEnabled(false);
         txtDefinitionTextArea.setFont(new Font("Tahoma", Font.PLAIN, 11));
