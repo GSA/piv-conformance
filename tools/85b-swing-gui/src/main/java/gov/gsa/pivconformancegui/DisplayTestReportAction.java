@@ -4,12 +4,10 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.swing.AbstractAction;
@@ -20,10 +18,7 @@ import javax.swing.JOptionPane;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
 import gov.gsa.conformancelib.utilities.Csv2Html;
-import gov.gsa.pivconformance.card.client.CardClientException;
 
 public class DisplayTestReportAction extends AbstractAction {
 	private static final Logger s_logger = (Logger) LoggerFactory.getLogger(DisplayTestReportAction.class);
@@ -46,7 +41,7 @@ public class DisplayTestReportAction extends AbstractAction {
 			String htmlPathName = null;
 			if (csvAppender != null) {
 				String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
-				if (!Files.isReadable(Paths.get(fn))) {
+				if (Files.isReadable(Paths.get(fn))) {
 					// TODO: Create list of MRU paths instead of a :hidden: file
 					fn = fetchFromLastLog(".lastlog" + "-" + csvAppender.getName().toLowerCase());
 					if (fn != null) {

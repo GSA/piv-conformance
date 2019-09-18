@@ -81,7 +81,6 @@ public class TestRunLogController {
 	 */
 	@SuppressWarnings("unchecked")
 	void initialize(LoggerContext ctx) {
-		TestExecutionController.getInstance().setTestRunLogController(this);
 		bootStrapLogging();
 		m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
 		Map.Entry<String, String> me = null;
@@ -117,6 +116,7 @@ public class TestRunLogController {
 		}
 		m_startTime = new Date();
 		m_initialized = true;
+		TestExecutionController.getInstance().setTestRunLogController(this);
 		s_logger.debug("Logging has been initialized");
 	}
 	
