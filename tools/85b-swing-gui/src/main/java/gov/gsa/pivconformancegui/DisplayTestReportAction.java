@@ -27,7 +27,6 @@ import gov.gsa.pivconformance.card.client.CardClientException;
 
 public class DisplayTestReportAction extends AbstractAction {
 	private static final Logger s_logger = (Logger) LoggerFactory.getLogger(DisplayTestReportAction.class);
-
 	/**
 	 * 
 	 */
@@ -40,46 +39,55 @@ public class DisplayTestReportAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		TimeStampedFileAppender<?> csvAppender = TestExecutionController.getInstance().getTestRunLogGroup().getAppender("CONFORMANCELOG");
-		String htmlPathName = null;
-		if(csvAppender == null) {
-			JOptionPane msgBox = new JOptionPane("Unable to get CSV appender.", JOptionPane.ERROR_MESSAGE);
+		String errorMessage = null;
+		TestRunLogController lg = TestExecutionController.getInstance().getTestRunLogController();
+		if (lg != null) {	
+			TimeStampedFileAppender<?> csvAppender = lg.getAppender("CONFORMANCELOG");
+			String htmlPathName = null;
+			if (csvAppender != null) {
+				String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
+				if (!Files.isReadable(Paths.get(fn))) {
+					// TODO: Create list of MRU paths instead of a :hidden: file
+					fn = fetchFromLastLog(".lastlog" + "-" + csvAppender.getName().toLowerCase());
+					if (fn != null) {
+						htmlPathName = fn + ".html";
+						try {
+							PrintStream writer  = new PrintStream(htmlPathName);
+							Csv2Html.generateHtml(fn, writer, true);
+							writer.close();
+							
+							File htmlFile = new File(htmlPathName);
+							try {
+								Desktop.getDesktop().browse(htmlFile.toURI());
+							} catch (IOException e1) {
+								errorMessage = String.format("Couldn't render HTML results page: %s", e1.getMessage());
+							}
+						} catch (Exception e1) {
+							errorMessage = String.format("Coudn't generate HTML file: %s", e1.getMessage());
+						}
+					} else {
+						errorMessage = String.format("Couldn't extract last log file name from %s", ".lastlog" + "-" + csvAppender.getName().toLowerCase());					
+					}
+				} else {
+					errorMessage = String.format("Log %s is is not readable", fn);
+				}
+			} else {
+				errorMessage = "Unable to get the CSV appender";
+			}
+		} else {
+			errorMessage = "No tests have been run yet";
+		}
+		
+		if (errorMessage != null) {
+			JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
 			JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
 			dialog.setAlwaysOnTop(true);
 			dialog.setVisible(true);
-		} else {
-			String fn = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
-			htmlPathName = fn + ".html";
-			if (!Files.isReadable(Paths.get(htmlPathName))) {
-				fn = fetchFromLastLog(".lastLog" + "-" + csvAppender.getName().toLowerCase());
-				if (fn == null) {
-					s_logger.error("Couldn't extract last log file from .lastLog");
-					return;
-				} else
-					htmlPathName = fn + ".html";
-			}
-						
-			try {
-				PrintStream writer  = new PrintStream(htmlPathName);
-				Csv2Html.generateHtml(fn, writer, true);
-				writer.close();
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			File htmlFile = new File(htmlPathName);
-			try {
-				Desktop.getDesktop().browse(htmlFile.toURI());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 		}
 	}
 	
 	/**
-	 * Gets the last known log file from a persistent file, .lastLog.[appendername]
+	 * Gets the last known log file from a persistent file, .lastlog-{appendername}.toLowerCase()
 	 * @param name
 	 * @return
 	 */
@@ -87,11 +95,10 @@ public class DisplayTestReportAction extends AbstractAction {
 	private String fetchFromLastLog(String name) {
 		String fileName = null;
 		try (BufferedReader br = new BufferedReader(new FileReader(name))) {
-		    while ((fileName = br.readLine()) != null) {
-		    	;
-		    }
+		    fileName = br.readLine();
 		} catch (Exception e) {
-			s_logger.error("Can't open .lastlog");
+			String s = TestRunLogController.getCwd("gov.gsa.pivconformancegui.GuiRunnerApplication");
+			s_logger.error("Can't open {}", TestRunLogController.getCwd("gov.gsa.pivconformancegui.GuiRunnerApplication") + "/" + name);
 		}
 		return fileName;
 	}

@@ -11,11 +11,15 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -77,6 +81,7 @@ public class TestRunLogController {
 	 */
 	@SuppressWarnings("unchecked")
 	void initialize(LoggerContext ctx) {
+		TestExecutionController.getInstance().setTestRunLogController(this);
 		bootStrapLogging();
 		m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
 		Map.Entry<String, String> me = null;
@@ -247,13 +252,13 @@ public class TestRunLogController {
 			s_logger.debug("Copying log {} to: {}", logName, timeStampedLogPath);
 			if (rollFile(currPath, timeStampedLogPath)) {
 				s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
-				File f = new File(".lastlog" + appender.getName().toLowerCase());
+				File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
 				try {
 					PrintStream p = new PrintStream(f);
 					p.println(timeStampedLogPath);
 					p.close();
 				} catch (IOException e) {
-					s_logger.debug("Couldn't write last log name to .lastlog: {}", e.getMessage());
+					s_logger.debug("Couldn't write last log name to .lastlog-{}: {}", appender.getName().toLowerCase(), e.getMessage());
 				}
 			} else {
 				s_logger.error("Error copying {} to {}", currPath, timeStampedLogPath);
@@ -331,5 +336,60 @@ public class TestRunLogController {
 				x++;
 		}
 		return (x == y);
+	}
+	
+	/**
+	 * Gets the currently running directory
+	 * @return the currently running directory
+	 */
+	
+	public static String getCwd(String caller) {
+		String rv = null;
+		ProtectionDomain p;
+		Class<?> cls;
+		try {
+			cls = Class.forName(caller);
+			p = cls.getProtectionDomain();
+			String tmp = pathFixup(p.getCodeSource().getLocation().getPath());
+			String[] dirs = tmp.split("/");
+			List<String> dirList = Arrays.asList(dirs);
+			StringBuilder sb = new StringBuilder("");
+			if (dirList.contains("bin") && dirList.contains("main")) {
+				for (String d : dirList) {
+					if (d.compareTo("bin") != 0) {
+						if (d.length() > 0) {
+							sb.append(d);
+							sb.append("/");
+						}
+					} else {
+						break;
+					}
+				}
+			}
+			rv = sb.toString();
+		} catch (ClassNotFoundException e) {
+			s_logger.error("Class {} not found", caller);
+		}
+		return rv;
+	}
+	/**
+	 * Corrects the path separators for a path.
+	 * 
+	 * @param inPath
+	 *            the path as read from a configuration file, etc.
+	 * @return a path with the correct path separators for the local OS
+	 */
+
+	public static String pathFixup(String inPath) {
+		String outPath = inPath;
+		if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+			if (inPath.contains("/")) {
+				outPath = inPath.replace("/", "\\");
+			}
+		} else if (inPath.contains("\\")) {
+			outPath = inPath.replace("\\\\", "/");
+		}
+
+		return outPath;
 	}
 }

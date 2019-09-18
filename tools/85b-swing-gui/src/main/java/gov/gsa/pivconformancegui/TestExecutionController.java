@@ -49,7 +49,7 @@ public class TestExecutionController {
 	GuiRunnerToolbar m_toolBar;
 	boolean m_running;
 	LoggerContext m_ctx;
-	TestRunLogController m_lg;
+	TestRunLogController m_trlc;
 	Date m_startDate;
 	Date m_stopDate;
 
@@ -66,7 +66,7 @@ public class TestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
-		m_lg = null;
+		m_trlc = null;
 		m_startDate = new Date();
 		m_stopDate = null; // will get set by new appender plugin
 	}
@@ -87,12 +87,12 @@ public class TestExecutionController {
 		m_testExecutionPanel = testExecutionPanel;
 	}
 	
-	public void setTestRunLogController(TestRunLogController logGroup) {
-		m_lg = logGroup;
+	public void setTestRunLogController(TestRunLogController logController) {
+		m_trlc = logController;
 	}
 	
-	public TestRunLogController getTestRunLogGroup() {
-		return m_lg;
+	public TestRunLogController getTestRunLogController() {
+		return m_trlc;
 	}
 
 	public void setToolBar(GuiRunnerToolbar toolBar) {
@@ -151,7 +151,7 @@ public class TestExecutionController {
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
 		TestRunLogController lg = new TestRunLogController();
-		m_lg = lg;
+		m_trlc = lg;
 
 		/* Workaround to ensure that the tool is primed with the CHUID cert.
 		 * TODO: Create "factory" database with 8.2.2.1 as the only test, open,
