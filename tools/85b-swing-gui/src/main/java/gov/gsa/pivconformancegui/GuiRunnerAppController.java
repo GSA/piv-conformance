@@ -37,7 +37,6 @@ public class GuiRunnerAppController {
 	
 	private ConformanceTestDatabase m_testDatabase;
 	private GuiRunnerApplication m_app;
-	private TestRunLogController m_trlc;
 	private OpenDatabaseAction m_openDatabaseAction;
 	private ShowDebugWindowAction m_showDebugWindowAction;
 	private RunAllTestsAction m_runAllTestsAction;
@@ -57,7 +56,6 @@ public class GuiRunnerAppController {
 	public void reset() {
 		m_testDatabase = null;
 		m_app = null;
-		m_trlc = null;
 		m_openDatabaseAction = null;
 		m_showDebugWindowAction = null;
 		m_runAllTestsAction = null;
@@ -94,14 +92,6 @@ public class GuiRunnerAppController {
 
 	public void setApp(GuiRunnerApplication app) {
 		m_app = app;
-	}
-
-	public TestRunLogController getTestRunLogController() {
-		return m_trlc;
-	}
-
-	public void setTestRunLogController(TestRunLogController testRunLogController) {
-		m_trlc = testRunLogController;
 	}
 
 	public JFrame getMainFrame() {
