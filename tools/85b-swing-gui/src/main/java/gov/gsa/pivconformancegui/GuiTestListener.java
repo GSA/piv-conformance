@@ -27,7 +27,7 @@ public class GuiTestListener implements TestExecutionListener {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestListener.class);
 	private static final Logger s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testProgress");
 	private static final Logger s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
-	private static final Logger s_AtomResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testAtomResults");
+	private static final Logger s_atomResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testAtomResults");
 	
 	private String m_testCaseIdentifier;
 	private String m_testCaseDescription;
@@ -35,14 +35,14 @@ public class GuiTestListener implements TestExecutionListener {
 	private JProgressBar m_progressBar;
 	
 	Map<TestIdentifier, TestExecutionResult> m_testStepResults;
-	boolean m_AtomFailed;
-	boolean m_AtomAborted;
+	boolean m_atomFailed;
+	boolean m_atomAborted;
 
 	@Override
 	public void testPlanExecutionStarted(TestPlan testPlan) {
 		TestExecutionListener.super.testPlanExecutionStarted(testPlan);
-		m_AtomAborted = false;
-		m_AtomFailed = false;
+		m_atomAborted = false;
+		m_atomFailed = false;
 		s_testProgressLogger.info("Test plan started for conformance test {}", m_testCaseIdentifier);
 		try {
 			SwingUtilities.invokeAndWait(() -> {
@@ -59,12 +59,12 @@ public class GuiTestListener implements TestExecutionListener {
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
 		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription,
 				m_testCaseExpectedResult ? "Pass" : "Fail",
-				(m_AtomAborted||m_AtomFailed) ? "Fail" : "Pass"); 
+				(m_atomAborted || m_atomFailed) ? "Fail" : "Pass"); 
 		TestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
 		if(tcNode != null) {
 			TestCaseModel tcModel = tcNode.getTestCase();
 			if(tcModel != null) {
-				tcModel.setTestStatus(m_AtomAborted || m_AtomFailed ? TestStatus.FAIL : TestStatus.PASS);
+				tcModel.setTestStatus(m_atomAborted || m_atomFailed ? TestStatus.FAIL : TestStatus.PASS);
 			}
 		}
 		DefaultTreeModel model = GuiRunnerAppController.getInstance().getApp().getTreePanel().getTreeModel();
@@ -104,15 +104,15 @@ public class GuiTestListener implements TestExecutionListener {
 		//if(!testIdentifier.isTest()) return;
 		m_testStepResults.put(testIdentifier, testExecutionResult);
 		if(testExecutionResult.getStatus() == TestExecutionResult.Status.FAILED) {
-			m_AtomFailed = true;
+			m_atomFailed = true;
 			s_testProgressLogger.error("Test atom {}:{} failed", m_testCaseIdentifier, displayName);
 		}
 		if(testExecutionResult.getStatus() == TestExecutionResult.Status.ABORTED) {
-			m_AtomAborted = true;
+			m_atomAborted = true;
 			s_testProgressLogger.error("Test atom {}:{} aborted", m_testCaseIdentifier, displayName);
 		}
 		if(testExecutionResult.getStatus() == TestExecutionResult.Status.SUCCESSFUL) {
-			s_AtomResultLogger.info("{}:{},pass",m_testCaseIdentifier, displayName);
+			s_atomResultLogger.info("{}:{},pass",m_testCaseIdentifier, displayName);
 		}
 		Optional<Throwable> exception = testExecutionResult.getThrowable();
 		if(exception.isPresent()) s_logger.error("Caused by:", exception.get());

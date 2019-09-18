@@ -276,7 +276,7 @@ INSERT INTO "TestCases" VALUES(8, NULL,'8.1.1','CCC Registered data model elemen
 INSERT INTO "TestCases" VALUES(9, NULL,'8.1.2','CCC BERTLV tag is 5FC107','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(10, NULL,'8.1.3','CCC Tags 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xFA, 0xFB, 0xFC, 0xFD present in that order','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(11, NULL,'8.1.8','CCC Optional Tags 0xE3 and 0xB4 may be present or absent; if present are after tags listed in and are in that order','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(12, NULL,'8.1.9','CCC Tag 0xFE present and after any tags from 73-4.4 and 73.4-5','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(12, NULL,'8.1.9','CCC Tag 0xFE present and after any tags from 73-4.3 and 73-4.4','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(13, NULL,'8.1.10','Confirm that tag 0xFE has length of 0','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(14, NULL,'8.1.11','CCC value lengths comply with Table 8 of SP 800-73-4','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(15, NULL,'8.2 CHUID','Card Holder Unique Identifier','',NULL, 1, 1);

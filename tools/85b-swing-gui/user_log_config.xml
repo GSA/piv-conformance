@@ -1,8 +1,8 @@
 <configuration>
-
+	<!-- <timestamp key="timestamp" datePattern="yyyyMMdd'-'HHmmss.SSS"/> -->
     <!-- this is a file appender that the root logger will post events to. Setting the level on the root logger
             will moderate verbosity. Individual facilities can be turned off as shown below. -->
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <appender name="FILE" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <file>logs/file/85b-swing-gui.log</file>
         <encoder>
             <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
@@ -10,7 +10,7 @@
     </appender>
 
     <!-- this log is used by conformance tests/atoms in progress. it can be omitted if there's no need to crack this stream out into a separate file. -->
-    <appender name="TESTLOG" class="ch.qos.logback.core.FileAppender">
+    <appender name="TESTLOG" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <file>logs/testlog/test_progress.log</file>
         <encoder>
             <pattern>%date,%level,"%msg"%n</pattern>
@@ -19,13 +19,8 @@
     
     <!-- This is the appender that produces the conformance results CSV.
         In order to get test reports, it **MUST** be called CONFORMANCELOG -->
-    <appender name="CONFORMANCELOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="CONFORMANCELOG" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <file>logs/conformancelog/conformance_results.csv</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-          <fileNamePattern>logs/conformancelog/conformance_results.%i.csv</fileNamePattern>
-              <minIndex>1</minIndex>
-              <maxIndex>99999</maxIndex>
-        </rollingPolicy>
         <!-- the application will search out this appender by name and manually rotate it at the beginning of each conformance run.
                 this triggering policy is necessary to allow logback to append to a log without knowing how to rotate it. -->
         <triggeringPolicy class="gov.gsa.pivconformancegui.ManualTriggeringPolicy" />
@@ -35,14 +30,9 @@
     </appender>
 
     <!-- This is the appender that produces the APDU traces.
-        In order to get traces, it **MUST** be called APDULOG -->
-    <appender name="APDULOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+         In order to get traces, it **MUST** be called APDULOG -->
+    <appender name="APDULOG" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <file>logs/apdu/apdu_transmission.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-          <fileNamePattern>logs/apdu/apdu_transmission.%i.log</fileNamePattern>
-              <minIndex>1</minIndex>
-              <maxIndex>999999</maxIndex>
-        </rollingPolicy>
         <!-- the application will search out this appender by name and manually rotate it at the beginning of each conformance run.
                 this triggering policy is necessary to allow logback to append to a log without knowing how to rotate it. -->
         <triggeringPolicy class="gov.gsa.pivconformancegui.ManualTriggeringPolicy" />
@@ -52,7 +42,7 @@
     </appender>
 
     <!-- this is fully optional and probably only desirable during development -->
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
         <encoder>
             <pattern>%msg%n</pattern>
         </encoder>

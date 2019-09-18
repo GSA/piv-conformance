@@ -2,8 +2,12 @@ package gov.gsa.pivconformancegui;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +29,7 @@ import org.junit.platform.launcher.core.LauncherFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
@@ -43,6 +48,8 @@ public class TestExecutionController {
 	SimpleTestExecutionPanel m_testExecutionPanel;
 	GuiRunnerToolbar m_toolBar;
 	boolean m_running;
+	LoggerContext m_ctx;
+	TestRunLogController m_trlc;
 	Date m_startDate;
 	Date m_stopDate;
 
@@ -59,6 +66,7 @@ public class TestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
+		m_trlc = null;
 		m_startDate = new Date();
 		m_stopDate = null; // will get set by new appender plugin
 	}
@@ -78,6 +86,14 @@ public class TestExecutionController {
 	public void setTestExecutionPanel(SimpleTestExecutionPanel testExecutionPanel) {
 		m_testExecutionPanel = testExecutionPanel;
 	}
+	
+	public void setTestRunLogController(TestRunLogController logController) {
+		m_trlc = logController;
+	}
+	
+	public TestRunLogController getTestRunLogController() {
+		return m_trlc;
+	}
 
 	public void setToolBar(GuiRunnerToolbar toolBar) {
 		m_toolBar = toolBar;
@@ -90,6 +106,15 @@ public class TestExecutionController {
 	public boolean isRunning() {
 		return m_running;
 	}
+	
+	public LoggerContext getLoggerContext() {
+		return m_ctx;
+	}
+	
+	public void setLoggerContext(LoggerContext ctx) {
+		m_ctx = ctx;
+	}
+	
 
 	void runAllTests(TestCaseTreeNode root) {
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
@@ -102,7 +127,8 @@ public class TestExecutionController {
 		}
 		m_running = true;
 		PCSCWrapper pcsc = PCSCWrapper.getInstance();
-		//pcsc.resetCounters();
+		DataModelSingleton.getInstance().reset();
+
 		int atomCount = 0;
 		JProgressBar progress = m_testExecutionPanel.getTestProgressBar();
 		try {
@@ -110,13 +136,11 @@ public class TestExecutionController {
 				m_testExecutionPanel.getRunButton().setEnabled(false);
 				// TODO: Fix this or else
 				m_toolBar.getComponents()[0].setEnabled(false);
-				DataModelSingleton.getInstance().reset();
 				progress.setMaximum(root.getChildCount());
 				progress.setValue(0);
 				progress.setVisible(true);
 				progress.setStringPainted(true);
 				progress.setString("");
-				//progress.setForeground(Color.GREEN);
 			});
 		} catch (InvocationTargetException | InterruptedException e1) {
 			s_logger.error("Unable to launch tests", e1);
@@ -126,7 +150,9 @@ public class TestExecutionController {
 
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
-		
+		TestRunLogController lg = new TestRunLogController();
+		m_trlc = lg;
+
 		/* Workaround to ensure that the tool is primed with the CHUID cert.
 		 * TODO: Create "factory" database with 8.2.2.1 as the only test, open,
 		 * run, then open actual database.
@@ -165,11 +191,11 @@ public class TestExecutionController {
 									fqmn += "#" + m.getName() + "(";
 									Class<?>[] methodParameters = m.getParameterTypes();
 									int nMethodParameters = 0;
-									for(Class<?> c : methodParameters) {
+									for(Class<?> mp : methodParameters) {
 										if(nMethodParameters >= 1) {
 											fqmn += ", ";
 										}
-										fqmn += c.getName();
+										fqmn += mp.getName();
 										nMethodParameters++;
 									}
 									fqmn += ")";
@@ -231,9 +257,8 @@ public class TestExecutionController {
 				curr = (TestCaseTreeNode) curr.getNextSibling();
 			}
 		} while (++passes < 2); // End of CHUID priming workaround
-		
-		// TODO: After this call, we need a known CSV file name
-		// GuiRunnerAppController.getInstance().rollConformanceCSV(false);
+
+
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
@@ -243,6 +268,8 @@ public class TestExecutionController {
 		} catch (InvocationTargetException | InterruptedException e) {
 			s_logger.error("Failed to enable run button", e);
 		}
+		
+		lg.setStopTime(); // Forces a log snapshot
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",

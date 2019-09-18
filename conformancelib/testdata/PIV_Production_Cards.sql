@@ -234,7 +234,7 @@ INSERT INTO "TestSteps" VALUES(169,'PKIX.28','gov.gsa.conformancelib.tests.PKIX_
 INSERT INTO "TestSteps" VALUES(170,'PlaceholderTest.1','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_1',NULL);
 INSERT INTO "TestSteps" VALUES(171,'PlaceholderTest.2','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_2',NULL);
 INSERT INTO "TestSteps" VALUES(172,'PlaceholderTest.3','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_3',NULL);
-INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:6',0);
+INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'6',0);
 INSERT INTO "TestStepParameters" VALUES(2, 99,NULL,'CARDHOLDER_FINGERPRINTS_OID:513',0);
 INSERT INTO "TestStepParameters" VALUES(3, 99,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:1281',1);
 INSERT INTO "TestStepParameters" VALUES(4, 99,NULL,'CARDHOLDER_IRIS_IMAGES_OID:9',2);
@@ -278,7 +278,7 @@ INSERT INTO "TestCases" VALUES(8, NULL,'8.1.1','CCC Registered data model elemen
 INSERT INTO "TestCases" VALUES(9, NULL,'8.1.2','CCC BERTLV tag is 5FC107','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(10, NULL,'8.1.3','CCC Tags 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xFA, 0xFB, 0xFC, 0xFD present in that order','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(11, NULL,'8.1.8','CCC Optional Tags 0xE3 and 0xB4 may be present or absent; if present are after tags listed in and are in that order','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(12, NULL,'8.1.9','CCC Tag 0xFE present and after any tags from 73-4.4 and 73.4-5','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(12, NULL,'8.1.9','CCC Tag 0xFE present and after any tags from 73-4.3 and 73-4.4','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(13, NULL,'8.1.10','Confirm that tag 0xFE has length of 0','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(14, NULL,'8.1.11','CCC value lengths comply with Table 8 of SP 800-73-4','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(15, NULL,'8.2 CHUID','Card Holder Unique Identifier','',NULL, 1, 1);
@@ -412,7 +412,7 @@ INSERT INTO "TestCases" VALUES(142, NULL,'8.11.0.4','If a variable length field 
 INSERT INTO "TestCases" VALUES(143, NULL,'8.11.1.1','Tag 0x4F (PIV Application AID) is present','DISCOVERY_OBJECT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(144, NULL,'8.11.1.2','Tag 0x5F2F (PIN Usage Policy) Is present','DISCOVERY_OBJECT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(145, NULL,'8.11.1.3','Discovery Object Tags 0x4F, 0x5F2F are in that order','DISCOVERY_OBJECT_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(146, NULL,'8.11.1.4','The values of the tags conform with the vendor provided data.','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(146, NULL,'8.11.1.4','The values of the tags conform with the vendor provided data.','DISCOVERY_OBJECT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(147, NULL,'8.11.1.5','The PIN usage policy matches the card capabilities provided by the vendor documentation. Associated optional data objects are present when the PIN usage policy asserts an optional capability (i.e., OCC, global PIN and pairing code)','DISCOVERY_OBJECT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(148, NULL,'8.11.6','Discovery Object value lengths comply with Table 18 of SP 800-73-4','DISCOVERY_OBJECT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(149, NULL,'8.12 Iris','Card Holder Iris Images','',NULL, 1, 1);
@@ -424,7 +424,7 @@ INSERT INTO "TestCases" VALUES(154, NULL,'8.15 BITT','Biometric InformationTempl
 INSERT INTO "TestCases" VALUES(155, NULL,'8.16 SMCS','Secure Messaging Certificate Signer','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(156, NULL,'8.17 Pariring Code Reference','Pairing Code Reference Data Container','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(157, NULL,'9 Biometric Data Objects','Biometric Data Object Test Assertions','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(158, NULL,'9.1 Fingerprint','CBEFF Patron Format for Fingerprint Template','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(158, NULL,'9.1 Fingerprint CBEFF Header','CBEFF Patron Format for Fingerprint Template','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(159, NULL,'9.1.1','CBEFF Structure for Fingerprint Template','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(160, NULL,'9.1.1.1','BDB length field is non-zero','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(161, NULL,'9.1.1.2','Recorded length matches actual BDB length','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
@@ -444,7 +444,7 @@ INSERT INTO "TestCases" VALUES(174, NULL,'9.1.2.9','The Biometric Data Quality f
 INSERT INTO "TestCases" VALUES(175, NULL,'9.1.2.10','Validate that that the Creator field in the PIV Patron Format contains 18 bytes of which the first K <= 17 bytes shall be ASCII characters, and the first of the remaining 18-K shall be a null terminator (zero)','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(176, NULL,'9.1.2.11','Validate that FASC-N field in the PIV Patron Format contains the same 25 bytes as the FASC-N component of the CHUID identifier','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(177, NULL,'9.1.2.12','Validate that the Reserved for Future Use field is equal to 0x00000000','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(178, NULL,'9.2 Facial Image','CBEFF Patron Format for Facial Image','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(178, NULL,'9.2 Facial Image CBEFF Header','CBEFF Patron Format for Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(179, NULL,'9.2.1','CBEFF Structure for Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(180, NULL,'9.2.1.1','Validate that CBEFF structure conforms to SP800-76 Table 7','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(181, NULL,'9.2.1.2','BDB length field is non-zero','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
@@ -463,7 +463,7 @@ INSERT INTO "TestCases" VALUES(193, NULL,'9.2.2.9','The Biometric Data Quality f
 INSERT INTO "TestCases" VALUES(194, NULL,'9.2.2.10','Validate that that the Creator field in the PIV Patron Format contains 18 bytes of which the first K <= 17 bytes shall be ASCII characters, and the first of the remaining 18-K shall be a null terminator (zero)','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(195, NULL,'9.2.2.11','Validate that FASC-N field in the PIV Patron Format contains the same 25 bytes as the FASC-N component of the CHUID identifier','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(196, NULL,'9.2.2.12','Validate that the Reserved for Future Use field is equal to 0x00000000','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(197, NULL,'9.3 Iris CBEFF','CBEFF Patron Format for Iris Image','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(197, NULL,'9.3 Iris CBEFF Header','CBEFF Patron Format for Iris Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(198, NULL,'9.3.1','CBEFF Structure for Iris Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(199, NULL,'9.3.1.1','Validate that CBEFF structure conforms to SP800-76 Table 7','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(200, NULL,'9.3.1.2','BDB length field is non-zero','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
@@ -482,7 +482,7 @@ INSERT INTO "TestCases" VALUES(212, NULL,'9.3.2.9','The Biometric Data Quality f
 INSERT INTO "TestCases" VALUES(213, NULL,'9.3.2.10','Validate that that the Creator field in the PIV Patron Format contains 18 bytes of which the first K <= 17 bytes shall be ASCII characters, and the first of the remaining 18-K shall be a null terminator (zero)','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(214, NULL,'9.3.2.11','Validate that FASC-N field in the PIV Patron Format contains the same 25 bytes as the FASC-N component of the CHUID identifier','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(215, NULL,'9.3.2.12','Validate that the Reserved for Future Use field is equal to 0x00000000','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(216, NULL,'9.4 OCC Fingerprint Template','Off-Card Comparison Fingerprint Template','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(216, NULL,'9.4 Fingerprint Template BDB','Off-Card Comparison Fingerprint Template','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(217, NULL,'9.4.1','General Record Header Conformance','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(218, NULL,'9.4.1.1','Extract contents of format identifier, confirm value 0x464D5200','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(219, NULL,'9.4.1.2','Extract contents of version identifier, confirm value 0x20323030','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
@@ -511,7 +511,7 @@ INSERT INTO "TestCases" VALUES(241, NULL,'9.4.2.9','Verify that extended data bl
 INSERT INTO "TestCases" VALUES(242, NULL,'9.4.3','Fingerprint Minutiae Data Records','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(243, NULL,'9.4.3.1','Minutiae Type value shall be01b, 10b, or 00b.','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(244, NULL,'9.4.3.2','Extended Data Block Length shall be 0','CARDHOLDER_FINGERPRINTS_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(245, NULL,'9.5','On-Card Comparison','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(245, NULL,'9.5 OCC Template BDB','On-Card Comparison','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(246, NULL,'9.5.1','BIT Group Template data conformance for on-card comparison','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(247, NULL,'9.6 Facial Image BDB','Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(248, NULL,'9.6.1','Facial Image Header Conformance','',NULL, 1, 1);
@@ -525,8 +525,8 @@ INSERT INTO "TestCases" VALUES(255, NULL,'9.6.2.2','Image Data Type is 0 or 1','
 INSERT INTO "TestCases" VALUES(256, NULL,'9.6.2.3','Image Color Space is 1','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(257, NULL,'9.6.2.4','Source Type is 2 or 6','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(258, NULL,'9.7 Iris Image BDB','Iris Image','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(259, NULL,'9.7.1','Iris Image Profile','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(260, NULL,'9.7.2','Iris Image Data Conformance','CARDHOLDER_FACIAL_IMAGE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(259, NULL,'9.7.1','Iris Image Profile','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(260, NULL,'9.7.2','Iris Image Data Conformance','CARDHOLDER_IRIS_IMAGES_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(261, NULL,'10 Signed Data Elements','Signed Data Elements Test Assertions','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(262, NULL,'10.1  CHUID','Card Holder Unique Identifier','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(263, NULL,'10.1.1','Signature Block Contents','',NULL, 1, 1);
@@ -726,9 +726,9 @@ INSERT INTO "TestCases" VALUES(456, NULL,'11.4.2.9.2','URI points only to files 
 INSERT INTO "TestCases" VALUES(457, NULL,'11.4.2.10','Authority Information Access (85B-4)','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(458, NULL,'11.4.2.10.5','File contains a CMS a certs-only CMS message (see RFC 3851).','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(459, NULL,'11.5 Secure Messaging CVC','Secure Messaging Card Verifiable Certificate','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(460, NULL,'11.5.1','Secure Messaging CVC Profile Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(461, NULL,'11.5.2','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(462, NULL,'11.5.3','Data Integrity Checks','',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(460, NULL,'11.5.1','Secure Messaging CVC Profile Conformance','SECURE_MESSAGING_CERTIFICATE_SIGNER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(461, NULL,'11.5.2','Algorithm Conformance','SECURE_MESSAGING_CERTIFICATE_SIGNER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(462, NULL,'11.5.3','Data Integrity Checks','SECURE_MESSAGING_CERTIFICATE_SIGNER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(463, NULL,'11.6 Intermediate CVC','Intermediate Card Verifiable Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(464, NULL,'11.6.1','Intermediate CVC Profile Conformance','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(465, NULL,'11.6.2','Algorithm Conformance','',NULL, 1, 1);
