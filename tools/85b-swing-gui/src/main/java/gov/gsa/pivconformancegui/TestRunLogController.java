@@ -354,7 +354,7 @@ public class TestRunLogController {
 			String[] dirs = tmp.split("/");
 			List<String> dirList = Arrays.asList(dirs);
 			StringBuilder sb = new StringBuilder("");
-			if (dirList.contains("bin") && dirList.contains("main")) {
+			if (tmp.matches("/bin/main")) {
 				for (String d : dirList) {
 					if (d.compareTo("bin") != 0) {
 						if (d.length() > 0) {
