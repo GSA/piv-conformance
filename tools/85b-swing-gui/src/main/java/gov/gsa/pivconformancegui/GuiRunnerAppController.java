@@ -37,7 +37,6 @@ public class GuiRunnerAppController {
 	
 	private ConformanceTestDatabase m_testDatabase;
 	private GuiRunnerApplication m_app;
-	private TestRunLogController m_trlc;
 	private OpenDatabaseAction m_openDatabaseAction;
 	private ShowDebugWindowAction m_showDebugWindowAction;
 	private RunAllTestsAction m_runAllTestsAction;
@@ -57,7 +56,6 @@ public class GuiRunnerAppController {
 	public void reset() {
 		m_testDatabase = null;
 		m_app = null;
-		m_trlc = null;
 		m_openDatabaseAction = null;
 		m_showDebugWindowAction = null;
 		m_runAllTestsAction = null;
@@ -94,14 +92,6 @@ public class GuiRunnerAppController {
 
 	public void setApp(GuiRunnerApplication app) {
 		m_app = app;
-	}
-
-	public TestRunLogController getTestRunLogController() {
-		return m_trlc;
-	}
-
-	public void setTestRunLogController(TestRunLogController testRunLogController) {
-		m_trlc = testRunLogController;
 	}
 
 	public JFrame getMainFrame() {
@@ -144,6 +134,14 @@ public class GuiRunnerAppController {
 		return m_displayTestReportAction;
 	}
 
+	public SaveOidsAction getSaveOidsAction() {
+		return m_saveOidsAction;
+	}
+
+	public void setSaveOidsAction(SaveOidsAction action) {
+		m_saveOidsAction = action;
+	}
+	
 	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
 	public void showDebugWindow() {
 		DebugWindow window = m_app.getDebugFrame();
@@ -193,6 +191,7 @@ public class GuiRunnerAppController {
         		FormSpecs.RELATED_GAP_ROWSPEC,}));
         
         JTextArea txtDefinitionTextArea = new JTextArea();
+        txtDefinitionTextArea.setWrapStyleWord(true);
         txtDefinitionTextArea.setBackground(UIManager.getColor("Button.background"));
         txtDefinitionTextArea.setEnabled(false);
         txtDefinitionTextArea.setFont(new Font("Tahoma", Font.PLAIN, 11));
