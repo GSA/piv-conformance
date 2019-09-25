@@ -154,163 +154,19 @@ public class GuiRunnerAppController {
 	 * @wbp.parser.entryPoint
 	 */
 	public void showOidDialog(Window win) {
-		//s_logger.error("Stubbed out showOidDialog() is still here");
-		String toolTip = "Enter pipe-separated list of possible certificate policy OIDs (logically ORd)";
-        JFrame frame = new JFrame();
-        frame.getContentPane().setBackground(UIManager.getColor("Button.background"));
-        frame.setAlwaysOnTop(true);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(619,287);
-        frame.setTitle("Certificate Policy OID Overrides");
-        frame.getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
-        		FormSpecs.RELATED_GAP_COLSPEC,
-        		ColumnSpec.decode("max(75dlu;min)"),
-        		ColumnSpec.decode("8dlu"),
-        		ColumnSpec.decode("max(150dlu;min)"),
-        		ColumnSpec.decode("max(150dlu;min)"),
-        		FormSpecs.RELATED_GAP_COLSPEC,},
-        	new RowSpec[] {
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		FormSpecs.DEFAULT_ROWSPEC,
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("20px"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("20px"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("20px"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("20px"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("20px"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("20px"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("20px"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,
-        		RowSpec.decode("max(20px;default)"),
-        		FormSpecs.RELATED_GAP_ROWSPEC,}));
-        
-        JTextArea txtDefinitionTextArea = new JTextArea();
-        txtDefinitionTextArea.setWrapStyleWord(true);
-        txtDefinitionTextArea.setBackground(UIManager.getColor("Button.background"));
-        txtDefinitionTextArea.setEnabled(false);
-        txtDefinitionTextArea.setFont(new Font("Tahoma", Font.PLAIN, 11));
-        txtDefinitionTextArea.setLineWrap(true);
-        txtDefinitionTextArea.setText("This form allows you to override the certificate policy OIDs that the tool checks for each type of certificate.  If your certificates assert different policy OIDs, complete this form to ensure the tool tests for your OIDs.");
-        frame.getContentPane().add(txtDefinitionTextArea, "2, 2, 4, 1, fill, top");
-        
-        JLabel lblPivAuthentication = new JLabel("PIV Authentication");
-        frame.getContentPane().add(lblPivAuthentication, "2, 4, right, default");
-        
-        pivAuthOverrideTextField = new JTextField();
-        pivAuthOverrideTextField.setToolTipText(toolTip);
-        frame.getContentPane().add(pivAuthOverrideTextField, "4, 4, 2, 1");
-        pivAuthOverrideTextField.setColumns(10);
-        
-        JLabel lblDigitalSignature = new JLabel("Digital Signature");
-        frame.getContentPane().add(lblDigitalSignature, "2, 6, right, default");
-        
-        digitalSignatureOverrideTextField = new JTextField();
-        digitalSignatureOverrideTextField.setToolTipText(toolTip);
-        frame.getContentPane().add(digitalSignatureOverrideTextField, "4, 6, 2, 1");
-        digitalSignatureOverrideTextField.setColumns(10);
-        
-        JLabel lblKeyManagement = new JLabel("Key Management");
-        frame.getContentPane().add(lblKeyManagement, "2, 8, right, default");
-        
-        keyManagementOverrideTextField = new JTextField();
-        keyManagementOverrideTextField.setToolTipText(toolTip);
-        frame.getContentPane().add(keyManagementOverrideTextField, "4, 8, 2, 1");
-        keyManagementOverrideTextField.setColumns(10);
-        
-        JLabel lblCardAuthentication = new JLabel("Card Authentication");
-        frame.getContentPane().add(lblCardAuthentication, "2, 10, right, default");
-        
-        cardAuthenticationOverrideTextField = new JTextField();
-        cardAuthenticationOverrideTextField.setToolTipText(toolTip);
-        frame.getContentPane().add(cardAuthenticationOverrideTextField, "4, 10, 2, 1");
-        cardAuthenticationOverrideTextField.setColumns(10);
-        
-        JLabel lblContentSigning = new JLabel("Content Signing");
-        frame.getContentPane().add(lblContentSigning, "2, 12, right, default");
-        
-        contentSigningOverrideTextField = new JTextField();
-        contentSigningOverrideTextField.setToolTipText(toolTip);
-        frame.getContentPane().add(contentSigningOverrideTextField, "4, 12, 2, 1");
-        contentSigningOverrideTextField.setColumns(10);
-        
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        	}
-        });
-        
-        JButton saveButton = new JButton("Save");
-        frame.getContentPane().add(saveButton, "4, 16, right, default");	
-        
-         saveButton.addActionListener(new ActionListener()  {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				s_logger.debug("Save override OIDS action performed");
-
-				// TODO: Save changes to database
-				ConformanceTestDatabase db = new ConformanceTestDatabase(null);
-				String path = GuiRunnerAppController.getInstance().getApp().getMainContent().getTestExecutionPanel().getDatabaseNameField().getText();
-				try {
-					db.openDatabaseInFile(path);
-					s_logger.debug("Opened database file {}", path);
-				} catch (ConfigurationException e1) {
-					s_logger.debug("Database error: {}", e1.getMessage());
-				}
-				win.dispose();
-			}
-		});
-        frame.getContentPane().add(cancelButton, "5, 16, left, default");
-        
-        cancelButton.addActionListener(new ActionListener()  {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				s_logger.debug("Cancel override OIDS action performed");
-				win.dispose();
-			}
-		});        
-        frame.setVisible(true);	
+		s_logger.debug("GuiRunnerAppController.showOidDialog({})", win.getName());
 	}
 
 	public void showAboutDialog() {
-		s_logger.error("Stubbed out showAboutDialog() is still here");
+		// TODO: Implement this ASAP.  Get language 
+		s_logger.error("TODO: Stubbed out showAboutDialog() is still here");
 	}
 	
 	public void reloadTree() {
 		TestTreePanel tree = m_app.getTreePanel();
 		tree.refresh();
 	}
-	/*
-	public String logRollover(TimeStampedFileAppender<?> appender, boolean nextHeader) {
-		String rv = null;
-		
-		if(m_conformanceTestCsvAppender == null) {
-			s_logger.warn("logRollover was called without any appender configured.");
-		}
-		
-		rv = appender.createTimeStampLog(); // Timestamped name of copy of log returned from getFile() 
-		
-		if(nextHeader == true) {
-			File f = new File(m_conformanceTestCsvAppender.getFile());
-			PrintStream p;
-			try {
-				p = new PrintStream(f);
-				p.println("Date,Test Id,Description,Expected Result,Actual Result");
-				p.close();
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		m_conformanceTestCsvAppender.setImmediateFlush(true);
-		return rv;
-	}
-	*/
+
 	protected void createActions() {
 		ImageIcon openIcon = getActionIcon("folder", "Open");
 		m_openDatabaseAction = new OpenDatabaseAction("Open Database", openIcon, "Open a conformance test database");
