@@ -47,6 +47,7 @@ public class TestRunLogController {
 	static final HashMap<String, String> m_loggers = new HashMap<String, String>() {
 		static final long serialVersionUID = 1L;
 		{
+			put("FILE", "gov.gsa.pivconformancegui");
 			put("TESTLOG", "gov.gsa.pivconformance.testProgress");
 			put("CONFORMANCELOG", "gov.gsa.pivconformance.testResults");
 			put("APDULOG", "gov.gsa.pivconformance.apdu");
@@ -89,6 +90,7 @@ public class TestRunLogController {
 			me = (Map.Entry<String, String>) i.next();
 			String loggerName = me.getKey();
 			String loggerClass = me.getValue();
+			
 			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
 			TimeStampedFileAppender<ILoggingEvent> appender = null;
 			appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
