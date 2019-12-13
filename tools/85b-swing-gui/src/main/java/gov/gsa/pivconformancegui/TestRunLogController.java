@@ -74,7 +74,6 @@ public class TestRunLogController {
 		}
 	}
 	
-
 	/**
 	 * Initializes a new TestRunLogController. One must be created per test run. ]
 	 * 
@@ -97,10 +96,14 @@ public class TestRunLogController {
 			if (appender == null) {
 				s_logger.warn("No appender was configured for {}", loggerName);
 			} else {
-				m_appenders.put(loggerName, appender);
-				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
 				appender.setImmediateFlush(true);
 				appender.setAppend(false);
+				//appender.start();
+				appender.getStartTime();
+				appender.getStopTime();
+				m_appenders.put(loggerName, appender);
+				
+				// Initialize the CSV output file by throwing a header in
 				if (appender.getName().equals("CONFORMANCELOG")) {
 					File f = new File(appender.getFile());
 					PrintStream p;

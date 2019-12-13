@@ -93,8 +93,17 @@ target
 # Eclipse
 .classpath
 **/.classpath
-**/.project
+.project
 **/.settings
-**/85b-swing-gui/*.db
-**/85b-swing-gui/*.csv
-**/85b-swing-gui/**/*.jar
+**/*.class
+**/*.db
+**/*.csv
+
+/cardlib/**/*.class
+/cardlib/out
+/**/.project
+/conformancelib/**/*.class
+/tools/**/*.db
+/tools/**/*.class
+/tools/**/*.csv
+/tools/**/*.jar

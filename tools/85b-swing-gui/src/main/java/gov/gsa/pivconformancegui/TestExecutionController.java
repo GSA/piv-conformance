@@ -160,6 +160,10 @@ public class TestExecutionController {
 		
 		int passes = 0;
 		
+		// Initialize a timestamped log file
+		
+		initializeGuiAppender(lg);
+		
 		do {
 			TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
 
@@ -224,7 +228,7 @@ public class TestExecutionController {
 									}
 								}
 								break;
-							}
+							} // End skipped test
 						} catch (ClassNotFoundException e) {
 							s_logger.error("{} was configured in the database but could not be found.", fqmn);
 							break;
@@ -252,7 +256,11 @@ public class TestExecutionController {
 					List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
 					listeners.add(guiListener);
 					registerListeners(l, listeners);
+					// Start a new FILE appender log
+					
 					l.execute(ldr);
+					
+					// Close the appender log
 				}
 				curr = (TestCaseTreeNode) curr.getNextSibling();
 			}
@@ -269,7 +277,7 @@ public class TestExecutionController {
 			s_logger.error("Failed to enable run button", e);
 		}
 		
-		lg.setStopTime(); // Forces a log snapshot
+		lg.setStopTime(); // Forces a log snapshot of all log files except the FILE appender's 85b-swing-gui.log
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
@@ -279,6 +287,15 @@ public class TestExecutionController {
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();
 		display.setEnabled(true);
+	}
+
+	private void initializeGuiAppender(TestRunLogController lg) {
+		// TODO Auto-generated method stub
+		if (lg.appendersConfigured()) {
+			TimeStampedFileAppender fileAppender = lg.getAppender("FILE");
+			// Get a timestamped file name
+			String name = fileAppender.getTimeStampedLogPath();
+		}
 	}
 
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {
