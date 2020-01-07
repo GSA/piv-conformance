@@ -39,12 +39,12 @@ source ./venv-xlrd/bin/activate
 
 for F in $(ls *_Cards.xlsx)
 do
-	BASE=$F
+	BASE=$(basename $F .xlsx)
 	echo "Processing $F..."
 	rm -f $BASE.db
 	rm -f $BASE.sql
 	if [ -f $BASE.xlsx ]; then 
-		python CctDatabasePopulator.py -i $BASE.xlsx -o $BASE.sql
+		python c.py -i $BASE.xlsx -o $BASE.sql
 		sqlite3 $BASE.db < $BASE.sql
 		cp -p $BASE.db ../../tools/85b-swing-gui/
 	else
