@@ -44,7 +44,7 @@ do
 	rm -f $BASE.db
 	rm -f $BASE.sql
 	if [ -f $BASE.xlsx ]; then 
-		python c.py -i $BASE.xlsx -o $BASE.sql
+		python CctDatabasePopulator.py -i $BASE.xlsx -o $BASE.sql
 		sqlite3 $BASE.db < $BASE.sql
 		cp -p $BASE.db ../../tools/85b-swing-gui/
 	else
