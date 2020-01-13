@@ -2,6 +2,8 @@
  * 
  */
 package gov.gsa.pivconformancegui;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +16,19 @@ import ch.qos.logback.core.FileAppender;
 public class TimeStampedFileAppender<E> extends FileAppender<E> {
 	private static final Logger s_logger = LoggerFactory.getLogger(TimeStampedFileAppender.class);
 	private String m_timeStampedLogPath = "not initialized";
+	private Date m_startTime;
+	private Date m_stopTime;
 
 	@Override
 	public void start() {
 		super.start();
+		m_startTime = new Date();
 	}
 
 	@Override
 	public void stop() {
 		super.stop();
+		m_stopTime = new Date();
 	}
 
 	@Override
@@ -38,6 +44,22 @@ public class TimeStampedFileAppender<E> extends FileAppender<E> {
 	@Override
 	public void subAppend(E event) {
 		super.subAppend(event);
+	}
+	
+	public Date getStartTime() {
+		return m_startTime;
+	}
+	
+	public void setStartTime(Date startTime) {
+		m_startTime = startTime;
+	}
+	
+	public Date getStopTime() {
+		return m_stopTime;
+	}
+	
+	public void setStopTime(Date stopTime) {
+		m_stopTime = stopTime;
 	}
 	
 	public String getTimeStampedLogPath() {

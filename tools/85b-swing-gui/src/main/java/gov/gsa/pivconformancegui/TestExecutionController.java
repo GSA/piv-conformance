@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
@@ -42,7 +43,7 @@ import gov.gsa.pivconformance.card.client.DataModelSingleton;
 public class TestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(TestExecutionController.class);
 	private static final TestExecutionController INSTANCE = new TestExecutionController();
-	private static final String tag30TestId = "8.2.2.1";
+	private static final String tag30TestId = "8.2.2.1"; // TODO: Fixme
 
 	TestTreePanel m_testTreePanel;
 	SimpleTestExecutionPanel m_testExecutionPanel;
@@ -160,6 +161,10 @@ public class TestExecutionController {
 		
 		int passes = 0;
 		
+		// Initialize a timestamped log file
+		
+		initializeGuiAppender(lg);
+		
 		do {
 			TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
 
@@ -224,7 +229,7 @@ public class TestExecutionController {
 									}
 								}
 								break;
-							}
+							} // End skipped test
 						} catch (ClassNotFoundException e) {
 							s_logger.error("{} was configured in the database but could not be found.", fqmn);
 							break;
@@ -252,6 +257,7 @@ public class TestExecutionController {
 					List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
 					listeners.add(guiListener);
 					registerListeners(l, listeners);
+					
 					l.execute(ldr);
 				}
 				curr = (TestCaseTreeNode) curr.getNextSibling();
@@ -269,7 +275,9 @@ public class TestExecutionController {
 			s_logger.error("Failed to enable run button", e);
 		}
 		
-		lg.setStopTime(); // Forces a log snapshot
+		lg.setStopTime(); // Sets the stop time of the controller 
+		lg.setTimeStamps(); // Sets the timestamp for all of the logger files
+		
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
@@ -279,6 +287,18 @@ public class TestExecutionController {
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();
 		display.setEnabled(true);
+	}
+
+	private void initializeGuiAppender(TestRunLogController lg) {
+		// TODO Auto-generated method stub
+		return;
+		/*
+		if (lg.appendersConfigured()) {
+			TimeStampedFileAppender<ILoggingEvent> fileAppender = (TimeStampedFileAppender<ILoggingEvent>) lg.getAppender("FILE");
+			// Get a timestamped file name
+			String name = fileAppender.getTimeStampedLogPath();
+		}
+		*/
 	}
 
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

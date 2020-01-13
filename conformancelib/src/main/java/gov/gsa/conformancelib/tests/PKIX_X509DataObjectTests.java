@@ -246,6 +246,10 @@ public class PKIX_X509DataObjectTests {
 			String[] paramList2 = p.split(":");
 					
 			List<String> paramList3 = Arrays.asList(paramList2[1].split("\\|"));
+			
+			if (paramList3.size() > 1) {
+				s_logger.debug("*********** paramList[3].size() = {}", paramList3.size());
+			}
 			String containerOid = APDUConstants.getStringForFieldNamed(paramList2[0]);
 			rv.put(containerOid, paramList3);
 		}

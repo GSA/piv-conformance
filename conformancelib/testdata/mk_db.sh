@@ -39,7 +39,7 @@ source ./venv-xlrd/bin/activate
 
 for F in $(ls *_Cards.xlsx)
 do
-	BASE=$F
+	BASE=$(basename $F .xlsx)
 	echo "Processing $F..."
 	rm -f $BASE.db
 	rm -f $BASE.sql

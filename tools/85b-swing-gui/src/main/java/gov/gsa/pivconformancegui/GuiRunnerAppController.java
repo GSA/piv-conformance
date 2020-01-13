@@ -83,7 +83,9 @@ public class GuiRunnerAppController {
 
 	public void setTestDatabase(ConformanceTestDatabase testDatabase) {
 		m_testDatabase = testDatabase;
-		if(m_app != null) reloadTree();
+		
+		if(m_app != null && testDatabase != null)
+			reloadTree();
 	}
 
 	public GuiRunnerApplication getApp() {
@@ -318,8 +320,8 @@ public class GuiRunnerAppController {
 	    m_runAllTestsAction = new RunAllTestsAction("Run all tests", runIcon, "Run all available tests in database");
 	    ImageIcon debugIcon = getActionIcon("application_xp_terminal", "Debug");
 	    m_showDebugWindowAction = new ShowDebugWindowAction("Show Debugging tools", debugIcon, "Show detailed log and debugging tools");
-	    ImageIcon oidIcon = getActionIcon("application_view_list", "Override OIDs");
-	    m_showOidDialogAction = new ShowOidDialogAction("Override test OIDs...", oidIcon, "Use alternative certificate policy OIDs");
+	    //ImageIcon oidIcon = getActionIcon("application_view_list", "Override OIDs");
+	    //m_showOidDialogAction = new ShowOidDialogAction("Override test OIDs...", oidIcon, "Use alternative certificate policy OIDs");
 	    ImageIcon toggleIcon = getActionIcon("application_side_tree", "Toggle Tree");
 	    m_toggleTreeAction = new ToggleTestTreeAction("Toggle test tree view", toggleIcon, "Show or hide the test tree");
 	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");

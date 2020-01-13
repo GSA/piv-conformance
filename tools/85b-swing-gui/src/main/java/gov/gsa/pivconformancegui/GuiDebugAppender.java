@@ -13,7 +13,7 @@ import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 
-public class GuiDebugAppender extends AppenderBase<ILoggingEvent> {
+public class GuiDebugAppender extends TimeStampedFileAppender<ILoggingEvent> {
 	
 	private PatternLayout m_pattern;
 	private static SimpleAttributeSet s_errorAttributes;

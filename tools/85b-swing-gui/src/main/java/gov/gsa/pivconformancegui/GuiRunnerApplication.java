@@ -67,15 +67,25 @@ public class GuiRunnerApplication {
 					a.start();
 					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 					logger.addAppender(a);
+					TimeStampedFileAppender guiAppender = (TimeStampedFileAppender) logger.getAppender("FILE");
+					
+					
+					
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
-					String dbFilename = "PIV_Production_Cards.db";
+					
+					// The only action permitted is opening a database
+					String dbFilename = "";
+					
 					boolean opened = false;
+					
+					/*
 					try {
 						db.openDatabaseInFile(dbFilename);
 						opened = true;
 					} catch(ConfigurationException ce) {
 						ce.getMessage();
 					}
+					*/
 					c.setTestDatabase(db);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 					// XXX *** find out why this isn't coming from user info

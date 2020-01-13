@@ -47,6 +47,7 @@ public class TestRunLogController {
 	static final HashMap<String, String> m_loggers = new HashMap<String, String>() {
 		static final long serialVersionUID = 1L;
 		{
+			put("FILE", "gov.gsa.pivconformancegui");
 			put("TESTLOG", "gov.gsa.pivconformance.testProgress");
 			put("CONFORMANCELOG", "gov.gsa.pivconformance.testResults");
 			put("APDULOG", "gov.gsa.pivconformance.apdu");
@@ -73,7 +74,6 @@ public class TestRunLogController {
 		}
 	}
 	
-
 	/**
 	 * Initializes a new TestRunLogController. One must be created per test run. ]
 	 * 
@@ -81,24 +81,30 @@ public class TestRunLogController {
 	 */
 	@SuppressWarnings("unchecked")
 	void initialize(LoggerContext ctx) {
+		
 		bootStrapLogging();
 		m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
 		Map.Entry<String, String> me = null;
 		Iterator<?> i = m_loggers.entrySet().iterator();
+		
+		Date startTime = new Date();
+		
 		while (i.hasNext()) {
 			me = (Map.Entry<String, String>) i.next();
 			String loggerName = me.getKey();
 			String loggerClass = me.getValue();
+			
 			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
 			TimeStampedFileAppender<ILoggingEvent> appender = null;
-			appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
-			if (appender == null) {
-				s_logger.warn("No appender was configured for {}", loggerName);
-			} else {
-				m_appenders.put(loggerName, appender);
-				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
+			
+			if ((appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName)) != null) {
 				appender.setImmediateFlush(true);
 				appender.setAppend(false);
+				appender.setStartTime(startTime);
+				appender.setStopTime(startTime);
+				m_appenders.put(loggerName, appender);
+				
+				// For the CONFORMANCE CSV log, initialize the output file writing the header row
 				if (appender.getName().equals("CONFORMANCELOG")) {
 					File f = new File(appender.getFile());
 					PrintStream p;
@@ -112,6 +118,8 @@ public class TestRunLogController {
 					}
 				}
 				s_logger.debug("Initialized and configured {}", loggerName);
+			} else {
+				s_logger.warn("No appender was configured for {}", loggerName);
 			}
 		}
 		m_startTime = new Date();
@@ -167,7 +175,6 @@ public class TestRunLogController {
 		}
 
 		m_stopTime = new Date();
-		setTimeStamp();
 	}
 
 	public TimeStampedFileAppender<?> getAppender(String appenderName) {
@@ -183,16 +190,15 @@ public class TestRunLogController {
 	public void setAppender(String name, TimeStampedFileAppender<?> appender) {
 		m_appenders.put(name, appender);
 	}
-
+	
 	/**
-	 * Creates the path names of the timestamped copy of each configured log
-	 * 
+	 * Creates an appender's log path consisting of a start and stop timestamp
+	 * @param appender the appender
+	 * @returns the log path for the appender
 	 */
-	@SuppressWarnings("unchecked")
-	private void setTimeStamp() {
-		if (!m_initialized) {
-			s_logger.error("*** setTimeStamp(): Not initialized ***");
-		}
+
+	private String makeTimeStampedLogPath(TimeStampedFileAppender<ILoggingEvent> appender) {
+		
 		String startTs = null;
 		String stopTs = null;
 
@@ -200,6 +206,7 @@ public class TestRunLogController {
 		startCal.setTime(m_startTime);
 		GregorianCalendar endCal = (GregorianCalendar) Calendar.getInstance();
 		endCal.setTime(m_stopTime);
+
 		startTs =
 			String.format("%04d%02d%02d_%02d%02d%02d", startCal.get(Calendar.YEAR),
 			startCal.get(Calendar.MONTH) + 1, startCal.get(Calendar.DAY_OF_MONTH),
@@ -209,65 +216,90 @@ public class TestRunLogController {
 			endCal.get(Calendar.MONTH) + 1, endCal.get(Calendar.DAY_OF_MONTH),
 			endCal.get(Calendar.HOUR_OF_DAY), endCal.get(Calendar.MINUTE), endCal.get(Calendar.SECOND));
 
+			
+		// Get separators straight
+		s_logger.debug("{} file path: {}", appender.getName(), appender.getFile());
+		File testFile = new File(appender.getFile()); // Normalize by instantiating a File (do we need to do this?)
+		s_logger.debug("System canonical path: " + testFile.getPath());
+
+		String currPath = testFile.getPath();
+		// Check whether we're in a situation where separators are different than logger
+		// config (/)
+		if (testFile.getAbsolutePath().lastIndexOf("/") < 0) {
+			// Windows
+			currPath = currPath.replaceAll("\\\\", "/");
+		}
+
+		// Synchronize timestamp portion of path
+		String dirName = null;
+		if (currPath.lastIndexOf("/") > -1)
+			dirName = currPath.substring(0, currPath.lastIndexOf("/"));
+		else
+			dirName = currPath;
+
+		String logFileName = null;
+		
+		if (currPath.lastIndexOf("/") > -1)
+			logFileName = currPath.substring(currPath.lastIndexOf("/") + 1);
+		else
+			logFileName = currPath;
+		
+		String baseName = (startTs + "-" + stopTs + "-" + logFileName);
+		String timeStampedLogPath = dirName + "/" + baseName;
+			
+		return timeStampedLogPath;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setTimeStamps() {
+		
+		if (!m_initialized) {
+			s_logger.error("*** setTimeStamp(): Not initialized ***");
+		}
+
 		// Loop on appenders
 		Entry<String, TimeStampedFileAppender<ILoggingEvent>> me = null;
 		Iterator<?> i = m_appenders.entrySet().iterator();
 		while (i.hasNext()) {
 			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
 			String logName = me.getKey();
-			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
 			Logger logger = (Logger) LoggerFactory.getLogger(m_loggers.get(me.getKey()));
-			
-			// Get separators straight
-			s_logger.debug("{} file path: {}", logName, appender.getFile());
-			File testFile = new File(appender.getFile()); // Normalize by instantiating a File
-			s_logger.debug("System canonical path: " + testFile.getPath());
-			String currPath = testFile.getPath();
-			// Check whether we're in a situation where separators are different than logger
-			// config (/)
-			if (testFile.getAbsolutePath().lastIndexOf("/") < 0) {
-				// Windows
-				currPath = currPath.replaceAll("\\\\", "/");
-			}
-
-			// Synchronize timestamp portion of path
-			String dirName = null;
-			if (currPath.lastIndexOf("/") > -1)
-				dirName = currPath.substring(0, currPath.lastIndexOf("/"));
-			else
-				dirName = currPath;
-
-			String logFileName = null;
-			if (currPath.lastIndexOf("/") > -1)
-				logFileName = currPath.substring(currPath.lastIndexOf("/") + 1);
-			else
-				logFileName = currPath;
-			
-			String baseName = (startTs + "-" + stopTs + "-" + logFileName);
-			String timeStampedLogPath = dirName + "/" + baseName;
-			appender.setTimeStampedLogPath(timeStampedLogPath);
-			appender.stop();
-			
-			// Roll the log
-			s_logger.debug("Copying log {} to: {}", logName, timeStampedLogPath);
-			if (rollFile(currPath, timeStampedLogPath)) {
-				s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
-				File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
-				try {
-					PrintStream p = new PrintStream(f);
-					p.println(timeStampedLogPath);
-					p.close();
-				} catch (IOException e) {
-					s_logger.debug("Couldn't write last log name to .lastlog-{}: {}", appender.getName().toLowerCase(), e.getMessage());
-				}
-			} else {
-				s_logger.error("Error copying {} to {}", currPath, timeStampedLogPath);
-			}
-			
-			// Halt the appenders
-			logger.detachAndStopAllAppenders();
+			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
+			setTimeStamp(logger, appender, logName);
 		}
 	}
+	
+	/**
+	 * Creates the path names of the timestamped copy of each configured log
+	 * 
+	 */
+	public void setTimeStamp(Logger logger, TimeStampedFileAppender<ILoggingEvent> appender, String logName) {
+
+		String timeStampedLogPath = makeTimeStampedLogPath(appender);
+		String currentLogPath = new File(appender.getFile()).getPath();
+		appender.setTimeStampedLogPath(timeStampedLogPath);
+		appender.stop();
+		
+		// Roll the log
+		s_logger.debug("Copying log {} to: {}", logName, timeStampedLogPath);
+		if (rollFile(currentLogPath, timeStampedLogPath)) {
+			s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
+			File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
+			try {
+				PrintStream p = new PrintStream(f);
+				p.println(timeStampedLogPath);
+				p.close();
+			} catch (IOException e) {
+				s_logger.debug("Couldn't write last log name to .lastlog-{}: {}", appender.getName().toLowerCase(), e.getMessage());
+			}
+		} else {
+			s_logger.error("Error copying {} to {}", currentLogPath, timeStampedLogPath);
+		}
+		
+		// Halt the appenders
+		logger.detachAndStopAllAppenders();
+	}
+
 
 	/**
 	 * Copies the contents of oldPath to newPath and removes the existing
