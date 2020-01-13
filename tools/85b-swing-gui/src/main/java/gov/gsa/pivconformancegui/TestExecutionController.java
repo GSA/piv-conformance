@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
@@ -256,11 +257,8 @@ public class TestExecutionController {
 					List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
 					listeners.add(guiListener);
 					registerListeners(l, listeners);
-					// Start a new FILE appender log
 					
 					l.execute(ldr);
-					
-					// Close the appender log
 				}
 				curr = (TestCaseTreeNode) curr.getNextSibling();
 			}
@@ -277,7 +275,9 @@ public class TestExecutionController {
 			s_logger.error("Failed to enable run button", e);
 		}
 		
-		lg.setStopTime(); // Forces a log snapshot of all log files except the FILE appender's 85b-swing-gui.log
+		lg.setStopTime(); // Sets the stop time of the controller 
+		lg.setTimeStamps(); // Sets the timestamp for all of the logger files
+		
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
@@ -291,11 +291,14 @@ public class TestExecutionController {
 
 	private void initializeGuiAppender(TestRunLogController lg) {
 		// TODO Auto-generated method stub
+		return;
+		/*
 		if (lg.appendersConfigured()) {
-			TimeStampedFileAppender fileAppender = lg.getAppender("FILE");
+			TimeStampedFileAppender<ILoggingEvent> fileAppender = (TimeStampedFileAppender<ILoggingEvent>) lg.getAppender("FILE");
 			// Get a timestamped file name
 			String name = fileAppender.getTimeStampedLogPath();
 		}
+		*/
 	}
 
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

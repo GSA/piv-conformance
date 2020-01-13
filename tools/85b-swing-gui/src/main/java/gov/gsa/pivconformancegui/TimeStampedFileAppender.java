@@ -50,8 +50,16 @@ public class TimeStampedFileAppender<E> extends FileAppender<E> {
 		return m_startTime;
 	}
 	
+	public void setStartTime(Date startTime) {
+		m_startTime = startTime;
+	}
+	
 	public Date getStopTime() {
 		return m_stopTime;
+	}
+	
+	public void setStopTime(Date stopTime) {
+		m_stopTime = stopTime;
 	}
 	
 	public String getTimeStampedLogPath() {

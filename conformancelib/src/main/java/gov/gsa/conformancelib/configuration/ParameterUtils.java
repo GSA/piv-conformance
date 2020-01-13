@@ -45,7 +45,7 @@ public class ParameterUtils {
 	 * String "CARDHOLDER_FINGERPRINTS_OID" => List<String>(513)
 	 * 
 	 * 3. key:value parameters with values corresponding to the allowable values by separating them with "|" symbols like
-	 * X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1|1.2.840.10045.2.1+1.2.840.10045.3.1.7
+	 * X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1|11.2.840.113549.1.1.11
 	 * 
 	 * Values themselves can have their own parameters, shown in the following parameter snippet:
 	 * 
@@ -100,10 +100,8 @@ public class ParameterUtils {
 						while (li.hasNext()) {
 							String listItem = li.next();
 							if (listItem.contains("|")) {
-								// A list of allowable values - nothing too fancy
-								// String[] subParamList = ParameterUtils.CreateFromString(listItem, "\\|");
-								// TODO: Do we even have any parameters with pipe-separators?
-								logMessage = "TODO: Handle pipe-separated sub-parameters";
+								// This should have been handled in the atom
+								logMessage = "Unhandled pipe-separated sub-parameters";
 								throw new CardClientException(logMessage);
 							}
 						}
@@ -124,39 +122,5 @@ public class ParameterUtils {
 			s_logger.error(logMessage);
 		} 
 		return rv;		
-	}
-
-	public static void main(String[] args) {
-		String csvParams1 = "CARDHOLDER_FINGERPRINTS_OID:513,CARDHOLDER_FACIAL_IMAGE_OID:1281";
-		String csvParams2 = 
-				"X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7," + 
-				"X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7," + 
-				"X509_CERTIFICATE_FOR_DIGITAL_CERTIFICATE_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34," + 
-				"X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7|1.2.840.10045.2.1+1.3.132.0.34";
-		MapFromString(csvParams1);
-		MapFromString(csvParams2);
-        try { 
-            String digestAlgorithmName = "SHA-224";
-			Provider provider = Security.getProvider(BouncyCastleProvider.PROVIDER_NAME);
-			Service service = provider.getService("MessageDigest", digestAlgorithmName);
-			if (service != null) {
-			    String string = service.toString();
-			    String array[] = string.split("\n");
-			    if (array.length > 1) {
-			        string = array[array.length - 1];
-			        array = string.split("[\\[\\]]");
-			        if (array.length > 2) {
-			            string = array[array.length - 2];
-			            array = string.split(", ");
-			            Arrays.sort(array);
-			            new ASN1ObjectIdentifier(array[0]);
-			        }
-			    }
-			}
-        } 
-        catch (NullPointerException e) { 
-            System.out.println("Exception thrown : " + e); 
-        } 
-		System.out.println("Done\n");
 	}
 }
