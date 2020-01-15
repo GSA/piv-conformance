@@ -72,6 +72,7 @@ import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.conformancelib.utilities.KeyValidationHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
+import gov.gsa.pivconformance.card.client.APDUUtils;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
@@ -272,7 +273,7 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	s_logger.debug("Cert for {} contains {}", oid, curroid.getId());
+	    	s_logger.debug("Cert for {} contains {}",  APDUConstants.oidNameMAP.get(oid), curroid.getId());
 	    	if(rv.get(oid).contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;
