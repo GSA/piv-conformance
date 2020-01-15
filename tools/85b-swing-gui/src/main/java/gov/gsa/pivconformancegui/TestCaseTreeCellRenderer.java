@@ -67,21 +67,27 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 			int row, boolean hasFocus) {
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 		TestStatus status = TestStatus.NONE;
+		String description = "";
 		if(value instanceof TestCaseTreeNode) {
 			TestCaseTreeNode node = (TestCaseTreeNode)value;
 			TestCaseModel test = node.getTestCase();
 			if(test != null) {
 				status = test.getTestStatus();
+				description = test.getDescription();
 			}
 		} else if(value instanceof TestStepTreeNode) {
 			TestStepTreeNode node = (TestStepTreeNode)value;
 			TestStepModel step = node.getTestStep();
 			if(step != null) {
 				status = step.getTestStatus();
+				description = step.toString();
 			}
 		}
 		ImageIcon icon = s_statusIcons.get(status);
 		if(icon != null) {
+			if (description.length() != 0) {
+				icon.setDescription(description);
+			}
 			setIcon(icon);
 			//s_logger.info("Got {} for {}", icon.getDescription(), status);
 		} else {

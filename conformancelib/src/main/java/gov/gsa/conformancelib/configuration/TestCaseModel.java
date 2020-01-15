@@ -142,12 +142,32 @@ public class TestCaseModel {
 	
 	public void retrieveForId(int testId) {
 		this.setId(testId);
-		String query = "select Id, TestCaseIdentifier, TestCaseDescription, Status, ExpectedStatus, " +
-				"TestGroup, Enabled " +
-				"from TestCases where TestCases.Id = ?";
-		String containerQuery = "select TestCaseContainer from TestCases where TestCases.Id = ?";
+		String query = 
+				"SELECT " + 
+				"  Id, TestCaseIdentifier, TestCaseDescription, Status, ExpectedStatus, TestGroup, Enabled " +
+				"FROM " + 
+				"  TestCases " + 
+				"WHERE " + 
+				"  TestCases.Id = ?";
+		
+		String containerQuery = 
+				"SELECT " +
+				"  TestCaseContainer " +
+				"FROM " +
+				"  TestCases " +
+				"WHERE "
+				+ "TestCases.Id = ?";
 										
-		String stepsQuery = "select Id, TestStepId from TestsToSteps where TestsToSteps.TestId = ? order by ExecutionOrder";
+		String stepsQuery = 
+				"SELECT " +
+				"  Id, TestStepId " +
+				"FROM " + 
+				"  TestsToSteps " +
+				"WHERE " + 
+				"  TestsToSteps.TestId = ? " +
+				"ORDER BY " +
+				"  ExecutionOrder";
+		
 		try {
 			Connection conn = m_db.getConnection();
 			PreparedStatement pquery = conn.prepareStatement(query);
@@ -195,7 +215,7 @@ public class TestCaseModel {
 			}
 		} catch(Exception e) {
 			// XXX *** TODO: more granular exception handling		
-			s_logger.error("Database error procesing test case id " + testId + ": caught unexpected exception", e);
+			s_logger.error("Database error {} processing parameter query for Test Step ID {}: {}", e.getMessage(), testId, query);
 			// rethrow here
 		}
 		

@@ -40,8 +40,6 @@ public class GuiRunnerAppController {
 	private OpenDatabaseAction m_openDatabaseAction;
 	private ShowDebugWindowAction m_showDebugWindowAction;
 	private RunAllTestsAction m_runAllTestsAction;
-	private ShowOidDialogAction m_showOidDialogAction;
-	private SaveOidsAction m_saveOidsAction;
 	private ToggleTestTreeAction m_toggleTreeAction;
 	private DisplayAboutDialogAction m_displayAboutDialogAction;
 	private DisplayTestReportAction m_displayTestReportAction;
@@ -62,7 +60,6 @@ public class GuiRunnerAppController {
 		m_toggleTreeAction = null;
 		m_displayAboutDialogAction = null;
 		m_displayTestReportAction = null;
-		m_saveOidsAction = null;
 		m_openDefaultPIVDatabaseAction = null;
 		m_openDefaultPIVIDatabaseAction = null;
 		
@@ -119,10 +116,6 @@ public class GuiRunnerAppController {
 	public RunAllTestsAction getRunAllTestsAction() {
 		return m_runAllTestsAction;
 	}
-	
-	public ShowOidDialogAction getShowOidDialogAction() {
-		return m_showOidDialogAction;
-	}
 
 	public DisplayAboutDialogAction getDisplayAboutDialogAction() {
 		return m_displayAboutDialogAction;
@@ -134,14 +127,6 @@ public class GuiRunnerAppController {
 
 	public DisplayTestReportAction getDisplayTestReportAction() {
 		return m_displayTestReportAction;
-	}
-
-	public SaveOidsAction getSaveOidsAction() {
-		return m_saveOidsAction;
-	}
-
-	public void setSaveOidsAction(SaveOidsAction action) {
-		m_saveOidsAction = action;
 	}
 	
 	// this used to toggle the window, but now that we're off RCP and in a separate JFrame, the [x] can be used to hide and this just shows it
@@ -327,7 +312,6 @@ public class GuiRunnerAppController {
 	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");
 	    m_displayTestReportAction = new DisplayTestReportAction("Display Test Report", displayReportIcon, "Display test report for current log");
 	    ImageIcon savingIcon = getActionIcon("folder", "Saving");
-	    m_saveOidsAction = new SaveOidsAction("Saving", savingIcon, "Saving OID overrides");
 
 	    ImageIcon pivIcon = getActionIcon("PIV", "Open");
 	    m_openDefaultPIVDatabaseAction = new OpenDefaultPIVDatabaseAction("Open Default PIV Database", pivIcon, "Open Default PIV conformance test database");

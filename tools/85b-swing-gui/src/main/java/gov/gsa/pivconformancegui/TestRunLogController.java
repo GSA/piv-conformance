@@ -176,6 +176,12 @@ public class TestRunLogController {
 
 		m_stopTime = new Date();
 	}
+	
+	/**
+	 * Gets the appender object associated with a friendly name
+	 * @param appenderName
+	 * @return appender object
+	 */
 
 	public TimeStampedFileAppender<?> getAppender(String appenderName) {
 		return m_appenders.get(appenderName);
@@ -251,6 +257,9 @@ public class TestRunLogController {
 	}
 	
 	@SuppressWarnings("unchecked")
+	/**
+	 * Synchronizes the time stamps of all of the logs
+	 */
 	public void setTimeStamps() {
 		
 		if (!m_initialized) {
@@ -271,6 +280,9 @@ public class TestRunLogController {
 	
 	/**
 	 * Creates the path names of the timestamped copy of each configured log
+	 * @param logger the logger
+	 * @param appender the appender
+	 * @param logName the logger's friendly name
 	 * 
 	 */
 	public void setTimeStamp(Logger logger, TimeStampedFileAppender<ILoggingEvent> appender, String logName) {
