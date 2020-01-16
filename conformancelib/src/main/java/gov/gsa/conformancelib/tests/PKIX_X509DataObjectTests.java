@@ -229,30 +229,32 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
+    void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;		
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
-		if (policyOid == null) {
+		if (containersAndPolicyOids == null) {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-		List<String> paramList = Arrays.asList(policyOid.split(","));
+		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.split(","));
 		
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
 		
-		for(String p : paramList) {
-			String[] paramList2 = p.split(":");
-					
-			List<String> paramList3 = Arrays.asList(paramList2[1].split("\\|"));
+		for(String p : containerOidList) {
+			String[] allowedPolicies = p.split(":");
 			
-			if (paramList3.size() > 1) {
+			if (APDUConstants.getStringForFieldNamed(allowedPolicies[0]).contentEquals(oid)) {
+						
+				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));
+				
 				s_logger.debug("*********** paramList[3].size() = {}", paramList3.size());
+	
+				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
+				rv.put(containerOid, paramList3);
 			}
-			String containerOid = APDUConstants.getStringForFieldNamed(paramList2[0]);
-			rv.put(containerOid, paramList3);
 		}
 
 		//Get certificate policies extension
