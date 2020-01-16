@@ -17,7 +17,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EllipticCurve;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -51,7 +53,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -239,21 +241,18 @@ public class PKIX_X509DataObjectTests {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.split(","));
+		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
 		
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
 		
 		for(String p : containerOidList) {
 			String[] allowedPolicies = p.split(":");
-			
-			if (APDUConstants.getStringForFieldNamed(allowedPolicies[0]).contentEquals(oid)) {
-						
-				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));
-				
-				s_logger.debug("*********** paramList[3].size() = {}", paramList3.size());
-	
+			String policyOidName = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
+			if (policyOidName.equals(oid)) {	
+				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));	
 				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
 				rv.put(containerOid, paramList3);
+				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
 			}
 		}
 
@@ -275,13 +274,13 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	s_logger.debug("Cert for {} contains {}",  APDUConstants.oidNameMAP.get(oid), curroid.getId());
+	    	s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMAP.get(oid));
 	    	if(rv.get(oid).contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;
 	    	}
 	    }
-	    
+
 	    //Confirm that oid matches is asserted in certificate policies
 	    assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
     }
