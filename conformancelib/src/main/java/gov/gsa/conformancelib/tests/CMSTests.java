@@ -9,7 +9,9 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPublicKey;
+//import java.security.interfaces.ECPublicKey;
+//import java.security.interfaces.RSAPublicKey;
+//import java.security.spec.EllipticCurve;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,6 +28,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.pkcs.RSAPublicKey;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameStyle;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
@@ -41,6 +44,7 @@ import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -727,14 +731,12 @@ public class CMSTests {
 		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
 
 		assertNotNull(signers);
-
+		
 		Iterator<?> it = signers.getSigners().iterator();
 		while (it.hasNext()) {
 			SignerInformation signer = (SignerInformation) it.next();
 			assertTrue(Algorithm.digAlgOidToNameMap.containsKey(
-				signer.getDigestAlgOID()), "Digest algorithm list does not contain" + signer.getDigestAlgOID());
-			assertTrue(Algorithm.encAlgOidToNameMap.containsKey(
-				signer.getEncryptionAlgOID()), "Encryption algorithm list does not contain" + signer.getEncryptionAlgOID());
+				signer.getDigestAlgOID()), "Digest algorithm list does not contain " + signer.getDigestAlgOID());
 			if (it.hasNext()) {
 				s_logger.warn("More than one signer");
 			}
