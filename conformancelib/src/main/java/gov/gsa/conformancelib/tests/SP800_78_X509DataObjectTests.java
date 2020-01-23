@@ -217,6 +217,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		}
     }
     
+    /*
     //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
     // TODO: Refactor using Algorithm class
     @DisplayName("SP800-78.2 test")
@@ -301,6 +302,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			assertTrue(false);
 		}
     }
+    */
     
     /*
      * If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters 
