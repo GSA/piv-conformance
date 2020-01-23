@@ -570,15 +570,13 @@ public class PKIX_X509DataObjectTests {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
-		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
-		
-		
-		BigInteger be = BigInteger.valueOf(65537);
-		
+		PublicKey pubKey = cert.getPublicKey();
+		// Only do this if this is an RSA key
 		if(pubKey instanceof RSAPublicKey) {
 			//confirm that public exponent >= 65537
-			assertTrue(pubKey.getPublicExponent().compareTo(be) >= 0, "Public exponent is not >= 65537" );
-		} 
+			BigInteger be = BigInteger.valueOf(65537);
+			assertTrue(((RSAPublicKey) (pubKey)).getPublicExponent().compareTo(be) >= 0, "Public exponent is not >= 65537" );
+		} 		
     }
 	
 	//Confirm digitalSignature and nonRepudiation bits are set
