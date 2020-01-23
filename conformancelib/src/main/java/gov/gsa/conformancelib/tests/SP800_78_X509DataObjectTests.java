@@ -3,9 +3,14 @@ package gov.gsa.conformancelib.tests;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.EllipticCurve;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -14,13 +19,17 @@ import java.util.stream.Stream;
 
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
-import org.bouncycastle.jce.spec.ECParameterSpec;
+//import org.bouncycastle.asn1.x9.ECNamedCurveTable;
+//import org.bouncycastle.asn1.x9.X9ECParameters;
+//import org.bouncycastle.jce.interfaces.ECPublicKey;
+//import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -28,6 +37,9 @@ import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 
 public class SP800_78_X509DataObjectTests {
+	
+	static Logger s_logger = LoggerFactory.getLogger(SP800_78_X509DataObjectTests.class);
+
 	/*
 X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7,
 X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840.10045.2.1+1.2.840.10045.3.1.7,
@@ -92,59 +104,64 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			Exception e = new Exception("getCertificate returned a null");
 			fail(e);
 		}
-		PublicKey pubKey = cert.getPublicKey();
-		if(pubKey == null) {
+		
+		PublicKey pk = cert.getPublicKey();
+		if(pk == null) {
 			Exception e = new Exception("getPublicKey returned a null");
 			fail(e);
 		}
-		String certAlgorithm = pubKey.getAlgorithm();
-			
 		
-		
+		String certAlgorithm = pk.getAlgorithm();
 		if(certAlgorithm == null) {
 			Exception e = new Exception("getAlgorithm returned a null");
 			fail(e);
 		}
 		
+		int keylen = 0;	
+		if (certAlgorithm.compareTo("RSA") == 0) {
+			RSAPublicKey rsaPk = (RSAPublicKey) pk;
+			keylen = rsaPk.getModulus().bitLength();
+			assertTrue((keylen == 2048 || keylen == 3072), keylen + " is an invalid key length");
+		} else if (certAlgorithm.compareTo("EC") == 0) {
+			java.security.interfaces.ECPublicKey ec = (java.security.interfaces.ECPublicKey) pk;
+			keylen = ec.getParams().getCurve().getField().getFieldSize();
+			assertTrue((keylen == 256 || keylen == 384), keylen + " is an invalid key length");
+		}
+		
 		String curveFromCert = "";
 		int modulus = 0;
-		if(pubKey instanceof RSAPublicKey) {
+		if(certAlgorithm.compareTo("RSA") == 0) {
 			
-			RSAPublicKey pk = (RSAPublicKey) pubKey;
-			modulus = pk.getModulus().bitLength();
+			RSAPublicKey pk1 = (RSAPublicKey) pk;
+			modulus = pk1.getModulus().bitLength();
 			
-		} else if(pubKey instanceof ECPublicKey) {
+		} else if(certAlgorithm.compareTo("EC") == 0) {
 			
-			ECPublicKey pk = (ECPublicKey) pubKey;
-	        ECParameterSpec ecParameterSpec = pk.getParameters();
-	        
-	        
+			ECPublicKey pk1 = (ECPublicKey) pk;
+	        ECParameterSpec ecParameterSpec = (ECParameterSpec) pk1.getParams();
+	      
 	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements(); ) {
 	        	
 		        String name = (String)names.nextElement();
-	
-		        X9ECParameters params = ECNamedCurveTable.getByName(name);
-	
-		        if (params.getN().equals(ecParameterSpec.getN())
-		            && params.getH().equals(ecParameterSpec.getH())
-		            && params.getCurve().equals(ecParameterSpec.getCurve())
-		            && params.getG().equals(ecParameterSpec.getG())){
+		        s_logger.debug("name = {}, spec = {}", name, ecParameterSpec.toString());
+		        
+		        if (ecParameterSpec.toString().matches(String.format("^.*%s.*$", name))) {
 		        	curveFromCert = name;
+		        	break;
 		        }
 	        }
 		}
 		
-		
 		String supportedCurve1 = "prime256v1";
-		String supportedCurve2 = "secp384r1";	
+		String supportedCurve2 = "prime384v1";	
+		
 		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0) {
 			
 			if(certAlgorithm.compareTo("RSA") == 0) {
 				//check key size
 				assertTrue(modulus == 2048);
 			}
-			else if(certAlgorithm.compareTo("EC") == 0) {
-					        
+			else if(certAlgorithm.compareTo("EC") == 0) {					      
 			    //Confirm that the curve in the cert is prime256v1
 			    assertTrue(supportedCurve1.compareTo(curveFromCert) == 0);
 			}
@@ -233,7 +250,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		if(pubKey instanceof ECPublicKey) {
 			
 			ECPublicKey pk = (ECPublicKey) pubKey;
-	        ECParameterSpec ecParameterSpec = pk.getParameters();
+	        ECParameterSpec ecParameterSpec = pk.getParams();
 	        
 	        
 	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
@@ -242,12 +259,12 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 	
 		        X9ECParameters params = ECNamedCurveTable.getByName(name);
 	
-		        if (params.getN().equals(ecParameterSpec.getN())
-		            && params.getH().equals(ecParameterSpec.getH())
-		            && params.getCurve().equals(ecParameterSpec.getCurve())
-		            && params.getG().equals(ecParameterSpec.getG())){
-		        	curveFromCert = name;
-		        }
+//		        if (params.getN().equals(ecParameterSpec.getN())
+//		            && params.getH().equals(ecParameterSpec.getH())
+//		            && params.getCurve().equals(ecParameterSpec.getCurve())
+//		            && params.getG().equals(ecParameterSpec.getG())){
+//		        	curveFromCert = name;
+//		        }
 	        }
 		}
 		

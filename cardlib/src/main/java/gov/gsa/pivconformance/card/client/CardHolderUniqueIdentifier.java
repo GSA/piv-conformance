@@ -2,7 +2,9 @@ package gov.gsa.pivconformance.card.client;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DLSet;
 import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
@@ -377,7 +379,9 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
                                     // Set the ContentInfo structure in super class
                                     setContentInfo(ContentInfo.getInstance(aIn.readObject())); aIn.close();
                                     // Set the CMSSignedData object
-                                    setAsymmetricSignature(new CMSSignedData(getContentInfo()));
+                                    CMSSignedData signedData = new CMSSignedData(getContentInfo());
+                                    setAsymmetricSignature(signedData);
+                                    setDigestAlgorithms(signedData.getDigestAlgorithmIDs());
 
                                     Store<X509CertificateHolder> certs = getAsymmetricSignature().getCertificates();
                                     signers = getAsymmetricSignature().getSignerInfos();

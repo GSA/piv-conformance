@@ -9,13 +9,16 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-//import java.security.interfaces.ECPublicKey;
-//import java.security.interfaces.RSAPublicKey;
-//import java.security.spec.EllipticCurve;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EllipticCurve;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +31,6 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.ContentInfo;
-import org.bouncycastle.asn1.pkcs.RSAPublicKey;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameStyle;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
@@ -42,8 +44,7 @@ import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.cms.SignerId;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
-import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
@@ -102,7 +103,7 @@ public class CMSTests {
 		assertTrue(asymmetricSignature.getVersion() == 3, "Version was " + asymmetricSignature.getVersion());
 	}
 
-	// Validate the content signing key length against SP 800-78-4, Table 3-2
+	// The digestAlgorithms field value of the SignedData is in accordance with Table 3-2 of SP 800-78.
 	@DisplayName("CMS.3 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	// @MethodSource("CMS_TestProvider")
@@ -115,52 +116,17 @@ public class CMSTests {
 		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
+
+		// CMS digest algorithm must be in Table 3-2, period.
+
+		HashSet<AlgorithmIdentifier> dalgList = new HashSet<AlgorithmIdentifier>();
 		
-		// Underlying decoder for OID identified containers with embedded content
-		// signing certs.
-		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-		assertNotNull(signingCert, "No signing cert found for OID " + oid);
-
-		// Table 3-2
-		List<String> keySizes = new ArrayList<String>();
-		keySizes.add(Integer.toString(2048));
-		keySizes.add("prime256v1");
-		keySizes.add("secp384r1");
-
-		PublicKey pubKey = signingCert.getPublicKey();
-		int pubKeySize = 0;
-		String searchStr = null;
-		if (pubKey instanceof RSAPublicKey) {	
-			RSAPublicKey pk = (RSAPublicKey) pubKey;
-			pubKeySize = pk.getModulus().bitLength();
-			searchStr = Integer.toString(pubKeySize);
-			assertTrue(keySizes.contains(searchStr), "Key length " + pubKeySize + " not found in Table 3-2, SP 800-78-4");
-		} else if (pubKey instanceof ECPublicKey) {
-			List<String> supportedSizes = new ArrayList<String>();
-			supportedSizes.add("prime256v1");
-			supportedSizes.add("secp384r1");
-
-			ECPublicKey pk = (ECPublicKey) pubKey;
-			ECParameterSpec ecParameterSpec = pk.getParameters();
-
-			String curveFromCert = "";
-			for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
-
-				String name = (String) names.nextElement();
-
-				X9ECParameters params = ECNamedCurveTable.getByName(name);
-
-				if (params.getN().equals(ecParameterSpec.getN()) && params.getH().equals(ecParameterSpec.getH())
-						&& params.getCurve().equals(ecParameterSpec.getCurve())
-						&& params.getG().equals(ecParameterSpec.getG())) {
-					curveFromCert = name;
-				}
-			}
-
-			searchStr = curveFromCert;
-			assertTrue(keySizes.contains(searchStr), "Key length for " + curveFromCert + " not found in Table 3-2, SP 800-78-4");
-		} else
-			assertTrue((true == false), "Content signing key size could not be determined");
+		Iterator<AlgorithmIdentifier> ih = asymmetricSignature.getDigestAlgorithmIDs().iterator();	
+		while (ih.hasNext()) {
+			AlgorithmIdentifier ai = ih.next();
+			String digAlgOid = ai.getAlgorithm().getId();
+			assertTrue(Algorithm.digAlgOidToNameMap.containsKey(digAlgOid), digAlgOid + " is not in Table 3-2 of SP 800-78-4");
+		}		
 	}
 
 	// Verify digestAlgorithms attribute is present
@@ -450,8 +416,6 @@ public class CMSTests {
 			SignerInformation signer = (SignerInformation) it.next();
 			assertTrue(Algorithm.digAlgOidToNameMap.containsKey(
 				signer.getDigestAlgOID()), "Digest algorithm list does not contain" + signer.getDigestAlgOID());
-			assertTrue(Algorithm.encAlgOidToNameMap.containsKey(
-				signer.getEncryptionAlgOID()), "Encryption algorithm list does not contain" + signer.getEncryptionAlgOID());
 			if (it.hasNext()) {
 				s_logger.warn("More than one signer");
 			}
@@ -722,24 +686,44 @@ public class CMSTests {
 		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
 		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-		// Underlying decoder for OID identified containers with embedded content
-		// signing certs
-		// Now, select the appropriate signature cert for the object
-		X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-		assertNotNull(signingCert, "No signing cert found for OID " + oid);
+		assertTrue(Algorithm.isDigestAlgInTable32(asymmetricSignature), "Unsupported digest algorithm");
 
-		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
+		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 
-		assertNotNull(signers);
+		int keylen = 0;
+		PublicKey pk = cert.getPublicKey();
+		if (pk instanceof BCRSAPublicKey) {
+			BCRSAPublicKey rsaPk = (BCRSAPublicKey) pk;
+			keylen = rsaPk.getModulus().bitLength();
+			assertTrue((keylen == 2048 || keylen == 3072), keylen + " is an invalid key length");
+		} else if (pk.getClass().toString().contains("EC")) {
+			ECPublicKey ec = (ECPublicKey) pk;
+			keylen = ec.getParams().getCurve().getField().getFieldSize();
+			assertTrue((keylen == 256 || keylen == 384), keylen + " is an invalid key length");
+		}
+		s_logger.debug("Public key length: {}", keylen);
+		
+		// Key length is valid, so compare the digest algorithm of the signature with the
+		// list of supported algorithms.
+		
+		HashSet<String> dalgList = new HashSet<String>();
+		
+		Iterator<AlgorithmIdentifier> ih = asymmetricSignature.getDigestAlgorithmIDs().iterator();	
+		while (ih.hasNext()) {
+			AlgorithmIdentifier ai = ih.next();
+			dalgList.add(ai.getAlgorithm().getId());
+		}
+		
+		SignerInformationStore signers = null;
+
+		signers = asymmetricSignature.getSignerInfos();
+		assertTrue((signers != null), "Signers is null");
 		
 		Iterator<?> it = signers.getSigners().iterator();
 		while (it.hasNext()) {
 			SignerInformation signer = (SignerInformation) it.next();
-			assertTrue(Algorithm.digAlgOidToNameMap.containsKey(
-				signer.getDigestAlgOID()), "Digest algorithm list does not contain " + signer.getDigestAlgOID());
-			if (it.hasNext()) {
-				s_logger.warn("More than one signer");
-			}
+			String digAlgOid = signer.getDigestAlgorithmID().getAlgorithm().getId();
+			assertTrue(dalgList.contains(digAlgOid), digAlgOid + " is not a supported digest algorithm");
 		}
 	}	
 
