@@ -623,7 +623,23 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(ku[2] == true, "keyEncipherment bit is not set");
     }
 	
-	//Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set 
+	// Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set 
+	// If the public key algorithm is RSA, then the keyUsage extension shall only assert the
+	// keyEncipherment bit. If the algorithm is Elliptic Curve key, then the keyUsage extension
+	// shall only assert the keyAgreement bit.
+	/*
+	 *  KeyUsage ::= BIT STRING {
+     digitalSignature        (0),
+     nonRepudiation          (1),
+     keyEncipherment         (2),
+     dataEncipherment        (3),
+     keyAgreement            (4),
+     keyCertSign             (5),
+     cRLSign                 (6),
+     encipherOnly            (7),
+     decipherOnly            (8) }
+     
+	 */
 	@DisplayName("PKIX.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_KeyMgmtx509TestProvider")
@@ -636,14 +652,24 @@ public class PKIX_X509DataObjectTests {
 		
 		PublicKey pubKey = cert.getPublicKey();
 
-		if(pubKey instanceof ECPublicKey) {
+		if(pubKey instanceof RSAPublicKey) {
+			boolean[] ku = cert.getKeyUsage();
+
+			// confirm key usage extension is present
+			assertTrue(ku != null, "Key usage extension is absent");
+			// Confirm keyEncipherment bit is set
+			assertTrue(ku[4] == true, "keyEncipherment bit is not set");
+			assertTrue(!ku[0] && !ku[1] && !ku[2] && !ku[3] && !ku[4] && !ku[6] && !ku[7] && !ku[8], "additional RSA keyUsage bits are set");
+			
+		} else if (pubKey instanceof ECPublicKey) {
 		
 			boolean[] ku = cert.getKeyUsage();
 
 			// confirm key usage extension is present
 			assertTrue(ku != null, "Key usage extension is absent");
 			// Confirm keyAgreement bit is set
-			assertTrue(ku[4] == true, "keyAgreement bit is not set");
+			assertTrue(ku[4] == true, "keyAgeeement bit is not set");
+			assertTrue(!ku[0] && !ku[1] && !ku[2] && !ku[3] && !ku[4] && !ku[6] && !ku[7] && !ku[8], "additional ECC keyUsage bits are set");
 		}
 		
     }
