@@ -658,8 +658,8 @@ public class PKIX_X509DataObjectTests {
 			// confirm key usage extension is present
 			assertTrue(ku != null, "Key usage extension is absent");
 			// Confirm keyEncipherment bit is set
-			assertTrue(ku[4] == true, "keyEncipherment bit is not set");
-			assertTrue(!ku[0] && !ku[1] && !ku[2] && !ku[3] && !ku[4] && !ku[6] && !ku[7] && !ku[8], "additional RSA keyUsage bits are set");
+			assertTrue(ku[2] == true, "keyEncipherment bit is not set");
+			assertTrue(!ku[0] && !ku[1] && !ku[3] && !ku[4] && !ku[5] && !ku[6] && !ku[7] && !ku[8], "additional RSA keyUsage bits are set");
 			
 		} else if (pubKey instanceof ECPublicKey) {
 		
@@ -669,7 +669,7 @@ public class PKIX_X509DataObjectTests {
 			assertTrue(ku != null, "Key usage extension is absent");
 			// Confirm keyAgreement bit is set
 			assertTrue(ku[4] == true, "keyAgeeement bit is not set");
-			assertTrue(!ku[0] && !ku[1] && !ku[2] && !ku[3] && !ku[4] && !ku[6] && !ku[7] && !ku[8], "additional ECC keyUsage bits are set");
+			assertTrue(!ku[0] && !ku[1] && !ku[2] && !ku[3] && !ku[5] && !ku[6] && !ku[7] && !ku[8], "additional ECC keyUsage bits are set");
 		}
 		
     }
