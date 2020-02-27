@@ -8,14 +8,14 @@ cleanCRs() {
 		for F in $(find venv-xlrd -name '*.py'); do
 			sed -i.bak 's/\r$//' $F
 		done
-		sed -i.bak 's/\r$//' venv-xlrd/Scripts/activate
+		sed -i.bak 's/\r$//' venv-xlrd/bin/activate
 	fi
 }
 
 python -mvenv venv-xlrd; cleanCRs
-source venv-xlrd/Scripts/activate
+source venv-xlrd/bin/activate
 pip install --upgrade pip; cleanCRs
 pip install xlrd; cleanCRs
 pip install xlwt; cleanCRS
 pip install xlsxwriter; cleanCRs
-source venv-xlrd/Scripts/activate
+source venv-xlrd/bin/activate
