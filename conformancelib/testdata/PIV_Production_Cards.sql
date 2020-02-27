@@ -634,7 +634,7 @@ INSERT INTO "TestCases" VALUES(364, NULL,'11.1.2.3.1','authorityInformationAcces
 INSERT INTO "TestCases" VALUES(365, NULL,'11.1.2.3.2','An accessMethod containing id-ad-ocsp is present.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(366, NULL,'11.1.2.3.3','AIA uniformResourceIdentifier protocol is http','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(367, NULL,'11.1.2.4','PIV interim extension is present','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(368, NULL,'11.1.2.5','Sign arbitrary data using the specified key container and confirm that the certificate can validate it','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(368, NULL,'11.1.2.5','Private key corresponds to the public key contained in the certificate as the signature verification succeeds.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(369, NULL,'11.1.2.6','Subject Alternate Name','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(370, NULL,'11.1.2.6.1','GeneralName field exists that contains an otherName with a type-id asserting the pivFASC-N OID. The value field of this otherName contains the FASC-N for the cardholder which matches the FASC-N obtained from parsing the CHUID.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(371, NULL,'11.1.2.6.2','GeneralName field exists that contain a URI asserting a Card UUID as specified by [RFC4122, Section 3] that matches the GUID value in the CHUID.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
