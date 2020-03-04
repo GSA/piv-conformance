@@ -761,10 +761,8 @@ public class PKIX_X509DataObjectTests {
 		
 		assertNotNull(eku);
 		KeyPurposeId[] kpilist = eku.getUsages();
-	    for (KeyPurposeId kpiInfo : kpilist) {
-	    	s_logger.debug("Testing key purpose OID {} for container {}", kpiInfo.getId().toString(), oid);
-	    	assertTrue (ekuOid.compareTo(kpiInfo.getId()) == 0, "Certificate does not contain " + ekuOid);
-	    }
+		assertTrue(kpilist.length == 1, "Extended Key Usage keyPurposeId asserts more than one OID");
+    	assertTrue (ekuOid.compareTo(kpilist[0].getId()) == 0, "Certificate does not contain " + ekuOid);
     }
 
 	@DisplayName("PKIX.21 test")
