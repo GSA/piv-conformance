@@ -713,7 +713,7 @@ public class PKIX_X509DataObjectTests {
 		
     }
 	
-	//Confirm extendedKeyUsage extension is present
+	//Confirm extendedKeyUsage extension is present and is marked critical
 	@DisplayName("PKIX.19 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_CardAuthx509TestProvider")
@@ -729,22 +729,9 @@ public class PKIX_X509DataObjectTests {
 		
 		//Confirm eku extension is present
 		assertTrue(cpex != null, "EKU extension is absent");
-		boolean isCritical = false;
-		try {
-			X509CertificateHolder ch = new X509CertificateHolder(cert.getEncoded());
-			for(Object o : ch.getCriticalExtensionOIDs()) {
-				ASN1ObjectIdentifier objid = (ASN1ObjectIdentifier) o;
-				if(objid.toString().contentEquals("2.5.29.37")) {
-					isCritical = true;
-				}
-			}
-		} catch (CertificateEncodingException | IOException e1) {
-			s_logger.error("Failed to parse already decoded certificate.");
-		}
-		assertTrue(isCritical, "EKU extension is not marked critical and must be.");
     }
 
-	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
+	//Confirm id-PIV-cardAuth is asserted and no other OID is asserted
 	@DisplayName("PKIX.20 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_CardAuthx509TestProvider2")
@@ -753,16 +740,17 @@ public class PKIX_X509DataObjectTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
-		List<String> ekuOids = pmap.get(oid);
-		//String ekuOid = ekuOids.get(0);
+		List<String> ekuOids = pmap.get(APDUConstants.containerOidToNameMap.get(oid));
+		String ekuOid = ekuOids.get(0);
+
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
 		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
 		
-		//Confirm certificate policies extension is present
-		assertTrue(ekuex != null, "Certificate policies extension is absent");
+		//Confirm EKU extension is present
+		assertTrue(ekuex != null, "Extended key usage extension is absent");
 		
 		ExtendedKeyUsage eku = null;
 		try {
@@ -775,10 +763,8 @@ public class PKIX_X509DataObjectTests {
 		KeyPurposeId[] kpilist = eku.getUsages();
 	    for (KeyPurposeId kpiInfo : kpilist) {
 	    	s_logger.debug("Testing key purpose OID {} for container {}", kpiInfo.getId().toString(), oid);
-	    	assert(ekuOids.contains(kpiInfo.getId().toString()));
+	    	assertTrue (ekuOid.compareTo(kpiInfo.getId()) == 0, "Certificate does not contain " + ekuOid);
 	    }
-	    
-		
     }
 
 	@DisplayName("PKIX.21 test")
