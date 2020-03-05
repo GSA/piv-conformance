@@ -546,8 +546,11 @@ public class SP800_73_4CHUIDTests {
 				Exception e = new Exception("ISSUER_ASYMMETRIC_SIGNATURE_TAG not found");
 				fail(e);
 			}
-			assertTrue(Arrays.equals(tagList.get(berIssuerAssymSigTagIndex-1).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG) || 
-					Arrays.equals(tagList.get(berIssuerAssymSigTagIndex-1).bytes, TagConstants.CARDHOLDER_UUID_TAG));
+			assertTrue(
+					(Arrays.equals(tagList.get(berIssuerAssymSigTagIndex-1).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG) || 
+					Arrays.equals(tagList.get(berIssuerAssymSigTagIndex-1).bytes, TagConstants.CARDHOLDER_UUID_TAG)), "Tag 0x3E preceded by invalid tag" 
+					
+			);
 		}
 		catch (Exception e) {
 			fail(e);
