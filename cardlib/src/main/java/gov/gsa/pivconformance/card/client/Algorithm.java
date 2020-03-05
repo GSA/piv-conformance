@@ -4,6 +4,10 @@
 package gov.gsa.pivconformance.card.client;
 
 import java.util.HashMap;
+import java.util.Iterator;
+
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.cms.CMSSignedData;
 
 /**
  * 
@@ -11,6 +15,7 @@ import java.util.HashMap;
  *
  */
 public class Algorithm {
+	
 	public static final HashMap<String, String> sigAlgOidToNameMap = new HashMap<String, String>() {
 		/**
 		 * Signature
@@ -47,4 +52,22 @@ public class Algorithm {
 			put("1.2.840.10045.2.1", "ECDSA");
 		}
 	};
+	
+	/**
+	 * Indicates whether this signature block contains only digest algorithms in Table 3-2 of
+	 * SP 800-78-4
+	 * @param asymmetricSignature the signature to be checked
+	 * @return true if the digest is in Table 3-2 and false if not
+	 */
+	
+	public static boolean isDigestAlgInTable32(CMSSignedData asymmetricSignature) {
+		Iterator<AlgorithmIdentifier> ih = asymmetricSignature.getDigestAlgorithmIDs().iterator();	
+		while (ih.hasNext()) {
+			AlgorithmIdentifier ai = ih.next();
+			String digAlgOid = ai.getAlgorithm().getId();
+			if (!Algorithm.digAlgOidToNameMap.containsKey(digAlgOid))
+				return false;
+		}
+		return true;
+	}
 }

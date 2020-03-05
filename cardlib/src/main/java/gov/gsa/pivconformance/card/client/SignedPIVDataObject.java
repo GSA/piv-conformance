@@ -13,7 +13,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
 public class SignedPIVDataObject extends PIVDataObject {
 	// slf4j will thunk this through to an appropriately configured logging library
 	private static final Logger s_logger = LoggerFactory.getLogger(PIVDataObject.class);
-	private CMSSignedData m_asymmetricSignature;
 	private ContentInfo m_contentInfo;
-	// private X509Certificate m_signingCertificate;
+	private CMSSignedData m_asymmetricSignature;
+	private Set<AlgorithmIdentifier> m_dalgList;
 	// The raw data over which the message digest shall be computed
 	private byte[] m_signedContent;
 	// The effective signing cert.
@@ -71,6 +71,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 
 	public SignedPIVDataObject() {
 		super();
+		m_dalgList = null;
 		m_signerCert = null;
 		m_signerCertCount = 0;
 		m_hasOwnSignerCert = false;
@@ -97,6 +98,26 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 */
 	public void setSignedContent(byte[] signedContent) {
 		m_signedContent = signedContent;
+	}
+
+	/**
+	 *
+	 * Returns list of supported digest algorithms
+	 *
+	 * @return List of supported algorithm identifiers
+	 */
+	public Set<AlgorithmIdentifier> getDigestAlgorithms() {
+		return m_dalgList;
+	}
+
+	/**
+	 *
+	 * Sets the signed content value
+	 *
+	 * @param signedContent Byte array with signed content buffer
+	 */
+	public void setDigestAlgorithms(Set<AlgorithmIdentifier> set) {
+		m_dalgList = set;
 	}
 
 	/**

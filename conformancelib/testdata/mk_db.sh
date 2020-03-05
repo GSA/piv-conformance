@@ -1,13 +1,7 @@
 #!/usr/bin/bash
 
-# Note: If this is running out of Cygwin, do NOT use this.
-#
-# Instead, use mk_db.bat from a true CMD window.  As of 5/7/2019,
-# Cygwin's Python 2.7 implementation doesn't have the prequisite
-# modules needed to convert .xlsx to .sql, so we must use the
-# Windows 64 Python distro.
-
-if [ $(expr $(uname) : "^.*CYG") -eq 3 ]; then
+#if [ $(expr $(uname) : "^.*CYG") -eq 3 ]; then
+if [ 0 -eq 1 ]; then
 	echo -n "Hit <ENTER> when ready to invoke Windows Python detour around Cygwin: " 
 	read ans
 	mkdbParam=""

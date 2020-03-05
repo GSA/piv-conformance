@@ -14,6 +14,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardClientException;
 
 public class ParameterUtils {
@@ -63,9 +64,8 @@ public class ParameterUtils {
 	 */
 	public static Map<String,List<String>> MapFromString(String parameters, String delimiter) {
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
-		String[] parameterList = ParameterUtils.CreateFromString(parameters, ",");
+		String[] parameterList = ParameterUtils.CreateFromString(parameters, delimiter);
 		String logMessage = "";
-		
 		try {	
 			if (parameterList.length == 0) {
 				logMessage = "Parameter list expected but none found";

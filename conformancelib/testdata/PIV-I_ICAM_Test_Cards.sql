@@ -234,7 +234,7 @@ INSERT INTO "TestSteps" VALUES(169,'PKIX.28','gov.gsa.conformancelib.tests.PKIX_
 INSERT INTO "TestSteps" VALUES(170,'PlaceholderTest.1','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_1',NULL);
 INSERT INTO "TestSteps" VALUES(171,'PlaceholderTest.2','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_2',NULL);
 INSERT INTO "TestSteps" VALUES(172,'PlaceholderTest.3','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_3',NULL);
-INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:15',0);
+INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'15',0);
 INSERT INTO "TestStepParameters" VALUES(2, 99,NULL,'CARDHOLDER_FINGERPRINTS_OID:513',0);
 INSERT INTO "TestStepParameters" VALUES(3, 99,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:1281',1);
 INSERT INTO "TestStepParameters" VALUES(4, 99,NULL,'CARDHOLDER_IRIS_IMAGES_OID:9',2);
@@ -254,8 +254,8 @@ INSERT INTO "TestStepParameters" VALUES(17, 147,NULL,'X509_CERTIFICATE_FOR_KEY_M
 INSERT INTO "TestStepParameters" VALUES(18, 147,NULL,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:2.16.840.1.101.3.2.1.48.249',3);
 INSERT INTO "TestStepParameters" VALUES(19, 147,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.2.1.48.252',4);
 INSERT INTO "TestStepParameters" VALUES(20, 159,NULL,'2.16.840.1.101.3.2.1.3.19',0);
-INSERT INTO "TestStepParameters" VALUES(21, 161,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.6.7',0);
-INSERT INTO "TestStepParameters" VALUES(22, 161,NULL,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:2.16.840.1.101.3.6.7',1);
+INSERT INTO "TestStepParameters" VALUES(21, 161,NULL,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:2.16.840.1.101.3.6.8',0);
+INSERT INTO "TestStepParameters" VALUES(22, 161,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.8.7',1);
 INSERT INTO "TestStepParameters" VALUES(23, 162,NULL,'2.16.840.1.101.3.2.1.48.252',0);
 INSERT INTO "TestStepParameters" VALUES(24, 165,NULL,'2.5.29.31',0);
 INSERT INTO "TestStepParameters" VALUES(25, 168,NULL,'1.3.6.1.1.16.4',0);
@@ -619,7 +619,7 @@ INSERT INTO "TestCases" VALUES(351, NULL,'11.1.2.3','OCSP','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(352, NULL,'11.1.2.3.1','authorityInformationAccess extension is present','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(353, NULL,'11.1.2.3.2','An accessMethod containing id-ad-ocsp is present.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(354, NULL,'11.1.2.3.3','AIA uniformResourceIdentifier protocol is http','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(355, NULL,'11.1.2.5','Sign arbitrary data using the specified key container and confirm that the certificate can validate it','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(355, NULL,'11.1.2.5','Private key corresponds to the public key contained in the certificate as the signature verification succeeds.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(356, NULL,'11.1.2.6','Subject Alternate Name','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(357, NULL,'11.1.2.6.2','GeneralName field exists that contain a URI asserting a Card UUID as specified by [RFC4122, Section 3] that matches the GUID value in the CHUID.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(358, NULL,'11.1.2.7','Expiration date of the PIV authentication certificate is not beyond the expiration date of the CHUID i.e. the PIV card.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);

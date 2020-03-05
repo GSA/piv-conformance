@@ -17,6 +17,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +52,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.jce.interfaces.ECPublicKey;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -72,6 +73,7 @@ import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.conformancelib.utilities.KeyValidationHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
+import gov.gsa.pivconformance.card.client.APDUUtils;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
@@ -228,32 +230,31 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_6(String oid, String policyOid, TestReporter reporter) {
+    void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;		
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
-		if (policyOid == null) {
+		if (containersAndPolicyOids == null) {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-		List<String> paramList = Arrays.asList(policyOid.split(","));
+		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
 		
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
 		
-		for(String p : paramList) {
-			String[] paramList2 = p.split(":");
-					
-			List<String> paramList3 = Arrays.asList(paramList2[1].split("\\|"));
-			
-			if (paramList3.size() > 1) {
-				s_logger.debug("*********** paramList[3].size() = {}", paramList3.size());
+		for(String p : containerOidList) {
+			String[] allowedPolicies = p.split(":");
+			String policyOidName = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
+			if (policyOidName.equals(oid)) {	
+				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));	
+				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
+				rv.put(containerOid, paramList3);
+				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
 			}
-			String containerOid = APDUConstants.getStringForFieldNamed(paramList2[0]);
-			rv.put(containerOid, paramList3);
 		}
-
+		
 		//Get certificate policies extension
 		byte[] cpex = cert.getExtensionValue("2.5.29.32");
 		
@@ -272,13 +273,13 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	s_logger.debug("Cert for {} contains {}", oid, curroid.getId());
+	    	s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMAP.get(oid));
 	    	if(rv.get(oid).contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;
 	    	}
 	    }
-	    
+
 	    //Confirm that oid matches is asserted in certificate policies
 	    assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
     }
@@ -569,15 +570,13 @@ public class PKIX_X509DataObjectTests {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
-		RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
-		
-		
-		BigInteger be = BigInteger.valueOf(65537);
-		
+		PublicKey pubKey = cert.getPublicKey();
+		// Only do this if this is an RSA key
 		if(pubKey instanceof RSAPublicKey) {
 			//confirm that public exponent >= 65537
-			assertTrue(pubKey.getPublicExponent().compareTo(be) >= 0, "Public exponent is not >= 65537" );
-		} 
+			BigInteger be = BigInteger.valueOf(65537);
+			assertTrue(((RSAPublicKey) (pubKey)).getPublicExponent().compareTo(be) >= 0, "Public exponent is not >= 65537" );
+		} 		
     }
 	
 	//Confirm digitalSignature and nonRepudiation bits are set
@@ -624,7 +623,23 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(ku[2] == true, "keyEncipherment bit is not set");
     }
 	
-	//Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set 
+	// Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set 
+	// If the public key algorithm is RSA, then the keyUsage extension shall only assert the
+	// keyEncipherment bit. If the algorithm is Elliptic Curve key, then the keyUsage extension
+	// shall only assert the keyAgreement bit.
+	/*
+	 *  KeyUsage ::= BIT STRING {
+     digitalSignature        (0),
+     nonRepudiation          (1),
+     keyEncipherment         (2),
+     dataEncipherment        (3),
+     keyAgreement            (4),
+     keyCertSign             (5),
+     cRLSign                 (6),
+     encipherOnly            (7),
+     decipherOnly            (8) }
+     
+	 */
 	@DisplayName("PKIX.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_KeyMgmtx509TestProvider")
@@ -637,14 +652,24 @@ public class PKIX_X509DataObjectTests {
 		
 		PublicKey pubKey = cert.getPublicKey();
 
-		if(pubKey instanceof ECPublicKey) {
+		if(pubKey instanceof RSAPublicKey) {
+			boolean[] ku = cert.getKeyUsage();
+
+			// confirm key usage extension is present
+			assertTrue(ku != null, "Key usage extension is absent");
+			// Confirm keyEncipherment bit is set
+			assertTrue(ku[2] == true, "keyEncipherment bit is not set");
+			assertTrue(!ku[0] && !ku[1] && !ku[3] && !ku[4] && !ku[5] && !ku[6] && !ku[7] && !ku[8], "additional RSA keyUsage bits are set");
+			
+		} else if (pubKey instanceof ECPublicKey) {
 		
 			boolean[] ku = cert.getKeyUsage();
 
 			// confirm key usage extension is present
 			assertTrue(ku != null, "Key usage extension is absent");
 			// Confirm keyAgreement bit is set
-			assertTrue(ku[4] == true, "keyAgreement bit is not set");
+			assertTrue(ku[4] == true, "keyAgeeement bit is not set");
+			assertTrue(!ku[0] && !ku[1] && !ku[2] && !ku[3] && !ku[5] && !ku[6] && !ku[7] && !ku[8], "additional ECC keyUsage bits are set");
 		}
 		
     }
@@ -688,7 +713,7 @@ public class PKIX_X509DataObjectTests {
 		
     }
 	
-	//Confirm extendedKeyUsage extension is present
+	//Confirm extendedKeyUsage extension is present and is marked critical
 	@DisplayName("PKIX.19 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_CardAuthx509TestProvider")
@@ -704,22 +729,9 @@ public class PKIX_X509DataObjectTests {
 		
 		//Confirm eku extension is present
 		assertTrue(cpex != null, "EKU extension is absent");
-		boolean isCritical = false;
-		try {
-			X509CertificateHolder ch = new X509CertificateHolder(cert.getEncoded());
-			for(Object o : ch.getCriticalExtensionOIDs()) {
-				ASN1ObjectIdentifier objid = (ASN1ObjectIdentifier) o;
-				if(objid.toString().contentEquals("2.5.29.37")) {
-					isCritical = true;
-				}
-			}
-		} catch (CertificateEncodingException | IOException e1) {
-			s_logger.error("Failed to parse already decoded certificate.");
-		}
-		assertTrue(isCritical, "EKU extension is not marked critical and must be.");
     }
 
-	//Confirm id-PIV-cardAuth 2.16.840.1.101.3.6.8 exists in extendedKeyUsage extension
+	//Confirm id-PIV-cardAuth is asserted and no other OID is asserted
 	@DisplayName("PKIX.20 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_CardAuthx509TestProvider2")
@@ -728,16 +740,17 @@ public class PKIX_X509DataObjectTests {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
-		List<String> ekuOids = pmap.get(oid);
-		//String ekuOid = ekuOids.get(0);
+		List<String> ekuOids = pmap.get(APDUConstants.containerOidToNameMap.get(oid));
+		String ekuOid = ekuOids.get(0);
+
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
 		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
 		
-		//Confirm certificate policies extension is present
-		assertTrue(ekuex != null, "Certificate policies extension is absent");
+		//Confirm EKU extension is present
+		assertTrue(ekuex != null, "Extended key usage extension is absent");
 		
 		ExtendedKeyUsage eku = null;
 		try {
@@ -748,12 +761,8 @@ public class PKIX_X509DataObjectTests {
 		
 		assertNotNull(eku);
 		KeyPurposeId[] kpilist = eku.getUsages();
-	    for (KeyPurposeId kpiInfo : kpilist) {
-	    	s_logger.debug("Testing key purpose OID {} for container {}", kpiInfo.getId().toString(), oid);
-	    	assert(ekuOids.contains(kpiInfo.getId().toString()));
-	    }
-	    
-		
+		assertTrue(kpilist.length == 1, "Extended Key Usage keyPurposeId asserts more than one OID");
+    	assertTrue (ekuOid.compareTo(kpilist[0].getId()) == 0, "Certificate does not contain " + ekuOid);
     }
 
 	@DisplayName("PKIX.21 test")

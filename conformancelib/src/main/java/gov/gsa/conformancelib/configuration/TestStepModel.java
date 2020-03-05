@@ -94,14 +94,27 @@ public class TestStepModel {
 	
 	public void retrieveForId(int testStepId, int testId) {
 		this.setId(testStepId);
-		String query = "select TestSteps.Id as TestStepId, Description, Class, "+
-				"Method, NumParameters, Status "+
-				"from TestSteps left outer join TestsToSteps on TestSteps.Id = TestsToSteps.TestStepId "+
-				"where TestSteps.Id = ? and TestsToSteps.TestId = ?";
+		String query = 
+				"SELECT " +
+				"  TestStepId, Description, Class, Method, NumParameters, Status " +
+				"FROM " +
+				"  TestSteps " +
+				"LEFT OUTER JOIN TestsToSteps ON " +
+				"  TestSteps.Id = TestsToSteps.TestStepId " +
+				"WHERE " +
+				"  TestSteps.Id = ? " +
+				"AND " +
+				"  TestsToSteps.TestId = ?";
 								
-		String parametersQuery = "select Id, TestStepId, TestId, Value from TestStepParameters " + 
-                                            "where TestStepParameters.TestStepId = ? " +
-                                            "order by TestStepParameters.ParamOrder";
+		String parametersQuery = 
+				"SELECT " +
+				"  Id, TestStepId, TestId, Value " +
+				"FROM " +
+				"  TestStepParameters " + 
+                "WHERE " +
+				"  TestStepParameters.TestStepId = ? " +
+                "ORDER BY " +
+				"  TestStepParameters.ParamOrder";
 		try {
 			Connection conn = m_db.getConnection();
 			PreparedStatement pquery = conn.prepareStatement(query);
@@ -123,20 +136,26 @@ public class TestStepModel {
 			//int nParameters = rs.getInt("NumParameters");
 			//s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
 			PreparedStatement pparametersQuery = conn.prepareStatement(parametersQuery);
-			pparametersQuery.setInt(1, testStepId);
-			//pparametersQuery.setInt(2, testId);
 
-			ResultSet prs = pparametersQuery.executeQuery();
-			int nParameters = 0;
-			while(prs.next()) {
-				if(m_parameters == null) m_parameters = new ArrayList<String>();
-				m_parameters.add(prs.getString("Value"));
-				nParameters++;
+			try {
+				pparametersQuery.setInt(1, testStepId);
+				//pparametersQuery.setInt(2, testId);
+	
+				ResultSet prs = pparametersQuery.executeQuery();
+				int nParameters = 0;
+				while(prs.next()) {
+					if(m_parameters == null) m_parameters = new ArrayList<String>();
+					m_parameters.add(prs.getString("Value"));
+					nParameters++;
+				}
+				s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
+			} catch (Exception e) {
+				s_logger.error("Database error {} processing parameter query for Test Step ID {}: {}", e.getMessage(), testStepId, pparametersQuery);
+
 			}
-			s_logger.debug("Test step {} has {} parameters", this.getTestDescription(), nParameters);
 		} catch(Exception e) {
 			// XXX *** TODO: more granular exception handling
-			s_logger.error("Database error procesing test step id " + testStepId + ": caught unexpected exception", e);
+			s_logger.error("Database error {} processing parameter query for Test Step ID {}: {}", e.getMessage(), testStepId, query);
 		}
 		
 	}

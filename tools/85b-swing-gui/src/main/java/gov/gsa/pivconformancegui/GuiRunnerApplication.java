@@ -161,9 +161,6 @@ public class GuiRunnerApplication {
 		
 		mnEdit.addSeparator();
 		
-		JMenuItem mntmChangeOids = new JMenuItem(c.getShowOidDialogAction());
-		mnEdit.add(mntmChangeOids);
-		
 		JMenu mnView = new JMenu("View");
 		menuBar.add(mnView);
 		

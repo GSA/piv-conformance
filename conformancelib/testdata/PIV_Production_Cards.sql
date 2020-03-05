@@ -256,8 +256,8 @@ INSERT INTO "TestStepParameters" VALUES(19, 147,NULL,'X509_CERTIFICATE_FOR_CARD_
 INSERT INTO "TestStepParameters" VALUES(20, 147,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.2.1.3.39',4);
 INSERT INTO "TestStepParameters" VALUES(21, 153,NULL,'2.16.840.1.101.3.6.6',0);
 INSERT INTO "TestStepParameters" VALUES(22, 159,NULL,'2.16.840.1.101.3.2.1.3.17',0);
-INSERT INTO "TestStepParameters" VALUES(23, 161,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.6.7',0);
-INSERT INTO "TestStepParameters" VALUES(24, 161,NULL,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:2.16.840.1.101.3.6.7',1);
+INSERT INTO "TestStepParameters" VALUES(23, 161,NULL,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID:2.16.840.1.101.3.6.8',0);
+INSERT INTO "TestStepParameters" VALUES(24, 161,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.6.7',1);
 INSERT INTO "TestStepParameters" VALUES(25, 162,NULL,'2.16.840.1.101.3.2.1.3.39',0);
 INSERT INTO "TestStepParameters" VALUES(26, 165,NULL,'2.5.29.31',0);
 INSERT INTO "TestStepParameters" VALUES(27, 168,NULL,'1.3.6.1.1.16.4',0);
@@ -634,7 +634,7 @@ INSERT INTO "TestCases" VALUES(364, NULL,'11.1.2.3.1','authorityInformationAcces
 INSERT INTO "TestCases" VALUES(365, NULL,'11.1.2.3.2','An accessMethod containing id-ad-ocsp is present.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(366, NULL,'11.1.2.3.3','AIA uniformResourceIdentifier protocol is http','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(367, NULL,'11.1.2.4','PIV interim extension is present','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(368, NULL,'11.1.2.5','Sign arbitrary data using the specified key container and confirm that the certificate can validate it','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(368, NULL,'11.1.2.5','Private key corresponds to the public key contained in the certificate as the signature verification succeeds.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(369, NULL,'11.1.2.6','Subject Alternate Name','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(370, NULL,'11.1.2.6.1','GeneralName field exists that contains an otherName with a type-id asserting the pivFASC-N OID. The value field of this otherName contains the FASC-N for the cardholder which matches the FASC-N obtained from parsing the CHUID.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(371, NULL,'11.1.2.6.2','GeneralName field exists that contain a URI asserting a Card UUID as specified by [RFC4122, Section 3] that matches the GUID value in the CHUID.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
