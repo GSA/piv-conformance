@@ -118,8 +118,15 @@ public class TestExecutionController {
 	
 
 	void runAllTests(TestCaseTreeNode root) {
+		
+		TestRunLogController trlc = TestRunLogController.getInstance();
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
 		display.setEnabled(false);
+		
+		s_logger.debug("----------------------------------------");
+		s_logger.debug("FIPS 201 CCT " + GuiRunnerAppController.getInstance().getCctVersion());
+		s_logger.debug("----------------------------------------");
+		
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
 		if(db == null || db.getConnection() == null) {
 			s_logger.error("Unable to run tests without a valid database");
@@ -127,6 +134,7 @@ public class TestExecutionController {
 			return;
 		}
 		m_running = true;
+		GuiRunnerAppController.getInstance().reloadTree();
 		PCSCWrapper pcsc = PCSCWrapper.getInstance();
 		DataModelSingleton.getInstance().reset();
 
@@ -151,8 +159,6 @@ public class TestExecutionController {
 
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
-		TestRunLogController lg = new TestRunLogController();
-		m_trlc = lg;
 
 		/* Workaround to ensure that the tool is primed with the CHUID cert.
 		 * TODO: Create "factory" database with 8.2.2.1 as the only test, open,
@@ -160,10 +166,6 @@ public class TestExecutionController {
 		 */
 		
 		int passes = 0;
-		
-		// Initialize a timestamped log file
-		
-		initializeGuiAppender(lg);
 		
 		do {
 			TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
@@ -275,8 +277,8 @@ public class TestExecutionController {
 			s_logger.error("Failed to enable run button", e);
 		}
 		
-		lg.setStopTime(); // Sets the stop time of the controller 
-		lg.setTimeStamps(); // Sets the timestamp for all of the logger files
+		trlc.setStopTime(); // Sets the stop time of the controller 
+		trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
 		
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );

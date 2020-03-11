@@ -4,15 +4,12 @@
 package gov.gsa.pivconformancegui;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,11 +30,15 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
+
 /**
  * Class that consolidates the appenders into a single disposable group
  *
  */
 public class TestRunLogController {
+	
+	private static final TestRunLogController INSTANCE = new TestRunLogController();
+
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(TestRunLogController.class);
 	/*
 	 * Note that these names MUST match the user_log_config.xml appender names.
@@ -59,20 +60,23 @@ public class TestRunLogController {
 	private String m_timeStampedLogPath = null;
 	private Date m_startTime = null;
 	private Date m_stopTime = null;
-
+	
+	public static TestRunLogController getInstance() {
+		return INSTANCE;
+	}
 	/*
 	 * Constructor
 	 */
-	public TestRunLogController() {
-		LoggerContext ctx = TestExecutionController.getInstance().getLoggerContext();
-		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-		a.setContext(ctx);
-		
-		this.initialize(ctx);
-		if (this.appendersConfigured()) {
-			s_logger.error("Logger configuration error");
-		}
-	}
+//	public TestRunLogController() {
+//		LoggerContext ctx = TestExecutionController.getInstance().getLoggerContext();
+//		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+//		a.setContext(ctx);
+//		
+//		this.initialize(ctx);
+//		if (this.appendersConfigured()) {
+//			s_logger.error("Logger configuration error");
+//		}
+//	}
 	
 	/**
 	 * Initializes a new TestRunLogController. One must be created per test run. ]
@@ -82,7 +86,7 @@ public class TestRunLogController {
 	@SuppressWarnings("unchecked")
 	void initialize(LoggerContext ctx) {
 		
-		bootStrapLogging();
+		//bootStrapLogging();
 		m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
 		Map.Entry<String, String> me = null;
 		Iterator<?> i = m_loggers.entrySet().iterator();
@@ -148,7 +152,9 @@ public class TestRunLogController {
 		}
 		StatusPrinter.printIfErrorsOccured(ctx);
 		TestExecutionController tc = TestExecutionController.getInstance();
-		tc.setLoggerContext(ctx);
+		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+		TestRunLogController trlc = getInstance();
+		trlc.initialize(ctx);
 	}
 	/**
 	 * Gets the time-stamped log path created by the stop() method.
