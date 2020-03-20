@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SignedPIVDataObject extends PIVDataObject {
 	// slf4j will thunk this through to an appropriately configured logging library
-	private static final Logger s_logger = LoggerFactory.getLogger(PIVDataObject.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(SignedPIVDataObject.class);
 	private ContentInfo m_contentInfo;
 	private CMSSignedData m_asymmetricSignature;
 	private Set<AlgorithmIdentifier> m_dalgList;

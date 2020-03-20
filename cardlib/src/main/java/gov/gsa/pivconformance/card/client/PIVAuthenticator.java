@@ -4,10 +4,15 @@ import gov.gsa.pivconformance.tlv.TagConstants;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A class that serves the function of the handle objects passed around that encapsulate authenticator information
  */
 public class PIVAuthenticator {
+    private static final Logger s_logger = LoggerFactory.getLogger(PIVAuthenticator.class);
+
     byte m_type;
     byte[] m_data;
 

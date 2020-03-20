@@ -1,9 +1,12 @@
 package gov.gsa.pivconformance.card.client;
 
 import org.apache.commons.codec.binary.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // derived from the intarsys ReqeuestAPDU class
 public class RequestAPDUWrapper {
+    private static final Logger s_logger = LoggerFactory.getLogger(RequestAPDUWrapper.class);
 
 	/* command is not the last command of a chain */
 	public static final byte CLA_CHAINING_FLAG = 0x10;

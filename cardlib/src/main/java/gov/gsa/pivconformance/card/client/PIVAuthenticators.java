@@ -3,11 +3,16 @@ package gov.gsa.pivconformance.card.client;
 import gov.gsa.pivconformance.tlv.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * A class that serves the function of the handle to a list of authenticator objects
  * in SP800-73
  */
 public class PIVAuthenticators {
+    private static final Logger s_logger = LoggerFactory.getLogger(PIVAuthenticators.class);
+
     private ArrayList<PIVAuthenticator> m_authenticators = new ArrayList<PIVAuthenticator>();
 
     /**

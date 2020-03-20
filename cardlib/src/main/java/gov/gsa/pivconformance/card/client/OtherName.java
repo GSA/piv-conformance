@@ -11,6 +11,8 @@ import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERTaggedObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The OtherName object.
@@ -23,6 +25,8 @@ import org.bouncycastle.asn1.DERTaggedObject;
 public class OtherName
     extends ASN1Object
 {
+    private static final Logger s_logger = LoggerFactory.getLogger(OtherName.class);
+
     private final ASN1ObjectIdentifier typeID;
     private final ASN1Encodable value;
 

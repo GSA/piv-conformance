@@ -13,8 +13,8 @@ public class ConformanceTestExecutionListener implements TestExecutionListener {
 	
 	// for log events intended to troubleshoot the listener
 	private static final Logger s_logger = LoggerFactory.getLogger(ConformanceTestExecutionListener.class);
-	private static final Logger s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testProgress");
-	private static final Logger s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
+	private static final Logger s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
+	private static final Logger s_testResultLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testResults");
 	
 	private String m_testCaseIdentifier;
 

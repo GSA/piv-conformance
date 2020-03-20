@@ -43,6 +43,7 @@ import gov.gsa.pivconformance.card.client.DataModelSingleton;
 public class TestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(TestExecutionController.class);
 	private static final TestExecutionController INSTANCE = new TestExecutionController();
+
 	private static final String tag30TestId = "8.2.2.1"; // TODO: Fixme
 
 	TestTreePanel m_testTreePanel;
@@ -51,8 +52,8 @@ public class TestExecutionController {
 	boolean m_running;
 	LoggerContext m_ctx;
 	TestRunLogController m_trlc;
-	Date m_startDate;
-	Date m_stopDate;
+//	Date m_startDate;
+//	Date m_stopDate;
 
 	public static TestExecutionController getInstance() {
 		return INSTANCE;
@@ -67,9 +68,9 @@ public class TestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
-		m_trlc = null;
-		m_startDate = new Date();
-		m_stopDate = null; // will get set by new appender plugin
+//		m_startDate = new Date();
+//		m_stopDate = null; // will get set by new appender plugin
+		m_trlc = TestRunLogController.getInstance();
 	}
 
 	public TestTreePanel getTestTreePanel() {
@@ -116,10 +117,10 @@ public class TestExecutionController {
 		m_ctx = ctx;
 	}
 	
-
 	void runAllTests(TestCaseTreeNode root) {
 		
-		TestRunLogController trlc = TestRunLogController.getInstance();
+		m_trlc.setStartTimes();
+		
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
 		display.setEnabled(false);
 		
@@ -277,8 +278,7 @@ public class TestExecutionController {
 			s_logger.error("Failed to enable run button", e);
 		}
 		
-		trlc.setStopTime(); // Sets the stop time of the controller 
-		trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
+		m_trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
 		
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
@@ -289,18 +289,6 @@ public class TestExecutionController {
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();
 		display.setEnabled(true);
-	}
-
-	private void initializeGuiAppender(TestRunLogController lg) {
-		// TODO Auto-generated method stub
-		return;
-		/*
-		if (lg.appendersConfigured()) {
-			TimeStampedFileAppender<ILoggingEvent> fileAppender = (TimeStampedFileAppender<ILoggingEvent>) lg.getAppender("FILE");
-			// Get a timestamped file name
-			String name = fileAppender.getTimeStampedLogPath();
-		}
-		*/
 	}
 
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

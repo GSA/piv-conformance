@@ -6,12 +6,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import org.junit.jupiter.params.provider.Arguments;
 
 public class PlaceholderTests {
+	private static final Logger s_logger = LoggerFactory.getLogger(PlaceholderTests.class);
 
 	public PlaceholderTests() {
 	}
