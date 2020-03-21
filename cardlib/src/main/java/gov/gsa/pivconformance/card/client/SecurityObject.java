@@ -303,6 +303,11 @@ public class SecurityObject extends SignedPIVDataObject {
 
                 CMSSignedData s = new CMSSignedData(getContentInfo());
 
+                if (getAsymmetricSignature().isDetachedSignature()) {
+                    CMSProcessable procesableContentBytes = new CMSProcessableByteArray(getSignedContent());
+                    s = new CMSSignedData(procesableContentBytes, getContentInfo());
+                };
+                
                 ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(s.getEncoded()));
                 ASN1Sequence soSeq;
                 soSeq = (ASN1Sequence) asn1is.readObject();
