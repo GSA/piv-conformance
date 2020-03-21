@@ -290,7 +290,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
                 if(tlv.isPrimitive()) {
-                    s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                    s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                     BerTlvs outer2 = tlvp.parse(tlv.getBytesValue());
 
@@ -302,7 +302,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
-                            s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                            s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
                         	
                         	BerTag tag = tlv2.getTag();

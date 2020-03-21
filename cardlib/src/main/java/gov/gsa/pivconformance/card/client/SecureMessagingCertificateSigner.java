@@ -104,7 +104,7 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                 List<BerTlv> values = outer.getList();
                 for(BerTlv tlv : values) {
                     if(tlv.isPrimitive()) {
-                        s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                        s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                         BerTlvs outer2 = tp.parse(tlv.getBytesValue());
 
@@ -118,7 +118,7 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                         byte[] certInfoBuf = null;
                         for(BerTlv tlv2 : values2) {
                             if(tlv2.isPrimitive()) {
-                                s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                                s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             } else {
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
                                     if (tlv2.hasRawValue()) {

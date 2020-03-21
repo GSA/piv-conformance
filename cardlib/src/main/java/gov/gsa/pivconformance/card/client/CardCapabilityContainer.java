@@ -265,7 +265,7 @@ public class CardCapabilityContainer extends PIVDataObject {
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
                 if(tlv.isPrimitive()) {
-                    s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                    s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                     BerTlvs outer2 = tp.parse(tlv.getBytesValue());
 
@@ -278,7 +278,7 @@ public class CardCapabilityContainer extends PIVDataObject {
                     List<BerTlv> values2 = outer2.getList();
                     for(BerTlv tlv2 : values2) {
                         if(tlv2.isPrimitive()) {
-                            s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                            s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
                         	super.m_tagList.add(tlv2.getTag());
                             if(Arrays.equals(tlv2.getTag().bytes,TagConstants.CARD_IDENTIFIER_TAG)) {
