@@ -88,7 +88,7 @@ public class CertDump {
         }
         if(cmd.hasOption("listOids")) {
         	for(String o : APDUConstants.AllContainers()) {
-        		Map<String, String> names = APDUConstants.oidNameMAP;
+        		Map<String, String> names = APDUConstants.oidNameMap;
         		if(isCertificateContainer(o)) {
 					System.out.println(o + ": " + names.get(o));
         		}

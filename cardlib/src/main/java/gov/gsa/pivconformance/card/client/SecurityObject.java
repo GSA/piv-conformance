@@ -163,7 +163,7 @@ public class SecurityObject extends SignedPIVDataObject {
         try {
         	super.m_tagList.clear();
             byte[] rawBytes = this.getBytes();
-            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+            s_logger.trace("rawBytes: {}", Hex.encodeHexString(rawBytes));
             BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
             BerTlvs outer = tlvp.parse(rawBytes);
             List<BerTlv> outerTlvs = outer.getList();
@@ -172,7 +172,7 @@ public class SecurityObject extends SignedPIVDataObject {
                 outer = tlvp.parse(tlvBuf);
             }
             for (BerTlv tlv : outer.getList()) {
-            	s_logger.debug("SecurityObject: processing tag {}", tlv.getTag().toString());
+            	s_logger.trace("SecurityObject: processing tag {}", tlv.getTag().toString());
                 byte[] tag = tlv.getTag().bytes;
 
             	super.m_tagList.add(tlv.getTag());
@@ -181,7 +181,7 @@ public class SecurityObject extends SignedPIVDataObject {
                     m_content.put(tlv.getTag(), tlv.getBytesValue());
 
                     if(m_mapping == null){
-                        s_logger.error("Missing mapping of DG to contains IDs for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                        s_logger.error("Missing mapping of DG to contains IDs for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                         return false;
                     }
 
@@ -209,7 +209,7 @@ public class SecurityObject extends SignedPIVDataObject {
                     m_content.put(tlv.getTag(), tlv.getBytesValue());
 
                     if(m_so == null){
-                        s_logger.error("Missing security object value for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                        s_logger.error("Missing security object value for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                         return false;
                     }
 
@@ -270,15 +270,17 @@ public class SecurityObject extends SignedPIVDataObject {
             }
         }
         catch (Exception e) {
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage(), e);
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage(), e);
             return false;
         }
         
-        String message = APDUConstants.oidNameMAP.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
-        s_logger.debug(message);
+        String message = APDUConstants.oidNameMap.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
+        s_logger.trace(message);
         if (m_mapping == null || m_so == null)
             return false;
 
+        dump(this.getClass())
+;
         return true;
     }
 
@@ -318,7 +320,7 @@ public class SecurityObject extends SignedPIVDataObject {
             for (Map.Entry<Integer, byte[]> entry : m_dghList.entrySet()) {
 
                 String oid = m_containerIDList.get(entry.getKey());
-                s_logger.debug("Checking digest for {} (0x{})", oid, Integer.toHexString(entry.getKey()));
+                s_logger.info("Checking digest for {} (0x{})", oid, Integer.toHexString(entry.getKey()));
 
                 if(oid == null) {
                     s_logger.error("Missing object to hash for id {}: ", entry.getKey());
@@ -326,23 +328,23 @@ public class SecurityObject extends SignedPIVDataObject {
                 }
 
                 byte[] bytesToHash = m_mapOfDataElements.get(oid);
-                s_logger.debug("Bytes to hash: {}", Hex.encodeHexString(bytesToHash));
+                s_logger.info("Bytes to hash: {}", Hex.encodeHexString(bytesToHash));
 
                 MessageDigest md = MessageDigest.getInstance(getDigestAlgorithmName());
                 md.update(bytesToHash);
                 byte[] digest = md.digest();
-                s_logger.debug("Digest: {}", Hex.encodeHexString(digest));
+                s_logger.info("Digest: {}", Hex.encodeHexString(digest));
                 
                 if (!Arrays.equals(entry.getValue(), digest)) {
                 	s_logger.error("hashes don't match in security object (reference length: {}, calculated length: {})", entry.getValue().length, digest.length);
                     s_logger.error("reference: {}, calculated: {}", Hex.encodeHexString(entry.getValue()), Hex.encodeHexString(digest));
                 	rv_result = false;
                 }
-                s_logger.debug("rv_result is currently {}", rv_result);
+                s_logger.info("rv_result is currently {}", rv_result);
             }
 
         } catch (Exception ex) {
-            s_logger.error("Error verifying hash  on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error verifying hash  on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
         }
 
         return rv_result;

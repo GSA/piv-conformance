@@ -273,7 +273,7 @@ public class PKIX_X509DataObjectTests {
 	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
 	    for (PolicyInformation pInfo : policyInformation) {
 	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMAP.get(oid));
+	    	s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMap.get(oid));
 	    	if(rv.get(oid).contains(curroid.getId())) {
 	    		containsOOID = true;
 	    		break;

@@ -97,7 +97,7 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                 BerTlvs outer = tp.parse(raw);
 
                 if(outer == null){
-                    s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                    s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                     return false;
                 }
 
@@ -109,7 +109,7 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                         BerTlvs outer2 = tp.parse(tlv.getBytesValue());
 
                         if(outer2 == null){
-                            s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                            s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                             return false;
                         }
 
@@ -161,15 +161,16 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                 }
             }catch (Exception ex) {
 
-                s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+                s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
                 return false;
             }
 
             if (m_pivAuthCert == null)
                 return false;
         }
+        
+        dump(this.getClass())
+;
         return true;
     }
-
-
 }

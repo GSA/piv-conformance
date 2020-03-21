@@ -193,7 +193,7 @@ public class CardAuthTest {
         }
         if(cmd.hasOption("listOids")) {
         	for(HashMap.Entry<String, Integer> entry: APDUConstants.oidToContainerIdMap.entrySet()) {
-        		Map<String, String> names = APDUConstants.oidNameMAP;
+        		Map<String, String> names = APDUConstants.oidNameMap;
         		String oid = entry.getKey();
         		System.out.println(oid + ": " + names.get(oid) + "(Container ID 0x" + Integer.toHexString(entry.getValue()) + ")");
         	}

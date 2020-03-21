@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.tlv.BerTag;
+import gov.gsa.pivconformance.tlv.BerTlv;
 import gov.gsa.pivconformance.tlv.HexUtil;
 import gov.gsa.pivconformance.tlv.TagBoundaryManager;
 
@@ -33,8 +35,9 @@ public class PIVDataObject {
     private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
     private boolean m_lengthOk;
     // TODO: Cache these tags
-    static HashMap<BerTag, byte[]> m_content;
-    // This will be either the embedded cert in the signature, if present, otherwise null
+    protected HashMap<BerTag, byte[]> m_content;
+    private String m_name;
+    private static List<String> m_oidList = new ArrayList<String>();
 
     /**
      * Initialize an invalid PIV data object
@@ -48,7 +51,7 @@ public class PIVDataObject {
         m_tagList = new ArrayList<BerTag>();
         m_lengthOk = false;
         m_content = new HashMap<BerTag, byte[]>();
-
+        m_name = null;
     }
 
     /**
@@ -60,6 +63,7 @@ public class PIVDataObject {
     public PIVDataObject(String OID) {
         m_OID = OID;
         m_mandatory = APDUConstants.isContainerMandatory(m_OID);
+        m_name = APDUConstants.containerOidToNameMap.get(m_OID);
     }
 
     /**
@@ -107,7 +111,7 @@ public class PIVDataObject {
      * @return String containing the friendly  name of PIV data object
      */
     public String getFriendlyName() {
-        return APDUConstants.oidNameMAP.getOrDefault(m_OID, "Undefined");
+        return APDUConstants.oidNameMap.getOrDefault(m_OID, "Undefined");
     }
 
    /**
@@ -183,14 +187,14 @@ public class PIVDataObject {
 	 * @throws Exception 
 	 */
     public boolean inBounds(String oid) throws Exception {
-    	String name = APDUConstants.oidNameMAP.get(oid);
+    	String name = APDUConstants.oidNameMap.get(oid);
     	if (name == null) {
     		return false;
     	}
     	// Iterate over each tag and corresponding value
     	Iterator<Map.Entry<BerTag, byte[]>> it = m_content.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = it.next();
+            Entry<BerTag, byte[]> pair = it.next();
             BerTag tag = (BerTag) pair.getKey();
             byte value[] = (byte[]) pair.getValue();
             // Check length
@@ -201,7 +205,19 @@ public class PIVDataObject {
         return true;
     }   
  
-
+    public void dump(Class<?> classz) {
+        if (m_oidList.indexOf(m_OID) < 0) {
+        	m_oidList.add(m_OID);
+        	// Get the container name
+        	String className = classz.getCanonicalName();
+        	Logger s_containerLogger = LoggerFactory.getLogger(className);
+        	s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ",  "_"));
+        	for (int i = 0; i < m_tagList.size(); i++) {
+        		BerTag tag = m_tagList.get(i);
+        		s_containerLogger.debug("Tag {}: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(m_content.get(tag)));
+        	}	
+        }
+    }
 	
 	/**
 	 * Gets the precomputed message digest of the content
@@ -240,6 +256,8 @@ public class PIVDataObject {
     public String toRawHexString() {
         return Hex.encodeHexString(m_dataBytes);
     }
+    
+    
 
     /**
      *
@@ -257,7 +275,7 @@ public class PIVDataObject {
 
     /**
      *
-     * Sets a boolean value inficating if the PIV data object is signed
+     * Sets a boolean value ind	icating if the PIV data object is signed
      *
      * @param signed True if signed, false otherwise
      */

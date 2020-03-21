@@ -82,7 +82,7 @@ public class ContainerDump {
         }
         if(cmd.hasOption("listOids")) {
         	for(String o : APDUConstants.AllContainers()) {
-        		Map<String, String> names = APDUConstants.oidNameMAP;
+        		Map<String, String> names = APDUConstants.oidNameMap;
         		System.out.println(o + ": " + names.get(o));
         	}
         	System.exit(0);

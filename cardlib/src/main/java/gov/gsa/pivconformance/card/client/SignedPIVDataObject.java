@@ -344,7 +344,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 							byte[] digest = dos.getOctets();
 							if (digest != null) {
 								m_signedAttrsDigest = digest;
-								s_logger.debug("Signed attribute digest: " + Hex.encodeHexString(digest));
+								s_logger.info("Signed attribute digest: " + Hex.encodeHexString(digest));
 							} else {
 								s_logger.error("Failed to compute digest");
 							}
@@ -380,7 +380,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 						byte[] contentBytes = this.getSignedContent();
 
 						if (contentBytes != null) {
-							s_logger.debug("Content bytes: " + Hex.encodeHexString(contentBytes));
+							s_logger.info("Content bytes: " + Hex.encodeHexString(contentBytes));
 							String aName = MessageDigestUtils
 									.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
 							MessageDigest md = MessageDigest.getInstance(aName, "BC");
@@ -388,7 +388,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 							byte[] digest = md.digest();
 							if (digest != null) {
 								setComputedDigest(digest);
-								s_logger.debug("Computed digest: {} ", Hex.encodeHexString(digest));
+								s_logger.info("Computed digest: {} ", Hex.encodeHexString(digest));
 							} else {
 								s_logger.error("Failed to digest content");
 							}
@@ -507,7 +507,7 @@ public class SignedPIVDataObject extends PIVDataObject {
                 AttributeTable at = signer.getSignedAttributes();
                 ASN1EncodableVector av = at.toASN1EncodableVector();
 
-                s_logger.debug("There are {} signed attributes", at.size());
+                s_logger.info("There are {} signed attributes", at.size());
 				// Message digest
 				if (at.get(new ASN1ObjectIdentifier("1.2.840.113549.1.9.4")) == null) {
 					s_logger.error("Required messageDigest attribute is missing");
@@ -524,7 +524,7 @@ public class SignedPIVDataObject extends PIVDataObject {
                 X509Certificate signerCert = getChuidSignerCert();
 
                 if (signerCert == null) {
-                    s_logger.error("Unable to find CHUID signer certificate for {}", APDUConstants.oidNameMAP.get(super.getOID()));
+                    s_logger.error("Unable to find CHUID signer certificate for {}", APDUConstants.oidNameMap.get(super.getOID()));
                    return rv_result;
                 }
 
@@ -541,11 +541,11 @@ public class SignedPIVDataObject extends PIVDataObject {
                 rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
             }
         } catch (CertificateException e) {
-            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
         } catch (CMSException e) {
-        	s_logger.error("CMS exception while verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+        	s_logger.error("CMS exception while verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
 		} catch (OperatorCreationException e) {
-        	s_logger.error("Operator exception while verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
+        	s_logger.error("Operator exception while verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
 		}
 
         return rv_result;

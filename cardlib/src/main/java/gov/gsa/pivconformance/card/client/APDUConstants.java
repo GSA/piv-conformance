@@ -598,7 +598,7 @@ public class APDUConstants {
 	 * HashMap for easy lookup of name values for PIV Data Objects
 	 *
 	 */
-	public static final HashMap<String, String> oidNameMAP = new HashMap<String, String>() {
+	public static final HashMap<String, String> oidNameMap = new HashMap<String, String>() {
 		/**
 		 * 
 		 */

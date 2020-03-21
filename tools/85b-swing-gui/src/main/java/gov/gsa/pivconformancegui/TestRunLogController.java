@@ -52,6 +52,18 @@ public class TestRunLogController {
 			put("CONFORMANCELOG", "gov.gsa.conformancelib.testResults");
 			put("TESTLOG", "gov.gsa.conformancelib.testProgress");
 			put("APDULOG", "gov.gsa.pivconformance.apdu");
+			
+			/* Container logs */
+ 			put("BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE", "gov.gsa.pivconformance.card.client.BiometricInformationTemplatesGroupTemplate");
+ 			put("CARDCAPABILITYCONTAINER", "gov.gsa.pivconformance.card.client.CardCapabilityContainer");
+ 			put("CARDHOLDERBIOMETRICDATA", "gov.gsa.pivconformance.card.client.CardHolderBiometricData");
+ 			put("CARDHOLDERUNIQUEIDENTIFIER", "gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier");
+ 			put("KEYHISTORYOBJECT", "gov.gsa.pivconformance.card.client.KeyHistoryObject");
+ 			put("PAIRINGCODEREFERENCEDATACONTAINER", "gov.gsa.pivconformance.card.client.PairingCodeReferenceDataContainer");
+ 			put("PRINTEDINFORMATION", "gov.gsa.pivconformance.card.client.PrintedInformation");;
+ 			put("SECUREMESSAGINGCERTIFICATESIGNER", "gov.gsa.pivconformance.card.client.SecureMessagingCertificateSigner");
+ 			put("SECURITYOBJECT", "gov.gsa.pivconformance.card.client.SecurityObject");
+ 			put("X509CERTIFICATEDATAOBJECT", "gov.gsa.pivconformance.card.client.X509CertificateDataObject");
 		}
 	};
 
@@ -60,8 +72,7 @@ public class TestRunLogController {
 	private LoggerContext m_ctx = null;
 	private boolean m_initialized = false;
 	private String m_timeStampedLogPath = null;
-//	private Date m_startTime = null;
-//	private Date m_stopTime = null;
+
 	
 	public static TestRunLogController getInstance() {
 		return INSTANCE;
@@ -89,16 +100,15 @@ public class TestRunLogController {
 				String loggerClass = me.getValue();
 
 				Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
-				String loggerName2 = logger.getName();
 				TimeStampedFileAppender<ILoggingEvent> appender = null;
 
 				if ((appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName)) != null) {
 					m_filenames.put(loggerName, appender.getFile());
+					m_appenders.put(loggerName, appender);
 					appender.setImmediateFlush(true);
 					appender.setAppend(false);
 					appender.setStartTime(startTime);
-					appender.setStopTime(startTime);
-					m_appenders.put(loggerName, appender);
+					appender.setStopTime(startTime); // Gets overwritten
 
 					// For the CONFORMANCE CSV log, initialize the output file writing the header row
 					if (appender.getName().equals("CONFORMANCELOG")) {
@@ -117,9 +127,6 @@ public class TestRunLogController {
 				} else {
 					s_logger.warn("No appender was configured for {}", loggerName);
 				}
-				
-				appender.setStartTime(startTime);
-				appender.setStopTime(startTime);
 			}
 
 			m_initialized = true;
@@ -147,8 +154,8 @@ public class TestRunLogController {
 			e.printStackTrace();
 		}
 		StatusPrinter.printIfErrorsOccured(m_ctx);
-		TestExecutionController tc = TestExecutionController.getInstance();
-		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+//		TestExecutionController tc = TestExecutionController.getInstance();
+//		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
 		TestRunLogController trlc = getInstance();
 		trlc.initialize(m_ctx);
 	}
@@ -246,6 +253,7 @@ public class TestRunLogController {
 		return timeStampedLogPath;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void setStartTimes() {
 		if (!m_initialized) {
 			s_logger.error("*** setTimeStamp(): Not initialized ***");
@@ -258,8 +266,6 @@ public class TestRunLogController {
 		Iterator<?> i = m_appenders.entrySet().iterator();
 		while (i.hasNext()) {
 			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
-			String logName = me.getKey();
-			Logger logger = (Logger) LoggerFactory.getLogger(m_loggers.get(me.getKey()));
 			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
 			appender.setStartTime(startTime);
 		}	
@@ -361,7 +367,7 @@ public class TestRunLogController {
 
 	@SuppressWarnings("unchecked")
 	public boolean appendersConfigured() {
-		boolean rv = false;
+
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
 		Map<String, Appender<ILoggingEvent>> appendersMap = new HashMap<>();
@@ -372,7 +378,7 @@ public class TestRunLogController {
 				if (!m_appenders.containsKey(appender.getName())) {
 					s_logger.warn("No appender found for {}", appender.getName());
 				} else {
-					appendersMap.put(appender.getName(), (Appender) m_appenders.get(appender.getName()));
+					appendersMap.put(appender.getName(), (Appender<ILoggingEvent>) m_appenders.get(appender.getName()));
 				}
 			}
 		}

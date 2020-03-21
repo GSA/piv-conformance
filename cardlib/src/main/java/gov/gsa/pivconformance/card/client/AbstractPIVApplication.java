@@ -177,7 +177,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
                 //Create object from the OID
                 PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
-                s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
+                s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMap.get(containerOID));
 
                 result = this.pivGetData(cardHandle, containerOID, dataObject);
 

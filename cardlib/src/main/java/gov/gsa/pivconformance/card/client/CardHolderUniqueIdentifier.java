@@ -267,10 +267,10 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
         try {
             byte[] rawBytes = this.getBytes();
 
-            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+            s_logger.trace("rawBytes: {}", Hex.encodeHexString(rawBytes));
 
             if(rawBytes == null){
-                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -278,7 +278,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             BerTlvs outer = tlvp.parse(rawBytes);
 
             if(outer == null){
-                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -290,19 +290,19 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
                 if(tlv.isPrimitive()) {
-                    s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                    s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                     BerTlvs outer2 = tlvp.parse(tlv.getBytesValue());
 
                     if (outer2 == null) {
-                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                         return false;
                     }
 
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
-                            s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                            s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
                         	
                         	BerTag tag = tlv2.getTag();
@@ -453,13 +453,14 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             m_chuidContainer = containerOutputStream.toByteArray();
 
         } catch (Exception ex) {
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
         }
 
         if(m_fASCN == null || m_gUID == null || m_expirationDate == null || m_chuidContainer == null) {
             return false;
         }
-
+        
+        dump(this.getClass());
         return true;
     }
 }

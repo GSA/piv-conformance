@@ -125,12 +125,14 @@ public class KeyHistoryObject extends PIVDataObject {
                 m_content.put(tlv.getTag(), tlv.getBytesValue());
                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
             }
-            s_logger.debug("found tag: {}", Hex.encodeHexString(tag));
+            s_logger.info("found tag: {}", Hex.encodeHexString(tag));
         }
 
         if (m_keysWithOnCardCerts == -1 || m_keysWithOffCardCerts == -1)
             return false;
 
+        dump(this.getClass())
+;
         return true;
     }
 }
