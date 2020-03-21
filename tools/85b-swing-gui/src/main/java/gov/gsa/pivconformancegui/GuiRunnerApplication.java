@@ -43,6 +43,13 @@ public class GuiRunnerApplication {
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+		    public void run() {
+		        TestRunLogController trlc = TestRunLogController.getInstance();
+		        trlc.cleanup();
+		    }
+		}));
 
 		EventQueue.invokeLater(new Runnable() {
 			@Override

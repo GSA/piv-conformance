@@ -284,7 +284,7 @@ public class TestExecutionController {
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
 
 		m_trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
-
+		m_trlc.cleanup();
 		m_running = false;
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();

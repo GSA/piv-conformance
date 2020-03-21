@@ -360,6 +360,30 @@ public class TestRunLogController {
 	}
 	
 	/**
+	 * Removes the default log file names
+	 * 
+	 */
+	
+	@SuppressWarnings("unchecked")
+	public void cleanup() {
+		Map.Entry<String, String> me = null;
+		Iterator<?> i = m_loggers.entrySet().iterator();
+
+		while (i.hasNext()) {
+			me = (Map.Entry<String, String>) i.next();
+			String loggerName = me.getKey();
+			String loggerClass = me.getValue();
+	
+			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
+			TimeStampedFileAppender<ILoggingEvent> appender = null;
+	
+			appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
+			File f = new File(appender.getFile());
+			f.delete();
+		}
+	}
+	
+	/**
 	 * Indicates the the configured appenders are set up and named properly
 	 * 
 	 * @return true if required appenders are configured, false otherwise
