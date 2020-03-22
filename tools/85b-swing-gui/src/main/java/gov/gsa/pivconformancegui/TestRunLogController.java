@@ -56,8 +56,10 @@ public class TestRunLogController {
 			/* Container logs */
  			put("BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE", "gov.gsa.pivconformance.card.client.BiometricInformationTemplatesGroupTemplate");
  			put("CARDCAPABILITYCONTAINER", "gov.gsa.pivconformance.card.client.CardCapabilityContainer");
- 			put("CARDHOLDERBIOMETRICDATA", "gov.gsa.pivconformance.card.client.CardHolderBiometricData");
  			put("CARDHOLDERUNIQUEIDENTIFIER", "gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier");
+ 			put("FINGERPRINTS", "gov.gsa.pivconformance.card.client.Fingerprints");
+ 			put("IMAGEFORVISUALVERIFICATION", "gov.gsa.pivconformance.card.client.ImageForVisualVerification");
+ 			put("IMAGESFORIRIS", "gov.gsa.pivconformance.card.client.ImagesForIris");
  			put("KEYHISTORYOBJECT", "gov.gsa.pivconformance.card.client.KeyHistoryObject");
  			put("PAIRINGCODEREFERENCEDATACONTAINER", "gov.gsa.pivconformance.card.client.PairingCodeReferenceDataContainer");
  			put("PRINTEDINFORMATION", "gov.gsa.pivconformance.card.client.PrintedInformation");;
@@ -377,9 +379,13 @@ public class TestRunLogController {
 			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
 			TimeStampedFileAppender<ILoggingEvent> appender = null;
 	
-			appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
-			File f = new File(appender.getFile());
-			f.delete();
+			try {
+				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
+				File f = new File(appender.getFile());
+				f.delete();
+			} catch (Exception e) {
+				s_logger.error("Can't delete {}: {}", appender.getFile(), e.getMessage());
+			}
 		}
 	}
 	

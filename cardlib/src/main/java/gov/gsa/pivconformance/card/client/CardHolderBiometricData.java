@@ -264,22 +264,25 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
                         	byte[] value = tlv2.getBytesValue();
 
                         	super.m_tagList.add(tag);
-                            if (Arrays.equals(tag.bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
+                            if (Arrays.equals(tag.bytes, TagConstants.FINGERPRINT_I_AND_II_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_FINGERPRINTS_OID) == 0) {
 
+                            	setContainerName("Fingerprints");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                 if (m_biometricData != null)
                                 	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
 
-                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG)) {
+                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID) == 0) {
 
+                            	setContainerName("ImageForVisualVerification");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                if (m_biometricData != null)
                             	   signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG, m_biometricData));
 
-                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGES_FOR_IRIS_TAG)) {
+                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGES_FOR_IRIS_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID) == 0) {
 
+                            	setContainerName("ImagesForIris");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                 if (m_biometricData != null)

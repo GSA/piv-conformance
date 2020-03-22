@@ -38,7 +38,8 @@ public class PIVDataObject {
     protected HashMap<BerTag, byte[]> m_content;
     private String m_name;
     private static List<String> m_oidList = new ArrayList<String>();
-
+	private String m_containerName;
+	
     /**
      * Initialize an invalid PIV data object
      */
@@ -52,6 +53,7 @@ public class PIVDataObject {
         m_lengthOk = false;
         m_content = new HashMap<BerTag, byte[]>();
         m_name = null;
+		m_containerName = null;
     }
 
     /**
@@ -209,14 +211,18 @@ public class PIVDataObject {
         if (m_oidList.indexOf(m_OID) < 0) {
         	m_oidList.add(m_OID);
         	// Get the container name
-        	String className = classz.getCanonicalName();
+        	String canonicalName = classz.getCanonicalName();
+        	String containerName = getContainerName();
+        	String className = containerName == null ? canonicalName : classz.getPackage().toString().replace("package ", "") + "." + containerName;
+        	
         	Logger s_containerLogger = LoggerFactory.getLogger(className);
         	s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ",  "_"));
         	for (int i = 0; i < m_tagList.size(); i++) {
         		BerTag tag = m_tagList.get(i);
         		s_containerLogger.debug("Tag {}: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(m_content.get(tag)));
-        	}	
+        	}
         }
+    	setContainerName(null);
     }
 	
 	/**
@@ -340,4 +346,28 @@ public class PIVDataObject {
 
         return m_error_Detection_Code;
     }
+    
+
+	/**
+	 *
+	 * Returns the signing certificate in X509Certificate object
+	 *
+	 * @return X509Certificate object containing the signing certificate
+	 */
+	public String getContainerName() {
+		return m_containerName;
+	}
+
+	/**
+	 *
+	 * Sets the signing certificate
+	 *
+	 * @param signingCertificate X509Certificate object containing the signing
+	 *                           certificate
+	 */
+	public void setContainerName(String containerName) {
+		m_containerName = containerName;
+	}	
+	
+	
 }

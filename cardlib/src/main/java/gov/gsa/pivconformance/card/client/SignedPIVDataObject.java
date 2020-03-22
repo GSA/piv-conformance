@@ -65,6 +65,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	private String m_signatureAlgorithmName;
 	private String m_digestAlgorithmName;
 	private String m_encryptionAlgorithmName;
+
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}
@@ -321,7 +322,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	public void setAsymmetricSignature(CMSSignedData asymmetricSignature) {
 		m_asymmetricSignature = asymmetricSignature;
 	}
-
+	
 	/**
 	 * Extracts and sets the message digest in the signed attributes
 	 * 
