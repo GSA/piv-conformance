@@ -36,9 +36,19 @@
 	</appender>
 
 
-	<appender name="CARDHOLDERBIOMETRICDATA"
+	<appender name="CARDHOLDERUNIQUEIDENTIFIER"
 		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
-		<file>logs/containers/CardHolderBiometricData.log</file>
+		<file>logs/containers/CardHolderUniqueIdentifier.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+		
+	<appender name="FINGERPRINTS"
+		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		<file>logs/containers/Fingerprints.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -46,9 +56,19 @@
 	</appender>
 
 
-	<appender name="CARDHOLDERUNIQUEIDENTIFIER"
+	<appender name="IMAGEFORVISUALVERIFICATION"
 		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
-		<file>logs/containers/CardHolderUniqueIdentifier.log</file>
+		<file>logs/containers/ImageForVisualVerification.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+
+	<appender name="IMAGESFORIRIS"
+		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		<file>logs/containers/ImagesForIris.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -190,12 +210,12 @@
 		name="gov.gsa.conformancelib.configuration.TestStepModel" />
 
 	<!-- split test progress to its own appender -->
-	<logger name="gov.gsa.conformancelib.testProgress">
+	<logger level="TRACE" name="gov.gsa.conformancelib.testProgress">
 		<appender-ref ref="TESTLOG" />
 	</logger>
 
 	<!-- split test results into a CSV -->
-	<logger name="gov.gsa.conformancelib.testResults">
+	<logger level="TRACE" name="gov.gsa.conformancelib.testResults">
 		<appender-ref ref="CONFORMANCELOG" />
 	</logger>
 
@@ -214,15 +234,25 @@
 		name="gov.gsa.pivconformance.card.client.CardCapabilityContainer">
 		<appender-ref ref="CARDCAPABILITYCONTAINER" />
 	</logger>
-
-	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.CardHolderBiometricData">
-		<appender-ref ref="CARDHOLDERBIOMETRICDATA" />
-	</logger>
-
+	
 	<logger level="DEBUG"
 		name="gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier">
 		<appender-ref ref="CARDHOLDERUNIQUEIDENTIFIER" />
+	</logger>	
+	
+	<logger level="DEBUG"
+		name="gov.gsa.pivconformance.card.client.Fingerprints">
+		<appender-ref ref="FINGERPRINTS" />
+	</logger>
+
+	<logger level="DEBUG"
+		name="gov.gsa.pivconformance.card.client.ImageForVisualVerification">
+		<appender-ref ref="IMAGEFORVISUALVERIFICATION" />
+	</logger>
+
+	<logger level="DEBUG"
+		name="gov.gsa.pivconformance.card.client.ImagesForIris">
+		<appender-ref ref="IMAGESFORIRIS" />
 	</logger>
 
 	<logger level="DEBUG"
@@ -234,7 +264,7 @@
 		name="gov.gsa.pivconformance.card.client.PairingCodeReferenceDataContainer">
 		<appender-ref ref="PAIRINGCODEREFERENCEDATACONTAINER" />
 	</logger>
-
+	
 	<logger level="DEBUG"
 		name="gov.gsa.pivconformance.card.client.PrintedInformation">
 		<appender-ref ref="PRINTEDINFORMATION" />
