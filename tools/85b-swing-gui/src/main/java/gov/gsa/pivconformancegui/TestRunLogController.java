@@ -49,7 +49,7 @@ public class TestRunLogController {
 		static final long serialVersionUID = 1L;
 		{
 			put("DEBUG", "gov.gsa");
-			put("CONFORMANCELOG", "gov.gsa.conformancelib.testResults");
+			put("CONFORMANCELOG", "gov.gsa.conformancelib.testResult");
 			put("TESTLOG", "gov.gsa.conformancelib.testProgress");
 			put("APDULOG", "gov.gsa.pivconformance.apdu");
 			
@@ -320,15 +320,18 @@ public class TestRunLogController {
 		if (rollFile(currentLogPath, timeStampedLogPath)) {
 			s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
 
+			// Reset the name to the "base" file name minus a timestamp
 			appender.setFile(m_filenames.get(appender.getName()));
 			
-			File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
-			try {
-				PrintStream p = new PrintStream(f);
-				p.println(timeStampedLogPath);
-				p.close();
-			} catch (IOException e) {
-				s_logger.debug("Couldn't write last log name to .lastlog-{}: {}", appender.getName().toLowerCase(), e.getMessage());
+			if (appender.getName().equals("CONFORMANCELOG")) {
+				File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
+				try {
+					PrintStream p = new PrintStream(f);
+					p.println(timeStampedLogPath);
+					p.close();
+				} catch (IOException e) {
+					s_logger.debug("Couldn't write last log name to .lastlog-{}: {}", appender.getName().toLowerCase(), e.getMessage());
+				}
 			}
 		} else {
 			s_logger.error("Error copying {} to {}", currentLogPath, timeStampedLogPath);
