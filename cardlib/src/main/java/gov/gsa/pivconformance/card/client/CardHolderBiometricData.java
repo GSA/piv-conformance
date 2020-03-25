@@ -292,7 +292,9 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
 
                                 m_errorDetectionCode = true;
                                 m_content.put(tag, value);
-                               
+                                if (m_biometricData != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.ERROR_DETECTION_CODE_TAG, value));
+
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
