@@ -226,7 +226,13 @@ public class PIVDataObject {
         	s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ",  "_"));
         	for (int i = 0; i < m_tagList.size(); i++) {
         		BerTag tag = m_tagList.get(i);
-        		s_containerLogger.debug("Tag {}: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(m_content.get(tag)));
+        		if (tag == null) {
+        			s_containerLogger.warn("Tag[{}] is null", i);
+        		} else if (m_content.get(tag) == null) {
+        			s_containerLogger.warn("Tag[{}] ({}) is null", i, Hex.encodeHexString(tag.bytes));
+        		} else {
+        			s_containerLogger.debug("Tag {}: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(m_content.get(tag)));
+        		}
         	}
         }
     	setContainerName(null);
