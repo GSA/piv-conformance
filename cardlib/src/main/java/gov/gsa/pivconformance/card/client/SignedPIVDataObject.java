@@ -6,18 +6,15 @@ package gov.gsa.pivconformance.card.client;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.Security;
-//import java.security.Signature;
-import java.security.SignatureException;
+
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
@@ -25,6 +22,7 @@ import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.icao.LDSSecurityObject;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -345,9 +343,9 @@ public class SignedPIVDataObject extends PIVDataObject {
 							byte[] digest = dos.getOctets();
 							if (digest != null) {
 								m_signedAttrsDigest = digest;
-								s_logger.info("Signed attribute digest: " + Hex.encodeHexString(digest));
+								s_logger.info("Reference digest: " + Hex.encodeHexString(digest));
 							} else {
-								s_logger.error("Failed to compute digest");
+								s_logger.error("Failed to extract digest");
 							}
 						} else {
 							s_logger.error("Failed to decode octets");
@@ -378,14 +376,14 @@ public class SignedPIVDataObject extends PIVDataObject {
 				if (at != null) {
 					Attribute a = at.get(CMSAttributes.messageDigest);
 					if (a != null) {
-						byte[] contentBytes = this.getSignedContent();
+						byte[] signedContentBytes = this.getSignedContent();
 
-						if (contentBytes != null) {
-							s_logger.info("Content bytes: " + Hex.encodeHexString(contentBytes));
+						if (signedContentBytes != null) {
+							s_logger.info("Signed content bytes: " + Hex.encodeHexString(signedContentBytes));
 							String aName = MessageDigestUtils
 									.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
 							MessageDigest md = MessageDigest.getInstance(aName, "BC");
-							md.update(contentBytes);
+							md.update(signedContentBytes);
 							byte[] digest = md.digest();
 							if (digest != null) {
 								setComputedDigest(digest);
@@ -465,6 +463,13 @@ public class SignedPIVDataObject extends PIVDataObject {
                 s = new CMSSignedData(procesableContentBytes, m_contentInfo);
             }
             
+            // TODO: Remove this
+            try {
+            	LDSSecurityObject ldsso = LDSSecurityObject.getInstance(s.getSignedContent().getContent());
+            } catch (Exception ex) {
+            	s_logger.error("Can't decode security object: {}", ex.getMessage());
+            }
+            
             SignerInformationStore signers = s.getSignerInfos();
             if (signers.size() != 1) {
             	s_logger.error("There were {} signers", signers.size());
@@ -494,19 +499,7 @@ public class SignedPIVDataObject extends PIVDataObject {
                 SignerInformation signer = i.next();
         		signer = new _SignerInformation(signer);
 
-				/*
-				 * RFC 5250 5.4
-				 * 
-				 * The result of the message digest calculation process depends on whether the
-				 * signedAttrs field is present. When the field is absent, the result is just
-				 * the message digest of the content as described above. When the field is
-				 * present, however, the result is the message digest of the complete DER
-				 * encoding of the SignedAttrs value contained in the signedAttrs field.
-				 */
-                Attribute md = null;
-                Attribute ct = null;
-                AttributeTable at = signer.getSignedAttributes();
-                ASN1EncodableVector av = at.toASN1EncodableVector();
+				AttributeTable at = signer.getSignedAttributes();
 
                 s_logger.info("There are {} signed attributes", at.size());
 				// Message digest
@@ -529,7 +522,8 @@ public class SignedPIVDataObject extends PIVDataObject {
                    return rv_result;
                 }
 
-                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                @SuppressWarnings("unchecked")
+				Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                 Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                 if (certIt.hasNext()) {
                     X509CertificateHolder certHolder = certIt.next();

@@ -65,7 +65,12 @@ public class TestRunLogController {
  			put("PRINTEDINFORMATION", "gov.gsa.pivconformance.card.client.PrintedInformation");;
  			put("SECUREMESSAGINGCERTIFICATESIGNER", "gov.gsa.pivconformance.card.client.SecureMessagingCertificateSigner");
  			put("SECURITYOBJECT", "gov.gsa.pivconformance.card.client.SecurityObject");
- 			put("X509CERTIFICATEDATAOBJECT", "gov.gsa.pivconformance.card.client.X509CertificateDataObject");
+ 			put("X509CERTIFICATEFORPIVAUTHENTICATION", "gov.gsa.pivconformance.card.client.X509CertificateForPivAuthentication");
+ 			put("X509CERTIFICATEFORCARDAUTHENTICATION", "gov.gsa.pivconformance.card.client.X509CertificateForCardAuthentication");
+ 			put("X509CERTIFICATEFORDIGITALSIGNATURE", "gov.gsa.pivconformance.card.client.X509CertificateForDigitalSignature");
+ 			put("X509CERTIFICATEFORKEYMANAGEMENT", "gov.gsa.pivconformance.card.client.X509CertificateForKeyManagement");
+ 			put("X509CERTIFICATEFORCHUIDSIGNATURE", "gov.gsa.pivconformance.card.client.X509CertificateForChuidSignature");
+ 			put("SECUREMESSAGINGCERTIFICATESIGNER", "gov.gsa.pivconformance.card.client.SecureMessagingCertificateSigner");
 		}
 	};
 
@@ -310,11 +315,11 @@ public class TestRunLogController {
 		String currentLogPath = new File(appender.getFile()).getPath();
 		
 		// Roll the log
+		appender.stop();
 		s_logger.debug("Copying log {} to: {}", logName, timeStampedLogPath);
 		if (rollFile(currentLogPath, timeStampedLogPath)) {
 			s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
 
-			appender.stop();
 			appender.setFile(m_filenames.get(appender.getName()));
 			
 			File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
@@ -349,10 +354,10 @@ public class TestRunLogController {
 			try {
 				Files.delete(Paths.get(oldPath));
 				if (Files.exists(Paths.get(oldPath))) {
-					s_logger.debug("Unable to remove {}", oldPath);
+					s_logger.warn("Unable to remove {}", oldPath);
 		    	}
 			} catch (Exception e) {
-				s_logger.debug("Unable to remove {}: ", oldPath, e.getMessage());
+				s_logger.error("Unable to remove {}: {}", oldPath, e.getMessage());
 			}
 			rv = true;
 		} catch (IOException e) {
@@ -381,10 +386,12 @@ public class TestRunLogController {
 	
 			try {
 				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
-				File f = new File(appender.getFile());
-				f.delete();
+				if (appender != null) {
+					File f = new File(appender.getFile());
+					f.delete();
+				}
 			} catch (Exception e) {
-				s_logger.error("Can't delete {}: {}", appender.getFile(), e.getMessage());
+				s_logger.warn("Can't delete {}: {}", appender.getFile(), e.getMessage());
 			}
 		}
 	}

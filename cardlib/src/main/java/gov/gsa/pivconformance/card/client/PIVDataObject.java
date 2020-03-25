@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.tlv.BerTag;
-import gov.gsa.pivconformance.tlv.BerTlv;
 import gov.gsa.pivconformance.tlv.HexUtil;
 import gov.gsa.pivconformance.tlv.TagBoundaryManager;
 
@@ -63,9 +62,9 @@ public class PIVDataObject {
      * @param OID String containing OID identifying PIV data object
      */
     public PIVDataObject(String OID) {
-        m_OID = OID;
-        m_mandatory = APDUConstants.isContainerMandatory(m_OID);
-        m_name = APDUConstants.containerOidToNameMap.get(m_OID);
+        setOID(OID);
+        setMandatory(APDUConstants.isContainerMandatory(m_OID));
+        setContainerName(APDUConstants.containerOidToNameMap.get(m_OID));
     }
 
     /**
@@ -124,7 +123,15 @@ public class PIVDataObject {
    public boolean isMandatory(String oid) {
 	   return m_mandatory;
    }
-
+   
+   /**
+    * Indicates whether the object associated with the subclass
+    * is mandatory.
+    */
+   
+   public void setMandatory(boolean flag) {
+	   m_mandatory = flag;
+   }
    /**
     * Indicates whether the object associated with the subclass
     * is requires a pin.
