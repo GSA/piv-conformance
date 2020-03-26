@@ -416,7 +416,6 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
                             	m_content.put(tag, value);
                                 m_errorDetectionCode = true;
                             	m_tagList.add(tag);
-                                //signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
                                 // Unexpected tags (for future) - we could simply ignore
