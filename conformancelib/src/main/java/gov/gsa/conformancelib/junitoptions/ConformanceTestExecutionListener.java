@@ -13,25 +13,31 @@ public class ConformanceTestExecutionListener implements TestExecutionListener {
 	
 	// for log events intended to troubleshoot the listener
 	private static final Logger s_logger = LoggerFactory.getLogger(ConformanceTestExecutionListener.class);
-	private static final Logger s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testProgress");
-	private static final Logger s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
+	private static Logger s_testProgressLogger = null;
+	private static Logger s_testResultLogger = null;
 	
 	private String m_testCaseIdentifier;
 
 	@Override
 	public void testPlanExecutionStarted(TestPlan testPlan) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
 		TestExecutionListener.super.testPlanExecutionStarted(testPlan);
 		s_testProgressLogger.info("Test plan started for conformance test {}", m_testCaseIdentifier);
 	}
 
 	@Override
 	public void testPlanExecutionFinished(TestPlan testPlan) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
 	}
 
 	@Override
 	public void executionStarted(TestIdentifier testIdentifier) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
 		TestExecutionListener.super.executionStarted(testIdentifier);
 		String displayName = testIdentifier.getDisplayName();
 		if(displayName != "JUnit Jupiter") {
@@ -43,6 +49,8 @@ public class ConformanceTestExecutionListener implements TestExecutionListener {
 
 	@Override
 	public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
 		TestExecutionListener.super.executionFinished(testIdentifier, testExecutionResult);
 		String displayName = testIdentifier.getDisplayName();
 		if(displayName != "JUnit Jupiter") {
@@ -54,6 +62,8 @@ public class ConformanceTestExecutionListener implements TestExecutionListener {
 
 	@Override
 	public void reportingEntryPublished(TestIdentifier testIdentifier, ReportEntry entry) {
+		if (s_testResultLogger == null)
+			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testResult");
 		TestExecutionListener.super.reportingEntryPublished(testIdentifier, entry);
 		s_testResultLogger.info("{}: {} {}", m_testCaseIdentifier, testIdentifier.getDisplayName(), "Placeholder" );
 	}

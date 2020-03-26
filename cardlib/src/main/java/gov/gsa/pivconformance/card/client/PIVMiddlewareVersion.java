@@ -1,9 +1,13 @@
 package gov.gsa.pivconformance.card.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Class for atoring PIV middleware version information.
  */
 public class PIVMiddlewareVersion {
+    private static final Logger s_logger = LoggerFactory.getLogger(PIVMiddlewareVersion.class);
 
     /**
      *

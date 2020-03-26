@@ -97,19 +97,19 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                 BerTlvs outer = tp.parse(raw);
 
                 if(outer == null){
-                    s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                    s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                     return false;
                 }
 
                 List<BerTlv> values = outer.getList();
                 for(BerTlv tlv : values) {
                     if(tlv.isPrimitive()) {
-                        s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                        s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                         BerTlvs outer2 = tp.parse(tlv.getBytesValue());
 
                         if(outer2 == null){
-                            s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                            s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                             return false;
                         }
 
@@ -118,7 +118,7 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                         byte[] certInfoBuf = null;
                         for(BerTlv tlv2 : values2) {
                             if(tlv2.isPrimitive()) {
-                                s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                                s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             } else {
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
                                     if (tlv2.hasRawValue()) {
@@ -161,15 +161,16 @@ public class SecureMessagingCertificateSigner extends PIVDataObject {    // slf4
                 }
             }catch (Exception ex) {
 
-                s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+                s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
                 return false;
             }
 
             if (m_pivAuthCert == null)
                 return false;
         }
+        
+        dump(this.getClass())
+;
         return true;
     }
-
-
 }

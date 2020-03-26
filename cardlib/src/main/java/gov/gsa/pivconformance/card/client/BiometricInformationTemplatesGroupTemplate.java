@@ -103,7 +103,7 @@ public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
             byte[] rawBytes = this.getBytes();
 
             if(rawBytes == null){
-                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -111,7 +111,7 @@ public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
             BerTlv outer = tlvp.parseConstructed(rawBytes);
 
             if(outer == null){
-                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -132,12 +132,14 @@ public class BiometricInformationTemplatesGroupTemplate extends PIVDataObject {
             }
         }catch (Exception ex) {
 
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
         }
 
         if(m_numberOfFingers == null || m_bITForFirstFinger == null)
             return false;
 
+        dump(this.getClass())
+;
         return true;
     }
 }

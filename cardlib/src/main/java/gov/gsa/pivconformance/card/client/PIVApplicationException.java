@@ -1,9 +1,13 @@
 package gov.gsa.pivconformance.card.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A base class for exceptions thrown by PIV application methods
  */
 public class PIVApplicationException extends Exception {
+    private static final Logger s_logger = LoggerFactory.getLogger(PIVApplicationException.class);
 
     /**
 	 * 

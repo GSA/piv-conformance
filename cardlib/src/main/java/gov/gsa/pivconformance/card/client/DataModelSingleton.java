@@ -5,6 +5,9 @@ package gov.gsa.pivconformance.card.client;
 
 import java.security.cert.X509Certificate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.gsa.pivconformance.tlv.*;
 
 /**
@@ -15,6 +18,7 @@ import gov.gsa.pivconformance.tlv.*;
  */
 
 public class DataModelSingleton {
+    private static final Logger s_logger = LoggerFactory.getLogger(DataModelSingleton.class);
 
 	TagBoundaryManager m_tagLengthRules;
     X509Certificate m_chuidSignerCert;

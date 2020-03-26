@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.card.client;
 
 import gov.gsa.pivconformance.tlv.BerTag;
+import gov.gsa.pivconformance.tlv.BerTlv;
 import gov.gsa.pivconformance.tlv.BerTlvParser;
 import gov.gsa.pivconformance.tlv.BerTlvs;
 import gov.gsa.pivconformance.tlv.CCTTlvLogger;
@@ -177,7 +178,7 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
                 //Create object from the OID
                 PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
-                s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
+                s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMap.get(containerOID));
 
                 result = this.pivGetData(cardHandle, containerOID, dataObject);
 
@@ -262,8 +263,21 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
             BerTlvParser lengthCheckTlvParser = new BerTlvParser(new CCTTlvLogger(this.getClass()));
             BerTlvs outer = lengthCheckTlvParser.parse(response.getData());
             if(outer != null) {
-            	BerTag t = outer.getList().get(0).getTag();
-            	if(t.bytes.length == 1 && t.bytes[0] == 0x53 && responseData.length == 2 && responseData[1] == 0x00) {
+            	if (outer.getList() == null) {
+            		s_logger.warn("GET DATA returned status of 90 00 but tag list is null");
+            		return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+            	}
+            	BerTlv tlv = outer.getList().get(0);
+            	if (tlv == null) {
+            		s_logger.warn("GET DATA returned status of 90 00 but TLV at 0 is null");
+            		return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+            	}
+            	BerTag tag = tlv.getTag();
+            	if (tag == null) {
+            		s_logger.warn("GET DATA returned status of 90 00 but tag {} is null", tlv.getHexValue());
+            		return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+            	}
+            	if(tag.bytes.length == 1 && tag.bytes[0] == 0x53 && responseData.length == 2 && responseData[1] == 0x00) {
             		s_logger.debug("GET DATA returned status of 90 00 but a tag of 0x53 with a length of 0." +
             				" Per SP800-73-4, PIV middleware should return PIV_DATA_OBJECT_NOT_FOUND." );
             		return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;

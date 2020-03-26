@@ -202,7 +202,7 @@ public class DiscoveryObject extends PIVDataObject {
     @Override
 	public boolean decode() {
         byte[] rawBytes = this.getBytes();
-        s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+        s_logger.trace("rawBytes: {}", Hex.encodeHexString(rawBytes));
         if(rawBytes.length == 0) {
             s_logger.info("DiscoveryObject.decode() called for empty discovery object.");
             return false;
@@ -259,14 +259,15 @@ public class DiscoveryObject extends PIVDataObject {
 
         } catch (Exception ex) {
 
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
             return false;
         }
 
         if(m_aid == null || m_pinPolicy == null)
             return false;
 
-
+        dump(this.getClass())
+;
         return true;
     }
 }

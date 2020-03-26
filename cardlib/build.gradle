@@ -69,9 +69,9 @@ configurations {
 }
 
 dependencies {
-    compile 'org.bouncycastle:bcprov-jdk15on:1.62+'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.62+'
-    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.62+'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.64+'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.64+'
+    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.64+'
 
     compile 'commons-cli:commons-cli:1.4'
     compile 'commons-codec:commons-codec:1.11'
@@ -82,9 +82,9 @@ dependencies {
 
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
 
-    testCompile 'org.bouncycastle:bcprov-jdk15on:1.62+'
-    testCompile 'org.bouncycastle:bcprov-ext-jdk15on:1.62+'
-    testCompile 'org.bouncycastle:bcpkix-jdk15on:1.62+'
+    testCompile 'org.bouncycastle:bcprov-jdk15on:1.64+'
+    testCompile 'org.bouncycastle:bcprov-ext-jdk15on:1.64+'
+    testCompile 'org.bouncycastle:bcpkix-jdk15on:1.64+'
 
     testCompile 'commons-cli:commons-cli:1.4'
     testCompile 'commons-codec:commons-codec:1.11'
@@ -97,9 +97,9 @@ dependencies {
     testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
     testRuntime 'org.junit.jupiter:junit-jupiter-params:5.1.0'
 
-    shadow 'org.bouncycastle:bcprov-jdk15on:1.62'
-    shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.62'
-    shadow 'org.bouncycastle:bcpkix-jdk15on:1.62+'
+    shadow 'org.bouncycastle:bcprov-jdk15on:1.64'
+    shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.64'
+    shadow 'org.bouncycastle:bcpkix-jdk15on:1.64+'
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.9.7'
 
@@ -199,8 +199,7 @@ compileJava.doFirst {
 }
 
 compileJava {
-//    sourceCompatibility = '1.8'
-    //targetCompatibility = '1.8'
+    options.debugOptions.debugLevel = "source,lines,vars"
 }
 
 task getDeps(type: Copy) {

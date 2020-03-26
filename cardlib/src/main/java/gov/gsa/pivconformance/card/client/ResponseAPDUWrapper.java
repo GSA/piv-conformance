@@ -4,10 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.apache.commons.codec.binary.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 // derived from the intarsys ResponseAPDU class
 public class ResponseAPDUWrapper {
+    private static final Logger s_logger = LoggerFactory.getLogger(ResponseAPDUWrapper.class);
 
 	private final byte[] bytes;
 

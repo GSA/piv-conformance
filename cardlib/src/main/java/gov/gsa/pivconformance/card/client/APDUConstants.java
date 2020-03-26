@@ -3,6 +3,10 @@ package gov.gsa.pivconformance.card.client;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.lang.IllegalArgumentException;
@@ -14,6 +18,7 @@ import java.lang.reflect.Field;
  *
  */
 public class APDUConstants {
+    private static final Logger s_logger = LoggerFactory.getLogger(APDUConstants.class);
 
 	//public static final String DEFAULTHASHALG = "SHA-256";
 	public static final byte COMMAND = 0x00;
@@ -593,7 +598,7 @@ public class APDUConstants {
 	 * HashMap for easy lookup of name values for PIV Data Objects
 	 *
 	 */
-	public static final HashMap<String, String> oidNameMAP = new HashMap<String, String>() {
+	public static final HashMap<String, String> oidNameMap = new HashMap<String, String>() {
 		/**
 		 * 
 		 */

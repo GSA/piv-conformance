@@ -176,7 +176,7 @@ public class SP800_73_4SecurityObjectTests {
 		
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
-            s_logger.debug("[Security object: 0x{} about to read {} from card", Integer.toHexString(entry.getKey()), entry.getValue());
+            s_logger.debug("[Security object: 0x{} about to read {} from card", Integer.toHexString(entry.getKey()), APDUConstants.containerOidToNameMap.get(entry.getValue()));;
             PIVDataObject dataObject = AtomHelper.getDataObject(entry.getValue());
             
             decoded = dataObject.decode();

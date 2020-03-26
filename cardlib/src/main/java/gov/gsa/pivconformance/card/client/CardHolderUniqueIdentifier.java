@@ -1,14 +1,10 @@
 package gov.gsa.pivconformance.card.client;
 
 import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.DLSet;
 import org.bouncycastle.asn1.cms.ContentInfo;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
-import org.bouncycastle.jcajce.util.MessageDigestUtils;
 import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -267,10 +263,10 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
         try {
             byte[] rawBytes = this.getBytes();
 
-            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+            s_logger.trace("rawBytes: {}", Hex.encodeHexString(rawBytes));
 
             if(rawBytes == null){
-                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -278,7 +274,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             BerTlvs outer = tlvp.parse(rawBytes);
 
             if(outer == null){
-                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -290,19 +286,19 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
                 if(tlv.isPrimitive()) {
-                    s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                    s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                     BerTlvs outer2 = tlvp.parse(tlv.getBytesValue());
 
                     if (outer2 == null) {
-                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                         return false;
                     }
 
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
-                            s_logger.debug("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                            s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
                         	
                         	BerTag tag = tlv2.getTag();
@@ -392,7 +388,8 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
                                         setEncryptionAlgorithmName(Algorithm.encAlgOidToNameMap.get(signer.getEncryptionAlgOID()));
                                         //String encOid = signer.getEncryptionAlgOID();
                                         // Get signer cert
-                                        Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                                        @SuppressWarnings("unchecked")
+										Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                                         Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                                         if (certIt.hasNext()) {
                                             X509CertificateHolder certHolder = certIt.next();
@@ -419,7 +416,6 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
                             	m_content.put(tag, value);
                                 m_errorDetectionCode = true;
                             	m_tagList.add(tag);
-                                signedContentOutputStream.write(APDUUtils.getTLV(tag.bytes, value));
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(value));
                                 // Unexpected tags (for future) - we could simply ignore
@@ -431,6 +427,8 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
                 }
             }
 
+            // Write all tags except signature to the container buffer (noting the signature and error detection code
+            // may still need to be appended).
             containerOutputStream.write(signedContentOutputStream.toByteArray());
               
             // Append signature to full container output
@@ -440,7 +438,9 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             // Append EC if in the original
             if(ecAdded) {
             	containerOutputStream.write(TagConstants.ERROR_DETECTION_CODE_TAG);
+            	signedContentOutputStream.write(TagConstants.ERROR_DETECTION_CODE_TAG);
             	containerOutputStream.write((byte) 0x00);
+            	signedContentOutputStream.write((byte) 0x00);
             }
             
             setSigned(true);
@@ -453,13 +453,14 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
             m_chuidContainer = containerOutputStream.toByteArray();
 
         } catch (Exception ex) {
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
         }
 
         if(m_fASCN == null || m_gUID == null || m_expirationDate == null || m_chuidContainer == null) {
             return false;
         }
-
+        
+        dump(this.getClass());
         return true;
     }
 }

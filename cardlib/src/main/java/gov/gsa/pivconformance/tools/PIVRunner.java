@@ -111,7 +111,7 @@ public class PIVRunner {
 
                 for(String containerOID : APDUConstants.MandatoryContainers()) {
                     PIVDataObject dataObject = PIVDataObjectFactory.createDataObjectForOid(containerOID);
-                    s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMAP.get(containerOID));
+                    s_logger.info("Attempting to read data object for OID {} ({})", containerOID, APDUConstants.oidNameMap.get(containerOID));
                     result = piv.pivGetData(c, containerOID, dataObject);
                     if(result != MiddlewareStatus.PIV_OK) continue;
                     boolean decoded = dataObject.decode();
@@ -270,7 +270,7 @@ public class PIVRunner {
 
                         s_logger.info("List of containers included in the Security Object:");
                         for (HashMap.Entry<Integer, String> entry : idMap.entrySet()) {
-                            s_logger.info("Container ID: {}, Container Name: {}, Container OID: {}",entry.getKey(), entry.getValue(), APDUConstants.oidNameMAP.get(entry.getValue()));
+                            s_logger.info("Container ID: {}, Container Name: {}, Container OID: {}",entry.getKey(), entry.getValue(), APDUConstants.oidNameMap.get(entry.getValue()));
                         }
 
                         CMSSignedData sd = ((SignedPIVDataObject) dataObject).getAsymmetricSignature();
@@ -370,7 +370,7 @@ public class PIVRunner {
                 result = piv.pivGetData(c, APDUConstants.PRINTED_INFORMATION_OID, printedInformation);
 
                 if(result == MiddlewareStatus.PIV_OK) {
-                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.PRINTED_INFORMATION_OID), result);
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMap.get(APDUConstants.PRINTED_INFORMATION_OID), result);
                     boolean decoded = printedInformation.decode();
                     s_logger.info("{} {}", printedInformation.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
@@ -408,7 +408,7 @@ public class PIVRunner {
                 result = piv.pivGetData(c, APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, cardholderIrisImages);
 
                 if(result == MiddlewareStatus.PIV_OK) {
-                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID), result);
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMap.get(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID), result);
                     decoded = cardholderIrisImages.decode();
                     s_logger.info("{} {}", cardholderIrisImages.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
@@ -468,7 +468,7 @@ public class PIVRunner {
                 result = piv.pivGetData(c, APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, biometricInformationTemplatesGroupTemplate);
 
                 if(result == MiddlewareStatus.PIV_OK) {
-                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID), result);
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMap.get(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID), result);
                     decoded = biometricInformationTemplatesGroupTemplate.decode();
                     s_logger.info("{} {}", biometricInformationTemplatesGroupTemplate.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
@@ -487,7 +487,7 @@ public class PIVRunner {
                 result = piv.pivGetData(c, APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, secureMessagingCertificateSigner);
 
                 if(result == MiddlewareStatus.PIV_OK) {
-                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID), result);
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMap.get(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID), result);
                     decoded = secureMessagingCertificateSigner.decode();
                     s_logger.info("{} {}", secureMessagingCertificateSigner.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 
@@ -509,7 +509,7 @@ public class PIVRunner {
                 result = piv.pivGetData(c, APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, pairingCodeReferenceDataContainer);
 
                 if(result == MiddlewareStatus.PIV_OK) {
-                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMAP.get(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID), result);
+                    s_logger.info("Attempted to read {} object: {}", APDUConstants.oidNameMap.get(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID), result);
                     decoded = pairingCodeReferenceDataContainer.decode();
                     s_logger.info("{} {}", pairingCodeReferenceDataContainer.getFriendlyName(), decoded ? "decoded successfully" : "failed to decode");
 

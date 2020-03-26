@@ -50,7 +50,7 @@ import gov.gsa.pivconformance.card.client.PIVDataObject;
  */
 
 public class SP800_73_4CommmonObjectTests {
-    private static final Logger s_logger = LoggerFactory.getLogger(X509DataObjectTests.class);
+    private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4CommmonObjectTests.class);
     // <cut>
     //
     // Template methods

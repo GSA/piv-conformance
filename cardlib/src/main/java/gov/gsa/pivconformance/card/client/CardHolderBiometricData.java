@@ -228,10 +228,10 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
         try {
             byte[] rawBytes = this.getBytes();
 
-            s_logger.debug("rawBytes: {}", Hex.encodeHexString(rawBytes));
+            s_logger.trace("rawBytes: {}", Hex.encodeHexString(rawBytes));
 
             if(rawBytes == null){
-                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -239,7 +239,7 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
             BerTlvs outer = tlvp.parse(rawBytes);
 
             if(outer == null){
-                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
             
@@ -251,35 +251,38 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
                     BerTlvs outer2 = tlvp.parse(tlv.getBytesValue());
 
                     if (outer2 == null) {
-                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                         return false;
                     }
 
                     List<BerTlv> values2 = outer2.getList();
                     for (BerTlv tlv2 : values2) {
                         if (tlv2.isPrimitive()) {
-                            s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                            s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
                         	BerTag tag = tlv2.getTag();
                         	byte[] value = tlv2.getBytesValue();
 
                         	super.m_tagList.add(tag);
-                            if (Arrays.equals(tag.bytes, TagConstants.FINGERPRINT_I_AND_II_TAG)) {
+                            if (Arrays.equals(tag.bytes, TagConstants.FINGERPRINT_I_AND_II_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_FINGERPRINTS_OID) == 0) {
 
+                            	setContainerName("Fingerprints");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                 if (m_biometricData != null)
                                 	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.FINGERPRINT_I_AND_II_TAG, m_biometricData));
 
-                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG)) {
+                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID) == 0) {
 
+                            	setContainerName("ImageForVisualVerification");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                if (m_biometricData != null)
                             	   signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG, m_biometricData));
 
-                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGES_FOR_IRIS_TAG)) {
+                            } else if (Arrays.equals(tag.bytes, TagConstants.IMAGES_FOR_IRIS_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID) == 0) {
 
+                            	setContainerName("ImagesForIris");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                 if (m_biometricData != null)
@@ -289,7 +292,9 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
 
                                 m_errorDetectionCode = true;
                                 m_content.put(tag, value);
-                               
+                                if (m_biometricData != null)
+                                	signedContentOutputStream.write(APDUUtils.getTLV(TagConstants.ERROR_DETECTION_CODE_TAG, value));
+
                             } else {
                                 s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                             }
@@ -299,7 +304,7 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
 
                     // Break BC tag into Patron CBEFF header + BDB + SB
                     if (m_biometricData != null) {
-                        s_logger.debug("m_biometricData: {}", Hex.encodeHexString(m_biometricData));
+                        s_logger.info("m_biometricData: {}", Hex.encodeHexString(m_biometricData));
                         //Get Biometric data block (BDB) Length
                         byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 2, 6);
                         //Get Signature block (SB) Length
@@ -358,7 +363,8 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
                                 signer = i.next();
                                 setDigestAlgorithmName(Algorithm.digAlgOidToNameMap.get(signer.getDigestAlgOID()));
                                 setEncryptionAlgorithmName(Algorithm.encAlgOidToNameMap.get(signer.getEncryptionAlgOID()));
-                                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
+                                @SuppressWarnings("unchecked")
+								Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
                                 Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                                 if (certIt.hasNext()) {
                                     X509CertificateHolder certHolder = certIt.next();
@@ -383,80 +389,20 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
                 }
             }
         } catch (Exception ex) {
-            s_logger.error("Error parsing {}", APDUConstants.oidNameMAP.get(super.getOID()), ex);
+            s_logger.error("Error parsing {}", APDUConstants.oidNameMap.get(super.getOID()), ex);
             return false;
         }
 
-        String message = APDUConstants.oidNameMAP.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
-        s_logger.debug(message);
+        String message = APDUConstants.oidNameMap.get(super.getOID()) + (certFound ? " had" : " did not have") + " an embedded certificate";
+        s_logger.trace(message);
         
         if(m_biometricData == null)
             return false;
 
+        dump(this.getClass());
         return true;
     }
     
-//    /**
-//     *
-//     * Verifies the signature on the biometric data object
-//     *
-//     * @param signingCertificate X509Certificate object containing signing certificate
-//     * @return True if signature successfully verified, false otherwise
-//     */
-//    public boolean verifySignature(X509Certificate signingCertificate) {
-//        boolean rv_result = false;
-//
-//        if(signingCertificate == null) {
-//            s_logger.error("Signing certificate is not provided for {}", APDUConstants.oidNameMAP.get(super.getOID()));
-//        }
-//
-//        CMSSignedData s;
-//        try {
-//            s = new CMSSignedData(m_contentInfo);
-//            if (m_signedData.isDetachedSignature()) {
-//                CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
-//                s = new CMSSignedData(procesableContentBytes, m_contentInfo);
-//            }
-//
-//            Store<X509CertificateHolder> certs = s.getCertificates();
-//            SignerInformationStore signers = s.getSignerInfos();
-//            X509Certificate signingCert = null;
-//
-//            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-//                SignerInformation signer = i.next();
-//
-//                Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
-//                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
-//                if (certIt.hasNext()) {
-//                    X509CertificateHolder certHolder = certIt.next();
-//                    signingCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
-//                }
-//                else if(signingCertificate != null) {
-//                    signingCert = signingCertificate;
-//                }
-//                else {
-//                    s_logger.error("Missing signing certificate to verify signature on {}", APDUConstants.oidNameMAP.get(super.getOID()));
-//                    rv_result = false;
-//                    return rv_result;
-//                }
-//
-//                try {
-//                    if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signingCert))) {
-//                        rv_result = true;
-//                    }
-//                } catch (CMSSignerDigestMismatchException e) {
-//                    s_logger.error("Message digest attribute value does not match calculated value for {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-//                } catch (OperatorCreationException | CMSException e) {
-//                    s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), e.getMessage());
-//                }
-//            }
-//        } catch ( Exception ex) {
-//            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
-//        }
-//
-//        return rv_result;
-//    }
-
 
     /**
      *

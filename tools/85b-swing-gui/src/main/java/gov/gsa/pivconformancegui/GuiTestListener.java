@@ -25,8 +25,8 @@ public class GuiTestListener implements TestExecutionListener {
 	
 	// for log events intended to troubleshoot the listener
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestListener.class);
-	private static final Logger s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testProgress");
-	private static final Logger s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testResults");
+	private static Logger s_testProgressLogger = null;
+	private static Logger s_testResultLogger = null;
 	private static final Logger s_atomResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testAtomResults");
 	
 	private String m_testCaseIdentifier;
@@ -40,6 +40,10 @@ public class GuiTestListener implements TestExecutionListener {
 
 	@Override
 	public void testPlanExecutionStarted(TestPlan testPlan) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
+		if (s_testResultLogger == null)
+			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testResult");
 		TestExecutionListener.super.testPlanExecutionStarted(testPlan);
 		m_atomAborted = false;
 		m_atomFailed = false;
@@ -55,6 +59,10 @@ public class GuiTestListener implements TestExecutionListener {
 
 	@Override
 	public void testPlanExecutionFinished(TestPlan testPlan) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
+		if (s_testResultLogger == null)
+			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testResult");		
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
 		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription,
@@ -81,6 +89,10 @@ public class GuiTestListener implements TestExecutionListener {
 
 	@Override
 	public void executionStarted(TestIdentifier testIdentifier) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
+		if (s_testResultLogger == null)
+			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testResult");
 		TestExecutionListener.super.executionStarted(testIdentifier);
 		String displayName = testIdentifier.getDisplayName();
 		//if(!testIdentifier.isTest()) return;
@@ -98,6 +110,10 @@ public class GuiTestListener implements TestExecutionListener {
 
 	@Override
 	public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
+		if (s_testResultLogger == null)
+			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testResult");
 		TestExecutionListener.super.executionFinished(testIdentifier, testExecutionResult);
 		
 		String displayName = testIdentifier.getDisplayName();
@@ -123,6 +139,10 @@ public class GuiTestListener implements TestExecutionListener {
 
 	@Override
 	public void reportingEntryPublished(TestIdentifier testIdentifier, ReportEntry entry) {
+		if (s_testProgressLogger == null)
+			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testProgress");
+		if (s_testResultLogger == null)
+			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.conformancelib.testResult");
 		TestExecutionListener.super.reportingEntryPublished(testIdentifier, entry);
 		s_testResultLogger.info("{}: {} {}", m_testCaseIdentifier, testIdentifier.getDisplayName(), "Placeholder" );
 	}

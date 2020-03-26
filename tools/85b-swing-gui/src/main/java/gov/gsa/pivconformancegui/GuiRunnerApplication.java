@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -18,38 +16,40 @@ import javax.swing.text.DefaultEditorKit;
 
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-import gov.gsa.conformancelib.configuration.ConfigurationException;
+
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class GuiRunnerApplication {
 
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
+	private static final String cctVersion = "v0.1.15-Beta";
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
 	private GuiRunnerToolbar m_toolBar;
 	private MainWindowContentPane m_mainContent;
 
-
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 
-		TestRunLogController.bootStrapLogging();
+		TestRunLogController trlc = TestRunLogController.getInstance();
+		trlc.bootStrapLogging();
 
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+		    public void run() {
+		        TestRunLogController trlc = TestRunLogController.getInstance();
+		        trlc.cleanup();
+		    }
+		}));
 
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -59,6 +59,7 @@ public class GuiRunnerApplication {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					GuiRunnerApplication window = new GuiRunnerApplication();
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+					c.setCctVersion(cctVersion);
 					c.setApp(window);
 					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
@@ -67,10 +68,10 @@ public class GuiRunnerApplication {
 					a.start();
 					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 					logger.addAppender(a);
-					TimeStampedFileAppender guiAppender = (TimeStampedFileAppender) logger.getAppender("FILE");
-					
-					
-					
+					TimeStampedFileAppender guiAppender = (TimeStampedFileAppender) logger.getAppender("FILE");					
+					s_logger.debug("----------------------------------------");
+					s_logger.debug("FIPS 201 CCT " + cctVersion);
+					s_logger.debug("----------------------------------------");
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 					
 					// The only action permitted is opening a database
@@ -78,17 +79,9 @@ public class GuiRunnerApplication {
 					
 					boolean opened = false;
 					
-					/*
-					try {
-						db.openDatabaseInFile(dbFilename);
-						opened = true;
-					} catch(ConfigurationException ce) {
-						ce.getMessage();
-					}
-					*/
 					c.setTestDatabase(db);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
-					// XXX *** find out why this isn't coming from user info
+
 					window.m_mainFrame.setVisible(true);
 					if(opened) {
 						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
@@ -101,7 +94,6 @@ public class GuiRunnerApplication {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 			}
 		});
 	}
@@ -120,7 +112,7 @@ public class GuiRunnerApplication {
 		m_mainFrame = new JFrame();
 		m_mainFrame.setBounds(100, 100, 1024, 768);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool");
+		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool " + cctVersion);
 		
 		
 		JMenuBar menuBar = new JMenuBar();

@@ -43,6 +43,7 @@ import gov.gsa.pivconformance.card.client.DataModelSingleton;
 public class TestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(TestExecutionController.class);
 	private static final TestExecutionController INSTANCE = new TestExecutionController();
+
 	private static final String tag30TestId = "8.2.2.1"; // TODO: Fixme
 
 	TestTreePanel m_testTreePanel;
@@ -51,8 +52,8 @@ public class TestExecutionController {
 	boolean m_running;
 	LoggerContext m_ctx;
 	TestRunLogController m_trlc;
-	Date m_startDate;
-	Date m_stopDate;
+//	Date m_startDate;
+//	Date m_stopDate;
 
 	public static TestExecutionController getInstance() {
 		return INSTANCE;
@@ -67,9 +68,9 @@ public class TestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
-		m_trlc = null;
-		m_startDate = new Date();
-		m_stopDate = null; // will get set by new appender plugin
+//		m_startDate = new Date();
+//		m_stopDate = null; // will get set by new appender plugin
+		m_trlc = TestRunLogController.getInstance();
 	}
 
 	public TestTreePanel getTestTreePanel() {
@@ -116,10 +117,17 @@ public class TestExecutionController {
 		m_ctx = ctx;
 	}
 	
-
 	void runAllTests(TestCaseTreeNode root) {
+		
+		m_trlc.setStartTimes();
+		
 		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
 		display.setEnabled(false);
+		
+		s_logger.debug("----------------------------------------");
+		s_logger.debug("FIPS 201 CCT " + GuiRunnerAppController.getInstance().getCctVersion());
+		s_logger.debug("----------------------------------------");
+		
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
 		if(db == null || db.getConnection() == null) {
 			s_logger.error("Unable to run tests without a valid database");
@@ -127,6 +135,7 @@ public class TestExecutionController {
 			return;
 		}
 		m_running = true;
+		GuiRunnerAppController.getInstance().reloadTree();
 		PCSCWrapper pcsc = PCSCWrapper.getInstance();
 		DataModelSingleton.getInstance().reset();
 
@@ -151,8 +160,6 @@ public class TestExecutionController {
 
 		GuiTestListener guiListener = new GuiTestListener();
 		guiListener.setProgressBar(progress);
-		TestRunLogController lg = new TestRunLogController();
-		m_trlc = lg;
 
 		/* Workaround to ensure that the tool is primed with the CHUID cert.
 		 * TODO: Create "factory" database with 8.2.2.1 as the only test, open,
@@ -160,10 +167,6 @@ public class TestExecutionController {
 		 */
 		
 		int passes = 0;
-		
-		// Initialize a timestamped log file
-		
-		initializeGuiAppender(lg);
 		
 		do {
 			TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
@@ -275,30 +278,18 @@ public class TestExecutionController {
 			s_logger.error("Failed to enable run button", e);
 		}
 		
-		lg.setStopTime(); // Sets the stop time of the controller 
-		lg.setTimeStamps(); // Sets the timestamp for all of the logger files
-		
 		s_logger.debug("atom count: {}", atomCount);
 		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
+
+		m_trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
+		m_trlc.cleanup();
 		m_running = false;
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();
 		display.setEnabled(true);
-	}
-
-	private void initializeGuiAppender(TestRunLogController lg) {
-		// TODO Auto-generated method stub
-		return;
-		/*
-		if (lg.appendersConfigured()) {
-			TimeStampedFileAppender<ILoggingEvent> fileAppender = (TimeStampedFileAppender<ILoggingEvent>) lg.getAppender("FILE");
-			// Get a timestamped file name
-			String name = fileAppender.getTimeStampedLogPath();
-		}
-		*/
 	}
 
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

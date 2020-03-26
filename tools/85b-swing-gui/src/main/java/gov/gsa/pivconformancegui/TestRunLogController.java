@@ -4,15 +4,12 @@
 package gov.gsa.pivconformancegui;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,12 +30,16 @@ import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
+
 /**
- * Class that consolidates the appenders into a single disposable group
+ * Singleton class that consolidates the appenders into a single disposable group
  *
  */
 public class TestRunLogController {
+	
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(TestRunLogController.class);
+	private static final TestRunLogController INSTANCE = new TestRunLogController();
+
 	/*
 	 * Note that these names MUST match the user_log_config.xml appender names.
 	 * start time, end time, log file path name. It instantiates and destroys
@@ -47,97 +48,110 @@ public class TestRunLogController {
 	static final HashMap<String, String> m_loggers = new HashMap<String, String>() {
 		static final long serialVersionUID = 1L;
 		{
-			put("FILE", "gov.gsa.pivconformancegui");
-			put("TESTLOG", "gov.gsa.pivconformance.testProgress");
-			put("CONFORMANCELOG", "gov.gsa.pivconformance.testResults");
+			put("DEBUG", "gov.gsa");
+			put("CONFORMANCELOG", "gov.gsa.conformancelib.testResult");
+			put("TESTLOG", "gov.gsa.conformancelib.testProgress");
 			put("APDULOG", "gov.gsa.pivconformance.apdu");
+			
+			/* Container logs */
+ 			put("BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE", "gov.gsa.pivconformance.card.client.BiometricInformationTemplatesGroupTemplate");
+ 			put("CARDCAPABILITYCONTAINER", "gov.gsa.pivconformance.card.client.CardCapabilityContainer");
+ 			put("CARDHOLDERUNIQUEIDENTIFIER", "gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier");
+ 			put("FINGERPRINTS", "gov.gsa.pivconformance.card.client.Fingerprints");
+ 			put("IMAGEFORVISUALVERIFICATION", "gov.gsa.pivconformance.card.client.ImageForVisualVerification");
+ 			put("IMAGESFORIRIS", "gov.gsa.pivconformance.card.client.ImagesForIris");
+ 			put("KEYHISTORYOBJECT", "gov.gsa.pivconformance.card.client.KeyHistoryObject");
+ 			put("PAIRINGCODEREFERENCEDATACONTAINER", "gov.gsa.pivconformance.card.client.PairingCodeReferenceDataContainer");
+ 			put("PRINTEDINFORMATION", "gov.gsa.pivconformance.card.client.PrintedInformation");;
+ 			put("SECUREMESSAGINGCERTIFICATESIGNER", "gov.gsa.pivconformance.card.client.SecureMessagingCertificateSigner");
+ 			put("SECURITYOBJECT", "gov.gsa.pivconformance.card.client.SecurityObject");
+ 			put("X509CERTIFICATEFORPIVAUTHENTICATION", "gov.gsa.pivconformance.card.client.X509CertificateForPivAuthentication");
+ 			put("X509CERTIFICATEFORCARDAUTHENTICATION", "gov.gsa.pivconformance.card.client.X509CertificateForCardAuthentication");
+ 			put("X509CERTIFICATEFORDIGITALSIGNATURE", "gov.gsa.pivconformance.card.client.X509CertificateForDigitalSignature");
+ 			put("X509CERTIFICATEFORKEYMANAGEMENT", "gov.gsa.pivconformance.card.client.X509CertificateForKeyManagement");
+ 			put("X509CERTIFICATEFORCHUIDSIGNATURE", "gov.gsa.pivconformance.card.client.X509CertificateForChuidSignature");
+ 			put("SECUREMESSAGINGCERTIFICATESIGNER", "gov.gsa.pivconformance.card.client.SecureMessagingCertificateSigner");
 		}
 	};
 
 	private HashMap<String, TimeStampedFileAppender<?>> m_appenders = null;
+	private HashMap<String, String> m_filenames = null;
+	private LoggerContext m_ctx = null;
 	private boolean m_initialized = false;
 	private String m_timeStampedLogPath = null;
-	private Date m_startTime = null;
-	private Date m_stopTime = null;
 
-	/*
-	 * Constructor
-	 */
-	public TestRunLogController() {
-		LoggerContext ctx = TestExecutionController.getInstance().getLoggerContext();
-		Appender<ILoggingEvent> a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-		a.setContext(ctx);
-		
-		this.initialize(ctx);
-		if (this.appendersConfigured()) {
-			s_logger.error("Logger configuration error");
-		}
+	
+	public static TestRunLogController getInstance() {
+		return INSTANCE;
 	}
 	
 	/**
-	 * Initializes a new TestRunLogController. One must be created per test run. ]
+	 * Initializes a new TestRunLogController. One must be created per instance of CCT. ]
 	 * 
 	 * @param ctx the logger context - one per application.
 	 */
 	@SuppressWarnings("unchecked")
-	void initialize(LoggerContext ctx) {
-		
-		bootStrapLogging();
-		m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
-		Map.Entry<String, String> me = null;
-		Iterator<?> i = m_loggers.entrySet().iterator();
-		
-		Date startTime = new Date();
-		
-		while (i.hasNext()) {
-			me = (Map.Entry<String, String>) i.next();
-			String loggerName = me.getKey();
-			String loggerClass = me.getValue();
-			
-			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
-			TimeStampedFileAppender<ILoggingEvent> appender = null;
-			
-			if ((appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName)) != null) {
-				appender.setImmediateFlush(true);
-				appender.setAppend(false);
-				appender.setStartTime(startTime);
-				appender.setStopTime(startTime);
-				m_appenders.put(loggerName, appender);
-				
-				// For the CONFORMANCE CSV log, initialize the output file writing the header row
-				if (appender.getName().equals("CONFORMANCELOG")) {
-					File f = new File(appender.getFile());
-					PrintStream p;
-					try {
-						p = new PrintStream(f);
-						p.println("Date,Test Id,Description,Expected Result,Actual Result");
-						p.close();
-						s_logger.debug("Wrote header to {}", appender.getFile());
-					} catch (Exception e) {
-						s_logger.error("Can't initialize {}", appender.getFile());
+	private void initialize(LoggerContext ctx) {
+
+		if (m_appenders == null) {
+			m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
+			m_filenames = new HashMap<String, String>();
+			Map.Entry<String, String> me = null;
+			Iterator<?> i = m_loggers.entrySet().iterator();
+
+			Date startTime = new Date();
+
+			while (i.hasNext()) {
+				me = (Map.Entry<String, String>) i.next();
+				String loggerName = me.getKey();
+				String loggerClass = me.getValue();
+
+				Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
+				TimeStampedFileAppender<ILoggingEvent> appender = null;
+
+				if ((appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName)) != null) {
+					m_filenames.put(loggerName, appender.getFile());
+					m_appenders.put(loggerName, appender);
+					appender.setImmediateFlush(true);
+					appender.setAppend(false);
+					appender.setStartTime(startTime);
+					appender.setStopTime(startTime); // Gets overwritten
+
+					// For the CONFORMANCE CSV log, initialize the output file writing the header row
+					if (appender.getName().equals("CONFORMANCELOG")) {
+						File f = new File(appender.getFile());
+						PrintStream p;
+						try {
+							p = new PrintStream(f);
+							p.println("Date,Test Id,Description,Expected Result,Actual Result");
+							p.close();
+							s_logger.debug("Wrote header to {}", appender.getFile());
+						} catch (Exception e) {
+							s_logger.error("Can't initialize {}", appender.getFile());
+						}
 					}
+					s_logger.debug("Initialized and configured {}", loggerName);
+				} else {
+					s_logger.warn("No appender was configured for {}", loggerName);
 				}
-				s_logger.debug("Initialized and configured {}", loggerName);
-			} else {
-				s_logger.warn("No appender was configured for {}", loggerName);
 			}
+
+			m_initialized = true;
+			TestExecutionController.getInstance().setTestRunLogController(this);
+			s_logger.debug("Logging has been initialized");
 		}
-		m_startTime = new Date();
-		m_initialized = true;
-		TestExecutionController.getInstance().setTestRunLogController(this);
-		s_logger.debug("Logging has been initialized");
 	}
 	
 	/**
 	 * Bootstraps the logging system with sane values
 	 */
-	static void bootStrapLogging() {
-		LoggerContext ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
+	public void bootStrapLogging() {
+		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
 			File logConfigFile = new File("user_log_config.xml");
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
-				configurator.setContext(ctx);
+				configurator.setContext(m_ctx);
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
 			}
 		} catch(JoranException e) {
@@ -146,9 +160,11 @@ public class TestRunLogController {
 			System.err.println("Unable to resolve logging config to a readable file");
 			e.printStackTrace();
 		}
-		StatusPrinter.printIfErrorsOccured(ctx);
-		TestExecutionController tc = TestExecutionController.getInstance();
-		tc.setLoggerContext(ctx);
+		StatusPrinter.printIfErrorsOccured(m_ctx);
+//		TestExecutionController tc = TestExecutionController.getInstance();
+//		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+		TestRunLogController trlc = getInstance();
+		trlc.initialize(m_ctx);
 	}
 	/**
 	 * Gets the time-stamped log path created by the stop() method.
@@ -156,27 +172,13 @@ public class TestRunLogController {
 	 * @return string containing the full path to the requested time-stamped file
 	 */
 
-	String getTimeStampedLogPath() {
+	public String getTimeStampedLogPath() {
 		if (!m_initialized) {
 			s_logger.error("*** getTimeStampedLogPath(): Not initialized ***");
 		}
 		return m_timeStampedLogPath;
 	}
 
-	/**
-	 * Forces a timestamp based on start time and the current time
-	 */
-	public void setStopTime() {
-		if (!m_initialized) {
-			s_logger.error("*** setStopTime(): Not initialized ***");
-		}
-		if (m_startTime == null) {
-			s_logger.warn("*** Test run log group not started"); // TODO: Figure out what to do here. Does it matter?
-		}
-
-		m_stopTime = new Date();
-	}
-	
 	/**
 	 * Gets the appender object associated with a friendly name
 	 * @param appenderName
@@ -203,15 +205,17 @@ public class TestRunLogController {
 	 * @returns the log path for the appender
 	 */
 
-	private String makeTimeStampedLogPath(TimeStampedFileAppender<ILoggingEvent> appender) {
+	private String makeTimeStampedLogPath(TimeStampedFileAppender<ILoggingEvent> appender, Date stopTime) {
 		
 		String startTs = null;
 		String stopTs = null;
 
+		appender.setStopTime(stopTime);
+
 		GregorianCalendar startCal = (GregorianCalendar) Calendar.getInstance();
-		startCal.setTime(m_startTime);
+		startCal.setTime(appender.getStartTime());
 		GregorianCalendar endCal = (GregorianCalendar) Calendar.getInstance();
-		endCal.setTime(m_stopTime);
+		endCal.setTime(appender.getStopTime());
 
 		startTs =
 			String.format("%04d%02d%02d_%02d%02d%02d", startCal.get(Calendar.YEAR),
@@ -252,8 +256,26 @@ public class TestRunLogController {
 		
 		String baseName = (startTs + "-" + stopTs + "-" + logFileName);
 		String timeStampedLogPath = dirName + "/" + baseName;
-			
+
 		return timeStampedLogPath;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setStartTimes() {
+		if (!m_initialized) {
+			s_logger.error("*** setTimeStamp(): Not initialized ***");
+		}
+		
+		Date startTime = new Date();
+		
+		// Loop on appenders
+		Entry<String, TimeStampedFileAppender<ILoggingEvent>> me = null;
+		Iterator<?> i = m_appenders.entrySet().iterator();
+		while (i.hasNext()) {
+			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
+			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
+			appender.setStartTime(startTime);
+		}	
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -265,6 +287,8 @@ public class TestRunLogController {
 		if (!m_initialized) {
 			s_logger.error("*** setTimeStamp(): Not initialized ***");
 		}
+		
+		Date stopTime = new Date();
 
 		// Loop on appenders
 		Entry<String, TimeStampedFileAppender<ILoggingEvent>> me = null;
@@ -274,10 +298,10 @@ public class TestRunLogController {
 			String logName = me.getKey();
 			Logger logger = (Logger) LoggerFactory.getLogger(m_loggers.get(me.getKey()));
 			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
-			setTimeStamp(logger, appender, logName);
+			setTimeStamp(logger, appender, logName, stopTime);
 		}
 	}
-	
+
 	/**
 	 * Creates the path names of the timestamped copy of each configured log
 	 * @param logger the logger
@@ -285,31 +309,34 @@ public class TestRunLogController {
 	 * @param logName the logger's friendly name
 	 * 
 	 */
-	public void setTimeStamp(Logger logger, TimeStampedFileAppender<ILoggingEvent> appender, String logName) {
+	public void setTimeStamp(Logger logger, TimeStampedFileAppender<ILoggingEvent> appender, String logName, Date stopTime) {
 
-		String timeStampedLogPath = makeTimeStampedLogPath(appender);
+		String timeStampedLogPath = makeTimeStampedLogPath(appender, stopTime);
 		String currentLogPath = new File(appender.getFile()).getPath();
-		appender.setTimeStampedLogPath(timeStampedLogPath);
-		appender.stop();
 		
 		// Roll the log
+		appender.stop();
 		s_logger.debug("Copying log {} to: {}", logName, timeStampedLogPath);
 		if (rollFile(currentLogPath, timeStampedLogPath)) {
 			s_logger.debug("Succesfully copied log to {}", timeStampedLogPath);
-			File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
-			try {
-				PrintStream p = new PrintStream(f);
-				p.println(timeStampedLogPath);
-				p.close();
-			} catch (IOException e) {
-				s_logger.debug("Couldn't write last log name to .lastlog-{}: {}", appender.getName().toLowerCase(), e.getMessage());
+
+			// Reset the name to the "base" file name minus a timestamp
+			appender.setFile(m_filenames.get(appender.getName()));
+			
+			if (appender.getName().equals("CONFORMANCELOG")) {
+				File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
+				try {
+					PrintStream p = new PrintStream(f);
+					p.println(timeStampedLogPath);
+					p.close();
+				} catch (IOException e) {
+					s_logger.debug("Couldn't write last log name to .lastlog-{}: {}", appender.getName().toLowerCase(), e.getMessage());
+				}
 			}
 		} else {
 			s_logger.error("Error copying {} to {}", currentLogPath, timeStampedLogPath);
 		}
-		
-		// Halt the appenders
-		logger.detachAndStopAllAppenders();
+		appender.start();
 	}
 
 
@@ -330,16 +357,46 @@ public class TestRunLogController {
 			try {
 				Files.delete(Paths.get(oldPath));
 				if (Files.exists(Paths.get(oldPath))) {
-					s_logger.debug("Unable to remove {}", oldPath);
+					s_logger.warn("Unable to remove {}", oldPath);
 		    	}
 			} catch (Exception e) {
-				s_logger.debug("Unable to remove {}: ", oldPath, e.getMessage());
+				s_logger.error("Unable to remove {}: {}", oldPath, e.getMessage());
 			}
 			rv = true;
 		} catch (IOException e) {
 			s_logger.error("IOException '{}' while rolling files", e.getMessage());
 		}
 		return rv;
+	}
+	
+	/**
+	 * Removes the default log file names
+	 * 
+	 */
+	
+	@SuppressWarnings("unchecked")
+	public void cleanup() {
+		Map.Entry<String, String> me = null;
+		Iterator<?> i = m_loggers.entrySet().iterator();
+
+		while (i.hasNext()) {
+			me = (Map.Entry<String, String>) i.next();
+			String loggerName = me.getKey();
+			String loggerClass = me.getValue();
+	
+			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
+			TimeStampedFileAppender<ILoggingEvent> appender = null;
+	
+			try {
+				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
+				if (appender != null) {
+					File f = new File(appender.getFile());
+					f.delete();
+				}
+			} catch (Exception e) {
+				s_logger.warn("Can't delete {}: {}", appender.getFile(), e.getMessage());
+			}
+		}
 	}
 	
 	/**
@@ -350,7 +407,7 @@ public class TestRunLogController {
 
 	@SuppressWarnings("unchecked")
 	public boolean appendersConfigured() {
-		boolean rv = false;
+
 		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 
 		Map<String, Appender<ILoggingEvent>> appendersMap = new HashMap<>();
@@ -361,7 +418,7 @@ public class TestRunLogController {
 				if (!m_appenders.containsKey(appender.getName())) {
 					s_logger.warn("No appender found for {}", appender.getName());
 				} else {
-					appendersMap.put(appender.getName(), (Appender) m_appenders.get(appender.getName()));
+					appendersMap.put(appender.getName(), (Appender<ILoggingEvent>) m_appenders.get(appender.getName()));
 				}
 			}
 		}

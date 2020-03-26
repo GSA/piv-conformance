@@ -35,7 +35,7 @@ public class CardCapabilityContainer extends PIVDataObject {
     private List<byte[]> m_extendedApplicationCardURL;
     private byte[] m_securityObjectBuffer;
     private byte[] m_signedContent;
-    private HashMap<BerTag, byte[]> m_content;
+    //private HashMap<BerTag, byte[]> m_content;
 
 
 	/**
@@ -250,7 +250,7 @@ public class CardCapabilityContainer extends PIVDataObject {
             byte [] raw = super.getBytes();
 
             if(raw == null){
-                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -265,7 +265,7 @@ public class CardCapabilityContainer extends PIVDataObject {
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
                 if(tlv.isPrimitive()) {
-                    s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                    s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                     BerTlvs outer2 = tp.parse(tlv.getBytesValue());
 
@@ -278,7 +278,7 @@ public class CardCapabilityContainer extends PIVDataObject {
                     List<BerTlv> values2 = outer2.getList();
                     for(BerTlv tlv2 : values2) {
                         if(tlv2.isPrimitive()) {
-                            s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
+                            s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes), Hex.encodeHexString(tlv2.getBytesValue()));
                         } else {
                         	super.m_tagList.add(tlv2.getTag());
                             if(Arrays.equals(tlv2.getTag().bytes,TagConstants.CARD_IDENTIFIER_TAG)) {
@@ -386,20 +386,21 @@ public class CardCapabilityContainer extends PIVDataObject {
                     s_logger.info("Object: {}", Hex.encodeHexString(tlv.getTag().bytes));
                 }
             }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
 
             s_logger.error("Error parsing CCC: {}", ex.getMessage());
             return false;
         }
 
-        if(m_cardIdentifier == null || m_capabilityContainerVersionNumber == null ||
+        if (m_cardIdentifier == null || m_capabilityContainerVersionNumber == null ||
                 m_capabilityGrammarVersionNumber == null || m_appCardURL == null || m_pkcs15 == null ||
                 m_registeredDataModelNumber == null || m_accessControlRuleTable == null || m_cardAPDUs == false ||
                 m_redirectionTag ==  false || m_capabilityTuples == false || m_statusTuples == false ||
                 m_nextCCC == false) {
             return false;
         }
+        
+        dump(this.getClass());
         return true;
     }
-
 }

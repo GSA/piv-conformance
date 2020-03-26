@@ -85,7 +85,7 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
             byte[] rawBytes = this.getBytes();
 
             if(rawBytes == null){
-                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("No buffer to decode for {}.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
@@ -93,19 +93,19 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
             BerTlvs outer = tlvp.parse(rawBytes);
 
             if(outer == null){
-                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                 return false;
             }
 
             List<BerTlv> values = outer.getList();
             for(BerTlv tlv : values) {
                 if(tlv.isPrimitive()) {
-                    s_logger.info("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
+                    s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv.getTag().bytes), Hex.encodeHexString(tlv.getBytesValue()));
 
                     BerTlvs outer2 = tlvp.parse(tlv.getBytesValue());
 
                     if (outer2 == null) {
-                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMAP.get(super.getOID()));
+                        s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
                         return false;
                     }
 
@@ -135,13 +135,15 @@ public class PairingCodeReferenceDataContainer extends PIVDataObject {
             }
         }catch (Exception ex) {
 
-            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMAP.get(super.getOID()), ex.getMessage());
+            s_logger.error("Error parsing {}: {}", APDUConstants.oidNameMap.get(super.getOID()), ex.getMessage());
             return false;
         }
 
         if (m_pairingCode == "")
             return false;
 
+        dump(this.getClass())
+;
         return true;
     }
 }

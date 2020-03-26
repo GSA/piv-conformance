@@ -45,6 +45,8 @@ public class GuiRunnerAppController {
 	private DisplayTestReportAction m_displayTestReportAction;
 	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
 	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
+	private TestExecutionController m_tec;
+	private String m_cctVersion;
 
 	private JTextField pivAuthOverrideTextField;
 	private JTextField digitalSignatureOverrideTextField;
@@ -62,6 +64,8 @@ public class GuiRunnerAppController {
 		m_displayTestReportAction = null;
 		m_openDefaultPIVDatabaseAction = null;
 		m_openDefaultPIVIDatabaseAction = null;
+		m_tec = null;
+		m_cctVersion = null;
 		
 		createActions();
 	}
@@ -93,6 +97,22 @@ public class GuiRunnerAppController {
 		m_app = app;
 	}
 
+	void setTestRunLogController (TestExecutionController trlc) {
+		m_tec = trlc;
+	}
+
+	public TestExecutionController getTestExecutionController() {
+		return m_tec;
+	}
+	
+	void setCctVersion (String cctVersion) {
+		m_cctVersion = cctVersion;
+	}
+
+	public String getCctVersion() {
+		return m_cctVersion;
+	}
+	
 	public JFrame getMainFrame() {
 		return m_app.getMainFrame();
 	}

@@ -5,6 +5,9 @@ import java.util.List;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.conformancelib.tests.ConformanceTestException;
@@ -21,6 +24,8 @@ import gov.gsa.pivconformance.card.client.PIVMiddleware;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class CardUtils {
+	static Logger s_logger = LoggerFactory.getLogger(CardUtils.class);
+
 	static {
 		PCSCUtils.ConfigureUserProperties();
 	}

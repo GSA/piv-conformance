@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -33,9 +34,11 @@ public class PIVDataObject {
     private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
     private boolean m_lengthOk;
     // TODO: Cache these tags
-    static HashMap<BerTag, byte[]> m_content;
-    // This will be either the embedded cert in the signature, if present, otherwise null
-
+    protected HashMap<BerTag, byte[]> m_content;
+    private String m_name;
+    private static List<String> m_oidList = new ArrayList<String>();
+	private String m_containerName;
+	
     /**
      * Initialize an invalid PIV data object
      */
@@ -48,7 +51,8 @@ public class PIVDataObject {
         m_tagList = new ArrayList<BerTag>();
         m_lengthOk = false;
         m_content = new HashMap<BerTag, byte[]>();
-
+        m_name = null;
+		m_containerName = null;
     }
 
     /**
@@ -58,8 +62,9 @@ public class PIVDataObject {
      * @param OID String containing OID identifying PIV data object
      */
     public PIVDataObject(String OID) {
-        m_OID = OID;
-        m_mandatory = APDUConstants.isContainerMandatory(m_OID);
+        setOID(OID);
+        setMandatory(APDUConstants.isContainerMandatory(m_OID));
+        setContainerName(APDUConstants.containerOidToNameMap.get(m_OID));
     }
 
     /**
@@ -107,7 +112,7 @@ public class PIVDataObject {
      * @return String containing the friendly  name of PIV data object
      */
     public String getFriendlyName() {
-        return APDUConstants.oidNameMAP.getOrDefault(m_OID, "Undefined");
+        return APDUConstants.oidNameMap.getOrDefault(m_OID, "Undefined");
     }
 
    /**
@@ -118,7 +123,15 @@ public class PIVDataObject {
    public boolean isMandatory(String oid) {
 	   return m_mandatory;
    }
-
+   
+   /**
+    * Indicates whether the object associated with the subclass
+    * is mandatory.
+    */
+   
+   public void setMandatory(boolean flag) {
+	   m_mandatory = flag;
+   }
    /**
     * Indicates whether the object associated with the subclass
     * is requires a pin.
@@ -183,14 +196,14 @@ public class PIVDataObject {
 	 * @throws Exception 
 	 */
     public boolean inBounds(String oid) throws Exception {
-    	String name = APDUConstants.oidNameMAP.get(oid);
+    	String name = APDUConstants.oidNameMap.get(oid);
     	if (name == null) {
     		return false;
     	}
     	// Iterate over each tag and corresponding value
     	Iterator<Map.Entry<BerTag, byte[]>> it = m_content.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = it.next();
+            Entry<BerTag, byte[]> pair = it.next();
             BerTag tag = (BerTag) pair.getKey();
             byte value[] = (byte[]) pair.getValue();
             // Check length
@@ -201,7 +214,29 @@ public class PIVDataObject {
         return true;
     }   
  
-
+    public void dump(Class<?> classz) {
+        if (m_oidList.indexOf(m_OID) < 0) {
+        	m_oidList.add(m_OID);
+        	// Get the container name
+        	String canonicalName = classz.getCanonicalName();
+        	String containerName = getContainerName();
+        	String className = containerName == null ? canonicalName : classz.getPackage().toString().replace("package ", "") + "." + containerName;
+        	
+        	Logger s_containerLogger = LoggerFactory.getLogger(className);
+        	s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ",  "_"));
+        	for (int i = 0; i < m_tagList.size(); i++) {
+        		BerTag tag = m_tagList.get(i);
+        		if (tag == null) {
+        			s_containerLogger.warn("Tag[{}] is null", i);
+        		} else if (m_content.get(tag) == null) {
+        			s_containerLogger.warn("Tag[{}] ({}) is null", i, Hex.encodeHexString(tag.bytes));
+        		} else {
+        			s_containerLogger.debug("Tag {}: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(m_content.get(tag)));
+        		}
+        	}
+        }
+    	setContainerName(null);
+    }
 	
 	/**
 	 * Gets the precomputed message digest of the content
@@ -240,6 +275,8 @@ public class PIVDataObject {
     public String toRawHexString() {
         return Hex.encodeHexString(m_dataBytes);
     }
+    
+    
 
     /**
      *
@@ -257,7 +294,7 @@ public class PIVDataObject {
 
     /**
      *
-     * Sets a boolean value inficating if the PIV data object is signed
+     * Sets a boolean value ind	icating if the PIV data object is signed
      *
      * @param signed True if signed, false otherwise
      */
@@ -322,4 +359,28 @@ public class PIVDataObject {
 
         return m_error_Detection_Code;
     }
+    
+
+	/**
+	 *
+	 * Returns the signing certificate in X509Certificate object
+	 *
+	 * @return X509Certificate object containing the signing certificate
+	 */
+	public String getContainerName() {
+		return m_containerName;
+	}
+
+	/**
+	 *
+	 * Sets the signing certificate
+	 *
+	 * @param signingCertificate X509Certificate object containing the signing
+	 *                           certificate
+	 */
+	public void setContainerName(String containerName) {
+		m_containerName = containerName;
+	}	
+	
+	
 }
