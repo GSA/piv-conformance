@@ -48,7 +48,6 @@ public class SecurityObject extends SignedPIVDataObject {
 		m_mapOfDataElements = null;
 		m_dghList = null;
 		m_errorDetectionCode = false;
-		m_content = new HashMap<BerTag, byte[]>();
 	}
 
 	/**
@@ -171,6 +170,12 @@ public class SecurityObject extends SignedPIVDataObject {
 			s_logger.trace("rawBytes: {}", Hex.encodeHexString(rawBytes));
 			BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
 			BerTlvs outer = tlvp.parse(rawBytes);
+
+            if(outer == null){
+                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
+                return false;
+            }
+            
 			List<BerTlv> outerTlvs = outer.getList();
 			if (outerTlvs.size() == 1 && outerTlvs.get(0).isTag(new BerTag(0x53))) {
 				byte[] tlvBuf = outerTlvs.get(0).getBytesValue();
@@ -180,7 +185,7 @@ public class SecurityObject extends SignedPIVDataObject {
 				s_logger.trace("SecurityObject: processing tag {}", tlv.getTag().toString());
 				byte[] tag = tlv.getTag().bytes;
 
-				super.m_tagList.add(tlv.getTag());
+				m_tagList.add(tlv.getTag());
 				if (Arrays.equals(tag, TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG)) {
 					m_mapping = tlv.getBytesValue();
 					m_content.put(tlv.getTag(), m_mapping);
@@ -270,14 +275,13 @@ public class SecurityObject extends SignedPIVDataObject {
 					// throw their own
 					// exception
 					setComputedDigest(signer, m_so);
-
-				} else {
-					if (!Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG) && tlv.getBytesValue().length != 0) {
-						s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes),
-								Hex.encodeHexString(tlv.getBytesValue()));
-					} else {
-						m_errorDetectionCode = true;
-					}
+				} else  if (Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG)) {
+                	BerTag tag2 = tlv.getTag();
+                	m_content.put(tag2, tlv.getBytesValue());
+                    m_errorDetectionCode = true;
+				} else if (tlv.getBytesValue().length != 0) {
+					s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes),
+							Hex.encodeHexString(tlv.getBytesValue()));
 				}
 			}
 		} catch (Exception e) {
