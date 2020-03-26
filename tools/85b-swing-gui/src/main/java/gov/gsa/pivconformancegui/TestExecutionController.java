@@ -180,7 +180,6 @@ public class TestExecutionController {
 				} else if (id.compareTo(TestExecutionController.tag30TestId) == 0) {
 					runTest = true;
 				}
-
 				if (runTest) {
 					LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
 					List<DiscoverySelector> discoverySelectors = new ArrayList<>();
@@ -234,7 +233,7 @@ public class TestExecutionController {
 								break;
 							} // End skipped test
 						} catch (ClassNotFoundException e) {
-							s_logger.error("{} was configured in the database but could not be found.", fqmn);
+							s_logger.error("Method {} was configured in the database but the method could not be found in code.", fqmn);
 							break;
 						}
 
