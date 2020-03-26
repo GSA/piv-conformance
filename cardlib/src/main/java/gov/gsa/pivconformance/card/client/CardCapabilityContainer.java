@@ -299,6 +299,7 @@ public class CardCapabilityContainer extends PIVDataObject {
                                 if (tlv2.hasRawValue()) {
                                     m_capabilityGrammarVersionNumber = tlv2.getBytesValue();
                                     m_content.put(tlv2.getTag(), tlv2.getBytesValue());
+                                    scos.write(APDUUtils.getTLV(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG, m_capabilityContainerVersionNumber));
                                 }
                             }
                             if(Arrays.equals(tlv2.getTag().bytes, TagConstants.APPLICATIONS_CARDURL_TAG)) {
