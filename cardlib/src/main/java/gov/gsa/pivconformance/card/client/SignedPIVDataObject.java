@@ -463,13 +463,6 @@ public class SignedPIVDataObject extends PIVDataObject {
                 s = new CMSSignedData(procesableContentBytes, m_contentInfo);
             }
             
-            // TODO: Remove this
-            try {
-            	LDSSecurityObject ldsso = LDSSecurityObject.getInstance(s.getSignedContent().getContent());
-            } catch (Exception ex) {
-            	s_logger.error("Can't decode security object: {}", ex.getMessage());
-            }
-            
             SignerInformationStore signers = s.getSignerInfos();
             if (signers.size() != 1) {
             	s_logger.error("There were {} signers", signers.size());
