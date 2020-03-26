@@ -25,7 +25,7 @@ import gov.gsa.pivconformance.utils.PCSCUtils;
 public class GuiRunnerApplication {
 
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
-	private static final String cctVersion = "v0.1.15-Beta";
+	private static final String cctVersion = "v0.1.16-Beta";
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
