@@ -124,9 +124,41 @@
 		</encoder>
 	</appender>
 
-	<appender name="X509CERTIFICATEDATAOBJECT"
+	<appender name="X509CERTIFICATEFORPIVAUTHENTICATION"
 		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
-		<file>logs/containers/X509CertificateDataObject.log</file>
+		<file>logs/containers/X509CertificateForPivAuthentication.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="X509CERTIFICATEFORCARDAUTHENTICATION"
+		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		<file>logs/containers/X509CertificateForCardAuthentication.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="X509CERTIFICATEFORDIGITALSIGNATURE"
+		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		<file>logs/containers/X509CertificateForDigitalSignature.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+		</encoder>
+	</appender>	
+
+	<appender name="X509CERTIFICATEFORKEYMANAGEMENT"
+		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		<file>logs/containers/X509CertificateForKeyManagement.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="X509CERTIFICATEFORCHUIDSIGNATURE"
+		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		<file>logs/containers/X509CertificateForChuidSignature.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
 		</encoder>
@@ -210,12 +242,12 @@
 		name="gov.gsa.conformancelib.configuration.TestStepModel" />
 
 	<!-- split test progress to its own appender -->
-	<logger level="TRACE" name="gov.gsa.conformancelib.testProgress">
+	<logger level="INFO" name="gov.gsa.conformancelib.testProgress">
 		<appender-ref ref="TESTLOG" />
 	</logger>
 
 	<!-- split test results into a CSV -->
-	<logger level="TRACE" name="gov.gsa.conformancelib.testResults">
+	<logger level="INFO" name="gov.gsa.conformancelib.testResult">
 		<appender-ref ref="CONFORMANCELOG" />
 	</logger>
 
@@ -281,8 +313,28 @@
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.X509CertificateDataObject">
-		<appender-ref ref="X509CERTIFICATEDATAOBJECT" />
+		name="gov.gsa.pivconformance.card.client.X509CertificateForPivAuthentication">
+		<appender-ref ref="X509CERTIFICATEFORPIVAUTHENTICATION" />
+	</logger>
+
+	<logger level="DEBUG"
+		name="gov.gsa.pivconformance.card.client.X509CertificateForCardAuthentication">
+		<appender-ref ref="X509CERTIFICATEFORCARDAUTHENTICATION" />
+	</logger>
+
+	<logger level="DEBUG"
+		name="gov.gsa.pivconformance.card.client.X509CertificateForDigitalSignature">
+		<appender-ref ref="X509CERTIFICATEFORDIGITALSIGNATURE" />
+	</logger>
+
+	<logger level="DEBUG"
+		name="gov.gsa.pivconformance.card.client.X509CertificateForKeyManagement">
+		<appender-ref ref="X509CERTIFICATEFORKEYMANAGEMENT" />
+	</logger>
+
+	<logger level="DEBUG"
+		name="gov.gsa.pivconformance.card.client.X509CertificateForChuidSignature">
+		<appender-ref ref="X509CERTIFICATEFORCHUIDSIGNATURE" />
 	</logger>
 
 </configuration>
