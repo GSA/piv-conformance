@@ -24,9 +24,9 @@ repositories {
 }
 
 dependencies {
-    compile 'org.bouncycastle:bcprov-jdk15on:1.62+'
-    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.62+'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.62+'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.64+'
+    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.64+'
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.64+'
 
     compile 'commons-cli:commons-cli:1.4'
     compile 'commons-codec:commons-codec:1.11'
@@ -48,8 +48,8 @@ dependencies {
     runtime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
     runtime 'org.junit.jupiter:junit-jupiter-params:5.1.0'
 
-    shadow 'org.bouncycastle:bcprov-jdk15on:1.62+'
-    shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.62+'
+    shadow 'org.bouncycastle:bcprov-jdk15on:1.64+'
+    shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.64+'
 }
 
 sourceSets {
@@ -102,32 +102,6 @@ test {
     }
 }
 
-
-// when producing a jar that is suitable for distribution using the shadow plugin,
-// this will enbed a version properties file.
-/*
-compileJava.doFirst {
-        //options.compilerArgs = ['--add-modules', 'java.smartcardio']
-        def git = org.ajoberstar.grgit.Grgit.open(dir: '.')
-        def commit = git.head()
-
-        def commitId = commit.abbreviatedId
-        def commitDate = commit.getDate()
-        def buildDate = new Date()
-
-        File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
-        File propertiesFile = new File(resourcesDir, 'version.properties')
-
-        // The project may not have any resources, so create the directories and file
-        if(!propertiesFile.exists()) {
-            resourcesDir.mkdirs()
-            propertiesFile.createNewFile()
-        }
-        Properties versionProperties = new Properties()
-        versionProperties.setProperty('git.commit.time', commitDate.format('dd.MM.yy HH.mm.ss'))
-        versionProperties.setProperty('build.time', buildDate.format('dd.MM.yy HH.mm.ss'))
-        versionProperties.setProperty('git.commit.id', commitId)
-        versionProperties.setProperty('build.version', version)
-        versionProperties.store(propertiesFile.newWriter(), null)
-}*/
-
+compileJava {
+    options.debugOptions.debugLevel = "source,lines,vars"
+}
