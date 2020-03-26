@@ -234,7 +234,7 @@ INSERT INTO "TestSteps" VALUES(169,'PKIX.28','gov.gsa.conformancelib.tests.PKIX_
 INSERT INTO "TestSteps" VALUES(170,'PlaceholderTest.1','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_1',NULL);
 INSERT INTO "TestSteps" VALUES(171,'PlaceholderTest.2','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_2',NULL);
 INSERT INTO "TestSteps" VALUES(172,'PlaceholderTest.3','gov.gsa.conformancelib.tests.PlaceholderTests','PlaceholderTest_3',NULL);
-INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'CARD_HOLDER_UNIQUE_IDENTIFIER_OID:5',0);
+INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'6',0);
 INSERT INTO "TestStepParameters" VALUES(2, 99,NULL,'CARDHOLDER_FINGERPRINTS_OID:513',0);
 INSERT INTO "TestStepParameters" VALUES(3, 99,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:1281',1);
 INSERT INTO "TestStepParameters" VALUES(4, 99,NULL,'CARDHOLDER_IRIS_IMAGES_OID:9',2);
@@ -303,7 +303,7 @@ INSERT INTO "TestCases" VALUES(35, NULL,'8.2.2.14','Tag 0xFE follows Tag 0x3E','
 INSERT INTO "TestCases" VALUES(36, NULL,'8.2.2.15','If CHUID tag 0xEE is present, it is the first tag in the blob','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(37, NULL,'8.2.2.16','No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(38, NULL,'8.2.3','Expiration Date is formatted YYYYMMDD','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(39, NULL,'8.2.4','Expiration Date is within the next 5 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(39, NULL,'8.2.4','Expiration Date is within the next 6 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(40, NULL,'8.2.5','If the CHUID contains the optional Cardholder UUID, then the data element shall be in accordance with 800 73-4 Part 1 Section 3.4.2.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(41, NULL,'8.2.6','The retired key map is not present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(42, NULL,'8.2.7','Tag 0xFE has length of 0','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
