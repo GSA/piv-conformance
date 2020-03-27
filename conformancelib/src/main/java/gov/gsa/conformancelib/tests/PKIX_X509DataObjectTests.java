@@ -9,14 +9,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -24,18 +21,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -43,13 +37,7 @@ import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERTaggedObject;
-import org.bouncycastle.asn1.DERUTF8String;
-import org.bouncycastle.asn1.DLSequence;
-import org.bouncycastle.asn1.DLSet;
-import org.bouncycastle.asn1.DLTaggedObject;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
@@ -69,7 +57,6 @@ import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.util.Store;
-import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -95,9 +82,7 @@ import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.card.client.PIVDataObject;
 import gov.gsa.pivconformance.card.client.PIVDataObjectFactory;
-import gov.gsa.pivconformance.card.client.SignedPIVDataObject;
-import gov.gsa.pivconformance.card.client.X509CertificateDataObject;
-import gov.gsa.pivconformance.card.client.OtherName;;
+import gov.gsa.pivconformance.card.client.X509CertificateDataObject;;
 
 public class PKIX_X509DataObjectTests {
 
@@ -1406,8 +1391,7 @@ public class PKIX_X509DataObjectTests {
 						ASN1Sequence seq = ASN1Sequence.getInstance(gn.getName());
 						ASN1ObjectIdentifier oID = ASN1ObjectIdentifier.getInstance(seq.getObjectAt(0));
 						if (oID.toString().equals(requiredOid)) {
-							ASN1TaggedObject onValue = DERTaggedObject.getInstance(seq.getObjectAt(1)); 
-							int tagNo = onValue.getTagNo();
+							ASN1TaggedObject onValue = ASN1TaggedObject.getInstance(seq.getObjectAt(1)); 
 							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getObject()).getOctets();
 							if (encodedFascn != null &&  (Arrays.equals(encodedFascn, identifier))) {
 								result = Arrays.equals(encodedFascn, identifier);
