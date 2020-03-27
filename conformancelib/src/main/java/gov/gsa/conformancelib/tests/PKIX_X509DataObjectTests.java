@@ -9,10 +9,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
@@ -23,18 +24,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1OctetString;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERTaggedObject;
+import org.bouncycastle.asn1.DERUTF8String;
+import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.asn1.DLSet;
+import org.bouncycastle.asn1.DLTaggedObject;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
@@ -43,6 +58,7 @@ import org.bouncycastle.asn1.x509.CertificatePolicies;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
@@ -52,8 +68,8 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.util.Store;
+import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -73,7 +89,6 @@ import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.conformancelib.utilities.KeyValidationHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
-import gov.gsa.pivconformance.card.client.APDUUtils;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
 import gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier;
@@ -443,91 +458,38 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider2")
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
-    void PKIX_Test_12(String oid, String parameters, TestReporter reporter) {
+    void PKIX_Test_12(String oid, String requiredOid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		//Check that the oid passed in is not null
 		if (oid == null) {
-			ConformanceTestException e  = new ConformanceTestException("OID is null");
+			ConformanceTestException e = new ConformanceTestException("OID is null");
 			fail(e);
 		}
 		
-		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
-		if (pmap == null) {
-			new ConformanceTestException("Parameter list is null");
-		}
-
-		Iterable<?> requiredSanOids = pmap.keySet();
-		if (requiredSanOids == null) {
-			new ConformanceTestException("Required SAN OtherName OID list is null");
-		}
-    	
-    	Iterator<?> i = requiredSanOids.iterator();
-    	String requiredOid = "";
-    	if (i.hasNext()) {
-    		requiredOid = (String) i.next();
-    	}
-		
     	if (requiredOid == null || requiredOid.length() == 0) {
-    		new ConformanceTestException("Required OID value null or empty");
+    		ConformanceTestException e = new ConformanceTestException("Required OID value passed in is null or empty");
+			fail(e);
     	}
     	
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-						
-		//Check that the cert is not null
-		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("Certificate is null");
-			fail(e);
-		}
 				
-		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		CMSSignedData issuerAsymmetricSignature = ((SignedPIVDataObject) o2).getAsymmetricSignature();
-		if (issuerAsymmetricSignature == null) {
-			ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
+		CardHolderUniqueIdentifier o2 = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		
+		if (o2 == null) {
+			ConformanceTestException e = new ConformanceTestException("Couldn't read CHUID container from cache");
 			fail(e);
 		}
 		
-		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
-		if (fascn == null) {
-			ConformanceTestException e = new ConformanceTestException("CHUID FASC-N is null");
-			fail(e);
-		}		
+		byte[] fascn = o2.getfASCN();
 		
-		boolean found = false;
-		try {
-			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-			if (altNames != null) {
-				for (List<?> altName : altNames) {
-					Integer altNameType = (Integer) altName.get(0);
-					if (altNameType == 0) {
-						byte[] otherName = (byte[]) altName.toArray()[1];
-
-						OtherName on = OtherName.getInstance(otherName);
-						String typeID = on.getTypeID().toString();
-
-						if (typeID.contentEquals(requiredOid)) {
-							found = true;
-							byte[] fascnFromCert = Arrays.copyOfRange(otherName, 18, otherName.length);
-							assertTrue(Arrays.equals(fascnFromCert, fascn), "FASC-N values do not match");
-						} else {
-							// We weren't looking for this.
-							// TODO: If this is a UPN, we're probably good for everything but the card auth
-							// cert
-							// TODO: Create some logic to check if this is a card auth (look at EKU KPID)
-							// TODO: And then fail if we're here and it's not a card auth
-							s_logger.warn("Found SAN OtherName typeID " + typeID.toString());
-						}
-					}
-				}
-			}
-		} catch (CertificateParsingException e) {
+		if (fascn == null || fascn.length == 0) {
+			ConformanceTestException e = new ConformanceTestException("FASC-N in CHUID is null or empty");
 			fail(e);
 		}
 
-		assertTrue(found == true, "SAN did not contain required OID " + requiredOid);
+		assertTrue(matchFascn(cert, fascn, requiredOid), "Certificate doesn't contain " + Hex.encodeHexString(fascn));
 	}
 	
 	//Confirm that expiration of certificate is not later than expiration of card
@@ -1094,86 +1056,37 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider2")
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
-    void PKIX_Test_27(String oid, String parameters, TestReporter reporter) {
+    void PKIX_Test_27(String oid, String requiredOid, TestReporter reporter) {
 		//Check that the oid passed in is not null
 		if (oid == null) {
-			ConformanceTestException e  = new ConformanceTestException("OID is null");
+			ConformanceTestException e = new ConformanceTestException("OID is null");
 			fail(e);
 		}
 		
-		Map<String, List<String>> pmap = ParameterUtils.MapFromString(parameters, ",");
-		if (pmap == null) {
-			new ConformanceTestException("Parameter list is null");
-		}
-
-		Iterable<?> requiredSanOids = pmap.keySet();
-		if (requiredSanOids == null) {
-			new ConformanceTestException("Required SAN OtherName OID list is null");
-		}
-    	
-    	Iterator<?> i = requiredSanOids.iterator();
-    	String requiredOid = "";
-    	if (i.hasNext()) {
-    		requiredOid = (String) i.next();
-    	}
-		
     	if (requiredOid == null || requiredOid.length() == 0) {
-    		new ConformanceTestException("Required OID value null or empty");
+    		ConformanceTestException e = new ConformanceTestException("Required OID value passed in is null or empty");
+			fail(e);
     	}
     	
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-						
-		//Check that the cert is not null
-		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("Certificate is null");
-			fail(e);
-		}
 				
-		PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-
-		//Decode for CardHolderUniqueIdentifier reads in Issuer Asymmetric Signature field and creates CMSSignedData object
-		CMSSignedData issuerAsymmetricSignature = ((SignedPIVDataObject) o2).getAsymmetricSignature();
-		if (issuerAsymmetricSignature == null) {
-			ConformanceTestException e = new ConformanceTestException("Issuer Asymmetric Signature is null");
+		CardHolderUniqueIdentifier o2 = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		
+		if (o2 == null) {
+			ConformanceTestException e = new ConformanceTestException("Couldn't read CHUID container from cache");
 			fail(e);
 		}
 		
-		byte[] guid = ((CardHolderUniqueIdentifier) o2).getgUID();
-		String guidString = Hex.encodeHexString(guid);
+		byte[] guid = o2.getgUID();
 		
-		if (guid == null) {
-			ConformanceTestException e = new ConformanceTestException("GUID is null");
+		if (guid == null || guid.length == 0) {
+			ConformanceTestException e = new ConformanceTestException("GUID is null or empty");
 			fail(e);
 		}
 
-		boolean found = false;
-		try {
-			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-			if (altNames != null) {
-				for (List<?> altName : altNames) {
-					Integer altNameType = (Integer) altName.get(0);
-					if (altNameType == 6) { // TODO: Someday this will be parameterized
-
-						String altNameStr = (String) altName.get(1);
-	                	altNameStr = altNameStr.replace("-","");
-						found = true;
-		                assertTrue(altNameStr.endsWith(guidString), "UUID in SAN doesn't match GUID");
-					} else {
-						// We weren't looking for this.
-						// TODO: If this is a UPN, we're probably good for everything but the card auth
-						// cert
-						// TODO: Create some logic to check if this is a card auth (look at EKU KPID)
-						// TODO: And then fail if we're here and it's not a card auth							s_logger.warn("Found SAN OtherName typeID " + typeID.toString());
-					}
-				}
-			}
-		} catch (CertificateParsingException e) {
-			fail(e);
-		}
-
-		assertTrue(found == true, "SAN did not contain required OID " + requiredOid);			
-    }
+		assertTrue(matchUuid(cert, guid), "Certificate doesn't contain " + Hex.encodeHexString(guid));
+	}
 	
 	//No other name forms appear in the subjectAltName extension.
 	@DisplayName("PKIX.28 test")
@@ -1182,50 +1095,31 @@ public class PKIX_X509DataObjectTests {
     //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider.class)
     void PKIX_Test_28(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;
 		//Check that the oid passed in is not null
 		if (oid == null) {
-			ConformanceTestException e  = new ConformanceTestException("OID is null");
+			ConformanceTestException e = new ConformanceTestException("OID is null");
 			fail(e);
 		}
-		
+    	
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 				
-		//Check that the oid passed in is not null
-		if (cert == null) {
-			ConformanceTestException e  = new ConformanceTestException("certificate is null");
+		CardHolderUniqueIdentifier o2 = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		
+		if (o2 == null) {
+			ConformanceTestException e = new ConformanceTestException("Couldn't read CHUID container from cache");
 			fail(e);
 		}
-				
-		boolean otherPresent = false;
-		try {
-			Collection<List<?>> altNames = cert.getSubjectAlternativeNames();
-	        if (altNames != null) {
-	            for (List<?> altName : altNames) {
-	                Integer altNameType = (Integer) altName.get(0);
-	                if (altNameType == 0) {
-	                	byte[] otherName = (byte[]) altName.toArray()[1];
-	                	
-	                	OtherName on = OtherName.getInstance(otherName);
-	                    if(!on.getTypeID().toString().contentEquals("2.16.840.1.101.3.6.6")) {
-	                    	otherPresent = true;
-	                    }
-	             
-	                }
-	                
-	                if(altNameType != 0 && altNameType != 6){
-	                	otherPresent = true;
-	                }
-	            }
-	        }
-	        
-	        assertTrue(otherPresent == false, "SAN values other than fascn and uuid are present");
+		
+		byte[] guid = o2.getgUID();
+		
+		if (guid == null || guid.length == 0) {
+			ConformanceTestException e = new ConformanceTestException("GUID is null or empty");
+			fail(e);
+		}
 
-		} catch (CertificateParsingException e) {
-			fail(e);
-		}
+		ArrayList<Integer> types = new ArrayList<Integer>(Arrays.asList(0, 6));
+		assertTrue(onlyMatchesTypes(cert, types) , "Certificate doesn't contain " + Hex.encodeHexString(guid));
     }
 	
 	private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {
@@ -1439,4 +1333,140 @@ public class PKIX_X509DataObjectTests {
 		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
 
 	}
+	
+	/**
+	 * Attempts to match the UUID in the GeneralNames in the Subject Alternative Name extension in 
+	 * a certificate with the specified UUID
+	 * @param certificate the certificate to decode
+	 * @param identifier the UUID to match
+	 * @return true if the certificate's subject alternative name contains the UUID represented by a Type-Id of 6
+	 */
+    
+    private boolean matchUuid(X509Certificate certificate, byte[] identifier) {
+		boolean result = false;
+		byte[] sanEncoded = certificate.getExtensionValue(Extension.subjectAlternativeName.getId());
+
+		if (sanEncoded != null) {
+			ASN1Primitive sanBytes;
+			try {
+				sanBytes = JcaX509ExtensionUtils.parseExtensionValue(sanEncoded);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+			try {
+				GeneralNames sans = GeneralNames.getInstance(sanBytes);
+				GeneralName[] sanArray = sans.getNames();
+				for (GeneralName gn : sanArray) {
+					if (gn.getTagNo() == 6) {
+						DERIA5String encodedUuid = DERIA5String.getInstance(gn.getName());
+						byte[] urnUuid = encodedUuid.getString().getBytes();
+						byte[] uuid = Arrays.copyOfRange(urnUuid, "urn:uuid:".length(), urnUuid.length); 
+						s_logger.debug("UUID: {}", new String(uuid));
+						
+						byte[] test = new String(uuid).getBytes();
+						result = Arrays.equals(uuid, test);
+					}
+				}
+			} catch (Exception e) {
+				s_logger.error("Exception while matching UUID: ", e.getMessage());
+			}
+		} else {
+			String message = "Subject alternative name extension is null";
+			s_logger.error(message);
+		}
+
+		return result;
+	}
+    
+	/**
+	 * Attempts to match the FASC-N in the GeneralNames in the Subject Alternative Name extension in 
+	 * a certificate with the specified FASC-N
+	 * @param certificate the certificate to decode
+	 * @param identifier the FASC-N to match
+	 * @return true if the certificate's subject alternative name contains the piv-id-FASC-N represented by a Type-Id of 0
+	 */
+    private boolean matchFascn(X509Certificate certificate, byte[] identifier, String requiredOid) {
+		boolean result = false;
+		byte[] sanEncoded = certificate.getExtensionValue(Extension.subjectAlternativeName.getId());
+
+		if (sanEncoded != null) {
+			ASN1Primitive sanBytes;
+			try {
+				sanBytes = JcaX509ExtensionUtils.parseExtensionValue(sanEncoded);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+			GeneralNames sans = GeneralNames.getInstance(sanBytes);
+			GeneralName[] sanArray = sans.getNames();
+			try {
+				for (GeneralName gn : sanArray) {
+					if (gn.getTagNo() == 0) {
+						ASN1Sequence seq = ASN1Sequence.getInstance(gn.getName());
+						ASN1ObjectIdentifier oID = ASN1ObjectIdentifier.getInstance(seq.getObjectAt(0));
+						if (oID.toString().equals(requiredOid)) {
+							ASN1TaggedObject onValue = DERTaggedObject.getInstance(seq.getObjectAt(1)); 
+							int tagNo = onValue.getTagNo();
+							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getObject()).getOctets();
+							if (encodedFascn != null &&  (Arrays.equals(encodedFascn, identifier))) {
+								result = Arrays.equals(encodedFascn, identifier);
+								s_logger.debug("FASCN: {}", Hex.encodeHexString(encodedFascn));
+							}
+						} else {
+							s_logger.error("Found superfluous OID: ", oID.toString());
+						}
+					}
+				}
+			} catch (Exception e) {
+				s_logger.error("Exception while matching FASC-N: ", e.getMessage());
+			}
+		} else {
+			String message = "Subject alternative name extension is null";
+			s_logger.error(message);
+		}
+
+		return result;
+	}
+    
+    /**
+     * Determines whether the subject alternative name extension contains no GeneralNames
+     * besides the types specified in a given list
+     * @param certificate to be parsed
+     * @param allowedTypeIds list of allowable type IDs
+     * @return true if no other IDs in the allowed list are present
+     */
+    
+    private boolean onlyMatchesTypes(X509Certificate certificate, ArrayList<Integer> allowedTypeIds) {
+		boolean result = false;
+		byte[] sanEncoded = certificate.getExtensionValue(Extension.subjectAlternativeName.getId());
+
+		if (sanEncoded != null) {
+			ASN1Primitive sanBytes;
+			try {
+				sanBytes = JcaX509ExtensionUtils.parseExtensionValue(sanEncoded);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return false;
+			}
+			GeneralNames sans = GeneralNames.getInstance(sanBytes);
+			GeneralName[] sanArray = sans.getNames();
+			try {
+				for (GeneralName gn : sanArray) {
+					if (!allowedTypeIds.contains(gn.getTagNo())) {
+						s_logger.error("Found invalid Type-Id {}", gn.getTagNo());
+						return false;
+					}
+				}
+			} catch (Exception e) {
+				s_logger.error("Exception while matching FASC-N: ", e.getMessage());
+				return false;
+			}
+		} else {
+			String message = "Subject alternative name extension is null";
+			s_logger.error(message);
+			return false;
+		}
+		return true;
+	}    
 }
