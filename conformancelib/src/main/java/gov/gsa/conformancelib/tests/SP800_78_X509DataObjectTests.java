@@ -3,14 +3,11 @@ package gov.gsa.conformancelib.tests;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.math.BigInteger;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.EllipticCurve;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -18,7 +15,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
-import org.bouncycastle.asn1.x9.X9ECParameters;
 //import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.X9ECParameters;
 //import org.bouncycastle.jce.interfaces.ECPublicKey;

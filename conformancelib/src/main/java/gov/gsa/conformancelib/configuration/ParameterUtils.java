@@ -1,20 +1,13 @@
 package gov.gsa.conformancelib.configuration;
 
-import java.security.Provider;
-import java.security.Provider.Service;
-import java.security.Security;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardClientException;
 
 public class ParameterUtils {

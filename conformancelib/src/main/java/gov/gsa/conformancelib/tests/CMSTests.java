@@ -10,17 +10,13 @@ import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.EllipticCurve;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -28,6 +24,8 @@ import javax.security.auth.x500.X500Principal;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Set;
+import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.ContentInfo;
@@ -35,8 +33,6 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameStyle;
 import org.bouncycastle.asn1.x500.style.RFC4519Style;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x9.ECNamedCurveTable;
-import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
@@ -45,17 +41,16 @@ import org.bouncycastle.cms.SignerId;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
-import org.bouncycastle.math.ec.ECCurve;
 import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import gov.gsa.conformancelib.configuration.ParameterUtils;
 import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.card.client.APDUConstants;
@@ -152,26 +147,45 @@ public class CMSTests {
 	// Ensure encapsulated content is absent
 	@DisplayName("CMS.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("CMS_TestProvider")
-
-	void CMS_Test_5(String oid, TestReporter reporter) {
+	//@MethodSource("CMS_TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void CMS_Test_5(String oid, String params, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
+		
 		try {
-			SignedPIVDataObject o = null;
-			CMSSignedData asymmetricSignature = null;
-			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
-			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
-			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
+			Map<String, List<String>> mp = ParameterUtils.MapFromString(params);
+			assertNotNull(mp);
+			Iterator<Map.Entry<String,List<String>>> it = mp.entrySet().iterator();
+			boolean foundContainer = false;
+		    while (it.hasNext()) {
+		    	Map.Entry<String,List<String>> pair = it.next();	    	
+		        String containerName = pair.getKey();
+		        if (containerName.compareTo(APDUConstants.containerOidToNameMap.get(oid)) == 0) {
+		        	foundContainer = true;
+		        	List<String> pivContentTypeOid = pair.getValue(); // Should only be one item per list
 
-			// Confirm encapsulated content is absent
-
-			assertTrue(asymmetricSignature.getSignedContent() == null, "encapsulated content is NOT absent");
-
-			String contentType = asymmetricSignature.getSignedContentTypeOID();
-			// Confirm that content type is id-PIV-CHUIDSecurityObject
-			assertTrue(contentType.compareTo("2.16.840.1.101.3.6.1") == 0,
-					"eContentType is NOT id-piv-CHUIDSecurityObject");
+		        	SignedPIVDataObject o = null;
+					CMSSignedData asymmetricSignature = null;
+					o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
+					asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+					assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
+		
+					// Confirm encapsulated content is absent
+		
+					assertTrue(asymmetricSignature.getSignedContent() == null, "encapsulated content is NOT absent");
+		
+					String contentType = asymmetricSignature.getSignedContentTypeOID();
+					// Confirm that content type is id-PIV-CHUIDSecurityObject
+					assertTrue(contentType.compareTo(pivContentTypeOid.get(0)) == 0,
+							"eContentType is NOT id-piv-CHUIDSecurityObject");
+					break;
+		        }
+		    }
+			if (!foundContainer) {
+				String msg = "Invalid container specified in parameter for this test case";
+				s_logger.error(msg);
+			}
 		} catch (Exception e) {
 			fail(e);
 		}
@@ -893,7 +907,7 @@ public class CMSTests {
 	// signing certificate (split from CMS.12)
 	@DisplayName("CMS.28 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	// @MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_28(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -961,79 +975,62 @@ public class CMSTests {
 	// container (split from CMS.17)
 	@DisplayName("CMS.29 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("CMS_SecurityObjectTestProvider")
 	// @MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void CMS_Test_29(String oid, List<String> oidList, TestReporter reporter) {
+	void CMS_Test_29(String oid, String fascnOID, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 
-		try {
-			SignedPIVDataObject o = null;
-			CMSSignedData asymmetricSignature = null;
-			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
-			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
-			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-			// Underlying decoder for OID identified containers with embedded content
-			// signing certs
-			// Now, select the appropriate signature cert for the object
-			X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-			assertNotNull(signingCert, "No signing cert found for OID " + oid);
+		SignedPIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
-			byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
-			if (fascn == null) {
-				Exception e = new Exception("fascn is null");
-				throw e;
+		CardHolderUniqueIdentifier o2 = 
+				(CardHolderUniqueIdentifier) AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		if (o2 == null) {
+			fail("CHUID object is null");
+		}
+		
+		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
+		if (fascn == null) {
+			fail("FASC-N in CHUID object is null");
+		}
+
+		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
+		if (signers == null) {
+			fail("Signers is null");
+		}
+
+		Iterator<?> it = signers.getSigners().iterator();
+		while (it.hasNext()) {
+			SignerInformation signer = (SignerInformation) it.next();
+
+			SignerId signerId = signer.getSID();
+			assertTrue(signerId != null, "SignerId is null");
+
+			AttributeTable attributeTable = signer.getSignedAttributes();
+			assertTrue (attributeTable != null, "AttributeTable is null");
+
+			ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(fascnOID);
+			Attribute attr = attributeTable.get(pivFASCN_OID);
+
+			assertTrue(attr != null, String.format("Attribute %s not found in signed attributes", fascnOID));
+
+			ASN1Set fascnAttr = ((Attribute) attr).getAttrValues();
+			assertTrue(fascnAttr != null, String.format("No value for %s attribute", fascnOID));
+			assertTrue(fascnAttr.size() == 1, "FASC-N attribute has multiple values");
+
+			try {
+				DEROctetString fascnOctetString = (DEROctetString) fascnAttr.getObjectAt(0).toASN1Primitive();
+				assertTrue(fascnOctetString != null, "FASC-N in attribute set is null");
+				// Confirm that signed attribute pivFASC-N matches FASC-N read from CHUID
+				byte[] fe = fascnOctetString.getEncoded();
+				assertTrue(Arrays.equals(fascn, Arrays.copyOfRange(fe, 2, fe.length)), "FASC-N mismatch with CHUID");
+			} catch (IOException e) {
+				fail(e);
 			}
-			((CardHolderUniqueIdentifier) o).getgUID();
-
-			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
-			if (signers == null) {
-				Exception e = new Exception("signers is null");
-				throw e;
-			}
-
-			Iterator<?> it = signers.getSigners().iterator();
-			while (it.hasNext()) {
-				SignerInformation signer = (SignerInformation) it.next();
-
-				SignerId signerId = signer.getSID();
-				if (signerId == null) {
-					Exception e = new Exception("signerId is null");
-					throw e;
-				}
-				AttributeTable attributeTable = signer.getSignedAttributes();
-				if (attributeTable == null) {
-					Exception e = new Exception("attributeTable is null");
-					throw e;
-				}
-
-				Iterator<String> iterator = oidList.iterator();
-				while (iterator.hasNext()) {
-					String attrOid = iterator.next();
-					ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(attrOid);
-					Attribute attr = attributeTable.get(pivFASCN_OID);
-
-					if (attr == null) {
-						Exception e = new Exception("attr is null");
-						throw e;
-					}
-					if (attrOid.compareTo("2.16.840.1.101.3.6.6") == 0) {
-
-						try {
-
-							byte[] fascnEncoded = attr.getEncoded();
-							// Confirm issuer from the cert matcher issuer from the signer info
-							assertTrue(Arrays.equals(fascn, fascnEncoded), "FASC-N mismatch with CHUID");
-
-						} catch (IOException e) {
-							throw e;
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			fail(e);
 		}
 	}
 
@@ -1043,74 +1040,60 @@ public class CMSTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	// @MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void CMS_Test_30(String oid, List<String> oidList, TestReporter reporter) {
+	void CMS_Test_30(String oid, String uuidOID, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 
-		try {
-			SignedPIVDataObject o = null;
-			CMSSignedData asymmetricSignature = null;
-			o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
-			asymmetricSignature = AtomHelper.getSignedDataForObject(o);
-			assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
-			// Underlying decoder for OID identified containers with embedded content
-			// signing certs
-			// Now, select the appropriate signature cert for the object
-			X509Certificate signingCert = AtomHelper.getCertificateForContainer(o);
-			assertNotNull(signingCert, "No signing cert found for OID " + oid);
+		SignedPIVDataObject o = null;
+		CMSSignedData asymmetricSignature = null;
+		o = (SignedPIVDataObject) AtomHelper.getDataObject(oid);
+		asymmetricSignature = AtomHelper.getSignedDataForObject(o);
+		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
-			byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
-			if (fascn == null) {
-				Exception e = new Exception("fascn is null");
-				throw e;
+		CardHolderUniqueIdentifier o2 = 
+				(CardHolderUniqueIdentifier) AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		if (o2 == null) {
+			fail("CHUID object is null");
+		}
+		
+		byte[] uuid = ((CardHolderUniqueIdentifier) o2).getgUID();
+		if (uuid == null) {
+			fail("UUID in CHUID object is null");
+		}
+
+		SignerInformationStore signers = asymmetricSignature.getSignerInfos();
+		if (signers == null) {
+			fail("Signers is null");
+		}
+
+		Iterator<?> it = signers.getSigners().iterator();
+		while (it.hasNext()) {
+			SignerInformation signer = (SignerInformation) it.next();
+
+			SignerId signerId = signer.getSID();
+			assertTrue(signerId != null, "SignerId is null");
+
+			AttributeTable attributeTable = signer.getSignedAttributes();
+			assertTrue (attributeTable != null, "AttributeTable is null");
+
+			ASN1ObjectIdentifier entryUUID_OID = new ASN1ObjectIdentifier(uuidOID);
+			Attribute attr = attributeTable.get(entryUUID_OID);
+
+			assertTrue(attr != null, String.format("Attribute %s not found in signed attributes", uuidOID));
+
+			ASN1Set uuidAttr = ((Attribute) attr).getAttrValues();
+			assertTrue(uuidAttr != null, String.format("No value for %s attribute", uuidOID));
+			assertTrue(uuidAttr.size() == 1, "UUID attribute has multiple values");
+
+			try {
+				DEROctetString uuidOctetString = (DEROctetString) uuidAttr.getObjectAt(0).toASN1Primitive();
+				assertTrue(uuidOctetString != null, "UUID in attribute set is null");
+				// Confirm that signed attribute pivFASC-N matches FASC-N read from CHUID
+				byte[] ue = uuidOctetString.getEncoded();
+				assertTrue(Arrays.equals(uuid, Arrays.copyOfRange(ue, 2, ue.length)), "FASC-N mismatch with CHUID");
+			} catch (IOException e) {
+				fail(e);
 			}
-			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
-
-			SignerInformationStore signers = asymmetricSignature.getSignerInfos();
-			if (signers == null) {
-				Exception e = new Exception("signers is null");
-				throw e;
-			}
-
-			Iterator<?> it = signers.getSigners().iterator();
-			while (it.hasNext()) {
-				SignerInformation signer = (SignerInformation) it.next();
-
-				SignerId signerId = signer.getSID();
-				if (signerId == null) {
-					Exception e = new Exception("signerId is null");
-					throw e;
-				}
-				AttributeTable attributeTable = signer.getSignedAttributes();
-				if (attributeTable == null) {
-					Exception e = new Exception("attributeTable is null");
-					throw e;
-				}
-
-				Iterator<String> iterator = oidList.iterator();
-				while (iterator.hasNext()) {
-					String attrOid = iterator.next();
-					ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(attrOid);
-					Attribute attr = attributeTable.get(pivFASCN_OID);
-
-					// XXX Need to revisit this test to figure out why is it failing.
-					if (attr == null) {
-						Exception e = new Exception("attr is null");
-						throw e;
-					}
-					if (attrOid.compareTo("1.3.6.1.1.16.4") == 0) {
-						try {
-							byte[] guidEncoded = attr.getEncoded();
-							// Confirm issuer from the cert matcher issuer from the signer info
-							assertTrue(Arrays.equals(guid, guidEncoded), "GUID mismatch with CHUID");
-						} catch (IOException e) {
-							throw e;
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			fail(e);
 		}
 	}
 

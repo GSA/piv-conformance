@@ -1461,45 +1461,53 @@ public class SP800_76_Tests {
 		@SuppressWarnings("unchecked")
 		HashMap<String, List<String>> mp = (HashMap) ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
+		boolean foundContainer = false;
 		for (Map.Entry<String,List<String>> entry : mp.entrySet()) {
 	    	Map.Entry<String,List<String>> pair = entry;	    	
 	        String containerName = pair.getKey();
-	        s_logger.debug("called with oid parameter {} and container name {}", oid, containerName);
-	        List<String> valueStr =  pair.getValue();
-			String containerOid = APDUConstants.getStringForFieldNamed(containerName);
-			assertNotNull(containerOid, "Unable to resolve container name: " + containerName);
-			assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.38 test: " + valueStr.size());
-			boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
-			// if the object is not mandatory and is not present, the test is done
-			if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
-				s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
-				continue;
-			} else {
-				s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
-			}
-
-			int value = 0;
-			try {
-				value = Integer.parseInt(valueStr.get(0));
-			} catch(NumberFormatException e) {
-				fail(e);
-			}
-			
-			PIVDataObject o = AtomHelper.getDataObject(containerOid);
+	        if (containerName.compareTo(APDUConstants.containerOidToNameMap.get(oid)) == 0) {
+	        	foundContainer = true;
+		        s_logger.debug("called with oid parameter {} and container name {}", oid, containerName);
+		        List<String> valueStr =  pair.getValue();
+				String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+				assertNotNull(containerOid, "Unable to resolve container name: " + containerName);
+				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.38 test: " + valueStr.size());
+				boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
+				// if the object is not mandatory and is not present, the test is done
+				if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
+					s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
+					continue;
+				} else {
+					s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
+				}
+	
+				int value = 0;
+				try {
+					value = Integer.parseInt(valueStr.get(0));
+				} catch(NumberFormatException e) {
+					fail(e);
+				}
 				
-			byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
-			
-			//Make sure biometric data is present
-			assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
-			
-			assertTrue(biometricData.length >= 12, "Biometric data must be at least 12 bytes long");
-			
-			//Check format type field has the right value 
-			
-			int type  = (((biometricData[10] & 0xFF) << 8) | (biometricData[11] & 0xFF));
-			
-			assertTrue(type == value, "Invalid type in biometric data. Got " + type + ", expected " + value);
-	    }
+				PIVDataObject o = AtomHelper.getDataObject(containerOid);
+					
+				byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
+				
+				//Make sure biometric data is present
+				assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
+				
+				assertTrue(biometricData.length >= 12, "Biometric data must be at least 12 bytes long");
+				
+				//Check format type field has the right value 
+				
+				int type  = (((biometricData[10] & 0xFF) << 8) | (biometricData[11] & 0xFF));
+				
+				assertTrue(type == value, "Invalid type in biometric data. Got " + type + ", expected " + value);
+		    }
+		}
+		if (!foundContainer) {
+			String msg = "Invalid container specified in parameter for this test case";
+			s_logger.error(msg);
+		}
 	}
 	
 	//Validate that that the creation date in the PIV Patron Format is encoded in 8 bytes using a binary representation of YYYYMMDDhhmmssZ
@@ -1634,50 +1642,58 @@ public class SP800_76_Tests {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
 			Iterator<Map.Entry<String,List<String>>> it = mp.entrySet().iterator();
+			boolean foundContainer = false;
 		    while (it.hasNext()) {
 		    	Map.Entry<String,List<String>> pair = it.next();	    	
 		        String containerName = pair.getKey();
-		        List<String> valueStr =  pair.getValue();
-				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.41 test: " + valueStr.size());
-				String containerOid = APDUConstants.getStringForFieldNamed(containerName);
-				assertNotNull(containerOid);
-				
-				boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
-				// if the object is not mandatory and is not present, the test is done
-				if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
-					s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
-					continue;
-				} else {
-					s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
-				}
-
-				int value = 0;
-				try {
-					value = Integer.parseInt(valueStr.get(0));
-				} catch(NumberFormatException e) {
-					fail(e);
-				}
-
-				PIVDataObject o = AtomHelper.getDataObject(containerOid);
+		        if (containerName.compareTo(APDUConstants.containerOidToNameMap.get(oid)) == 0) {
+		        	foundContainer = true;
+			        List<String> valueStr =  pair.getValue();
+					assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.41 test: " + valueStr.size());
+					String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+					assertNotNull(containerOid);
 					
-				byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
-				
-				//Make sure biometric data is present
-				assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
-				
-				assertTrue(biometricData.length >= 40);
-				
-				
-				byte[] biometricType = Arrays.copyOfRange(biometricData, 36, 39);
-				
-				assertNotNull(biometricType);
-				
-				assertTrue(biometricType.length >= 3);
-				
-				int type  = (((biometricType[0] & 0xFF) << 16) | ((biometricType[1] & 0xFF) << 8) | (biometricType[2] & 0xFF));
-				//Check the value of Biometric Type
-				assertTrue(type == value, "Biometrict data type was the wrong value, expected value " + value);
+					boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
+					// if the object is not mandatory and is not present, the test is done
+					if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
+						s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
+						continue;
+					} else {
+						s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
+					}
+	
+					int value = 0;
+					try {
+						value = Integer.parseInt(valueStr.get(0));
+					} catch(NumberFormatException e) {
+						fail(e);
+					}
+	
+					PIVDataObject o = AtomHelper.getDataObject(containerOid);
+						
+					byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
+					
+					//Make sure biometric data is present
+					assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
+					
+					assertTrue(biometricData.length >= 40);
+					
+					
+					byte[] biometricType = Arrays.copyOfRange(biometricData, 36, 39);
+					
+					assertNotNull(biometricType);
+					
+					assertTrue(biometricType.length >= 3);
+					
+					int type  = (((biometricType[0] & 0xFF) << 16) | ((biometricType[1] & 0xFF) << 8) | (biometricType[2] & 0xFF));
+					//Check the value of Biometric Type
+					assertTrue(type == value, "Biometrict data type was the wrong value, expected value " + value);
+			    }
 		    }
+			if (!foundContainer) {
+				String msg = "Invalid container specified in parameter for this test case";
+				s_logger.error(msg);
+			}
 		}
 		
 		//Validate that that Biometric Type has the right value
@@ -1690,45 +1706,52 @@ public class SP800_76_Tests {
 			Map<String, List<String>> mp = ParameterUtils.MapFromString(paramsString);
 			assertNotNull(mp);
 			Iterator<Map.Entry<String,List<String>>> it = mp.entrySet().iterator();
+	        boolean foundContainer = false;
 		    while (it.hasNext()) {
 		    	Map.Entry<String,List<String>> pair = it.next();	    	
 		        String containerName = pair.getKey();
-		        List<String> valueStr =  pair.getValue();
-				assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.42 test: " + valueStr.size());
-				String containerOid = APDUConstants.getStringForFieldNamed(containerName);
-				assertNotNull(containerOid);
-				boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
-				// if the object is not mandatory and is not present, the test is done
-				if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
-					s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
-					continue;
-				} else {
-					s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
-				}
-
-				int value = 0;
-				try {
-					value = Integer.parseInt(valueStr.get(0));
-				} catch(NumberFormatException e) {
-					fail(e);
-				}
-
-				PIVDataObject o = AtomHelper.getDataObject(containerOid);
+		        if (containerName.compareTo(APDUConstants.containerOidToNameMap.get(oid)) == 0) {
+		        	foundContainer = true;
+			        List<String> valueStr =  pair.getValue();
+					assertTrue(valueStr.size() == 1, "Illegal number of values for SP800-76.42 test: " + valueStr.size());
+					String containerOid = APDUConstants.getStringForFieldNamed(containerName);
+					assertNotNull(containerOid);
+					boolean isMandatory = APDUConstants.isContainerMandatory(containerOid);
+					// if the object is not mandatory and is not present, the test is done
+					if(!isMandatory && !AtomHelper.isDataObjectPresent(containerOid, true)) {
+						s_logger.info("Optional container {} ({}) is absent from the card.", containerName, containerOid);
+						continue;
+					} else {
+						s_logger.info("Optional container {} ({}) is present on the card. Proceeding with test.", containerName, containerOid);
+					}
+	
+					int value = 0;
+					try {
+						value = Integer.parseInt(valueStr.get(0));
+					} catch(NumberFormatException e) {
+						fail(e);
+					}
+	
+					PIVDataObject o = AtomHelper.getDataObject(containerOid);
+						
+					byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
 					
-				byte[] biometricData = ((CardHolderBiometricData) o).getBiometricData();
-				
-				//Make sure biometric data is present
-				assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
-				
-				assertTrue(biometricData.length >= 41);
-				
-				//Check the value of Biometric Data Type			
-				int type  = ((biometricData[39] & 0xFF));
-				//Check the value of Biometric Type
-				assertTrue(type == value, "Biometric data type was the wrong value, expected value " + value);
-		    }
+					//Make sure biometric data is present
+					assertNotNull(biometricData, "Biometric data is absent in CardHolderBiometricData object");
+					
+					assertTrue(biometricData.length >= 41);
+					
+					//Check the value of Biometric Data Type			
+					int type  = ((biometricData[39] & 0xFF));
+					//Check the value of Biometric Type
+					assertTrue(type == value, "Biometric data type was the wrong value, expected value " + value);
+			    }
+			}
+			if (!foundContainer) {
+				String msg = "Invalid container specified in parameter for this test case";
+				s_logger.error(msg);
+			}
 		}
-
 	
 	//Validate that the biometric quality field carries valid values
 	@DisplayName("SP800-76.43 test")

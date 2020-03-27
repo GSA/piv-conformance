@@ -22,7 +22,6 @@ import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
-import org.bouncycastle.asn1.icao.LDSSecurityObject;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -461,13 +460,6 @@ public class SignedPIVDataObject extends PIVDataObject {
             if (m_asymmetricSignature.isDetachedSignature()) {
                 CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
                 s = new CMSSignedData(procesableContentBytes, m_contentInfo);
-            }
-            
-            // TODO: Remove this
-            try {
-            	LDSSecurityObject ldsso = LDSSecurityObject.getInstance(s.getSignedContent().getContent());
-            } catch (Exception ex) {
-            	s_logger.error("Can't decode security object: {}", ex.getMessage());
             }
             
             SignerInformationStore signers = s.getSignerInfos();

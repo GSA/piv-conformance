@@ -2,12 +2,7 @@ package gov.gsa.pivconformancegui;
 
 import java.awt.Font;
 import java.awt.Window;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
 import java.net.URL;
-import java.util.HashMap;
-
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
