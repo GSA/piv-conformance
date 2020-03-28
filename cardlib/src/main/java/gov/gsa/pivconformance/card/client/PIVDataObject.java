@@ -187,10 +187,9 @@ public class PIVDataObject {
 	/**
 	 * Indicates whether the given length is within boundaries of the rule
 	 * 
-	 * @param tag the tag 
-	 * @param valueLen the value, as counted by byte[].length of the value
-	 * @return zero if the value meets all length requirements for that tag, < 0 when the
-	 * length is less than the low bound, > 0 if the length is greater than the high bound.
+	 * @param oid the container OID 
+	 * @return true if all tags in the container meet the length requirements for that tag 
+	 * and false if the length is greater than the high bound.
 	 * For rules that require either of two values, the value returned indicates which of
 	 * the two values matched with a 0x10 or 0x01 (low or high).
 	 * @throws Exception 
