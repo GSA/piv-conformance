@@ -205,6 +205,7 @@ public class SP800_73_4CHUIDTests {
 					String.format("Couldn't decode FASC-N bytes", oid));
 			fail(e);
 		}
+		s_logger.debug("Cooked FASC-N: {}", cookedFascn);
 		assertTrue(Integer.parseInt(cookedFascn.substring(0, 4)) != 0, "Agency code is zero");
 		assertTrue(Integer.parseInt(cookedFascn.substring(4, 8)) != 0, "System code is zero");
 		assertTrue(Integer.parseInt(cookedFascn.substring(8, 14)) != 0, "Credential number is zero");
