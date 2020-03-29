@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -123,12 +124,94 @@ public class SP800_73_4CHUIDTests {
 		
 	}
 	
-	//Tags 0x34 and 0x35 are present
+	/**
+	 * Converts a 200-bit raw FASC-N byte array to a string of digits
+	 * @param raw bytes of the FASC-N from the card
+	 * @return a string of 32 FASC-N digits or null if an encoding error is encountered
+	 */
+	
+	String cook(byte[] raw) {
+
+		byte[] bits = new byte[200]; 
+		String bitstr = "";
+		String digits = "";
+        // Convert each hex digit to 8 0's and 1's and concatenate to into a string
+		for (byte b : raw) {
+			String t = null;
+			t = Integer.toBinaryString((int) b & 0xff);
+			String u= String.format("%8s", t);
+			String v = u.replace(' ', '0');
+			bitstr += v;
+		}
+        // Create a bit array to read 5 bits at a time.
+		bits = bitstr.getBytes();
+		int length, value, bctr, pctr;
+        for (length = bits.length, value = 0, bctr = 0, pctr = 0; bctr < length - 5; bctr++) {
+        	// If this bit is a parity bit, process the value and reset the next digit value
+        	if ((bctr + 1) % 5 == 0) {
+        		// Check parity       		
+        		if (((pctr % 2) == 0) && bits[bctr] != (byte) '1') {
+        			s_logger.error("Parity OFF error at b[{}]", bctr);
+        			return null;
+        		} else if (((pctr % 2) == 1) && bits[bctr] != (byte) '0') {
+        			s_logger.error("Parity ON error at b[{}]", bctr);
+        			return null;
+        		}
+        		
+        		// Digit or whitespace? Sentinels, field separators, LRC, are > 9
+        		if (value < 10) {
+        			digits += Integer.toString(value);
+        		} else {
+        			s_logger.trace("Whitespace char {} ended at bit[{}]", Integer.toBinaryString(value & 0xff).replace(' ', '0'), bctr);
+        		}
+	            // Ready for next digit
+	            value = 0; pctr = 0;
+	        } else {
+	        	if ((bits[bctr] & 1) == 1) {
+	        		pctr++; // Increment parity count
+	            	// The bits of each digit are encoded in reverse order
+	        		value |= (1 << (bctr % 5));
+	        	}
+	        }
+	    }
+
+        return digits.length() == 32 ? digits : null;
+	}
+
+	// The Agency Code, System Code, and Credential Number of the FASC-N are present.
+	// The credential series, individual credential issue, person identifier,
+	// organizational category, organizational identifier, and person/organization
+	// association category of the FASC-N are populated
 	@DisplayName("SP800-73-4.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_73_4_CHUIDTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_12(String oid, TestReporter reporter) {
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		if (o == null) {
+			ConformanceTestException e  = new ConformanceTestException(String.format("Object for OID %s is null", oid));
+			fail(e);
+		}
+		
+		byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
+		// Extract agency code, system code, credential number and ensure they
+		// are numeric.
+		String cookedFascn = cook(fascn);
+		if (cookedFascn == null) {
+			ConformanceTestException e  = new ConformanceTestException(String.format("Couldn't decode FASC-N bytes", oid));
+			fail(e);
+		}
+		assertTrue(Integer.parseInt(cookedFascn.substring(0, 4)) != 0, "Agency code is zero");
+		assertTrue(Integer.parseInt(cookedFascn.substring(4, 8)) != 0, "System code is zero");
+		assertTrue(Integer.parseInt(cookedFascn.substring(8, 14)) != 0, "Credential number is zero");
+	}
+	
+	//Tags 0x34 and 0x35 are present
+	@DisplayName("SP800-73-4.12 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("sp800_73_4_CHUIDTestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_4_Test_12old(String oid, TestReporter reporter) {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
 		BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG);
