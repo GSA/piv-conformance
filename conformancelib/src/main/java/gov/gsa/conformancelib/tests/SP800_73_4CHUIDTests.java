@@ -132,16 +132,15 @@ public class SP800_73_4CHUIDTests {
 
 	String cook(byte[] raw) {
 
-		byte[] bits = new byte[200];
 		String bitstr = "";
-		String digits = "";
 		// Convert each hex digit to 8 0's and 1's and concatenate to into a string
 		for (byte b : raw) {
 			bitstr += String.format("%8s", Integer.toBinaryString((int) b & 0xff)).replace(' ', '0');;
 		}
 		// Create a bit array to read 5 bits at a time.
-		bits = bitstr.getBytes();
+		byte[] bits = bitstr.getBytes();
 		int length, value, bctr, pctr;
+		String digits = "";
 		for (length = bits.length, value = 0, bctr = 0, pctr = 0; bctr < length - 5; bctr++) {
 			// If this bit is a parity bit, process the value and reset the next digit value
 			if ((bctr + 1) % 5 == 0) {
@@ -205,19 +204,6 @@ public class SP800_73_4CHUIDTests {
 		assertTrue(Integer.parseInt(cookedFascn.substring(0, 4)) != 0, "Agency code is zero");
 		assertTrue(Integer.parseInt(cookedFascn.substring(4, 8)) != 0, "System code is zero");
 		assertTrue(Integer.parseInt(cookedFascn.substring(8, 14)) != 0, "Credential number is zero");
-	}
-
-	// Tags 0x34 and 0x35 are present
-	@DisplayName("SP800-73-4.12 test")
-	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("sp800_73_4_CHUIDTestProvider")
-	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_73_4_Test_12old(String oid, TestReporter reporter) {
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
-		BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG);
-		BerTag berExpirationDateTag = new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG);
-		assertTrue(tagList.contains(berGUIDTag) && tagList.contains(berExpirationDateTag));
 	}
 
 	// Tag 0x36 is optionally present and follows tags from 73-4.10, 73-4.11,
