@@ -137,11 +137,7 @@ public class SP800_73_4CHUIDTests {
 		String digits = "";
 		// Convert each hex digit to 8 0's and 1's and concatenate to into a string
 		for (byte b : raw) {
-			String t = null;
-			t = Integer.toBinaryString((int) b & 0xff);
-			String u = String.format("%8s", t);
-			String v = u.replace(' ', '0');
-			bitstr += v;
+			bitstr += String.format("%8s", Integer.toBinaryString((int) b & 0xff)).replace(' ', '0');;
 		}
 		// Create a bit array to read 5 bits at a time.
 		bits = bitstr.getBytes();
