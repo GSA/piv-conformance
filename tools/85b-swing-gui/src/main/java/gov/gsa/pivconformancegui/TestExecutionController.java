@@ -43,8 +43,6 @@ public class TestExecutionController {
 	boolean m_running;
 	LoggerContext m_ctx;
 	TestRunLogController m_trlc;
-//	Date m_startDate;
-//	Date m_stopDate;
 
 	public static TestExecutionController getInstance() {
 		return INSTANCE;
@@ -59,8 +57,6 @@ public class TestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
-//		m_startDate = new Date();
-//		m_stopDate = null; // will get set by new appender plugin
 		m_trlc = TestRunLogController.getInstance();
 	}
 
