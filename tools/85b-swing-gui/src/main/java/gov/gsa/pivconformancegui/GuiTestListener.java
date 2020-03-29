@@ -27,7 +27,6 @@ public class GuiTestListener implements TestExecutionListener {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestListener.class);
 	private static Logger s_testProgressLogger = null;
 	private static Logger s_testResultLogger = null;
-	private static final Logger s_atomResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.testAtomResults");
 	
 	private String m_testCaseIdentifier;
 	private String m_testCaseDescription;
@@ -127,9 +126,7 @@ public class GuiTestListener implements TestExecutionListener {
 			m_atomAborted = true;
 			s_testProgressLogger.error("Test atom {}:{} aborted", m_testCaseIdentifier, displayName);
 		}
-		if(testExecutionResult.getStatus() == TestExecutionResult.Status.SUCCESSFUL) {
-			s_atomResultLogger.info("{}:{},pass",m_testCaseIdentifier, displayName);
-		}
+
 		Optional<Throwable> exception = testExecutionResult.getThrowable();
 		if(exception.isPresent()) s_logger.error("Caused by:", exception.get());
 		if(displayName != "JUnit Jupiter") {
