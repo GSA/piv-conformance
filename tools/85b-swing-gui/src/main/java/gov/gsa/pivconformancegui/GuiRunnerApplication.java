@@ -68,7 +68,6 @@ public class GuiRunnerApplication {
 					a.start();
 					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 					logger.addAppender(a);
-					TimeStampedFileAppender guiAppender = (TimeStampedFileAppender) logger.getAppender("FILE");					
 					s_logger.debug("----------------------------------------");
 					s_logger.debug("FIPS 201 CCT " + cctVersion);
 					s_logger.debug("----------------------------------------");
