@@ -65,7 +65,7 @@ public class CMSTests {
 	// with no encapsulated content
 	@DisplayName("CMS.1 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_1(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -83,7 +83,7 @@ public class CMSTests {
 	// Verify that version is set to 3
 	@DisplayName("CMS.2 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_2(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -101,7 +101,7 @@ public class CMSTests {
 	// The digestAlgorithms field value of the SignedData is in accordance with Table 3-2 of SP 800-78.
 	@DisplayName("CMS.3 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_3(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -113,8 +113,6 @@ public class CMSTests {
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 
 		// CMS digest algorithm must be in Table 3-2, period.
-
-		HashSet<AlgorithmIdentifier> dalgList = new HashSet<AlgorithmIdentifier>();
 		
 		Iterator<AlgorithmIdentifier> ih = asymmetricSignature.getDigestAlgorithmIDs().iterator();	
 		while (ih.hasNext()) {
@@ -127,7 +125,7 @@ public class CMSTests {
 	// Verify digestAlgorithms attribute is present
 	@DisplayName("CMS.4 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_4(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -144,10 +142,10 @@ public class CMSTests {
 		assertNotNull(asymmetricSignature.getDigestAlgorithmIDs(), "Digest algorithms are not present in CMS");
 	}
 
-	// Ensure encapsulated content is absent
+	// Ensure Security Object's encapsulated content is absent
 	@DisplayName("CMS.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	//@MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider3")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_5(String oid, String params, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -178,7 +176,7 @@ public class CMSTests {
 					String contentType = asymmetricSignature.getSignedContentTypeOID();
 					// Confirm that content type is id-PIV-CHUIDSecurityObject
 					assertTrue(contentType.compareTo(pivContentTypeOid.get(0)) == 0,
-							"eContentType is NOT id-piv-CHUIDSecurityObject");
+							"eContentType is NOT " + pivContentTypeOid.get(0));
 					break;
 		        }
 		    }
@@ -194,7 +192,7 @@ public class CMSTests {
 	// Ensure CRLs field is absent in signed data structure
 	@DisplayName("CMS.6 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_6(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -218,7 +216,7 @@ public class CMSTests {
 	// Verify SignerInfos contains only a single signerInfo
 	@DisplayName("CMS.7 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_7(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -240,7 +238,7 @@ public class CMSTests {
 	// Ensure that the signerId uses ths IssuerAndSerialNumber choice
 	@DisplayName("CMS.8 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_8(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -274,7 +272,7 @@ public class CMSTests {
 	// the signer's certificate
 	@DisplayName("CMS.9 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_9(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -322,7 +320,7 @@ public class CMSTests {
 	// Verify that the asymmetric digital field contains a CMS signed data object
 	@DisplayName("CMS.10 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_10(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -334,8 +332,10 @@ public class CMSTests {
 		assertNotNull(asymmetricSignature, "No signature found for OID " + oid);
 	}
 
+	// Message digest from signed attributes bag matches the digest over the signed content
 	@DisplayName("CMS.11 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_11(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -359,7 +359,7 @@ public class CMSTests {
 	// Validate that signed attributes includes pivSigner-DN
 	@DisplayName("CMS.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_12(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -409,7 +409,7 @@ public class CMSTests {
 	// Verify permissibility of signature algorithm relative to sunset date
 	@DisplayName("CMS.13 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_13(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -440,7 +440,7 @@ public class CMSTests {
 	// signature
 	@DisplayName("CMS.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_14(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid)) return;
@@ -454,7 +454,7 @@ public class CMSTests {
 	// directly asserted equivalent) in EKU extension
 	@DisplayName("CMS.15 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_15(String oid, String params, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -484,7 +484,7 @@ public class CMSTests {
 	// matches FASC-N read from CHUID container
 	@DisplayName("CMS.17 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider2")
+	//@MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_17(String oid, String params, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -540,7 +540,7 @@ public class CMSTests {
 	// Confirm that version of signed data structure is 1
 	@DisplayName("CMS.18 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_18(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -562,7 +562,7 @@ public class CMSTests {
 	// Verify that eContent contains a security object
 	@DisplayName("CMS.19 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_19(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -588,7 +588,7 @@ public class CMSTests {
 	// Verify that eContentType is id-icao-ldsSecurityObject "1.3.27.1.1.1"
 	@DisplayName("CMS.20 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_20(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -613,8 +613,7 @@ public class CMSTests {
 	// Confirm certificates field is omitted
 	@DisplayName("CMS.21 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_21(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -690,7 +689,7 @@ public class CMSTests {
 	 */
 	@DisplayName("CMS.23 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_23(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -744,7 +743,7 @@ public class CMSTests {
 	// Verify digest algorithm is present (extended from CMS.4)
 	@DisplayName("CMS.24 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_24(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -778,7 +777,7 @@ public class CMSTests {
 	// (split from CMS.4)
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@DisplayName("CMS.25 Test")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_25(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -820,7 +819,7 @@ public class CMSTests {
 	// from CMS.5)
 	@DisplayName("CMS.26 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_26(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -847,13 +846,11 @@ public class CMSTests {
 			ASN1Encodable content = contentInfo.getContent();
 			// Confirm that encapsulated content is absent
 			if (content != null) {
-				Exception e = new Exception("content is not null");
+				Exception e = new Exception("Encapsulated content is not null");
 				throw e;
 			}
 			ASN1ObjectIdentifier ct = contentInfo.getContentType();
-			// XXX Couldn't find OID for id-piv-CHUIDSecurityContent need to find it and put
-			// here
-			assertTrue(ct.getId().compareTo("2.16.840.1.101.3.6.1") == 0);
+			assertTrue(ct.getId().compareTo("2.16.840.1.101.3.6.1") == 0, "Couldn't find OID for id-piv-CHUIDSecurityContent");
 		} catch (Exception e) {
 			fail(e);
 		}
@@ -863,7 +860,7 @@ public class CMSTests {
 	// the signer certificate (split from CMS.9)
 	@DisplayName("CMS.27 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_27(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -907,7 +904,7 @@ public class CMSTests {
 	// signing certificate (split from CMS.12)
 	@DisplayName("CMS.28 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider")
+	//@MethodSource("CMS_TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_28(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -975,7 +972,7 @@ public class CMSTests {
 	// container (split from CMS.17)
 	@DisplayName("CMS.29 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_TestProvider2")
+	//@MethodSource("CMS_TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_29(String oid, String fascnOID, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -1038,7 +1035,7 @@ public class CMSTests {
 	// container (split form CMS.17)
 	@DisplayName("CMS.30 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	// @MethodSource("CMS_SecurityObjectTestProvider")
+	//@MethodSource("CMS_TestProvider3")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_30(String oid, String uuidOID, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -1099,21 +1096,47 @@ public class CMSTests {
 
 	private static Stream<Arguments> CMS_TestProvider() {
 
-		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
-
+		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID),
+				Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID),
+				Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID),
+				Arguments.of(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID));
 	}
 
 	@SuppressWarnings("unused")
 	private static Stream<Arguments> CMS_TestProvider2() {
 
-		List<String> oids = Arrays.asList("2.16.840.1.101.3.6.6", "1.3.6.1.1.16.4");
-		return Stream.of(Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, oids));
+		String oid =  "2.16.840.1.101.3.6.6";
+		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, oid),
+				Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, oid),
+				Arguments.of(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, oid));
+	}
+	
+	@SuppressWarnings("unused")
+	private static Stream<Arguments> CMS_TestProvider3() {
 
+		String oid =  "1.3.6.1.1.16.4";
+		return Stream.of(Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, oid),
+				Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, oid),
+				Arguments.of(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, oid));
 	}
 
 	private static Stream<Arguments> CMS_SecurityObjectTestProvider() {
 
 		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID));
+	}
 
+	private static Stream<Arguments> CMS_SecurityObjectTestProvider2() {
+
+		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID, 
+				"CARD_HOLDER_UNIQUE_IDENTIFIER_OID:2.16.840.1.101.3.6.1," +
+				"CARDHOLDER_FINGERPRINTS_OID:2.16.840.1.101.3.6.2," + 
+				"CARDHOLDER_FACIAL_IMAGE_OID:2.16.840.1.101.3.6.2," + 
+				"CARDHOLDER_IRIS_IMAGES_OID:2.16.840"));
+	}
+	
+
+	private static Stream<Arguments> CMS_SecurityObjectTestProvider3() {
+
+		return Stream.of(Arguments.of(APDUConstants.SECURITY_OBJECT_OID, "2.16.840.1.101.3.6.1"));
 	}
 }
