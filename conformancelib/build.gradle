@@ -72,6 +72,7 @@ dependencies {
     compile 'org.bouncycastle:bcpkix-jdk15on:1.64+'
     compile 'commons-cli:commons-cli:1.4'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.6'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile 'commons-codec:commons-codec:1.11'
     compile 'com.payneteasy:ber-tlv:1.0-8'
     compile 'org.slf4j:slf4j-api:1.8+'

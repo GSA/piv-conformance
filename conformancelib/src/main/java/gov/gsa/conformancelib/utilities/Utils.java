@@ -1,10 +1,26 @@
 package gov.gsa.conformancelib.utilities;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Path; 
+import java.nio.file.Paths; 
 import java.security.InvalidKeyException;
+import java.security.InvalidParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -34,16 +50,28 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
+import org.apache.commons.io.FilenameUtils;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.CRLDistPoint;
+import org.bouncycastle.asn1.x509.DistributionPoint;
+import org.bouncycastle.asn1.x509.DistributionPointName;
 import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.bouncycastle.jce.provider.X509CRLParser;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.x509.X509StreamParser;
 import org.slf4j.LoggerFactory;
 
 public class Utils
@@ -260,7 +288,81 @@ public class Utils
 	}
 	
 	/**
-	 * Extract all non- self-signed certificates from the given KeyStore
+	 * Produces a set of CRLs from a certificates's CRL distribution points
+	 * @param cert certificate to be parsed
+	 * @return a collection of CRLs
+	 */
+	public static HashSet<X509CRL> getCRLsFromCertificate(X509Certificate cert) {
+		HashSet<X509CRL> crls = new HashSet<X509CRL>();
+        try
+        {
+        	byte[] crlDistributionPointDerEncodedArray = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
+
+            ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crlDistributionPointDerEncodedArray));
+            ASN1Primitive derObjCrlDP = oAsnInStream.readObject();
+            DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
+
+            oAsnInStream.close();
+
+            byte[] crldpExtOctets = dosCrlDP.getOctets();
+            ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets));
+            ASN1Primitive derObj2 = oAsnInStream2.readObject();
+            CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
+
+            oAsnInStream2.close();
+
+            List<String> crlUrls = new ArrayList<String>();
+            for (DistributionPoint dp : distPoint.getDistributionPoints()) {
+            	DistributionPointName dpn = dp.getDistributionPoint();
+            	// Look for URIs in fullName
+            	if (dpn != null) {
+            		if (dpn.getType() == DistributionPointName.FULL_NAME) {
+            			GeneralName[] genNames = GeneralNames.getInstance(dpn.getName()).getNames();
+            			// Look for an URI
+            			for (int j = 0; j < genNames.length; j++) {
+            				if (genNames[j].getTagNo() == GeneralName.uniformResourceIdentifier) {
+            					String urlStr = DERIA5String.getInstance(genNames[j].getName()).getString();
+            					try {
+	            					URL url = new URL(urlStr);
+	            					if (url.getProtocol().compareTo("http") == 0) {
+		            					s_logger.debug("CRL URL: " + urlStr);
+		            					String crlPath = System.getProperty("java.io.tmpdir") + File.separator + FilenameUtils.getName(url.getPath());
+		            					ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
+		            					@SuppressWarnings("resource")
+										FileOutputStream fileOutputStream = new FileOutputStream(crlPath);
+		            					FileChannel fileChannel = fileOutputStream.getChannel();
+		            					fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
+		            					fileChannel.close();
+		            					crls.add(loadCRLFromFile(crlPath));
+	            					}
+            					} catch (MalformedURLException e) {
+            						s_logger.error("Exception " + e.getMessage());
+            					}
+            				}
+            			}
+            		}
+            	}
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return crls;
+    }
+
+	@SuppressWarnings("null")
+	public static HashSet<X509CRL> getCRLsFromCerts(HashSet<X509Certificate> certs) {
+		HashSet<X509CRL> result = null;
+		for (X509Certificate cert : certs) {
+			for (X509CRL crl : getCRLsFromCertificate(cert)) {
+				if (crl != null)
+					result.add(crl);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Extracts all non- self-signed certificates from the given KeyStore
 	 * 
 	 * @param KeyStore object containing the certificates
 	 * @return Set of X509Certificate
@@ -292,7 +394,7 @@ public class Utils
 	 * @param path
 	 * @return the X509CRL
 	 */
-	private static X509CRL loadCRLFromFile(String path) {
+	public static X509CRL loadCRLFromFile(String path) {
 		X509CRL result = null;
 		FileInputStream in;
 		try {
