@@ -323,8 +323,8 @@ public class Utils
             				if (genNames[j].getTagNo() == GeneralName.uniformResourceIdentifier) {
             					String urlStr = DERIA5String.getInstance(genNames[j].getName()).getString();
             					try {
-	            					URL url = new URL(urlStr);
-	            					if (url.getProtocol().compareTo("http") == 0) {
+	            					if (urlStr.startsWith("http")) {
+	            						URL url = new URL(urlStr);
 		            					s_logger.debug("CRL URL: " + urlStr);
 		            					String crlPath = System.getProperty("java.io.tmpdir") + File.separator + FilenameUtils.getName(url.getPath());
 		            					ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
@@ -351,11 +351,17 @@ public class Utils
 
 	@SuppressWarnings("null")
 	public static HashSet<X509CRL> getCRLsFromCerts(HashSet<X509Certificate> certs) {
-		HashSet<X509CRL> result = null;
+		HashSet<X509CRL> result = new HashSet<X509CRL>();
 		for (X509Certificate cert : certs) {
 			for (X509CRL crl : getCRLsFromCertificate(cert)) {
-				if (crl != null)
-					result.add(crl);
+				if (crl != null) {	 
+					if (!result.contains(crl)) {
+						s_logger.debug("Issued to: " + cert.getSubjectDN().getName().toString());
+						s_logger.debug("Issued by: " + cert.getIssuerDN().getName().toString());
+						s_logger.debug("Adding " + crl.getIssuerDN().getName() + ", next update: " + crl.getThisUpdate());
+						result.add(crl);
+					}
+				}
 			}
 		}
 		return result;
@@ -397,6 +403,7 @@ public class Utils
 	public static X509CRL loadCRLFromFile(String path) {
 		X509CRL result = null;
 		FileInputStream in;
+		s_logger.debug("Loading CRL from " + path);
 		try {
 			in = new FileInputStream(path);
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
