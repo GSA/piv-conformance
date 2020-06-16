@@ -53,8 +53,10 @@ public class PathValidator {
 	        HashSet<X509Certificate> certs = Utils.getIntermediateCerts(keyStore);
 	        list.addAll(certs);
 
-	        HashSet<X509CRL> crls = Utils.getCRLsFromCerts(certs);
-	        list.addAll(crls);
+	        HashSet<X509CRL> caCrls = Utils.getCRLsFromCerts(certs);
+	        list.addAll(caCrls);
+	        HashSet<X509CRL> eeCrls = Utils.getCRLsFromCertificate(eeCert);
+	        list.addAll(eeCrls);
 
 	        // Make parameters object
 	        CollectionCertStoreParameters csParams = new CollectionCertStoreParameters(list);

@@ -403,7 +403,7 @@ public class Utils
 	public static X509CRL loadCRLFromFile(String path) {
 		X509CRL result = null;
 		FileInputStream in;
-		s_logger.debug("Loading CRL from " + path);
+		s_logger.debug("Loading CRL from file at " + path);
 		try {
 			in = new FileInputStream(path);
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -426,6 +426,8 @@ public class Utils
 	public static X509Certificate loadCertFromFile(String path) {
 		X509Certificate result = null;
 		FileInputStream in;
+		s_logger.debug("Loading X509 certificate from file at " + path);
+
 		try {
 			in = new FileInputStream(path);
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -448,10 +450,13 @@ public class Utils
 	 */
 	public static KeyStore loadKeyStore(String keystorePath, String keystorePass) throws KeyStoreException {
 		KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		s_logger.debug("Loading keystore from file at " + keystorePath);
 		try (InputStream in = new FileInputStream(keystorePath)) {
 			keyStore.load(in, keystorePass.toCharArray());
 		} catch (CertificateException | NoSuchAlgorithmException | IOException e) {
         	s_logger.error("Exception: " + e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return keyStore;
@@ -490,8 +495,7 @@ public class Utils
      * <b>This is for testing only!</b>
      * @return a fixed random
      */
-    public static SecureRandom createFixedRandom()
-    {
+    public static SecureRandom createFixedRandom() {
         return new FixedRand();
     }
     
@@ -508,8 +512,7 @@ public class Utils
     {
         StringBuffer	buf = new StringBuffer();
         
-        for (int i = 0; i != length; i++)
-        {
+        for (int i = 0; i != length; i++) {
             int	v = data[i] & 0xff;
             
             buf.append(digits.charAt(v >> 4));
@@ -595,8 +598,7 @@ public class Utils
     public static String toString( byte[] bytes, int length) {
         char[]	chars = new char[length];
         
-        for (int i = 0; i != chars.length; i++)
-        {
+        for (int i = 0; i != chars.length; i++) {
             chars[i] = (char)(bytes[i] & 0xff);
         }
         
@@ -624,8 +626,7 @@ public class Utils
         byte[]	bytes = new byte[string.length()];
         char[]  chars = string.toCharArray();
         
-        for (int i = 0; i != chars.length; i++)
-        {
+        for (int i = 0; i != chars.length; i++) {
             bytes[i] = (byte)chars[i];
         }
         
