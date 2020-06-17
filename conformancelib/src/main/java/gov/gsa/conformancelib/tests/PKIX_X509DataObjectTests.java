@@ -221,7 +221,6 @@ public class PKIX_X509DataObjectTests {
 		
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
-		
     }
 	
 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)

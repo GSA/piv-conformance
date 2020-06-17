@@ -82,34 +82,36 @@ public class PathValidator {
 		return null;
 	}
 
-	public static void main(String args[]) throws Exception {
+	public static boolean isCertficatePolicyPresent(String keyStorePath, String keyStorePass, String trustAnchorAlias, String eeCertFile, String certPolicyOid) throws Exception {
+		boolean result = false;
 		// create certificates and CRLs
 		java.security.Security.addProvider(new BouncyCastleProvider());
 		String cwd = Utils.pathFixup(PathValidator.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		System.out.println("Current directory is " + cwd);
 
 		// Start args parsing
-		String keystorePath = args[0];
-		String keystorePass = args[1];
-		String trustAnchorAlias = args[2];
-		FileInputStream eeIs = new FileInputStream(args[3]);
-		String certPolicyOid = args[4];
+
+		FileInputStream eeIs = new FileInputStream(eeCertFile);
 		// End args parsing
 
 		CertificateFactory eeCf = CertificateFactory.getInstance("X.509");
 		X509Certificate eeCert = (X509Certificate) eeCf.generateCertificate(eeIs);
 		eeIs.close();
-		KeyStore keyStore = Utils.loadKeyStore(keystorePath, keystorePass);
+		KeyStore keyStore = Utils.loadKeyStore(keyStorePath, keyStorePass);
 		X509Certificate trustAnchorCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
 
 		CertPath certPath = buildCertPath(eeCert, trustAnchorCert, keyStore, certPolicyOid);
 
-		@SuppressWarnings("unchecked")
-		List<X509Certificate> certs = (List<X509Certificate>) certPath.getCertificates();
-
-		Iterator<X509Certificate> it = certs.iterator();
-		while (it.hasNext()) {
-			System.out.println(((X509Certificate) it.next()).getSubjectX500Principal());
+		if (certPath != null) {
+			@SuppressWarnings("unchecked")
+			List<X509Certificate> certs = (List<X509Certificate>) certPath.getCertificates();
+	
+			Iterator<X509Certificate> it = certs.iterator();
+			while (it.hasNext()) {
+				System.out.println(((X509Certificate) it.next()).getSubjectX500Principal());
+			}
+			result = true;
 		}
+		return result;
 	}
 }
