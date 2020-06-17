@@ -2,6 +2,7 @@ package gov.gsa.conformancelib.pivconformancetools;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -12,6 +13,7 @@ import java.security.cert.CertPathBuilder;
 import java.security.cert.CertPathBuilderException;
 import java.security.cert.CertStore;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
@@ -24,9 +26,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -34,76 +38,78 @@ import gov.gsa.conformancelib.utilities.Utils;
 
 public class PathValidator {
 
-	private static PKIXCertPathBuilderResult buildCertPath(X509Certificate eeCert, String trustAnchorAlias, String keystorePath, String keystorePass) 
-			throws KeyStoreException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, CertPathBuilderException {
-		PKIXCertPathBuilderResult result = null;
-		KeyStore keyStore = Utils.loadKeyStore(keystorePath, keystorePass);
-		X509Certificate commonPolicyCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
-		X509CertSelector target = new X509CertSelector();
-		target.setCertificate(eeCert);
-		PKIXBuilderParameters params = new PKIXBuilderParameters(keyStore, target);
-        // build the path
-        CertPathBuilder builder = null;
-        List list = new ArrayList();
+	public static CertPath buildCertPath(X509Certificate eeCert, X509Certificate trustAnchorCert, KeyStore ks,
+			String certPolicyOid) {
+		try {
+			CertPathBuilder builder = CertPathBuilder.getInstance("PKIX");
+			X509CertSelector eeCertSelector = new X509CertSelector();
+			eeCertSelector.setSubject(eeCert.getSubjectX500Principal().getEncoded());
 
-        try {
-	        list.add(commonPolicyCert);
+			List<X509Certificate> certList = new ArrayList<>();
+			certList.add(eeCert);
+			Enumeration<String> enumeration = ks.aliases();
+			Set<TrustAnchor> trustAnchors = new HashSet<>();
+			trustAnchors.add(new TrustAnchor((X509Certificate) trustAnchorCert, null));
+			while (enumeration.hasMoreElements()) {
+				X509Certificate certificate = (X509Certificate) ks.getCertificate(enumeration.nextElement());
+				System.out.println(certificate.getSerialNumber() + ": " + certificate.getSubjectX500Principal()
+				+ " issued by " + certificate.getIssuerX500Principal());
+				if (!certificate.equals(trustAnchorCert)) {
+					certList.add(certificate);
+				}
+			}
 
-	        // Now, add intermediate certs to the list
-	        HashSet<X509Certificate> certs = Utils.getIntermediateCerts(keyStore);
-	        list.addAll(certs);
+			CertStore certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
+			PKIXBuilderParameters params = new PKIXBuilderParameters(trustAnchors, eeCertSelector);
+			params.addCertStore(certStore);
+			params.setRevocationEnabled(false);
+			HashSet<String> policies = new HashSet<String>();
+			policies.add(certPolicyOid);
+			params.setInitialPolicies(policies);
+			params.setExplicitPolicyRequired(true);
+			params.setMaxPathLength(6);
+			params.setDate(new Date());
 
-	        HashSet<X509CRL> caCrls = Utils.getCRLsFromCerts(certs);
-	        list.addAll(caCrls);
-	        HashSet<X509CRL> eeCrls = Utils.getCRLsFromCertificate(eeCert);
-	        list.addAll(eeCrls);
+			PKIXCertPathBuilderResult result = (PKIXCertPathBuilderResult) builder.build(params);
 
-	        // Make parameters object
-	        CollectionCertStoreParameters csParams = new CollectionCertStoreParameters(list);
+			return result.getCertPath();
 
-	        // Set EE target
-	        X509CertSelector endConstraints = new X509CertSelector();       
-	        endConstraints.setCertificate(eeCert);
-	        
-	        PKIXBuilderParameters buildParams = new PKIXBuilderParameters(Collections.singleton(new TrustAnchor(commonPolicyCert, null)), endConstraints);
-
-	        CertStore store = CertStore.getInstance("Collection", csParams, "BC");
-	        buildParams.addCertStore(store);
-	        buildParams.setDate(new Date());
-	        builder = CertPathBuilder.getInstance("PKIX", "BC");
-	        result = (PKIXCertPathBuilderResult) builder.build(buildParams);
-	        CertPath path = result.getCertPath();			
-
-	        @SuppressWarnings("unchecked")
-			Iterator<Certificate>  it = (Iterator<Certificate>) path.getCertificates().iterator();
-	        while (it.hasNext()) {
-	            System.out.println(((X509Certificate)it.next()).getSubjectX500Principal());
-	        }
-	        
-	        System.out.println(result.getTrustAnchor().getTrustedCert().getSubjectX500Principal());
-		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-			e.printStackTrace();
+		} catch (IOException | KeyStoreException | NoSuchAlgorithmException | InvalidAlgorithmParameterException ex) {
+			System.out.println("Can't build certificate chain: " + ex.getMessage());
+		} catch (CertPathBuilderException ex) {
+			System.out.println("Policy error: " + ex.getMessage());
 		}
- 
-		return result;
+		return null;
 	}
 
 	public static void main(String args[]) throws Exception {
-        // create certificates and CRLs
+		// create certificates and CRLs
 		java.security.Security.addProvider(new BouncyCastleProvider());
 		String cwd = Utils.pathFixup(PathValidator.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		System.out.println("Current directory is " + cwd);
+
+		// Start args parsing
 		String keystorePath = args[0];
 		String keystorePass = args[1];
-		CertificateFactory eeCf = CertificateFactory.getInstance("X.509");
-		FileInputStream in1 = new FileInputStream(args[2]);
-		X509Certificate eeCert = (X509Certificate) eeCf.generateCertificate(in1);
-		in1.close();
+		String trustAnchorAlias = args[2];
+		FileInputStream eeIs = new FileInputStream(args[3]);
+		String certPolicyOid = args[4];
+		// End args parsing
 
-		PKIXCertPathBuilderResult cpbr = buildCertPath(eeCert, "federal common policy ca", keystorePath, keystorePass);
-		if (cpbr != null) {
-			List<List<X509Certificate>> certPath = Utils.getCompleteCertChain(cpbr);
-			System.out.println(certPath.toString());
-		}		
+		CertificateFactory eeCf = CertificateFactory.getInstance("X.509");
+		X509Certificate eeCert = (X509Certificate) eeCf.generateCertificate(eeIs);
+		eeIs.close();
+		KeyStore keyStore = Utils.loadKeyStore(keystorePath, keystorePass);
+		X509Certificate trustAnchorCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
+
+		CertPath certPath = buildCertPath(eeCert, trustAnchorCert, keyStore, certPolicyOid);
+
+		@SuppressWarnings("unchecked")
+		List<X509Certificate> certs = (List<X509Certificate>) certPath.getCertificates();
+
+		Iterator<X509Certificate> it = certs.iterator();
+		while (it.hasNext()) {
+			System.out.println(((X509Certificate) it.next()).getSubjectX500Principal());
+		}
 	}
 }

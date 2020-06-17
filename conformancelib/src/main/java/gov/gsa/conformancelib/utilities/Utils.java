@@ -78,145 +78,7 @@ public class Utils
 {
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Utils.class);;
     private static final int VALIDITY_PERIOD = 7 * 24 * 60 * 60 * 1000; // one week
-    
-    /**
-     * Generate a sample V3 certificate to use as a CA root certificate
-     */
-    public static X509Certificate generateRootCert(String commonName, KeyPair pair)
-        throws Exception
-	{
-    	byte[] publicKey = pair.getPublic().getEncoded();
-    	SubjectPublicKeyInfo bcPublicKey = SubjectPublicKeyInfo.getInstance(publicKey);
- 
-    	X509v3CertificateBuilder certGen = new X509v3CertificateBuilder(
-	        new X500Name(commonName),
-	        BigInteger.valueOf(1),
-	        new Date(System.currentTimeMillis()),
-	        (new Date(System.currentTimeMillis() + VALIDITY_PERIOD)),
-	        new X500Name(commonName),
-	        bcPublicKey
-    	);
-    	
-        certGen.addExtension(Extension.subjectKeyIdentifier, false, new JcaX509ExtensionUtils().createSubjectKeyIdentifier(pair.getPublic()));
-        certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(0));
-        certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyAgreement | KeyUsage.keyEncipherment | KeyUsage.keyCertSign | KeyUsage.cRLSign));
-          
-    	X509CertificateHolder holder = certGen.build(new JcaContentSignerBuilder("SHA256withRSA").build(pair.getPrivate()));
-    	
-    	return new JcaX509CertificateConverter().setProvider( "BC" ).getCertificate(holder);
-	}
-    
-    /**
-     * Generate a sample V3 certificate to use as an intermediate CA certificate
-     */
-    public static X509Certificate generateIntermediateCert(String commonName, PublicKey intKey, PrivateKey caKey, X509Certificate caCert)
-        throws Exception
-    {
-    	SubjectPublicKeyInfo spki = SubjectPublicKeyInfo.getInstance(intKey.getEncoded());
-    	Principal issuerPrincipal = caCert.getSubjectX500Principal();
-    	X500Name issuerName = new X500Name(issuerPrincipal.getName()); 
-    	X509v3CertificateBuilder certGen = new X509v3CertificateBuilder(
-    		issuerName,
-	        BigInteger.valueOf(2),
-	        new Date(System.currentTimeMillis()),
-	        (new Date(System.currentTimeMillis() + VALIDITY_PERIOD)),
-	        new X500Name(commonName),
-	        spki
-    	);
 
-        certGen.addExtension(Extension.authorityKeyIdentifier, false, new JcaX509ExtensionUtils().createAuthorityKeyIdentifier(caCert));
-        certGen.addExtension(Extension.subjectKeyIdentifier, false, new JcaX509ExtensionUtils().createSubjectKeyIdentifier(intKey));
-        certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(0));
-        certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyAgreement | KeyUsage.keyEncipherment | KeyUsage.keyCertSign | KeyUsage.cRLSign));
-    	
-    	X509CertificateHolder holder = certGen.build(new JcaContentSignerBuilder("SHA256withRSA").build(caKey));
-    	
-    	return new JcaX509CertificateConverter().setProvider( "BC" ).getCertificate(holder);
-    }
-    
-    /**
-     * Generate a sample V3 certificate to use as an end entity certificate
-     */
-    public static X509Certificate generateEndEntityCert(String commonName, PublicKey entityKey, PrivateKey caKey, X509Certificate caCert)
-	    throws Exception
-	{
-    	SubjectPublicKeyInfo bcPublicKey = SubjectPublicKeyInfo.getInstance(entityKey.getEncoded());
-    	Principal issuerPrincipal = caCert.getSubjectX500Principal();
-    	X500Name issuerName = new X500Name(issuerPrincipal.getName()); 
-    	X509v3CertificateBuilder certGen = new X509v3CertificateBuilder(
-    			issuerName, 
-    			BigInteger.valueOf(3),
-    			new Date(System.currentTimeMillis()),
-    			new Date(System.currentTimeMillis() + VALIDITY_PERIOD), 
-    			new X500Name(commonName),
-    			bcPublicKey);
-
-        certGen.addExtension(Extension.authorityKeyIdentifier, false, new JcaX509ExtensionUtils().createAuthorityKeyIdentifier(caCert));
-        certGen.addExtension(Extension.subjectKeyIdentifier, false, new JcaX509ExtensionUtils().createSubjectKeyIdentifier(entityKey));
-        certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(0));
-        certGen.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature));
-        
-    	X509CertificateHolder holder = certGen.build(new JcaContentSignerBuilder("SHA256withRSA").build(caKey));
-    	
-    	return new JcaX509CertificateConverter().setProvider( "BC" ).getCertificate(holder);
-	}
-    
-    /**
-     * Create a random 2048-bit RSA key pair
-     */
-    public static KeyPair generateRSAKeyPair() throws Exception
-	{
-        KeyPairGenerator  kpGen = KeyPairGenerator.getInstance("RSA", "BC");
-        kpGen.initialize(2048, new SecureRandom());
-        return kpGen.generateKeyPair();
-	}
-    
-    private static class FixedRand extends SecureRandom  {
-
-		private static final long serialVersionUID = 1L;
-		MessageDigest sha;
-        byte[] state;
-        
-        FixedRand()
-        {
-            try
-            {
-                this.sha = MessageDigest.getInstance("SHA-256");
-                this.state = sha.digest();
-            }
-            catch (NoSuchAlgorithmException e)
-            {
-                throw new RuntimeException("can't find SHA-256!");
-            }
-        }
-	
-	    public void nextBytes(
-	       byte[] bytes)
-	    {
-	        int	off = 0;
-	        
-	        sha.update(state);
-	        
-	        while (off < bytes.length)
-	        {	            
-	            state = sha.digest();
-	            
-	            if (bytes.length - off > state.length)
-	            {
-	                System.arraycopy(state, 0, bytes, off, state.length);
-	            }
-	            else
-	            {
-	                System.arraycopy(state, 0, bytes, off, bytes.length - off);
-	            }
-	            
-	            off += state.length;
-	            
-	            sha.update(state);
-	        }
-	    }
-    }
-    
     /**
      * Returns a list of certificates in each chain identified in a PKIXCertPathBuilderResult object
      * @param pkixCertPath the results of the path builder build method
@@ -271,14 +133,9 @@ public class Utils
 			while (aliases.hasMoreElements()) {
 				String alias = aliases.nextElement();
 				X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-	            PublicKey key = cert.getPublicKey();
-	            try {
-	            	cert.verify(key);
-	            	X509Certificate taCert = (X509Certificate) keyStore.getCertificate(alias);
-	            	TrustAnchor ta = new TrustAnchor(taCert, null);
+				if (isCertificateSelfSigned(cert)) {
+	            	TrustAnchor ta = new TrustAnchor(cert, null);
 	            	result.add(ta);
-	            } catch (InvalidKeyException | SignatureException e) {
-	            	s_logger.error("Exception: " + e.getMessage());
 	            }
 			}
 		} catch (Exception e1) {
@@ -360,11 +217,25 @@ public class Utils
 						s_logger.debug("Issued by: " + cert.getIssuerDN().getName().toString());
 						s_logger.debug("Adding " + crl.getIssuerDN().getName() + ", next update: " + crl.getThisUpdate());
 						result.add(crl);
+					} else {
+						s_logger.debug("Already added " + crl.getIssuerDN().getName() + ", next update: " + crl.getThisUpdate());
 					}
 				}
 			}
 		}
 		return result;
+	}
+	
+	public static boolean isCertificateSelfSigned(X509Certificate cert) {
+		boolean result = false;
+        PublicKey key = cert.getPublicKey();
+        try {
+        	cert.verify(key);
+        	result = true;
+        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException e) {
+        	// No op
+        }
+        return result;
 	}
 
 	/**
@@ -381,12 +252,9 @@ public class Utils
 			while (aliases.hasMoreElements()) {
 				String alias = aliases.nextElement();
 				X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-	            PublicKey key = cert.getPublicKey();
-	            try {
-	            	cert.verify(key);
-	            } catch (InvalidKeyException | SignatureException e) {
+				if (!isCertificateSelfSigned(cert)) {
 	            	result.add((X509Certificate) keyStore.getCertificate(alias));
-	            }
+				}
 			}	
 		} catch (Exception e) {
         	s_logger.error("Exception: " + e.getMessage());
@@ -489,16 +357,16 @@ public class Utils
 		return outPath;
 	}	
 	
-	/**
-     * Return a SecureRandom which produces the same value.
-     * 
-     * <b>This is for testing only!</b>
-     * @return a fixed random
-     */
-    public static SecureRandom createFixedRandom() {
-        return new FixedRand();
-    }
-    
+//	/**
+//     * Return a SecureRandom which produces the same value.
+//     * 
+//     * <b>This is for testing only!</b>
+//     * @return a fixed random
+//     */
+//    public static SecureRandom createFixedRandom() {
+//        return new FixedRand();
+//    }
+//    
     private static String	digits = "0123456789abcdef";
     
     /**
@@ -578,8 +446,7 @@ public class Utils
         
         // set the counter bytes to 1
         
-        for (int i = 0; i != 7; i++)
-        {
+        for (int i = 0; i != 7; i++) {
             ivBytes[8 + i] = 0;
         }
         
