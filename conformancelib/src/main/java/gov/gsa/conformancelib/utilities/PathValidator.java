@@ -1,4 +1,4 @@
-package gov.gsa.conformancelib.pivconformancetools;
+package gov.gsa.conformancelib.utilities;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import gov.gsa.conformancelib.utilities.Utils;
 
 public class PathValidator {
 
@@ -83,35 +81,43 @@ public class PathValidator {
 	}
 
 	public static boolean isCertficatePolicyPresent(String keyStorePath, String keyStorePass, String trustAnchorAlias, String eeCertFile, String certPolicyOid) throws Exception {
-		boolean result = false;
 		// create certificates and CRLs
 		java.security.Security.addProvider(new BouncyCastleProvider());
 		String cwd = Utils.pathFixup(PathValidator.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		System.out.println("Current directory is " + cwd);
-
-		// Start args parsing
-
 		FileInputStream eeIs = new FileInputStream(eeCertFile);
-		// End args parsing
-
 		CertificateFactory eeCf = CertificateFactory.getInstance("X.509");
 		X509Certificate eeCert = (X509Certificate) eeCf.generateCertificate(eeIs);
 		eeIs.close();
-		KeyStore keyStore = Utils.loadKeyStore(keyStorePath, keyStorePass);
-		X509Certificate trustAnchorCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
+		
+		return isCertficatePolicyPresent(keyStorePath, keyStorePass, trustAnchorAlias, eeCert, certPolicyOid);
+	}
 
-		CertPath certPath = buildCertPath(eeCert, trustAnchorCert, keyStore, certPolicyOid);
+	public static boolean isCertficatePolicyPresent(String keyStorePath, String keyStorePass, String trustAnchorAlias, X509Certificate eeCert, String certPolicyOid) {
+		String cwd = Utils.pathFixup(PathValidator.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		System.out.println("Current directory is " + cwd);
+		boolean result = false;
+		KeyStore keyStore;
+		try {
+			keyStore = Utils.loadKeyStore(keyStorePath, keyStorePass);
+			X509Certificate trustAnchorCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
 
-		if (certPath != null) {
-			@SuppressWarnings("unchecked")
-			List<X509Certificate> certs = (List<X509Certificate>) certPath.getCertificates();
-	
-			Iterator<X509Certificate> it = certs.iterator();
-			while (it.hasNext()) {
-				System.out.println(((X509Certificate) it.next()).getSubjectX500Principal());
+			CertPath certPath = buildCertPath(eeCert, trustAnchorCert, keyStore, certPolicyOid);
+
+			if (certPath != null) {
+				@SuppressWarnings("unchecked")
+				List<X509Certificate> certs = (List<X509Certificate>) certPath.getCertificates();
+		
+				Iterator<X509Certificate> it = certs.iterator();
+				while (it.hasNext()) {
+					System.out.println(((X509Certificate) it.next()).getSubjectX500Principal());
+				}
+				result = true;
 			}
-			result = true;
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return result;
+		return result;	
 	}
 }
