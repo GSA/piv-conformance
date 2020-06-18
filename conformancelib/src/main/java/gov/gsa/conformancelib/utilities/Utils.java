@@ -33,6 +33,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.SignatureException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXCertPathBuilderResult;
@@ -43,7 +44,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.crypto.KeyGenerator;
@@ -307,6 +310,26 @@ public class Utils
 
 		return result;
 	}
+	
+	public static List<X509Certificate> loadCertsFromBundle(String path) {
+		List<X509Certificate> rv = new ArrayList<X509Certificate>();
+		X509Certificate result = null;
+		FileInputStream in;
+		s_logger.debug("Loading X509 certificates from file at " + path);
+		try {
+			in = new FileInputStream(path);
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			Iterator<Certificate> i = (Iterator<Certificate>) cf.generateCertificates(in).iterator();
+			while (i.hasNext()) {
+			   rv.add((X509Certificate) i.next());
+			}
+			in.close();
+		} catch (CertificateException | IOException e) {
+        	s_logger.error("Exception: " + e.getMessage());
+		}
+		
+		return rv;
+	}
 	   
 	/**
 	 * Load a TrustAnchor object from a given keystore and password
@@ -499,4 +522,32 @@ public class Utils
         
         return bytes;
     }
+
+	public static X509Certificate getIssuerCert(X509Certificate cert) {
+
+		// Get AIA URL
+		// Get X500Name of the issuer
+		// Get AKID
+		// Extract certs from p7b
+		// Find the issuer
+
+		return cert;
+	}
+	
+	public static List<X509Certificate> getCertBundles(X509Certificate cert) {
+		List<X509Certificate> rv = new ArrayList<X509Certificate>();
+		X509Certificate caCert = null;
+		boolean done = false;
+		while (!done) {
+			caCert = getIssuerCert(cert);
+			if (!(caCert.getSubjectX500Principal().equals(caCert.getIssuerX500Principal()))) {
+				rv.add(caCert);
+			} else {
+				done = true;
+			}
+			cert = caCert;
+		}
+
+		return rv;
+	}
 }

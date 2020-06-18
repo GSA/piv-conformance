@@ -224,8 +224,7 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(cpex != null, "Certificate policies extension is absent");
     }
 	
-	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
-	// is asserted in certificate policies (parameters required)
+	// Confirm that appropriate certificate policy OID is asserted in certificate policies (parameters required)
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
@@ -261,9 +260,17 @@ public class PKIX_X509DataObjectTests {
 		
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
-		String policy = rv.get(oid).get(0);
-		assertTrue(PathValidator.isCertficatePolicyPresent("cacerts.keystore", "changeit", "federal common policy ca", cert, policy),
-				"Certificate policies for container " + oid + " differ from expected values.");
+		
+		boolean valid = false;
+		for (Map.Entry<String, List<String>> entry : rv.entrySet()) {
+			List<String> allowedOid = entry.getValue();
+			for (int i = 0; i < allowedOid.size() && !valid; i++) {
+				String policy = allowedOid.get(i);
+				valid = PathValidator.isCertficatePolicyPresent("cacerts.keystore", "changeit", "federal common policy ca", cert, policy);
+			}
+		}
+		
+		assertTrue(valid, "Certificate policies on cert did not contain " + rv.toString());
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */

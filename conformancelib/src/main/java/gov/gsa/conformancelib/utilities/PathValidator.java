@@ -97,11 +97,10 @@ public class PathValidator {
 		String cwd = Utils.pathFixup(PathValidator.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		System.out.println("Current directory is " + cwd);
 		boolean result = false;
-		KeyStore keyStore;
 		try {
-			keyStore = Utils.loadKeyStore(keyStorePath, keyStorePass);
+			KeyStore keyStore = Utils.loadKeyStore(keyStorePath, keyStorePass);
 			X509Certificate trustAnchorCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
-
+			List<X509Certificate> certList = Utils.getCertBundles(eeCert);
 			CertPath certPath = buildCertPath(eeCert, trustAnchorCert, keyStore, certPolicyOid);
 
 			if (certPath != null) {
