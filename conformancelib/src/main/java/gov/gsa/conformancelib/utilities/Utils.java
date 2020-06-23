@@ -55,10 +55,16 @@ import javax.crypto.spec.IvParameterSpec;
 
 import org.apache.commons.io.FilenameUtils;
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.AccessDescription;
+import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.DistributionPoint;
@@ -68,13 +74,16 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509ExtensionUtils;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jce.provider.X509CRLParser;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.x509.X509StreamParser;
+import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.slf4j.LoggerFactory;
 
 public class Utils
@@ -522,19 +531,67 @@ public class Utils
         
         return bytes;
     }
+    
+    private static ASN1Primitive getExtensionValue(X509Certificate certificate, String oid) throws IOException {
+        byte[] bytes = certificate.getExtensionValue(oid);
+        if (bytes == null) {
+            return null;
+        }
+        ASN1InputStream aIn = new ASN1InputStream(new ByteArrayInputStream(bytes));
+        ASN1OctetString octs = (ASN1OctetString) aIn.readObject();
+        aIn = new ASN1InputStream(new ByteArrayInputStream(octs.getOctets()));
+        return aIn.readObject();
+    }  
+    
+    public static String getAiaUrl(X509Certificate cert) throws Exception {
+    	ASN1Primitive obj;
+    	try {
+    		obj = getExtensionValue(cert, Extension.authorityInfoAccess.getId());
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+    		return null;
+    	}
 
+    	if (obj == null) {
+    		return null;
+    	}
+
+    	AuthorityInformationAccess authorityInformationAccess = AuthorityInformationAccess.getInstance(obj);
+
+    	AccessDescription[] accessDescriptions = authorityInformationAccess.getAccessDescriptions();
+    	for (AccessDescription accessDescription : accessDescriptions) {
+    		if (accessDescription.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+    			GeneralName name = accessDescription.getAccessLocation();
+    			if (name.getTagNo() != GeneralName.uniformResourceIdentifier) {
+    				continue;
+    			}
+
+    			DERIA5String derStr = DERIA5String.getInstance((ASN1TaggedObject) name.toASN1Primitive(), false);
+    			return derStr.getString();
+    		}
+    	}
+
+    	return null;
+    }
+    
 	public static X509Certificate getIssuerCert(X509Certificate cert) {
 
-		// Get AIA URL
-		// Get X500Name of the issuer
-		// Get AKID
-		// Extract certs from p7b
-		// Find the issuer
+		X509Certificate caCert = null;
 
-		return cert;
-	}
-	
-	public static List<X509Certificate> getCertBundles(X509Certificate cert) {
+		try {
+			String issuerUrl = getAiaUrl(cert);
+			URL url = new URL(issuerUrl);
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            caCert = (X509Certificate) cf.generateCertificate(url.openStream());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		return caCert;
+    }
+
+	public static List<X509Certificate> getIssuerCerts(X509Certificate cert) {
 		List<X509Certificate> rv = new ArrayList<X509Certificate>();
 		X509Certificate caCert = null;
 		boolean done = false;

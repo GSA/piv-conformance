@@ -100,7 +100,7 @@ public class PathValidator {
 		try {
 			KeyStore keyStore = Utils.loadKeyStore(keyStorePath, keyStorePass);
 			X509Certificate trustAnchorCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
-			List<X509Certificate> certList = Utils.getCertBundles(eeCert);
+			List<X509Certificate> certList = Utils.getIssuerCerts(eeCert);
 			CertPath certPath = buildCertPath(eeCert, trustAnchorCert, keyStore, certPolicyOid);
 
 			if (certPath != null) {
