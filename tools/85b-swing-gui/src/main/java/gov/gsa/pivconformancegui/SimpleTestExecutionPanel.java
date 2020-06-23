@@ -402,7 +402,9 @@ public class SimpleTestExecutionPanel extends JPanel {
 				byte[] atr = CardInfoController.getATR();
 				if(atr != null) {
 					String hexAtr = Hex.encodeHexString(atr);
-					status = "Card present: " + hexAtr;
+					status = "ATR: " + hexAtr;
+					s_logger.debug(status);
+					css.setAtr(hexAtr);
 				} else {
 					status = "Unable to connect to card";
 				}

@@ -33,6 +33,14 @@ public final class CardSettingsSingleton {
 		m_globalPin = globalPin;
 	}
 
+    public String getAtr() {
+		return m_atr;
+	}
+	
+	public void setAtr(String atr) {
+		m_atr = atr;
+	}
+
 	public CardTerminal getTerminal() {
 		return m_terminal;
 	}
@@ -73,6 +81,7 @@ public final class CardSettingsSingleton {
 
 	private String m_applicationPin = null;
     private String m_globalPin = null;
+    private String m_atr = null;
     
     private CardTerminal m_terminal = null;
     private CardHandle m_cardHandle = null;
@@ -94,11 +103,10 @@ public final class CardSettingsSingleton {
     	m_readerIndex = -1;
     	m_applicationPin = null;
     	m_globalPin = null;
+    	m_atr = null;
     	m_terminal = null;
     	m_pivHandle = null;
     	m_cardHandle = null;
     	m_lastLoginStatus = LOGIN_STATUS.LOGIN_NOT_TRIED;
     }
-
-
 }
