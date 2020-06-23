@@ -582,7 +582,9 @@ public class Utils
 			String issuerUrl = getAiaUrl(cert);
 			URL url = new URL(issuerUrl);
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            caCert = (X509Certificate) cf.generateCertificate(url.openStream());
+            InputStream is = url.openStream();
+            caCert = (X509Certificate) cf.generateCertificate(is);
+            is.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
