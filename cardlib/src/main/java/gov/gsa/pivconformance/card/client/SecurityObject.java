@@ -317,9 +317,12 @@ public class SecurityObject extends SignedPIVDataObject {
 			LDSSecurityObject ldsso = null;
 			try {
 				signedData = new CMSSignedData(m_so);
-				ldsso = LDSSecurityObject.getInstance(signedData.getSignedContent().getContent());
+				ASN1Sequence seq = ASN1Sequence.getInstance(signedData.getSignedContent().getContent());
+				ldsso = LDSSecurityObject.getInstance(seq);
 			} catch (CMSException ex) {
-				s_logger.error("Unable to create CMSSignedData object from Security Object data.");
+				s_logger.error("CMSException: " + ex.getMessage());
+			} catch (Exception ex) {
+				s_logger.error(ex.getMessage());
 			}
 
 			if (ldsso != null) {
