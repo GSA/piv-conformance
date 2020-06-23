@@ -75,7 +75,6 @@ import gov.gsa.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.conformancelib.utilities.AtomHelper;
 import gov.gsa.conformancelib.utilities.CardUtils;
 import gov.gsa.conformancelib.utilities.KeyValidationHelper;
-import gov.gsa.conformancelib.utilities.PathValidator;
 import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.card.client.CardHandle;
@@ -222,9 +221,11 @@ public class PKIX_X509DataObjectTests {
 		
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
+		
     }
 	
-	// Confirm that appropriate certificate policy OID is asserted in certificate policies (parameters required)
+	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
+	// is asserted in certificate policies (parameters required)
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
@@ -239,7 +240,6 @@ public class PKIX_X509DataObjectTests {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-
 		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
 		
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
@@ -261,16 +261,27 @@ public class PKIX_X509DataObjectTests {
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
 		
-		boolean valid = false;
-		for (Map.Entry<String, List<String>> entry : rv.entrySet()) {
-			List<String> allowedOid = entry.getValue();
-			for (int i = 0; i < allowedOid.size() && !valid; i++) {
-				String policy = allowedOid.get(i);
-				valid = PathValidator.isCertficatePolicyPresent("cacerts.keystore", "changeit", "federal common policy ca", cert, policy);
-			}
+		CertificatePolicies policies = null;
+		try {
+			policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(cpex));
+		} catch (IOException e) {
+			fail(e);
 		}
+		assertNotNull(policies);
+		boolean containsOOID = false;
 		
-		assertTrue(valid, "Certificate policies on cert did not contain " + rv.toString());
+	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
+	    for (PolicyInformation pInfo : policyInformation) {
+	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
+	    	s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMap.get(oid));
+	    	if(rv.get(oid).contains(curroid.getId())) {
+	    		containsOOID = true;
+	    		break;
+	    	}
+	    }
+
+	    //Confirm that oid matches is asserted in certificate policies
+	    assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
