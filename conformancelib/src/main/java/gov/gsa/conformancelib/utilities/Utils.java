@@ -1,95 +1,31 @@
 package gov.gsa.conformancelib.utilities;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Path; 
-import java.nio.file.Paths; 
-import java.security.InvalidKeyException;
-import java.security.InvalidParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.SignatureException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXCertPathBuilderResult;
 import java.security.cert.TrustAnchor;
-import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-import org.apache.commons.io.FilenameUtils;
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1TaggedObject;
-import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.AccessDescription;
-import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
-import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.CRLDistPoint;
-import org.bouncycastle.asn1.x509.DistributionPoint;
-import org.bouncycastle.asn1.x509.DistributionPointName;
-import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.X509ObjectIdentifiers;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509ExtensionUtils;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
-import org.bouncycastle.jce.provider.X509CRLParser;
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.bouncycastle.x509.X509StreamParser;
-import org.bouncycastle.x509.extension.X509ExtensionUtil;
 import org.slf4j.LoggerFactory;
 
 public class Utils
 {
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Utils.class);;
-    private static final int VALIDITY_PERIOD = 7 * 24 * 60 * 60 * 1000; // one week
 
     /**
      * Returns a list of certificates in each chain identified in a PKIXCertPathBuilderResult object
@@ -103,6 +39,7 @@ public class Utils
 
         List<X509Certificate> certificatePath = new ArrayList<>();
         X509Certificate rootCaCert = pkixCertPath.getTrustAnchor().getTrustedCert();
+		@SuppressWarnings("unchecked")
 		Collection<X509Certificate> collection =  (Collection<X509Certificate>) pkixCertPath.getCertPath().getCertificates();
         certificatePath.addAll(collection);
         certificatePath.add(rootCaCert);
@@ -145,7 +82,7 @@ public class Utils
 			while (aliases.hasMoreElements()) {
 				String alias = aliases.nextElement();
 				X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-				if (isCertificateSelfSigned(cert)) {
+				if (CertUtils.isCertificateSelfSigned(cert)) {
 	            	TrustAnchor ta = new TrustAnchor(cert, null);
 	            	result.add(ta);
 	            }
@@ -154,190 +91,6 @@ public class Utils
         	s_logger.error("Exception: " + e1.getMessage());
 		}
 		return result;
-	}
-	
-	/**
-	 * Produces a set of CRLs from a certificates's CRL distribution points
-	 * @param cert certificate to be parsed
-	 * @return a collection of CRLs
-	 */
-	public static HashSet<X509CRL> getCRLsFromCertificate(X509Certificate cert) {
-		HashSet<X509CRL> crls = new HashSet<X509CRL>();
-        try
-        {
-        	byte[] crlDistributionPointDerEncodedArray = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
-
-            ASN1InputStream oAsnInStream = new ASN1InputStream(new ByteArrayInputStream(crlDistributionPointDerEncodedArray));
-            ASN1Primitive derObjCrlDP = oAsnInStream.readObject();
-            DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
-
-            oAsnInStream.close();
-
-            byte[] crldpExtOctets = dosCrlDP.getOctets();
-            ASN1InputStream oAsnInStream2 = new ASN1InputStream(new ByteArrayInputStream(crldpExtOctets));
-            ASN1Primitive derObj2 = oAsnInStream2.readObject();
-            CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
-
-            oAsnInStream2.close();
-
-            List<String> crlUrls = new ArrayList<String>();
-            for (DistributionPoint dp : distPoint.getDistributionPoints()) {
-            	DistributionPointName dpn = dp.getDistributionPoint();
-            	// Look for URIs in fullName
-            	if (dpn != null) {
-            		if (dpn.getType() == DistributionPointName.FULL_NAME) {
-            			GeneralName[] genNames = GeneralNames.getInstance(dpn.getName()).getNames();
-            			// Look for an URI
-            			for (int j = 0; j < genNames.length; j++) {
-            				if (genNames[j].getTagNo() == GeneralName.uniformResourceIdentifier) {
-            					String urlStr = DERIA5String.getInstance(genNames[j].getName()).getString();
-            					try {
-	            					if (urlStr.startsWith("http")) {
-	            						URL url = new URL(urlStr);
-		            					s_logger.debug("CRL URL: " + urlStr);
-		            					String crlPath = System.getProperty("java.io.tmpdir") + File.separator + FilenameUtils.getName(url.getPath());
-		            					ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-		            					@SuppressWarnings("resource")
-										FileOutputStream fileOutputStream = new FileOutputStream(crlPath);
-		            					FileChannel fileChannel = fileOutputStream.getChannel();
-		            					fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-		            					fileChannel.close();
-		            					crls.add(loadCRLFromFile(crlPath));
-	            					}
-            					} catch (MalformedURLException e) {
-            						s_logger.error("Exception " + e.getMessage());
-            					}
-            				}
-            			}
-            		}
-            	}
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        return crls;
-    }
-
-	@SuppressWarnings("null")
-	public static HashSet<X509CRL> getCRLsFromCerts(HashSet<X509Certificate> certs) {
-		HashSet<X509CRL> result = new HashSet<X509CRL>();
-		for (X509Certificate cert : certs) {
-			for (X509CRL crl : getCRLsFromCertificate(cert)) {
-				if (crl != null) {	 
-					if (!result.contains(crl)) {
-						s_logger.debug("Issued to: " + cert.getSubjectDN().getName().toString());
-						s_logger.debug("Issued by: " + cert.getIssuerDN().getName().toString());
-						s_logger.debug("Adding " + crl.getIssuerDN().getName() + ", next update: " + crl.getThisUpdate());
-						result.add(crl);
-					} else {
-						s_logger.debug("Already added " + crl.getIssuerDN().getName() + ", next update: " + crl.getThisUpdate());
-					}
-				}
-			}
-		}
-		return result;
-	}
-	
-	public static boolean isCertificateSelfSigned(X509Certificate cert) {
-		boolean result = false;
-        PublicKey key = cert.getPublicKey();
-        try {
-        	cert.verify(key);
-        	result = true;
-        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException e) {
-        	// No op
-        }
-        return result;
-	}
-
-	/**
-	 * Extracts all non- self-signed certificates from the given KeyStore
-	 * 
-	 * @param KeyStore object containing the certificates
-	 * @return Set of X509Certificate
-	 */	
-    public static HashSet<X509Certificate> getIntermediateCerts(KeyStore keyStore) {
-		HashSet<X509Certificate> result = new HashSet<X509Certificate>();
-		Enumeration<String> aliases = null;
-		try {
-			aliases = keyStore.aliases();
-			while (aliases.hasMoreElements()) {
-				String alias = aliases.nextElement();
-				X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
-				if (!isCertificateSelfSigned(cert)) {
-	            	result.add((X509Certificate) keyStore.getCertificate(alias));
-				}
-			}	
-		} catch (Exception e) {
-        	s_logger.error("Exception: " + e.getMessage());
-		}
-		return result;
-	}
-    
-	/**
-	 * Load an X509CRL from the named file
-	 * 
-	 * @param path
-	 * @return the X509CRL
-	 */
-	public static X509CRL loadCRLFromFile(String path) {
-		X509CRL result = null;
-		FileInputStream in;
-		s_logger.debug("Loading CRL from file at " + path);
-		try {
-			in = new FileInputStream(path);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			result = (X509CRL) cf.generateCRL(in);
-			in.close();
-		} catch (Exception e) {
-        	s_logger.error("Exception: " + e.getMessage());
-		}
-
-		return result;
-	}
-	
-	/**
-	 * Load an X509 certificate from the named file
-	 * 
-	 * @param path
-	 * @return the X509Certificate
-	 */
-	
-	public static X509Certificate loadCertFromFile(String path) {
-		X509Certificate result = null;
-		FileInputStream in;
-		s_logger.debug("Loading X509 certificate from file at " + path);
-
-		try {
-			in = new FileInputStream(path);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			result = (X509Certificate) cf.generateCertificate(in);
-			in.close();
-		} catch (CertificateException | IOException e) {
-        	s_logger.error("Exception: " + e.getMessage());
-		}
-
-		return result;
-	}
-	
-	public static List<X509Certificate> loadCertsFromBundle(String path) {
-		List<X509Certificate> rv = new ArrayList<X509Certificate>();
-		X509Certificate result = null;
-		FileInputStream in;
-		s_logger.debug("Loading X509 certificates from file at " + path);
-		try {
-			in = new FileInputStream(path);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			Iterator<Certificate> i = (Iterator<Certificate>) cf.generateCertificates(in).iterator();
-			while (i.hasNext()) {
-			   rv.add((X509Certificate) i.next());
-			}
-			in.close();
-		} catch (CertificateException | IOException e) {
-        	s_logger.error("Exception: " + e.getMessage());
-		}
-		
-		return rv;
 	}
 	   
 	/**
@@ -494,7 +247,7 @@ public class Utils
      * @param length the number of bytes to process
      * @return a String representation of bytes
      */
-    public static String toString( byte[] bytes, int length) {
+    public static String toString(byte[] bytes, int length) {
         char[]	chars = new char[length];
         
         for (int i = 0; i != chars.length; i++) {
@@ -531,82 +284,8 @@ public class Utils
         
         return bytes;
     }
+
     
-    private static ASN1Primitive getExtensionValue(X509Certificate certificate, String oid) throws IOException {
-        byte[] bytes = certificate.getExtensionValue(oid);
-        if (bytes == null) {
-            return null;
-        }
-        ASN1InputStream aIn = new ASN1InputStream(new ByteArrayInputStream(bytes));
-        ASN1OctetString octs = (ASN1OctetString) aIn.readObject();
-        aIn = new ASN1InputStream(new ByteArrayInputStream(octs.getOctets()));
-        return aIn.readObject();
-    }  
-    
-    public static String getAiaUrl(X509Certificate cert) throws Exception {
-    	ASN1Primitive obj;
-    	try {
-    		obj = getExtensionValue(cert, Extension.authorityInfoAccess.getId());
-    	} catch (IOException ex) {
-    		ex.printStackTrace();
-    		return null;
-    	}
 
-    	if (obj == null) {
-    		return null;
-    	}
 
-    	AuthorityInformationAccess authorityInformationAccess = AuthorityInformationAccess.getInstance(obj);
-
-    	AccessDescription[] accessDescriptions = authorityInformationAccess.getAccessDescriptions();
-    	for (AccessDescription accessDescription : accessDescriptions) {
-    		if (accessDescription.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
-    			GeneralName name = accessDescription.getAccessLocation();
-    			if (name.getTagNo() != GeneralName.uniformResourceIdentifier) {
-    				continue;
-    			}
-
-    			DERIA5String derStr = DERIA5String.getInstance((ASN1TaggedObject) name.toASN1Primitive(), false);
-    			return derStr.getString();
-    		}
-    	}
-
-    	return null;
-    }
-    
-	public static X509Certificate getIssuerCert(X509Certificate cert) {
-
-		X509Certificate caCert = null;
-
-		try {
-			String issuerUrl = getAiaUrl(cert);
-			URL url = new URL(issuerUrl);
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            InputStream is = url.openStream();
-            caCert = (X509Certificate) cf.generateCertificate(is);
-            is.close();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		
-		return caCert;
-    }
-
-	public static List<X509Certificate> getIssuerCerts(X509Certificate cert) {
-		List<X509Certificate> rv = new ArrayList<X509Certificate>();
-		X509Certificate caCert = null;
-		boolean done = false;
-		while (!done) {
-			caCert = getIssuerCert(cert);
-			if (!(caCert.getSubjectX500Principal().equals(caCert.getIssuerX500Principal()))) {
-				rv.add(caCert);
-			} else {
-				done = true;
-			}
-			cert = caCert;
-		}
-
-		return rv;
-	}
 }

@@ -294,7 +294,7 @@ public class PIVDataObject {
 
     /**
      *
-     * Sets a boolean value ind	icating if the PIV data object is signed
+     * Sets a boolean value indicating if the PIV data object is signed
      *
      * @param signed True if signed, false otherwise
      */
