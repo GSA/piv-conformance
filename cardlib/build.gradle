@@ -75,6 +75,7 @@ dependencies {
 
     compile 'commons-cli:commons-cli:1.4'
     compile 'commons-codec:commons-codec:1.11'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
 
     compile 'com.payneteasy:ber-tlv:1.0-8'
     compile 'org.slf4j:slf4j-api:1.8+'
