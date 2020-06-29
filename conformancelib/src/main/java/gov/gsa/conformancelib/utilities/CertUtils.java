@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CertUtils {
-	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Utils.class);;
+	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Utils.class);
 
-    public static X509Certificate getIssuerCertFromBundle(URL location, byte[] subjectAkid) {
+    public static X509Certificate getIssuerCertFromBundle(URL location, byte[] subjectAkid) throws CertificateException, IOException {
     	String bundlePath = System.getProperty("java.io.tmpdir") + FilenameUtils.getName(location.getPath());
     	ASN1OctetString akidOctetString = ASN1OctetString.getInstance(subjectAkid);
     	AuthorityKeyIdentifier akid = AuthorityKeyIdentifier.getInstance(akidOctetString.getOctets());
@@ -72,15 +72,18 @@ public class CertUtils {
 				byte[] issuerSkid = c.getExtensionValue(Extension.subjectKeyIdentifier.getId());
 				ASN1OctetString skidOctetString = ASN1OctetString.getInstance(issuerSkid);
 				SubjectKeyIdentifier skid = SubjectKeyIdentifier.getInstance(skidOctetString.getOctets());
+
 				if (Arrays.equals(skid.getKeyIdentifier(), akid.getKeyIdentifier())) {
 					issuerCert = c;
 					String certFilePath;
-					certFilePath = System.getProperty("java.io.tmpdir") + Hex.encodeHexString(akidOctetString.getEncoded()) + ".cer";
+					certFilePath = System.getProperty("java.io.tmpdir") + Hex.encodeHexString(akid.getKeyIdentifier()) + ".cer";
 					Path certPath = Paths.get(certFilePath);
 					try {
 						Files.write(certPath, c.getEncoded());
+						s_logger.debug("Wrote certificate " + certFilePath);
 					} catch (CertificateEncodingException | IOException e) {
 						s_logger.error("Unable to write certificate", e);
+						throw e;
 					}
 
 					break;
@@ -89,11 +92,18 @@ public class CertUtils {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		}
 		return issuerCert;
     }
     
-	public static X509Certificate getIssuerCert(X509Certificate cert) {
+    /**
+     * Gets the issuer certificate of the CA that issued the given certificate
+     * @param cert the certificate for which the issuer is being sought
+     * @return the issuer certificate or null if not found
+     * @throws Exception 
+     */
+	public static X509Certificate getIssuerCert(X509Certificate cert) throws Exception {
 
 		X509Certificate caCert = null;
 		byte issuerAkid[] = cert.getExtensionValue(Extension.authorityKeyIdentifier.getId());
@@ -118,6 +128,7 @@ public class CertUtils {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		} 
 		
 		return caCert;
@@ -133,7 +144,12 @@ public class CertUtils {
 		X509Certificate caCert = null;
 		boolean done = false;
 		while (!done) {
-			caCert = getIssuerCert(cert);
+			try {
+				caCert = getIssuerCert(cert);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (caCert != null) {
 				if (!(caCert.getSubjectX500Principal().equals(caCert.getIssuerX500Principal()))) {
 					rv.add(caCert);
@@ -156,9 +172,8 @@ public class CertUtils {
 	 * @param oid OID corresponding to the desired extension
 	 * @return the value expressed as an ASN1Primitive
 	 * @throws IOException
-	 */
-    
-    private static ASN1Primitive getExtensionValue(X509Certificate certificate, String oid) {
+	 */ 
+    private static ASN1Primitive getExtensionValue(X509Certificate certificate, String oid) throws IOException {
     	ASN1Primitive rv = null;
         byte[] bytes = certificate.getExtensionValue(oid);
         if (bytes == null) {
@@ -173,6 +188,7 @@ public class CertUtils {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			throw e;
 		}
 		return rv;
     }
@@ -181,25 +197,32 @@ public class CertUtils {
      * Gets the URL corresponding to the AuthorityInformationAccess extension
      * @param cert the certificate to extract the AIA from
      * @return a string containing the URL
+     * @throws IOException 
      */
-    public static String getAiaUrl(X509Certificate cert) {
+    public static String getAiaUrl(X509Certificate cert) throws IOException {
     	ASN1Primitive obj;
     	String url = null;
-    	if ((obj = getExtensionValue(cert, Extension.authorityInfoAccess.getId())) != null) {
-			AuthorityInformationAccess authorityInformationAccess = AuthorityInformationAccess.getInstance(obj);
+    	try {
+			if ((obj = getExtensionValue(cert, Extension.authorityInfoAccess.getId())) != null) {
+				AuthorityInformationAccess authorityInformationAccess = AuthorityInformationAccess.getInstance(obj);
 
-			AccessDescription[] accessDescriptions = authorityInformationAccess.getAccessDescriptions();
-			for (AccessDescription accessDescription : accessDescriptions) {
-				if (accessDescription.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
-					GeneralName name = accessDescription.getAccessLocation();
-					if (name.getTagNo() != GeneralName.uniformResourceIdentifier) {
-						continue;
+				AccessDescription[] accessDescriptions = authorityInformationAccess.getAccessDescriptions();
+				for (AccessDescription accessDescription : accessDescriptions) {
+					if (accessDescription.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
+						GeneralName name = accessDescription.getAccessLocation();
+						if (name.getTagNo() != GeneralName.uniformResourceIdentifier) {
+							continue;
+						}
+
+						DERIA5String derStr = DERIA5String.getInstance((ASN1TaggedObject) name.toASN1Primitive(), false);
+						url = derStr.getString();;
 					}
-
-					DERIA5String derStr = DERIA5String.getInstance((ASN1TaggedObject) name.toASN1Primitive(), false);
-					url = derStr.getString();;
 				}
 			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
 		}
     	
     	return url;
@@ -217,7 +240,7 @@ public class CertUtils {
         	cert.verify(key);
         	result = true;
         } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException e) {
-        	// No op
+        	s_logger.error("Exception: " + e.getMessage());
         }
         return result;
 	}
@@ -227,8 +250,9 @@ public class CertUtils {
 	 * 
 	 * @param KeyStore object containing the certificates
 	 * @return Set of X509Certificate
+	 * @throws Exception 
 	 */	
-    public static HashSet<X509Certificate> getIntermediateCerts(KeyStore keyStore) {
+    public static HashSet<X509Certificate> getIntermediateCerts(KeyStore keyStore) throws Exception {
 		HashSet<X509Certificate> result = new HashSet<X509Certificate>();
 		Enumeration<String> aliases = null;
 		try {
@@ -242,6 +266,7 @@ public class CertUtils {
 			}	
 		} catch (Exception e) {
         	s_logger.error("Exception: " + e.getMessage());
+        	throw e;
 		}
 		return result;
 	}
@@ -251,8 +276,7 @@ public class CertUtils {
 	 * 
 	 * @param path
 	 * @return the X509Certificate
-	 */
-	
+	 */	
 	public static X509Certificate loadCertFromFile(String path) {
 		X509Certificate result = null;
 		FileInputStream in;
@@ -262,6 +286,18 @@ public class CertUtils {
 			in = new FileInputStream(path);
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
 			result = (X509Certificate) cf.generateCertificate(in);
+			byte[] issuerSkid = result.getExtensionValue(Extension.subjectKeyIdentifier.getId());
+			ASN1OctetString skidOctetString = ASN1OctetString.getInstance(issuerSkid);
+			SubjectKeyIdentifier skid = SubjectKeyIdentifier.getInstance(skidOctetString.getOctets());
+			String certFilePath = System.getProperty("java.io.tmpdir") + Hex.encodeHexString(skid.getKeyIdentifier()) + ".cer";
+			Path certPath = Paths.get(certFilePath);
+			try {
+				Files.write(certPath, result.getEncoded());
+				s_logger.debug("Wrote certificate " + certFilePath);
+			} catch (CertificateEncodingException | IOException e) {
+				s_logger.error("Unable to write certificate", e);
+				throw e;
+			}
 			in.close();
 		} catch (CertificateException | IOException e) {
         	s_logger.error("Exception: " + e.getMessage());
@@ -270,7 +306,14 @@ public class CertUtils {
 		return result;
 	}
 	
-	public static List<X509Certificate> loadCertsFromBundle(String path) {
+	/**
+	 * Extracts X509 certificates from the PKCS7 object read from the given file system path 
+	 * 
+	 * @param path the location of the file
+	 * @return a list of X509 certificates or null if none were extracted
+	 * @throws CertificateException, IOException 
+	 */
+	public static List<X509Certificate> loadCertsFromBundle(String path) throws CertificateException, IOException {
 		List<X509Certificate> rv = new ArrayList<X509Certificate>();
 		FileInputStream in;
 		s_logger.debug("Loading X509 certificates from file at " + path);
@@ -286,6 +329,10 @@ public class CertUtils {
 			} 
 		} catch (CertificateException | IOException e) {
         	s_logger.error("Exception: " + e.getMessage());
+        	throw e;
+		} catch (Exception e) {
+        	s_logger.error("Unexpected exception: " + e.getMessage());
+        	throw e;
 		}
 		
 		return rv;
