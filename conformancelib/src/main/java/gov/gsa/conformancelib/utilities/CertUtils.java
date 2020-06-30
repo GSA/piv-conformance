@@ -215,7 +215,11 @@ public class CertUtils {
 						}
 
 						DERIA5String derStr = DERIA5String.getInstance((ASN1TaggedObject) name.toASN1Primitive(), false);
-						url = derStr.getString();;
+						url = derStr.getString();
+						
+						if (url.startsWith("http")) {
+							break;
+						}
 					}
 				}
 			}

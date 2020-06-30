@@ -119,4 +119,18 @@ public class PathValidator {
 		}
 		return result;	
 	}
+	
+	public static void main (String[] argv) {
+		System.out.println("Argv[0]: " + argv[0]);
+		System.out.println("Argv[1]: " + argv[1]);
+		System.out.println("Argv[2]: " + argv[2]);
+		System.out.println("Argv[3]: " + argv[3]);
+
+		try {
+			isCertficatePolicyPresent(argv[0], argv[1], argv[2], argv[3], "2.16.840.1.101.3.2.1.3.18");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
