@@ -6,12 +6,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -107,6 +113,9 @@ public class X509CertificateDataObject extends PIVDataObject {
                                     	setContainerName("X509CertificateForDigitalSignature");
                                     else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0)
                                     	setContainerName("X509CertificateForKeyManagement");
+
+
+                                    dumpCert(rawCertBuf);
                                 }
                                 if(Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
                                 	setErrorDetectionCode(true);
@@ -165,4 +174,66 @@ public class X509CertificateDataObject extends PIVDataObject {
         dump(this.getClass());
         return true;
     }
+    
+	/**
+	 * Corrects the path separators for a path.
+	 * 
+	 * @param inPath the path as read from a configuration file, etc.
+	 * @return a path with the correct path separators for the local OS
+	 */
+ 
+	private String pathFixup(String inPath) {
+		boolean windowsOs = false;
+		String osName = System.getProperty("os.name");
+
+		if (osName.toLowerCase().contains("windows")) {
+			windowsOs = true;
+		}
+
+		String outPath = inPath;
+		if (windowsOs == true) {
+			if (inPath.contains("/")) {
+				outPath = inPath.replace("/", "\\");
+			}
+		} else if (inPath.contains("\\")) {
+			outPath = inPath.replace("\\", "/");
+		}
+
+		return outPath;
+	}	
+	 
+    /**
+     * Exports an X.509 certificate
+     * @param containerName
+     * @param bytes
+     * @return 
+     */
+
+	public X509Certificate dumpCert(byte[] bytes) {
+        String cwd = Paths.get(".").toAbsolutePath().normalize().toString();
+        String sep = File.separator;
+        String path = cwd + sep + "logs" + sep + "x509" + sep + getContainerName();
+		X509Certificate rv = null;
+		try {
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			  ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+			    rv = (X509Certificate) cf.generateCertificate(is);
+				try {
+					FileOutputStream fos = new FileOutputStream(path + ".cer");
+				    fos.write(bytes);
+				    fos.close();
+				    s_logger.debug("Wrote " + path + ".cer");
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		} catch (CertificateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		return rv;
+	}
 }

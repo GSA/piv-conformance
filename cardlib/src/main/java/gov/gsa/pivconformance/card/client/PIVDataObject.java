@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.card.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import gov.gsa.pivconformance.tlv.BerTag;
 import gov.gsa.pivconformance.tlv.HexUtil;
 import gov.gsa.pivconformance.tlv.TagBoundaryManager;
+import gov.gsa.pivconformance.tlv.TagConstants;
 
 /**
  * Represents a PIV data object as read to or written from the card.
@@ -211,7 +213,7 @@ public class PIVDataObject {
             }
         }
         return true;
-    }   
+    }
  
     public void dump(Class<?> classz) {
         if (m_oidList.indexOf(m_OID) < 0) {
@@ -220,18 +222,23 @@ public class PIVDataObject {
         	String canonicalName = classz.getCanonicalName();
         	String containerName = getContainerName();
         	String className = containerName == null ? canonicalName : classz.getPackage().toString().replace("package ", "") + "." + containerName;
-        	
+        	// Find the path where containers are written
         	Logger s_containerLogger = LoggerFactory.getLogger(className);
         	s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ",  "_"));
         	s_containerLogger.debug("Raw bytes: {}", Hex.encodeHexString(m_dataBytes));
         	for (int i = 0; i < m_tagList.size(); i++) {
         		BerTag tag = m_tagList.get(i);
-        		if (tag == null) {
-        			s_containerLogger.warn("Tag[{}] is null", i);
-        		} else if (m_content.get(tag) == null) {
-        			s_containerLogger.warn("Tag[{}] ({}) is null", i, Hex.encodeHexString(tag.bytes));
+        		if (tag != null) {
+        			if(Arrays.equals(TagConstants.CERTIFICATE_TAG, tag.bytes)) { 
+	        			s_containerLogger.debug("Certificate tag");
+	        		}	        		
+	        		if (m_content.get(tag) == null) {
+	        			s_containerLogger.warn("Tag[{}] ({}) is null", i, Hex.encodeHexString(tag.bytes));
+	        		} else {
+	        			s_containerLogger.debug("Tag {}: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(m_content.get(tag)));
+	        		}        		
         		} else {
-        			s_containerLogger.debug("Tag {}: {}", Hex.encodeHexString(tag.bytes), Hex.encodeHexString(m_content.get(tag)));
+        			s_containerLogger.warn("Tag[{}] is null", i);
         		}
         	}
         }
