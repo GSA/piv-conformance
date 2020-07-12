@@ -301,16 +301,17 @@ public class PIVDataObject {
     public void setSigned(boolean signed) {
         m_signed = signed;
     }
+	/**
+	 *
+	 * Returns true if the PIV data object is signed
+	 *
+	 * @return True if the PIV data object is signed
+	 */
+	public boolean isSigned() {
+		return m_signed;
+	}
 
-    /**
-     *
-     * Returns true if the PIV data object is signed
-     *
-     * @return True if the PIV data object is signed
-     */
-    public boolean isSigned() {
-        return m_signed;
-    }
+
     
     /**
     *

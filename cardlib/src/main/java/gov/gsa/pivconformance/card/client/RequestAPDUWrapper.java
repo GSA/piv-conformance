@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 // derived from the intarsys ReqeuestAPDU class
 public class RequestAPDUWrapper {
-    private static final Logger s_logger = LoggerFactory.getLogger(RequestAPDUWrapper.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(RequestAPDUWrapper.class);
 
 	/* command is not the last command of a chain */
 	public static final byte CLA_CHAINING_FLAG = 0x10;
@@ -52,8 +52,7 @@ public class RequestAPDUWrapper {
 		this(pCla, pIns, pP1, pP2, pData, LE_NONE);
 	}
 
-	public RequestAPDUWrapper(int pCla, int pIns, int pP1, int pP2, byte[] pData,
-			int pLe) {
+	public RequestAPDUWrapper(int pCla, int pIns, int pP1, int pP2, byte[] pData, int pLe) {
 		cla = pCla;
 		ins = pIns;
 		p1 = pP1;
@@ -249,8 +248,7 @@ public class RequestAPDUWrapper {
 	}
 
 	public boolean isExtendedApdu() {
-		return extendedApdu || (data != null && data.length > 255)
-				|| (le > 255);
+		return extendedApdu || (data != null && data.length > 255) || (le > 255);
 	}
 
 	public boolean isSensitiveContent() {
@@ -276,8 +274,7 @@ public class RequestAPDUWrapper {
 	@Override
 	public String toString() {
 		return Hex.encodeHexString(getBytes()).replaceAll("..(?=.)", "$0 ");
-		//return HexTools.bytesToHexString(getBytes());
+		// return HexTools.bytesToHexString(getBytes());
 	}
 
 }
-

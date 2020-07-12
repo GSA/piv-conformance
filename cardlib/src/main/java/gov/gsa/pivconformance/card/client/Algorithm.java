@@ -15,7 +15,7 @@ import org.bouncycastle.cms.CMSSignedData;
  *
  */
 public class Algorithm {
-	
+
 	public static final HashMap<String, String> sigAlgOidToNameMap = new HashMap<String, String>() {
 		/**
 		 * Signature
@@ -29,7 +29,7 @@ public class Algorithm {
 			put("1.2.840.10045.4.3.3", "SHA384withECDSA"); // SHA-384 with ECDSA
 		}
 	};
-	
+
 	public static final HashMap<String, String> digAlgOidToNameMap = new HashMap<String, String>() {
 		/**
 		 * Digest
@@ -52,16 +52,17 @@ public class Algorithm {
 			put("1.2.840.10045.2.1", "ECDSA");
 		}
 	};
-	
+
 	/**
-	 * Indicates whether this signature block contains only digest algorithms in Table 3-2 of
-	 * SP 800-78-4
+	 * Indicates whether this signature block contains only digest algorithms in
+	 * Table 3-2 of SP 800-78-4
+	 * 
 	 * @param asymmetricSignature the signature to be checked
 	 * @return true if the digest is in Table 3-2 and false if not
 	 */
-	
+
 	public static boolean isDigestAlgInTable32(CMSSignedData asymmetricSignature) {
-		Iterator<AlgorithmIdentifier> ih = asymmetricSignature.getDigestAlgorithmIDs().iterator();	
+		Iterator<AlgorithmIdentifier> ih = asymmetricSignature.getDigestAlgorithmIDs().iterator();
 		while (ih.hasNext()) {
 			AlgorithmIdentifier ai = ih.next();
 			String digAlgOid = ai.getAlgorithm().getId();

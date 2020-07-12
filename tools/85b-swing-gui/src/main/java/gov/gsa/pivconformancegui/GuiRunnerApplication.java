@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.nio.file.Paths;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -25,7 +27,7 @@ import gov.gsa.pivconformance.utils.PCSCUtils;
 public class GuiRunnerApplication {
 
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
-	private static final String cctVersion = "v0.1.10-Beta";
+	private static final String cctVersion = "v0.1.11-Beta";
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
@@ -45,7 +47,8 @@ public class GuiRunnerApplication {
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-		    public void run() {
+		    @Override
+			public void run() {
 		        TestRunLogController trlc = TestRunLogController.getInstance();
 		        trlc.cleanup();
 		    }
@@ -59,6 +62,8 @@ public class GuiRunnerApplication {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					GuiRunnerApplication window = new GuiRunnerApplication();
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+			        String sep = File.separator;
+					String cctDirectory = Paths.get(".").toAbsolutePath().normalize().toString() + sep;
 					c.setCctVersion(cctVersion);
 					c.setApp(window);
 					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

@@ -134,7 +134,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		} else if(certAlgorithm.compareTo("EC") == 0) {
 			
 			ECPublicKey pk1 = (ECPublicKey) pk;
-	        ECParameterSpec ecParameterSpec = (ECParameterSpec) pk1.getParams();
+	        ECParameterSpec ecParameterSpec = pk1.getParams();
 	      
 	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements(); ) {
 	        	
