@@ -32,6 +32,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 	private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateDataObject.class);
 
 	private X509Certificate m_cert;
+	private ArtifactCache m_artifactCache;
 
 	/**
 	 * CardCapabilityContainer class constructor, initializes all the class fields.
@@ -42,6 +43,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 		setErrorDetectionCode(false);
 		setErrorDetectionCodeHasData(false);
 		m_content = new HashMap<BerTag, byte[]>();
+		m_artifactCache = new ArtifactCache("x509artifacts");
 	}
 
 	/**
@@ -125,7 +127,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 									else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0)
 										setContainerName("X509CertificateForKeyManagement");
 
-									saveCert(getContainerName(), rawCertBuf);
+									m_artifactCache.saveObject(getContainerName() + ".cer", rawCertBuf);
 								}
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 									setErrorDetectionCode(true);
@@ -183,70 +185,5 @@ public class X509CertificateDataObject extends PIVDataObject {
 
 		dump(this.getClass());
 		return true;
-	}
-
-	/**
-	 * Corrects the path separators for a path.
-	 * 
-	 * @param inPath the path as read from a configuration file, etc.
-	 * @return a path with the correct path separators for the local OS
-	 */
-
-	private String pathFixup(String inPath) {
-		boolean windowsOs = false;
-		String osName = System.getProperty("os.name");
-
-		if (osName.toLowerCase().contains("windows")) {
-			windowsOs = true;
-		}
-
-		String outPath = inPath;
-		if (windowsOs == true) {
-			if (inPath.contains("/")) {
-				outPath = inPath.replace("/", "\\");
-			}
-		} else if (inPath.contains("\\")) {
-			outPath = inPath.replace("\\", "/");
-		}
-
-		return outPath;
-	}
-
-	/**
-	 * Exports an X.509 certificate
-	 * 
-	 * @param containerName
-	 * @param bytes
-	 * @return
-	 */
-
-	public void saveCert(String containerName, byte[] bytes) {
-		String sep = File.separator;
-        String cwd = Paths.get(".").toAbsolutePath().normalize().toString();
-
-        //TODO: Need a better way to define where to save artifacts
-        String artifactDir = cwd + sep + "artifacts";
-		String filePath = artifactDir + sep + containerName + ".cer";
-
-        if (!Files.exists(Paths.get(artifactDir))) {
-            File file = new File(artifactDir);
-            boolean exists = file.mkdir();
-            if (exists){
-               s_logger.debug("Directory " + filePath + " created successfully");
-            } else{
-               System.out.println("Sorry couldn’t create specified directory");
-            }
-        }
-        
-    	try {
-    		FileOutputStream fos = new FileOutputStream(filePath);
-    		fos.write(bytes);
-    		fos.close();
-    		s_logger.debug("Wrote " + filePath + ".cer");
-    	}
-    	catch (IOException e) {
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
-    	}
 	}
 }
