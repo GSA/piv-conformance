@@ -14,14 +14,16 @@ import gov.gsa.pivconformance.card.client.APDUConstants;
 import gov.gsa.pivconformance.card.client.CardClientException;
 import gov.gsa.pivconformance.card.client.SoftTagBoundaryException;
 import gov.gsa.pivconformance.tlv.ContainerRuleset;
+
 /**
- * This class is intended to be used side-by-side SP 800-73 for quick comparison/updates to
- * lengths. 
+ * This class is intended to be used side-by-side SP 800-73 for quick
+ * comparison/updates to lengths.
  * 
- * TODO: This class statically marks a tag as eligible per SP 800-73-4 table, but until the tag is obtained, 
- * we only know that it is allowed in-contecxt if the container also contains a separate signing cert.  That gets
- * determined when the container is loaded and we've determined that there is or is not a cert.  Whether the tool looks
- * for that needs to be flushed out.
+ * TODO: This class statically marks a tag as eligible per SP 800-73-4 table,
+ * but until the tag is obtained, we only know that it is allowed in-contecxt if
+ * the container also contains a separate signing cert. That gets determined
+ * when the container is loaded and we've determined that there is or is not a
+ * cert. Whether the tool looks for that needs to be flushed out.
  *
  */
 public class TagBoundaryManager {
@@ -30,8 +32,9 @@ public class TagBoundaryManager {
 
 	private void initCache() {
 		/*
-		 * This cache gets hung from the gov.gsa.pivconformance.card.client.DataModelSingleton object
-		 * with a public accessor getLengthRules() method.
+		 * This cache gets hung from the
+		 * gov.gsa.pivconformance.card.client.DataModelSingleton object with a public
+		 * accessor getLengthRules() method.
 		 */
 		// Handle cert containers from Table 10, 15, 16, 17, 20-39, 42 of SP 800-73-4
 		ArrayList<String> certNames = new ArrayList<String>();
@@ -64,7 +67,8 @@ public class TagBoundaryManager {
 		// SP800-73-4 Part 1, Table 8. Card Capability Container tags
 		ContainerRuleset crs = new ContainerRuleset(APDUConstants.CARD_CAPABILITY_CONTAINER_NAME);
 		crs.add(new BerTag(TagConstants.CARD_IDENTIFIER_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 21));
-		crs.add(new BerTag(TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 1));
+		crs.add(new BerTag(TagConstants.CAPABILITY_CONTAINER_VERSION_NUMBER_TAG),
+				new TagLengthRule(CONSTRAINT.OR, 0, 1));
 		crs.add(new BerTag(TagConstants.CAPABILITY_GRAMMAR_VERSION_NUMBER_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 1));
 		crs.add(new BerTag(TagConstants.APPLICATIONS_CARDURL_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 128));
 		crs.add(new BerTag(TagConstants.PKCS15_TAG), new TagLengthRule(CONSTRAINT.OR, 0, 1));
@@ -89,7 +93,8 @@ public class TagBoundaryManager {
 		crs.add(new BerTag(TagConstants.GUID_TAG), new TagLengthRule(CONSTRAINT.FIXED, 16, 16));
 		crs.add(new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 8, 8));
 		crs.add(new BerTag(TagConstants.CARDHOLDER_UUID_TAG), new TagLengthRule(CONSTRAINT.FIXED, 16, 16));
-		crs.add(new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 3200, true));
+		crs.add(new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG),
+				new TagLengthRule(CONSTRAINT.VARIABLE, 0, 3200, true));
 		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
@@ -106,20 +111,23 @@ public class TagBoundaryManager {
 
 		// SP 800-73-4 Part 1, Table 11. Cardholder Fingerprints
 		crs = new ContainerRuleset(APDUConstants.CARDHOLDER_FINGERPRINTS_NAME);
-		crs.add(new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 88, 4000, true));
+		crs.add(new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG),
+				new TagLengthRule(CONSTRAINT.VARIABLE, 88, 4000, true));
 		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 12. Security Object
 		crs = new ContainerRuleset(APDUConstants.SECURITY_OBJECT_NAME);
-		crs.add(new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 30));
+		crs.add(new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG),
+				new TagLengthRule(CONSTRAINT.VARIABLE, 0, 30));
 		crs.add(new BerTag(TagConstants.SECURITY_OBJECT_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 1298));
 		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
 		// SP 800-73-4 Part 1, Table 13. Cardholder Facial Image
 		crs = new ContainerRuleset(APDUConstants.CARDHOLDER_FACIAL_IMAGE_NAME);
-		crs.add(new BerTag(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 12704, true));
+		crs.add(new BerTag(TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG),
+				new TagLengthRule(CONSTRAINT.VARIABLE, 0, 12704, true));
 		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
@@ -127,11 +135,14 @@ public class TagBoundaryManager {
 		crs = new ContainerRuleset(APDUConstants.PRINTED_INFORMATION_NAME);
 		crs.add(new BerTag(TagConstants.NAME_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 125));
 		crs.add(new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
-		crs.add(new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 9, 9));
+		crs.add(new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG),
+				new TagLengthRule(CONSTRAINT.FIXED, 9, 9));
 		crs.add(new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
 		crs.add(new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 15));
-		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
-		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG), new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
+		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG),
+				new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
+		crs.add(new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG),
+				new TagLengthRule(CONSTRAINT.VARIABLE, 0, 20));
 		crs.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG), new TagLengthRule(CONSTRAINT.FIXED, 0, 0));
 		m_maxLenMap.put(crs.getContainerName(), crs);
 
@@ -202,13 +213,15 @@ public class TagBoundaryManager {
 	 * @return the difference between the prescribed lengths and the value length,
 	 *         hopefully all bits clear
 	 * @throws NullPointerException
-	 * @throws CardClientException 
+	 * @throws CardClientException
 	 */
-	public int lengthDelta(String containerName, BerTag tag, int bytesLength) throws NullPointerException, CardClientException, SoftTagBoundaryException {
+	public int lengthDelta(String containerName, BerTag tag, int bytesLength)
+			throws NullPointerException, CardClientException, SoftTagBoundaryException {
 		int rv = -1;
 		HashMap<BerTag, TagLengthRule> tlRules = getTagLengthRules(containerName);
 		if (tlRules == null) {
-			String errStr = (String.format("Rules for container %s, tag 0x%02x is null", containerName, Hex.toHexString(tag.bytes)));
+			String errStr = (String.format("Rules for container %s, tag 0x%02x is null", containerName,
+					Hex.toHexString(tag.bytes)));
 			s_logger.error(errStr);
 			NullPointerException e = new NullPointerException(errStr);
 			throw (e);
@@ -217,20 +230,21 @@ public class TagBoundaryManager {
 		int hi = tlr.getHighVal();
 		int lo = tlr.getLowVal();
 		CONSTRAINT rule = tlr.getRule();
-		if((rule = tlr.getRule()) != null) {
-		switch (rule) {
+		if ((rule = tlr.getRule()) != null) {
+			switch (rule) {
 			case VARIABLE:
 				// When there's a range, negative indicates below floor,
 				// positive indicates above ceiling, zero indicates in range.
 				if (bytesLength >= lo && bytesLength <= hi) {
 					rv = 0; // Pass
 				} else if (bytesLength < lo) {
-					rv = lo - bytesLength;			
+					rv = lo - bytesLength;
 				} else {
-					rv = bytesLength - hi;;
+					rv = bytesLength - hi;
+					;
 				}
 				break;
-				
+
 			case OR:
 				// Here, we want the return value to indicate what didn't match
 				if (bytesLength == lo || bytesLength == hi) {
@@ -253,19 +267,21 @@ public class TagBoundaryManager {
 		}
 		if (rv != 0) {
 			if (tlr.hasSoftUpperBound()) {
-				String errStr = String.format("Container %s, Tag %s varies from SP 800-73-4 table by %d",
-				containerName, Hex.toHexString(tag.bytes), rv); 
+				String errStr = String.format("Container %s, Tag %s varies from SP 800-73-4 table by %d", containerName,
+						Hex.toHexString(tag.bytes), rv);
 				try {
-					rv = 0; // TODO: Here, we should *really* be checking a boolean m_signerCertEmbedded flag.
+					rv = 0; // TODO: Here, we should *really* be checking a boolean m_signerCertEmbedded
+							// flag.
 					errStr += " (ignored due to tag container rule)";
 					throw new SoftTagBoundaryException(errStr);
 				} catch (SoftTagBoundaryException e) {
 					s_logger.error(errStr);
 				}
 			} else {
-			  String errStr = String.format("Container %s, Tag %s varies from SP 800-73-4 table by %d",
-			  containerName, Hex.toHexString(tag.bytes), rv); s_logger.error(errStr);
-			  throw new CardClientException(errStr);
+				String errStr = String.format("Container %s, Tag %s varies from SP 800-73-4 table by %d", containerName,
+						Hex.toHexString(tag.bytes), rv);
+				s_logger.error(errStr);
+				throw new CardClientException(errStr);
 			}
 		}
 		return rv;

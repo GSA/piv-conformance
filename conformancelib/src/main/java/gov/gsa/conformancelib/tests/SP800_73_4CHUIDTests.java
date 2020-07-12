@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.commons.codec.binary.Hex;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -135,7 +134,7 @@ public class SP800_73_4CHUIDTests {
 		String bitstr = "";
 		// Convert each hex digit to 8 0's and 1's and concatenate to into a string
 		for (byte b : raw) {
-			bitstr += String.format("%8s", Integer.toBinaryString((int) b & 0xff)).replace(' ', '0');;
+			bitstr += String.format("%8s", Integer.toBinaryString(b & 0xff)).replace(' ', '0');;
 		}
 		// Create a bit array to read 5 bits at a time.
 		byte[] bits = bitstr.getBytes();

@@ -27,46 +27,46 @@ import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class PIVGeneralAuthenticateTests {
 
-    List<CardTerminal> terminals = null;
-    DefaultPIVApplication piv = null;
-    CardHandle currentCardHandle = null;
-    ConnectionDescription currentConnection = null;
+	List<CardTerminal> terminals = null;
+	DefaultPIVApplication piv = null;
+	CardHandle currentCardHandle = null;
+	ConnectionDescription currentConnection = null;
 
-    @BeforeEach
-    void init() {
-        PCSCUtils.ConfigureUserProperties();
-        TerminalFactory tf = TerminalFactory.getDefault();
-        try {
-            terminals = tf.terminals().list();
-            for(CardTerminal t: terminals) {
-            	if(t.isCardPresent()) {
-            		currentConnection = ConnectionDescription.createFromTerminal(t);
-            		break;
-            	}
-            }
-            if(currentConnection == null || !currentConnection.getTerminal().isCardPresent()) {
-            	fail("Unable to find a reader with a card present");
-            }
-            currentCardHandle = new CardHandle();
-            MiddlewareStatus result = PIVMiddleware.pivConnect(true, currentConnection, currentCardHandle);
-            assert(result == MiddlewareStatus.PIV_OK);
-            piv = new DefaultPIVApplication();
-            ApplicationAID aid  = new ApplicationAID();
-            ApplicationProperties cardAppProperties = new ApplicationProperties();
-            result = piv.pivSelectCardApplication(currentCardHandle, aid, cardAppProperties);
+	@BeforeEach
+	void init() {
+		PCSCUtils.ConfigureUserProperties();
+		TerminalFactory tf = TerminalFactory.getDefault();
+		try {
+			terminals = tf.terminals().list();
+			for (CardTerminal t : terminals) {
+				if (t.isCardPresent()) {
+					currentConnection = ConnectionDescription.createFromTerminal(t);
+					break;
+				}
+			}
+			if (currentConnection == null || !currentConnection.getTerminal().isCardPresent()) {
+				fail("Unable to find a reader with a card present");
+			}
+			currentCardHandle = new CardHandle();
+			MiddlewareStatus result = PIVMiddleware.pivConnect(true, currentConnection, currentCardHandle);
+			assert (result == MiddlewareStatus.PIV_OK);
+			piv = new DefaultPIVApplication();
+			ApplicationAID aid = new ApplicationAID();
+			ApplicationProperties cardAppProperties = new ApplicationProperties();
+			result = piv.pivSelectCardApplication(currentCardHandle, aid, cardAppProperties);
 			assertEquals(MiddlewareStatus.PIV_OK, result);
 			PIVAuthenticators authenticators = new PIVAuthenticators();
 			authenticators.addApplicationPin("123456");
 			result = piv.pivLogIntoCardApplication(currentCardHandle, authenticators.getBytes());
 			assertEquals(MiddlewareStatus.PIV_OK, result);
-        } catch (CardException e) {
-            fail("Unable to establish PIV connection");
-        }
-    }
+		} catch (CardException e) {
+			fail("Unable to establish PIV connection");
+		}
+	}
 
-    
-    @Test @DisplayName("Test GENERAL AUTHENTICATE")
-    void testGeneralAuthenticate(TestReporter reporter) {
-    	assertNotNull(null);
-    }
+	@Test
+	@DisplayName("Test GENERAL AUTHENTICATE")
+	void testGeneralAuthenticate(TestReporter reporter) {
+		assertNotNull(null);
+	}
 }

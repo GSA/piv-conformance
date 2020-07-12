@@ -1,22 +1,21 @@
 package gov.gsa.pivconformance.utils;
 
 public class OSUtils {
-	
-	public enum  OSTYPE {
-		WINDOWS(10),
-		OSX(20),
-		LINUX(30);
-		   
-        private OSTYPE (int ostypeValue) {
-        }
+
+	public enum OSTYPE {
+		WINDOWS(10), OSX(20), LINUX(30);
+
+		private OSTYPE(int ostypeValue) {
+		}
 	}
 
-	public OSUtils () {
-		
+	public OSUtils() {
+
 	}
-	 
+
 	/**
 	 * Get one of the three supported operating system types
+	 * 
 	 * @return manufactured OSTYPE from environment
 	 * 
 	 */
@@ -29,30 +28,31 @@ public class OSUtils {
 			rv = OSTYPE.OSX;
 		} else if (osName.toLowerCase().contains("linux")) {
 			rv = OSTYPE.LINUX;
-		}		
+		}
 		return rv;
 	}
-	
+
 	/**
 	 * Get the location of the temp directory
+	 * 
 	 * @return the location of the temp directory
 	 */
-	
-	public static String getTempDir() {
-        OSTYPE os = OSUtils.getOSType();
-        String rv;
 
-        switch (os) {
-        case WINDOWS:
-        	rv = System.getenv("TEMP");
-        	break;
-        case OSX:
-        case LINUX:
-        	rv = "/tmp";
-        default:
-        	rv = System.getenv("TEMP");
-        }
-        
-        return rv;
+	public static String getTempDir() {
+		OSTYPE os = OSUtils.getOSType();
+		String rv;
+
+		switch (os) {
+		case WINDOWS:
+			rv = System.getenv("TEMP");
+			break;
+		case OSX:
+		case LINUX:
+			rv = "/tmp";
+		default:
+			rv = System.getenv("TEMP");
+		}
+
+		return rv;
 	}
 }

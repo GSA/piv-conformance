@@ -273,7 +273,7 @@ public class TestRunLogController {
 		Iterator<?> i = m_appenders.entrySet().iterator();
 		while (i.hasNext()) {
 			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
-			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
+			TimeStampedFileAppender<ILoggingEvent> appender = me.getValue();
 			appender.setStartTime(startTime);
 		}	
 	}
@@ -297,7 +297,7 @@ public class TestRunLogController {
 			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
 			String logName = me.getKey();
 			Logger logger = (Logger) LoggerFactory.getLogger(m_loggers.get(me.getKey()));
-			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
+			TimeStampedFileAppender<ILoggingEvent> appender = me.getValue();
 			setTimeStamp(logger, appender, logName, stopTime);
 		}
 	}

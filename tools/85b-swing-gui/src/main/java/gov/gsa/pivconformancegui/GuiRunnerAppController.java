@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,7 +162,7 @@ public class GuiRunnerAppController {
         JFrame frame = new JFrame();
         frame.getContentPane().setBackground(UIManager.getColor("Button.background"));
         frame.setAlwaysOnTop(true);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setSize(619,287);
         frame.setTitle("Certificate Policy OID Overrides");
         frame.getContentPane().setLayout(new FormLayout(new ColumnSpec[] {
@@ -243,7 +244,8 @@ public class GuiRunnerAppController {
         
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
+        	@Override
+			public void actionPerformed(ActionEvent e) {
         	}
         });
         
