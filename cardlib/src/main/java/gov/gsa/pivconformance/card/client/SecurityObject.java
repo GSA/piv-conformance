@@ -12,7 +12,6 @@ import org.bouncycastle.util.Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -171,11 +170,12 @@ public class SecurityObject extends SignedPIVDataObject {
 			BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
 			BerTlvs outer = tlvp.parse(rawBytes);
 
-            if(outer == null){
-                s_logger.error("Error parsing {}, unable to parse TLV value.", APDUConstants.oidNameMap.get(super.getOID()));
-                return false;
-            }
-            
+			if (outer == null) {
+				s_logger.error("Error parsing {}, unable to parse TLV value.",
+						APDUConstants.oidNameMap.get(super.getOID()));
+				return false;
+			}
+
 			List<BerTlv> outerTlvs = outer.getList();
 			if (outerTlvs.size() == 1 && outerTlvs.get(0).isTag(new BerTag(0x53))) {
 				byte[] tlvBuf = outerTlvs.get(0).getBytesValue();
@@ -222,9 +222,9 @@ public class SecurityObject extends SignedPIVDataObject {
 								APDUConstants.oidNameMap.get(super.getOID()));
 						return false;
 					}
-					
+
 					m_content.put(tlv.getTag(), m_so);
-					
+
 					// Decode the ContentInfo and get SignedData object.
 					ByteArrayInputStream bIn = new ByteArrayInputStream(m_so);
 					ASN1InputStream aIn = new ASN1InputStream(bIn);
@@ -275,10 +275,10 @@ public class SecurityObject extends SignedPIVDataObject {
 					// throw their own
 					// exception
 					setComputedDigest(signer, m_so);
-				} else  if (Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG)) {
-                	BerTag tag2 = tlv.getTag();
-                	m_content.put(tag2, tlv.getBytesValue());
-                    m_errorDetectionCode = true;
+				} else if (Arrays.equals(tag, TagConstants.ERROR_DETECTION_CODE_TAG)) {
+					BerTag tag2 = tlv.getTag();
+					m_content.put(tag2, tlv.getBytesValue());
+					m_errorDetectionCode = true;
 				} else if (tlv.getBytesValue().length != 0) {
 					s_logger.warn("Unexpected tag: {} with value: {}", Hex.encodeHexString(tlv.getTag().bytes),
 							Hex.encodeHexString(tlv.getBytesValue()));
@@ -338,7 +338,8 @@ public class SecurityObject extends SignedPIVDataObject {
 					for (Map.Entry<Integer, byte[]> entry : m_dghList.entrySet()) {
 
 						String oid = m_containerIDList.get(entry.getKey());
-						s_logger.debug("Checking digest for {} (0x{})", APDUConstants.containerOidToNameMap.get(oid), Integer.toHexString(entry.getKey()));
+						s_logger.debug("Checking digest for {} (0x{})", APDUConstants.containerOidToNameMap.get(oid),
+								Integer.toHexString(entry.getKey()));
 
 						if (oid != null) {
 							byte[] content = m_mapOfDataElements.get(oid);

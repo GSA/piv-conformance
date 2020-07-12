@@ -36,18 +36,7 @@ public class UtilitiesPane extends JPanel {
 				byte[] atr = CardInfoController.getATR();
 				String atrString = Hex.encodeHexString(atr);
 				s_logger.info("Card ATR: {}", atrString);
-				//Security.insertProviderAt(new SmartcardioProvider(), 1);
-				/*Provider[] providers = Security.getProviders();
-				for(Provider p : providers) {
-					s_logger.error("Provider: {}", p.getName());
-				}
-				//Security.insertProviderAt(new SmartcardioProvider(), 1);
-				providers = Security.getProviders();
-				for(Provider p : providers) {
-					s_logger.error("Provider: {}", p.getName());
-				}
-				*/
-				//2.16.840.1.101.3.7.2.96.48
+
 				CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 
 				ConnectionDescription cd = ConnectionDescription.createFromTerminal(css.getTerminal());
@@ -55,7 +44,7 @@ public class UtilitiesPane extends JPanel {
 					if(!css.getTerminal().isCardPresent()) {
 						s_logger.error("No card is present in {}", css.getTerminal().getName());
 					}
-				}catch(Exception e2) {
+				} catch(Exception e2) {
 					s_logger.error("caught exception", e2);
 				}
 				CardHandle ch = new CardHandle();
@@ -65,8 +54,7 @@ public class UtilitiesPane extends JPanel {
 				ApplicationProperties cardAppProperties = new ApplicationProperties();
 				result = piv.pivSelectCardApplication(ch, aid, cardAppProperties);
 				PIVAuthenticators authenticators = new PIVAuthenticators();
-				//authenticators.addApplicationPin(css.getApplicationPin());
-				authenticators.addApplicationPin("123456");
+				authenticators.addApplicationPin("00000000");
 				result = piv.pivLogIntoCardApplication(ch, authenticators.getBytes());
 				//2.16.840.1.101.3.7.2.96.48
 				PIVDataObject obj =

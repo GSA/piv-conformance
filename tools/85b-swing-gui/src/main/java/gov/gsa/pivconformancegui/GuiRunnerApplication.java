@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.nio.file.Paths;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -45,7 +47,8 @@ public class GuiRunnerApplication {
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-		    public void run() {
+		    @Override
+			public void run() {
 		        TestRunLogController trlc = TestRunLogController.getInstance();
 		        trlc.cleanup();
 		    }
@@ -59,6 +62,8 @@ public class GuiRunnerApplication {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					GuiRunnerApplication window = new GuiRunnerApplication();
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+			        String sep = File.separator;
+					String cctDirectory = Paths.get(".").toAbsolutePath().normalize().toString() + sep;
 					c.setCctVersion(cctVersion);
 					c.setApp(window);
 					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();

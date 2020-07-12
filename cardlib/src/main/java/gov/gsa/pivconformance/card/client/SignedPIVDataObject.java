@@ -319,7 +319,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	public void setAsymmetricSignature(CMSSignedData asymmetricSignature) {
 		m_asymmetricSignature = asymmetricSignature;
 	}
-	
+
 	/**
 	 * Extracts and sets the message digest in the signed attributes
 	 * 
@@ -436,7 +436,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	}
 
 	/**
-	 * Indicates whether this object has an embedded content signer cert 
+	 * Indicates whether this object has an embedded content signer cert
 	 *
 	 */
 
@@ -445,61 +445,61 @@ public class SignedPIVDataObject extends PIVDataObject {
 	}
 
 	/**
-     *
-     * Verifies the signature on the object.
-     *
-     * @return True if signature successfully verified, false otherwise
-     */
+	 *
+	 * Verifies the signature on the object.
+	 *
+	 * @return True if signature successfully verified, false otherwise
+	 */
 	public boolean verifySignature() {
-        boolean rv_result = false;
+		boolean rv_result = false;
 
-        CMSSignedData s;
-        try {
-            s = new CMSSignedData(m_contentInfo);
+		CMSSignedData s;
+		try {
+			s = new CMSSignedData(m_contentInfo);
 
-            if (m_asymmetricSignature.isDetachedSignature()) {
-                CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
-                s = new CMSSignedData(procesableContentBytes, m_contentInfo);
-            }
-            
-            SignerInformationStore signers = s.getSignerInfos();
-            if (signers.size() != 1) {
-            	s_logger.error("There were {} signers", signers.size());
-            	return rv_result;
-            }
-            Store<X509CertificateHolder> certs = s.getCertificates();
-            Set<AlgorithmIdentifier> digAlgSet = s.getDigestAlgorithmIDs();
-            Iterator<AlgorithmIdentifier> dai = digAlgSet.iterator();
-            
-            ArrayList<String> allowedDigestAlgOids = new ArrayList<String>();
-            allowedDigestAlgOids.add("2.16.840.1.101.3.4.2.1");
-            allowedDigestAlgOids.add("2.16.840.1.101.3.4.2.2");
-        	String daOid = null;
+			if (m_asymmetricSignature.isDetachedSignature()) {
+				CMSProcessable procesableContentBytes = new CMSProcessableByteArray(m_signedContent);
+				s = new CMSSignedData(procesableContentBytes, m_contentInfo);
+			}
 
-        	while (dai.hasNext()) {
-            	// Check against allowed signing algorithms
-            	AlgorithmIdentifier ai = dai.next();
-            	daOid = ai.getAlgorithm().getId();
-            	if (!allowedDigestAlgOids.contains(daOid)) {
-            		s_logger.error("Unsupported digest algorithm for PIV/PIV-I: {}", daOid);
-            		return rv_result; 
-            	}
-            	break; // TODO: Should we handle multiple?
-            }
-            
-            for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
-                SignerInformation signer = i.next();
-        		signer = new _SignerInformation(signer);
+			SignerInformationStore signers = s.getSignerInfos();
+			if (signers.size() != 1) {
+				s_logger.error("There were {} signers", signers.size());
+				return rv_result;
+			}
+			Store<X509CertificateHolder> certs = s.getCertificates();
+			Set<AlgorithmIdentifier> digAlgSet = s.getDigestAlgorithmIDs();
+			Iterator<AlgorithmIdentifier> dai = digAlgSet.iterator();
+
+			ArrayList<String> allowedDigestAlgOids = new ArrayList<String>();
+			allowedDigestAlgOids.add("2.16.840.1.101.3.4.2.1");
+			allowedDigestAlgOids.add("2.16.840.1.101.3.4.2.2");
+			String daOid = null;
+
+			while (dai.hasNext()) {
+				// Check against allowed signing algorithms
+				AlgorithmIdentifier ai = dai.next();
+				daOid = ai.getAlgorithm().getId();
+				if (!allowedDigestAlgOids.contains(daOid)) {
+					s_logger.error("Unsupported digest algorithm for PIV/PIV-I: {}", daOid);
+					return rv_result;
+				}
+				break; // TODO: Should we handle multiple?
+			}
+
+			for (Iterator<SignerInformation> i = signers.getSigners().iterator(); i.hasNext();) {
+				SignerInformation signer = i.next();
+				signer = new _SignerInformation(signer);
 
 				AttributeTable at = signer.getSignedAttributes();
 
-                s_logger.info("There are {} signed attributes", at.size());
+				s_logger.info("There are {} signed attributes", at.size());
 				// Message digest
 				if (at.get(new ASN1ObjectIdentifier("1.2.840.113549.1.9.4")) == null) {
 					s_logger.error("Required messageDigest attribute is missing");
 					return rv_result;
 				}
-              
+
 				// Content type
 				if (at.get(new ASN1ObjectIdentifier("1.2.840.113549.1.9.3")) == null) {
 					s_logger.error("Required contentType attribute is missing");
@@ -507,42 +507,46 @@ public class SignedPIVDataObject extends PIVDataObject {
 				}
 
 				// Ensure there is a content signer certificate
-                X509Certificate signerCert = getChuidSignerCert();
+				X509Certificate signerCert = getChuidSignerCert();
 
-                if (signerCert == null) {
-                    s_logger.error("Unable to find CHUID signer certificate for {}", APDUConstants.oidNameMap.get(super.getOID()));
-                   return rv_result;
-                }
+				if (signerCert == null) {
+					s_logger.error("Unable to find CHUID signer certificate for {}",
+							APDUConstants.oidNameMap.get(super.getOID()));
+					return rv_result;
+				}
 
-                @SuppressWarnings("unchecked")
+				@SuppressWarnings("unchecked")
 				Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
-                Iterator<X509CertificateHolder> certIt = certCollection.iterator();
-                if (certIt.hasNext()) {
-                    X509CertificateHolder certHolder = certIt.next();
-                    signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
-                    // Housekeeping
-                    if (signerCert != null)
-                    	setSignerCert(signerCert);
-                }
+				Iterator<X509CertificateHolder> certIt = certCollection.iterator();
+				if (certIt.hasNext()) {
+					X509CertificateHolder certHolder = certIt.next();
+					signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+					// Housekeeping
+					if (signerCert != null)
+						setSignerCert(signerCert);
+				}
 
-                rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
-            }
-        } catch (CertificateException e) {
-            s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
-        } catch (CMSException e) {
-        	s_logger.error("CMS exception while verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
+				rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
+			}
+		} catch (CertificateException e) {
+			s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()),
+					e.getMessage());
+		} catch (CMSException e) {
+			s_logger.error("CMS exception while verifying signature on {}: {}",
+					APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
 		} catch (OperatorCreationException e) {
-        	s_logger.error("Operator exception while verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
+			s_logger.error("Operator exception while verifying signature on {}: {}",
+					APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
 		}
 
-        return rv_result;
-    }
-	
+		return rv_result;
+	}
+
 	private class _SignerInformation extends SignerInformation {
 		protected _SignerInformation(SignerInformation baseSignerInfo) {
 			super(baseSignerInfo);
 		}
-		
+
 		@Override
 		public byte[] getEncodedSignedAttributes() throws IOException {
 			return signedAttributeSet.getEncoded(ASN1Encoding.DL);

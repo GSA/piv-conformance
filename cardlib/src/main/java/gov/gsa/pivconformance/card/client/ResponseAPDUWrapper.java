@@ -7,18 +7,16 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 // derived from the intarsys ResponseAPDU class
 public class ResponseAPDUWrapper {
-    private static final Logger s_logger = LoggerFactory.getLogger(ResponseAPDUWrapper.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(ResponseAPDUWrapper.class);
 
 	private final byte[] bytes;
 
 	public ResponseAPDUWrapper(byte[] response) throws CardClientException {
 		assert (response != null);
 		if (response.length < 2) {
-			throw new CardClientException(
-					"Invalid response received from card reader");
+			throw new CardClientException("Invalid response received from card reader");
 		}
 		this.bytes = response;
 	}
@@ -67,8 +65,7 @@ public class ResponseAPDUWrapper {
 	}
 
 	public int getSw() {
-		return ((bytes[bytes.length - 2] & 0xFF) << 8)
-				+ (bytes[bytes.length - 1] & 0xFF);
+		return ((bytes[bytes.length - 2] & 0xFF) << 8) + (bytes[bytes.length - 1] & 0xFF);
 	}
 
 	public int getSw1() {
@@ -80,8 +77,7 @@ public class ResponseAPDUWrapper {
 	}
 
 	public String getSwString() {
-		return "0x" + Integer.toHexString(getSw1()) + ""
-				+ Integer.toHexString(getSw2());
+		return "0x" + Integer.toHexString(getSw1()) + "" + Integer.toHexString(getSw2());
 	}
 
 	public boolean hasData() {
@@ -98,4 +94,3 @@ public class ResponseAPDUWrapper {
 	}
 
 }
-

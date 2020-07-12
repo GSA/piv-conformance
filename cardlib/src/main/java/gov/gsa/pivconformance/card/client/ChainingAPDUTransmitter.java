@@ -19,17 +19,17 @@ import gov.gsa.pivconformance.utils.PCSCWrapper;
 // based on logic from the intarsys PCSC wrapper library, adapted to run directly on top of
 // javax.smartcardio.pcsc
 public class ChainingAPDUTransmitter {
-	
+
 	private CardChannel m_channel = null;
-    private static final Logger s_logger = LoggerFactory.getLogger(ChainingAPDUTransmitter.class);
-    private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
+	private static final Logger s_logger = LoggerFactory.getLogger(ChainingAPDUTransmitter.class);
+	private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.apdu");
 	private ITransmitCounter m_counter;
-	
+
 	public ChainingAPDUTransmitter(CardChannel c) {
 		m_channel = c;
 		m_counter = PCSCWrapper.getInstance();
 	}
-	
+
 	protected RequestAPDUWrapper fixLengthExpected(RequestAPDUWrapper request, int correctLE) {
 		int cla = request.getCla();
 		int ins = request.getIns();
@@ -42,27 +42,28 @@ public class ChainingAPDUTransmitter {
 			return new RequestAPDUWrapper(cla, ins, p1, p2, data, correctLE);
 		}
 	}
-	
+
 	ResponseAPDUWrapper nativeTransmit(RequestAPDUWrapper request) throws CardException, CardClientException {
 		CommandAPDU cmd = new CommandAPDU(request.getBytes());
-    	ResponseAPDU rsp = null;
-    	try {
-    		
+		ResponseAPDU rsp = null;
+		try {
+
 			String apduTrace;
 			// Mask PIN
-	    	if (cmd.getINS() == APDUConstants.VERIFY) {
-	    		byte[] maskedPin = cmd.getBytes();
-	    		for (int i = 5, end = i + cmd.getNc(); i < end; i++) {
-	    			maskedPin[i] = (byte) 0xAA;
-	    		}
-	    		apduTrace = String.format("Sending Command APDU %s", Hex.encodeHexString(maskedPin).replaceAll("..(?=.)", "$0 "));
-	    	}
-	    	else {
-	    		apduTrace = String.format("Sending Command APDU %s", Hex.encodeHexString((cmd.getBytes())).replaceAll("..(?=.)", "$0 "));
-	    	}
-    		s_apduLogger.debug(apduTrace);
-    		
-    		m_counter.incrementTransmitCount();
+			if (cmd.getINS() == APDUConstants.VERIFY) {
+				byte[] maskedPin = cmd.getBytes();
+				for (int i = 5, end = i + cmd.getNc(); i < end; i++) {
+					maskedPin[i] = (byte) 0xAA;
+				}
+				apduTrace = String.format("Sending Command APDU %s",
+						Hex.encodeHexString(maskedPin).replaceAll("..(?=.)", "$0 "));
+			} else {
+				apduTrace = String.format("Sending Command APDU %s",
+						Hex.encodeHexString((cmd.getBytes())).replaceAll("..(?=.)", "$0 "));
+			}
+			s_apduLogger.debug(apduTrace);
+
+			m_counter.incrementTransmitCount();
 			rsp = m_channel.transmit(cmd);
 
 		} catch (CardException e) {
@@ -71,22 +72,18 @@ public class ChainingAPDUTransmitter {
 		}
 		return new ResponseAPDUWrapper(rsp.getBytes());
 	}
-	
-	protected ResponseAPDUWrapper basicTransmit(RequestAPDUWrapper request)
-			throws CardClientException, CardException {
+
+	protected ResponseAPDUWrapper basicTransmit(RequestAPDUWrapper request) throws CardClientException, CardException {
 		RequestAPDUWrapper encodedRequest = encodeRequest(request);
-		ResponseAPDUWrapper encodedResponse = nativeTransmit(
-				encodedRequest);
+		ResponseAPDUWrapper encodedResponse = nativeTransmit(encodedRequest);
 		return decodeResponse(encodedResponse);
 	}
 
-	protected ResponseAPDUWrapper decodeResponse(ResponseAPDUWrapper response)
-			throws CardException {
+	protected ResponseAPDUWrapper decodeResponse(ResponseAPDUWrapper response) throws CardException {
 		return response;
 	}
 
-	protected RequestAPDUWrapper encodeRequest(RequestAPDUWrapper request)
-			throws CardException {
+	protected RequestAPDUWrapper encodeRequest(RequestAPDUWrapper request) throws CardException {
 		return request;
 	}
 
@@ -110,8 +107,7 @@ public class ChainingAPDUTransmitter {
 			}
 			do {
 				// "GET RESPONSE" command
-				RequestAPDUWrapper fixedRequest = new RequestAPDUWrapper(0, 0xC0, 0, 0,
-						response.getSw2());
+				RequestAPDUWrapper fixedRequest = new RequestAPDUWrapper(0, 0xC0, 0, 0, response.getSw2());
 				response = this.basicTransmit(fixedRequest);
 				try {
 					dataBaos.write(response.getData());
@@ -119,7 +115,7 @@ public class ChainingAPDUTransmitter {
 					s_logger.error("Caught exception appending to byte array", e);
 					throw new CardClientException("Unable to append to byte array", e);
 				}
-			} while(response.getSw1() == 0x61);
+			} while (response.getSw1() == 0x61);
 
 			try {
 				dataBaos.flush();
@@ -129,8 +125,10 @@ public class ChainingAPDUTransmitter {
 			}
 			byte[] dataBytes = dataBaos.toByteArray();
 			s_logger.debug("GET RESPONSE: final size: {}", dataBytes.length);
-			ResponseAPDUWrapper fixedResponse = new ResponseAPDUWrapper(dataBytes, response.getSw1(), response.getSw2());
-			s_logger.debug("Returning status {} following GET RESPONSE", String.format("%1$02X %2$02X", response.getSw1(), response.getSw2()));
+			ResponseAPDUWrapper fixedResponse = new ResponseAPDUWrapper(dataBytes, response.getSw1(),
+					response.getSw2());
+			s_logger.debug("Returning status {} following GET RESPONSE",
+					String.format("%1$02X %2$02X", response.getSw1(), response.getSw2()));
 			response = fixedResponse;
 		}
 		if (request.isChainedRequest() && request.getNextRequest() != null) {

@@ -990,7 +990,7 @@ public class CMSTests {
 			fail("CHUID object is null");
 		}
 		
-		byte[] fascn = ((CardHolderUniqueIdentifier) o2).getfASCN();
+		byte[] fascn = o2.getfASCN();
 		if (fascn == null) {
 			fail("FASC-N in CHUID object is null");
 		}
@@ -1015,7 +1015,7 @@ public class CMSTests {
 
 			assertTrue(attr != null, String.format("Attribute %s not found in signed attributes", fascnOID));
 
-			ASN1Set fascnAttr = ((Attribute) attr).getAttrValues();
+			ASN1Set fascnAttr = attr.getAttrValues();
 			assertTrue(fascnAttr != null, String.format("No value for %s attribute", fascnOID));
 			assertTrue(fascnAttr.size() == 1, "FASC-N attribute has multiple values");
 
@@ -1053,7 +1053,7 @@ public class CMSTests {
 			fail("CHUID object is null");
 		}
 		
-		byte[] uuid = ((CardHolderUniqueIdentifier) o2).getgUID();
+		byte[] uuid = o2.getgUID();
 		if (uuid == null) {
 			fail("UUID in CHUID object is null");
 		}
@@ -1078,7 +1078,7 @@ public class CMSTests {
 
 			assertTrue(attr != null, String.format("Attribute %s not found in signed attributes", uuidOID));
 
-			ASN1Set uuidAttr = ((Attribute) attr).getAttrValues();
+			ASN1Set uuidAttr = attr.getAttrValues();
 			assertTrue(uuidAttr != null, String.format("No value for %s attribute", uuidOID));
 			assertTrue(uuidAttr.size() == 1, "UUID attribute has multiple values");
 

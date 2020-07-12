@@ -93,9 +93,9 @@ public class TagConstants {
 	public static final byte[] ORGANIZATIONAL_IDENTIFIER_TAG = { 0x32 };
 	public static final byte[] DUNS_TAG = { 0x33 };
 	public static final byte[] GUID_TAG = { 0x34 };
-	public static final byte[] CHUID_EXPIRATION_DATE_TAG = { 0x35 }; 
+	public static final byte[] CHUID_EXPIRATION_DATE_TAG = { 0x35 };
 	public static final byte[] CARDHOLDER_UUID_TAG = { 0x36 };
-	public static final byte[] DEPRECATED_AUTHENTICATION_KEY_MAP ={ 0x3D };
+	public static final byte[] DEPRECATED_AUTHENTICATION_KEY_MAP = { 0x3D };
 	public static final byte[] ISSUER_ASYMMETRIC_SIGNATURE_TAG = { 0x3E };
 
 	/**
@@ -127,7 +127,7 @@ public class TagConstants {
 	public static final byte[] SECURITY_OBJECT_TAG = { (byte) 0xBB };
 
 	// SP800-73-4 Part 1, Table 13. Card Holder Facial Image Tags
-	public static final byte[] IMAGE_FOR_VISUAL_VERIFICATION_TAG = { (byte) 0xBC }; 
+	public static final byte[] IMAGE_FOR_VISUAL_VERIFICATION_TAG = { (byte) 0xBC };
 
 	// SP800-73-4 Part 1, Table 14. Printed Information Tags
 	public static final byte[] NAME_TAG = { 0x01 };
@@ -245,4 +245,3 @@ public class TagConstants {
 		}
 	};
 }
-
