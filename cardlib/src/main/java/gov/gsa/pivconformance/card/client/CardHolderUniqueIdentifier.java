@@ -45,6 +45,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 	private byte[] m_cardholderUUID;
 	private boolean m_errorDetectionCode;
 	private byte[] m_chuidContainer;
+	private ArtifactWriter m_x509ArtifactCache;
 
 	// TODO: Cache this
 	// HashMap<BerTag, byte[]> m_content;
@@ -64,6 +65,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 		m_errorDetectionCode = false;
 		m_chuidContainer = null;
 		m_content = new HashMap<BerTag, byte[]>();
+		m_x509ArtifactCache = new ArtifactWriter("x509-artifacts");
 	}
 
 	/**
@@ -286,7 +288,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 			ByteArrayOutputStream signedContentOutputStream = new ByteArrayOutputStream();
 			ByteArrayOutputStream containerOutputStream = new ByteArrayOutputStream();
 			byte[] issuerAsymmetricSignature = null;
-
+			setContainerName("CardHolderUniqueIdentifier");
 			List<BerTlv> values = outer.getList();
 			for (BerTlv tlv : values) {
 				if (tlv.isPrimitive()) {
@@ -437,6 +439,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 												// Hang the CHUID signer cert here so that any test runner
 												// consumer can access it.
 												setChuidSignerCert(signerCert);
+												m_x509ArtifactCache.saveObject(APDUConstants.getFileNameForOid(getOID())+ ".cer", signerCert.getEncoded());
 											} else {
 												s_logger.error("Can't extract signer certificate");
 											}

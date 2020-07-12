@@ -32,7 +32,8 @@ public class X509CertificateDataObject extends PIVDataObject {
 	private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateDataObject.class);
 
 	private X509Certificate m_cert;
-	private ArtifactCache m_artifactCache;
+	private ArtifactWriter m_x509ArtifactCache;
+
 
 	/**
 	 * CardCapabilityContainer class constructor, initializes all the class fields.
@@ -43,7 +44,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 		setErrorDetectionCode(false);
 		setErrorDetectionCodeHasData(false);
 		m_content = new HashMap<BerTag, byte[]>();
-		m_artifactCache = new ArtifactCache("x509artifacts");
+		m_x509ArtifactCache = new ArtifactWriter("x509-artifacts");
 	}
 
 	/**
@@ -117,17 +118,17 @@ public class X509CertificateDataObject extends PIVDataObject {
 									String oid = getOID();
 
 									if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0)
-										setContainerName("X509CertificateForPivAuthentication");
+										setContainerName("X509 Certificate for PivAuthentication");
 									else if (oid
 											.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0)
-										setContainerName("X509CertificateForCardAuthentication");
+										setContainerName("X509 Certificate for Card Authentication");
 									else if (oid
 											.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0)
-										setContainerName("X509CertificateForDigitalSignature");
+										setContainerName("X509 Certificate for Digital Signature");
 									else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0)
-										setContainerName("X509CertificateForKeyManagement");
+										setContainerName("X509 Certificate for Key Management");
 
-									m_artifactCache.saveObject(getContainerName() + ".cer", rawCertBuf);
+									m_x509ArtifactCache.saveObject(APDUConstants.getFileNameForOid(oid)+ ".cer", rawCertBuf);
 								}
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 									setErrorDetectionCode(true);

@@ -767,6 +767,11 @@ public class APDUConstants {
 
 		return oid;
 	}
+	
+	public static final String getFileNameForOid(String oid) {
+		String rv = oidNameMap.get(oid).replaceAll(" ", "_");
+		return rv;
+	}
 
 	public static final String getStringForFieldNamed(String fieldName) {
 		String rv = null;

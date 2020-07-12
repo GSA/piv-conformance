@@ -40,6 +40,7 @@ public class PIVDataObject {
 	private String m_name;
 	private static List<String> m_oidList = new ArrayList<String>();
 	private String m_containerName;
+	private ArtifactWriter m_artifactCache;
 
 	/**
 	 * Initialize an invalid PIV data object
@@ -55,6 +56,7 @@ public class PIVDataObject {
 		m_content = new HashMap<BerTag, byte[]>();
 		m_name = null;
 		m_containerName = null;
+		m_artifactCache = new ArtifactWriter("piv-artifacts");
 	}
 
 	/**
@@ -68,6 +70,15 @@ public class PIVDataObject {
 		setOID(OID);
 		setMandatory(APDUConstants.isContainerMandatory(m_OID));
 		setContainerName(APDUConstants.containerOidToNameMap.get(m_OID));
+		setArtifactCache(new ArtifactWriter("piv-artifacts"));
+	}
+
+	private void setArtifactCache(ArtifactWriter artifactCache) {
+		m_artifactCache = artifactCache;
+	}
+	
+	private ArtifactWriter getArtifactCache() {
+		return m_artifactCache;
 	}
 
 	/**
@@ -225,12 +236,14 @@ public class PIVDataObject {
 			// Get the container name
 			String canonicalName = classz.getCanonicalName();
 			String containerName = getContainerName();
+			if (containerName == null) containerName = APDUConstants.oidNameMap.get(m_OID).replaceAll("_", "");
 			String className = containerName == null ? canonicalName
 					: classz.getPackage().toString().replace("package ", "") + "." + containerName;
 			// Find the path where containers are written
 			Logger s_containerLogger = LoggerFactory.getLogger(className);
 			s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ", "_"));
 			s_containerLogger.debug("Raw bytes: {}", Hex.encodeHexString(m_dataBytes));
+			m_artifactCache.saveObject(APDUConstants.getFileNameForOid(m_OID)+ ".dat", m_dataBytes);
 			for (int i = 0; i < m_tagList.size(); i++) {
 				BerTag tag = m_tagList.get(i);
 				if (tag != null) {

@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class ArtifactCache {
-	private static final Logger s_logger = LoggerFactory.getLogger(ArtifactCache.class);
+public class ArtifactWriter {
+	private static final Logger s_logger = LoggerFactory.getLogger(ArtifactWriter.class);
 	private String m_artifactDir = null;
 	private ArrayList<byte[]> m_artifactCache = null;
 	
-	public ArtifactCache(String subDir) {
+	public ArtifactWriter(String subDir) {
 		if (m_artifactDir == null)
 			init(subDir);
 	}
@@ -51,7 +51,7 @@ public class ArtifactCache {
 	}
 	
 	/**
-	 * Exports an X.509 certificate
+	 * Exports a container
 	 * 
 	 * @param containerName
 	 * @param bytes
