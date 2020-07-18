@@ -32,11 +32,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class PathValidator {
 
-	public static CertPath buildCertPath(X509Certificate eeCert, X509Certificate trustAnchorCert, KeyStore ks,
+	public static CertPath buildCertPath(X509Certificate eeCert, String trustAnchorAlias, KeyStore ks,
 			String certPolicyOid) {
 		try {
 			CertPathBuilder builder = CertPathBuilder.getInstance("PKIX");
@@ -47,13 +49,21 @@ public class PathValidator {
 			certList.add(eeCert);
 			Enumeration<String> enumeration = ks.aliases();
 			Set<TrustAnchor> trustAnchors = new HashSet<>();
-			trustAnchors.add(new TrustAnchor((X509Certificate) trustAnchorCert, null));
 			while (enumeration.hasMoreElements()) {
-				X509Certificate certificate = (X509Certificate) ks.getCertificate(enumeration.nextElement());
-				System.out.println(certificate.getSerialNumber() + ": " + certificate.getSubjectX500Principal()
-				+ " issued by " + certificate.getIssuerX500Principal());
-				if (!certificate.equals(trustAnchorCert)) {
+				String alias = enumeration.nextElement();
+				X509Certificate certificate = (X509Certificate) ks.getCertificate(alias);
+				String skidString = Hex.encodeHexString(CertUtils.getExtensionValue(certificate, Extension.subjectKeyIdentifier.toString()).getEncoded());
+
+				if (!alias.equals(trustAnchorAlias) && !CertUtils.isCertificateSelfSigned(certificate)) {
 					certList.add(certificate);
+					String akidString = Hex.encodeHexString(CertUtils.getExtensionValue(certificate, Extension.authorityKeyIdentifier.toString()).getEncoded());
+
+					System.out.println(skidString.substring(4) + " " + akidString.substring(8) + " " + alias + ": "  + certificate.getSubjectX500Principal()
+					+ " Issuer: " + certificate.getIssuerX500Principal());
+				} else {
+					trustAnchors.add(new TrustAnchor(certificate, null));
+					System.out.println(skidString.substring(4) + " " + alias + ": "  + certificate.getSubjectX500Principal()
+					+ " Issuer: " + certificate.getIssuerX500Principal());
 				}
 			}
 
@@ -99,9 +109,8 @@ public class PathValidator {
 		boolean result = false;
 		try {
 			KeyStore keyStore = Utils.loadKeyStore(keyStorePath, keyStorePass);
-			X509Certificate trustAnchorCert = (X509Certificate) keyStore.getCertificate(trustAnchorAlias);
-			List<X509Certificate> certList = CertUtils.getIssuerCerts(eeCert);
-			CertPath certPath = buildCertPath(eeCert, trustAnchorCert, keyStore, certPolicyOid);
+			//List<X509Certificate> certList = CertUtils.getIssuerCerts(eeCert);
+			CertPath certPath = buildCertPath(eeCert, trustAnchorAlias, keyStore, certPolicyOid);
 
 			if (certPath != null) {
 				@SuppressWarnings("unchecked")

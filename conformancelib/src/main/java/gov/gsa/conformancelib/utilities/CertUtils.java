@@ -55,10 +55,9 @@ import org.slf4j.LoggerFactory;
 public class CertUtils {
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Utils.class);
 
-    public static X509Certificate getIssuerCertFromBundle(URL location, byte[] subjectAkid) throws CertificateException, IOException {
+    public static X509Certificate getIssuerCertFromBundle(URL location, AuthorityKeyIdentifier akid) throws CertificateException, IOException {
     	String bundlePath = System.getProperty("java.io.tmpdir") + FilenameUtils.getName(location.getPath());
-    	ASN1OctetString akidOctetString = ASN1OctetString.getInstance(subjectAkid);
-    	AuthorityKeyIdentifier akid = AuthorityKeyIdentifier.getInstance(akidOctetString.getOctets());
+
     	X509Certificate issuerCert = null;
 		try {
 	    	ReadableByteChannel readableByteChannel = Channels.newChannel(location.openStream());
@@ -70,23 +69,37 @@ public class CertUtils {
 	    	List<X509Certificate> certs = loadCertsFromBundle(bundlePath);
 			for (X509Certificate c : certs) {
 				byte[] issuerSkid = c.getExtensionValue(Extension.subjectKeyIdentifier.getId());
-				ASN1OctetString skidOctetString = ASN1OctetString.getInstance(issuerSkid);
-				SubjectKeyIdentifier skid = SubjectKeyIdentifier.getInstance(skidOctetString.getOctets());
+				if (issuerSkid != null) {
+					ASN1OctetString skidOctetString = ASN1OctetString.getInstance(issuerSkid);
+					if (skidOctetString != null) {
+						SubjectKeyIdentifier skid = SubjectKeyIdentifier.getInstance(skidOctetString.getOctets());
+						if (skid != null) {
 
-				if (Arrays.equals(skid.getKeyIdentifier(), akid.getKeyIdentifier())) {
-					issuerCert = c;
-					String certFilePath;
-					certFilePath = System.getProperty("java.io.tmpdir") + Hex.encodeHexString(akid.getKeyIdentifier()) + ".cer";
-					Path certPath = Paths.get(certFilePath);
-					try {
-						Files.write(certPath, c.getEncoded());
-						s_logger.debug("Wrote certificate " + certFilePath);
-					} catch (CertificateEncodingException | IOException e) {
-						s_logger.error("Unable to write certificate", e);
-						throw e;
+							if (Arrays.equals(skid.getKeyIdentifier(), akid.getKeyIdentifier())) {
+								issuerCert = c;
+								String certFilePath;
+								certFilePath = System.getProperty("java.io.tmpdir") + Hex.encodeHexString(akid.getKeyIdentifier()) + ".cer";
+								Path certPath = Paths.get(certFilePath);
+								try {
+									Files.write(certPath, c.getEncoded());
+									s_logger.debug("Wrote certificate " + certFilePath);
+								} catch (CertificateEncodingException | IOException e) {
+									s_logger.error("Unable to write certificate", e);
+									throw e;
+								}
+	
+								break;
+							} else {
+								s_logger.info("Skipped Serial Number: " + c.getSerialNumber().toString() + "Subject: " + c.getSubjectDN().toString());
+							}
+						} else {
+							s_logger.error("skid was null");
+						}
+					} else {
+						s_logger.error("skidOctetString was null");
 					}
-
-					break;
+				} else {
+					s_logger.error("issuerSkid was null");
 				}
 			}
 		} catch (IOException e) {
@@ -113,7 +126,9 @@ public class CertUtils {
 			URL url = new URL(issuerUrl);
             if (url.getPath().toLowerCase().matches("^.*p7[bc]$")) {
             	s_logger.trace("Issuer cert is in a bundle");
-            	caCert = getIssuerCertFromBundle(url, issuerAkid);
+            	ASN1OctetString akidOctetString = ASN1OctetString.getInstance(issuerAkid);
+            	AuthorityKeyIdentifier akid = AuthorityKeyIdentifier.getInstance(akidOctetString.getOctets());
+            	caCert = getIssuerCertFromBundle(url, akid);
                 if (caCert != null) {
                 	s_logger.debug(caCert.toString());
                 }
@@ -173,7 +188,7 @@ public class CertUtils {
 	 * @return the value expressed as an ASN1Primitive
 	 * @throws IOException
 	 */ 
-    private static ASN1Primitive getExtensionValue(X509Certificate certificate, String oid) throws IOException {
+    public static ASN1Primitive getExtensionValue(X509Certificate certificate, String oid) throws IOException {
     	ASN1Primitive rv = null;
         byte[] bytes = certificate.getExtensionValue(oid);
         if (bytes == null) {
@@ -243,7 +258,10 @@ public class CertUtils {
         try {
         	cert.verify(key);
         	result = true;
-        } catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException | SignatureException e) {
+        	s_logger.debug("Certificate is self-signed");
+        } catch (InvalidKeyException | SignatureException e) {
+        	s_logger.debug("Certificate is not self-signed");
+        } catch (CertificateException | NoSuchAlgorithmException | NoSuchProviderException e) {
         	s_logger.error("Exception: " + e.getMessage());
         }
         return result;
