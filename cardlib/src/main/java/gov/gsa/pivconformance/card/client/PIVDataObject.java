@@ -307,7 +307,6 @@ public class PIVDataObject {
 		return Hex.encodeHexString(m_dataBytes);
 	}
 
-
 	/**
 	 *
 	 * Returns a String containing PIV data object OID, friendly name and hex

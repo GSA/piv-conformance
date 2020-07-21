@@ -6,12 +6,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.Files;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -103,6 +110,18 @@ public class X509CertificateDataObject extends PIVDataObject {
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
 									if (tlv2.hasRawValue()) {
 										rawCertBuf = tlv2.getBytesValue();
+
+										InputStream certIS = null;
+										// Check if the certificate buffer is compressed
+										if (certInfoBuf != null && Arrays.equals(certInfoBuf, TagConstants.COMPRESSED_TAG)) {
+											certIS = new GZIPInputStream(new ByteArrayInputStream(rawCertBuf));
+										} else {
+											certIS = new ByteArrayInputStream(rawCertBuf);
+										}
+
+										CertificateFactory cf = CertificateFactory.getInstance("X509");
+										m_cert = (X509Certificate) cf.generateCertificate(certIS);
+										
 										m_content.put(tlv2.getTag(), tlv2.getBytesValue());
 										s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes),
 												Hex.encodeHexString(rawCertBuf));
@@ -150,17 +169,6 @@ public class X509CertificateDataObject extends PIVDataObject {
 							s_logger.error("Error parsing X.509 Certificate, unable to get certificate buffer.");
 							return false;
 						}
-
-						InputStream certIS = null;
-						// Check if the certificate buffer is compressed
-						if (certInfoBuf != null && Arrays.equals(certInfoBuf, TagConstants.COMPRESSED_TAG)) {
-							certIS = new GZIPInputStream(new ByteArrayInputStream(rawCertBuf));
-						} else {
-							certIS = new ByteArrayInputStream(rawCertBuf);
-						}
-
-						CertificateFactory cf = CertificateFactory.getInstance("X509");
-						m_cert = (X509Certificate) cf.generateCertificate(certIS);
 						s_logger.debug("Subject: {}", m_cert.getSubjectDN().toString());
 					} else {
 						s_logger.trace("Object: {}", Hex.encodeHexString(tlv.getTag().bytes));
