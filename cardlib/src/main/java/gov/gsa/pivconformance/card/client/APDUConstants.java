@@ -840,5 +840,15 @@ public class APDUConstants {
 
 		return arr;
 	}
-
+	
+	/**
+	 * Helper function to generate a file name from an OID
+	 * @param oid the container OID
+	 * @return a file name consisting of the container name appended with ".dat"
+	 */
+	
+	public static final String getFileNameForOid(String oid) {
+		String rv = oidNameMap.get(oid).replaceAll(" ", "_");
+		return rv;
+	}
 }
