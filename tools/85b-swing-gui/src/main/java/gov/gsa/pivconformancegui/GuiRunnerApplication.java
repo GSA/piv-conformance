@@ -87,6 +87,7 @@ public class GuiRunnerApplication {
 						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
 					}
 					GuiTestExecutionController tc = GuiTestExecutionController.getInstance();
+					tc.setTestRunLogController(trlc);
 					tc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
 					tc.setTestTreePanel(window.m_mainContent.getTreePanel());
 					tc.setToolBar(window.m_toolBar);

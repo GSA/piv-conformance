@@ -35,20 +35,19 @@ import gov.gsa.pivconformance.card.client.DataModelSingleton;
 public class GuiTestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestExecutionController.class);
 	private static final GuiTestExecutionController INSTANCE = new GuiTestExecutionController();
-
 	private static final String tag30TestId = "8.2.2.1"; // TODO: Fixme
 
-	GuiTestTreePanel m_testTreePanel;
-	SimpleTestExecutionPanel m_testExecutionPanel;
-	GuiRunnerToolbar m_toolBar;
-	boolean m_running;
-	LoggerContext m_ctx;
-	TestRunLogController m_trlc;
+	private TestRunLogController m_trlc;
+	private GuiTestTreePanel m_testTreePanel;
+	private SimpleTestExecutionPanel m_testExecutionPanel;
+	private GuiRunnerToolbar m_toolBar;
+	private boolean m_running;
+	private LoggerContext m_ctx;
 
 	public static GuiTestExecutionController getInstance() {
 		return INSTANCE;
 	}
-
+	
 	private GuiTestExecutionController() {
 		reset();
 	}
@@ -58,7 +57,8 @@ public class GuiTestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
-		m_trlc = TestRunLogController.getInstance();
+		m_trlc = TestRunLogController.getInstance();;
+		m_trlc.initialize();
 	}
 
 	public GuiTestTreePanel getTestTreePanel() {

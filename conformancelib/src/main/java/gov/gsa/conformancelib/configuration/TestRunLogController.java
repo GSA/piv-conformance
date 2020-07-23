@@ -85,13 +85,18 @@ public class TestRunLogController {
 		return INSTANCE;
 	}
 	
+	public void initialize() {
+		if (m_ctx != null)
+			initialize(m_ctx);
+	}
+	
 	/**
 	 * Initializes a new TestRunLogController. One must be created per instance of CCT. ]
 	 * 
 	 * @param ctx the logger context - one per application.
 	 */
 	@SuppressWarnings("unchecked")
-	private void initialize(LoggerContext ctx) {
+	public void initialize(LoggerContext ctx) {
 
 		if (m_appenders == null) {
 			m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
@@ -160,11 +165,23 @@ public class TestRunLogController {
 			e.printStackTrace();
 		}
 		StatusPrinter.printIfErrorsOccured(m_ctx);
-//		TestExecutionController tc = TestExecutionController.getInstance();
-//		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
 		TestRunLogController trlc = getInstance();
 		trlc.initialize(m_ctx);
 	}
+
+	/**
+	 * Gets LoggerContext of the logging subsystem
+	 * 
+	 * @return LoggerContext of the logging subsystem
+	 */
+
+	public LoggerContext getLoggerContext() {
+		if (!m_initialized) {
+			s_logger.error("*** getLoggerContext(): Not initialized ***");
+		}
+		return m_ctx;
+	}
+	
 	/**
 	 * Gets the time-stamped log path created by the stop() method.
 	 * 
@@ -176,8 +193,8 @@ public class TestRunLogController {
 			s_logger.error("*** getTimeStampedLogPath(): Not initialized ***");
 		}
 		return m_timeStampedLogPath;
-	}
-
+	}	
+	
 	/**
 	 * Gets the appender object associated with a friendly name
 	 * @param appenderName
