@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,33 +23,32 @@ import org.slf4j.LoggerFactory;
 
 public class ArtifactWriter {
 	private static final Logger s_logger = LoggerFactory.getLogger(ArtifactWriter.class);
-	private String m_artifactDir = null;
-	private ArrayList<byte[]> m_artifactCache = null;
+	private static final String m_artifactDir = Paths.get(".").toAbsolutePath().normalize().toString();
+	static HashMap<String, ArrayList<String>> m_artifactCache = new HashMap<String, ArrayList<String>>();
 	
 	public ArtifactWriter(String subDir) {
-		if (m_artifactDir == null)
 			init(subDir);
 	}
 	
-	void init(String subDir) {
+	void init(String artifactSubDir) {
 		String sep = File.separator;
-        String cwd = Paths.get(".").toAbsolutePath().normalize().toString();
-        String artifactDir = null;
+        String cwd = m_artifactDir;
+        String artifactPath = null;
 
-        artifactDir = cwd + sep + subDir;
+        artifactPath = cwd + sep + artifactSubDir;
         
-        if (!Files.exists(Paths.get(artifactDir))) {
-            File file = new File(artifactDir);
+        if (!Files.exists(Paths.get(artifactPath))) {
+            File file = new File(artifactPath);
             boolean exists = file.mkdir();
             if (exists){
-               s_logger.debug("Directory " + artifactDir + " created successfully");
+               s_logger.debug("Artifact subdirectory " + artifactSubDir + " created successfully");
             } else{
-               System.out.println("Couldn’t create directory " + artifactDir);
+               System.out.println("Couldn’t create directory " + artifactSubDir);
             }
         }
         
-        m_artifactCache = new ArrayList<byte[]>();
-        m_artifactDir = artifactDir;
+        if (m_artifactCache.get(artifactSubDir) == null)
+        	m_artifactCache.put(artifactSubDir, new ArrayList<String>());
 	}
 	
 	/**
@@ -57,16 +59,19 @@ public class ArtifactWriter {
 	 * @return
 	 */
 
-	public boolean saveObject(String containerName, byte[] bytes) {
+	public boolean saveObject(String artifactSubDir, String containerName, byte[] bytes) {
 		boolean result = false;
-		if (!m_artifactCache.contains(bytes)) {
-			String filePath = m_artifactDir + File.separator  + containerName;
+		String filePath = m_artifactDir + File.separator + artifactSubDir + File.separator  + containerName;
+		if (!m_artifactCache.containsKey(artifactSubDir))
+			init(artifactSubDir);
+
+		if (!m_artifactCache.get(artifactSubDir).contains(filePath)) {
 	    	try {
 	    		FileOutputStream fos = new FileOutputStream(filePath);
 	    		fos.write(bytes);
 	    		fos.close();
 	    		s_logger.debug("Wrote " + filePath);
-				m_artifactCache.add(bytes);
+				m_artifactCache.get(artifactSubDir).add(filePath);
 	    		result = true;
 	    	} catch (IOException e) {
 	    		// TODO Auto-generated catch block
@@ -74,5 +79,30 @@ public class ArtifactWriter {
 	    	}
 		}
     	return result;
+	}
+	
+	/**
+	 * Prepends artifact file names with a time stamp
+	 * @param timeStamp time stamp to prepend
+	 */
+	
+	public static boolean prependNames(String timeStamp) {
+		boolean result = false;
+	    Iterator<?> it = m_artifactCache.entrySet().iterator();
+		while (it.hasNext()) {
+			@SuppressWarnings("rawtypes")
+			Map.Entry mapElement = (Map.Entry)it.next(); 
+			@SuppressWarnings("unchecked")
+			ArrayList<String> pathList = (ArrayList<String>) mapElement.getValue();
+			for (String p : pathList) {
+				int index = p.lastIndexOf(File.separator) + 1;
+				String baseName = p.substring(index);
+				String newBaseName = timeStamp + "-" + baseName;
+				File f = new File(p);
+				File g = new File(m_artifactDir + File.separator + (String) mapElement.getKey() + File.separator + newBaseName);
+				result = f.renameTo(g);
+			}
+		}
+		return result;
 	}
 }

@@ -243,7 +243,7 @@ public class PIVDataObject {
 			Logger s_containerLogger = LoggerFactory.getLogger(className);
 			s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ", "_"));
 			s_containerLogger.debug("Raw bytes: {}", Hex.encodeHexString(m_dataBytes));
-			m_artifactCache.saveObject(APDUConstants.getFileNameForOid(m_OID)+ ".dat", m_dataBytes);
+			m_artifactCache.saveObject("piv-artifacts", APDUConstants.getFileNameForOid(m_OID)+ ".dat", m_dataBytes);
 			for (int i = 0; i < m_tagList.size(); i++) {
 				BerTag tag = m_tagList.get(i);
 				if (tag != null) {

@@ -29,6 +29,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import gov.gsa.pivconformance.card.client.ArtifactWriter;
 
 
 /**
@@ -79,6 +80,7 @@ public class TestRunLogController {
 	private LoggerContext m_ctx = null;
 	private boolean m_initialized = false;
 	private String m_timeStampedLogPath = null;
+	private String m_timeStamp;
 
 	
 	public static TestRunLogController getInstance() {
@@ -183,6 +185,24 @@ public class TestRunLogController {
 	}
 	
 	/**
+	 * Gets the time-stamp
+	 * 
+	 * @return string containing the time stamp
+	 */
+
+	public String getTimeStamp() {
+		if (!m_initialized) {
+			s_logger.error("*** getTimeStamp(): Not initialized ***");
+		}
+		return m_timeStamp;
+	}	
+	
+	/**
+	 * Gets the appender object associated with a friendly name
+	 * @param appenderName
+	 * @return appender object
+	 */	
+	/**
 	 * Gets the time-stamped log path created by the stop() method.
 	 * 
 	 * @return string containing the full path to the requested time-stamped file
@@ -270,7 +290,8 @@ public class TestRunLogController {
 		else
 			logFileName = currPath;
 		
-		String baseName = (startTs + "-" + stopTs + "-" + logFileName);
+		m_timeStamp = startTs + "-" + stopTs;
+		String baseName = (m_timeStamp + "-" + logFileName);
 		String timeStampedLogPath = dirName + "/" + baseName;
 
 		return timeStampedLogPath;
@@ -394,7 +415,7 @@ public class TestRunLogController {
 	public void cleanup() {
 		Map.Entry<String, String> me = null;
 		Iterator<?> i = m_loggers.entrySet().iterator();
-
+		ArtifactWriter.prependNames(m_timeStamp);
 		while (i.hasNext()) {
 			me = (Map.Entry<String, String>) i.next();
 			String loggerName = me.getKey();

@@ -128,7 +128,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 									else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0)
 										setContainerName("X509 Certificate for Key Management");
 
-									m_x509ArtifactCache.saveObject(APDUConstants.getFileNameForOid(oid)+ ".cer", rawCertBuf);
+									m_x509ArtifactCache.saveObject("x509-artifacts", APDUConstants.getFileNameForOid(oid)+ ".cer", rawCertBuf);
 								}
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 									setErrorDetectionCode(true);

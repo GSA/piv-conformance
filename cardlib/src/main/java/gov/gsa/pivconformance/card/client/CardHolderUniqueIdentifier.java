@@ -321,17 +321,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 																							// input)
 								s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes),
 										Hex.encodeHexString(value));
-							} else if (Arrays.equals(tag.bytes, TagConstants.DEPRECATED_AUTHENTICATION_KEY_MAP)) { // 3D
-																													// -
-																													// Don't
-																													// use
-																													// in
-																													// hash
-																													// (don't
-																													// add
-																													// to
-																													// digest
-																													// input)
+							} else if (Arrays.equals(tag.bytes, TagConstants.DEPRECATED_AUTHENTICATION_KEY_MAP)) { // 3D - Dont' use in hash (don't add to digest input)
 								s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes),
 										Hex.encodeHexString(value));
 								m_tagList.add(tag); // TODO: Re-visit this strategy
@@ -439,7 +429,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 												// Hang the CHUID signer cert here so that any test runner
 												// consumer can access it.
 												setChuidSignerCert(signerCert);
-												m_x509ArtifactCache.saveObject(APDUConstants.getFileNameForOid(getOID())+ ".cer", signerCert.getEncoded());
+												m_x509ArtifactCache.saveObject("x509-artifacts", APDUConstants.getFileNameForOid(getOID())+ ".cer", signerCert.getEncoded());
 											} else {
 												s_logger.error("Can't extract signer certificate");
 											}
