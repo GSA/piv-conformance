@@ -4,7 +4,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import gov.gsa.conformancelib.configuration.TestStepModel;
 
-public class TestStepTreeNode extends DefaultMutableTreeNode {
+public class GuiTestStepTreeNode extends DefaultMutableTreeNode {
 
 	/**
 	 * 
@@ -12,16 +12,16 @@ public class TestStepTreeNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;
 	TestStepModel m_testStep;
 	
-	public TestStepTreeNode() {
+	public GuiTestStepTreeNode() {
 		m_testStep = null;
 	}
 
-	public TestStepTreeNode(TestStepModel testStep) {
+	public GuiTestStepTreeNode(TestStepModel testStep) {
 		super(testStep);
 		m_testStep = testStep;
 	}
 
-	public TestStepTreeNode(TestStepModel testStep, boolean allowsChildren) {
+	public GuiTestStepTreeNode(TestStepModel testStep, boolean allowsChildren) {
 		super(testStep, allowsChildren);
 		if(allowsChildren) throw new IllegalArgumentException("TestStepTreeNode may not allow children");
 		m_testStep = testStep;

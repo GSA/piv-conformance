@@ -68,15 +68,15 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 		TestStatus status = TestStatus.NONE;
 		String description = "";
-		if(value instanceof TestCaseTreeNode) {
-			TestCaseTreeNode node = (TestCaseTreeNode)value;
+		if(value instanceof GuiTestCaseTreeNode) {
+			GuiTestCaseTreeNode node = (GuiTestCaseTreeNode)value;
 			TestCaseModel test = node.getTestCase();
 			if(test != null) {
 				status = test.getTestStatus();
 				description = test.getDescription();
 			}
-		} else if(value instanceof TestStepTreeNode) {
-			TestStepTreeNode node = (TestStepTreeNode)value;
+		} else if(value instanceof GuiTestStepTreeNode) {
+			GuiTestStepTreeNode node = (GuiTestStepTreeNode)value;
 			TestStepModel step = node.getTestStep();
 			if(step != null) {
 				status = step.getTestStatus();

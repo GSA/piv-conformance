@@ -1,7 +1,7 @@
 /**
  * 
  */
-package gov.gsa.pivconformancegui;
+package gov.gsa.conformancelib.configuration;
 
 import java.io.File;
 import java.io.IOException;
@@ -137,7 +137,6 @@ public class TestRunLogController {
 			}
 
 			m_initialized = true;
-			TestExecutionController.getInstance().setTestRunLogController(this);
 			s_logger.debug("Logging has been initialized");
 		}
 	}

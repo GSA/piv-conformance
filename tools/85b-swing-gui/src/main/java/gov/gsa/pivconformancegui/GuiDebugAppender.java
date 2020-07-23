@@ -11,6 +11,7 @@ import javax.swing.text.StyleConstants;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import gov.gsa.conformancelib.configuration.TimeStampedFileAppender;
 
 public class GuiDebugAppender extends TimeStampedFileAppender<ILoggingEvent> {
 	

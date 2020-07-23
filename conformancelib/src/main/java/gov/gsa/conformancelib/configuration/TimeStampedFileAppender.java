@@ -1,7 +1,7 @@
 /**
  * 
  */
-package gov.gsa.pivconformancegui;
+package gov.gsa.conformancelib.configuration;
 import java.util.Date;
 
 import org.slf4j.Logger;

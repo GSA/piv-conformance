@@ -7,7 +7,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JSplitPane;
 
-public class ToggleTestTreeAction extends AbstractAction {
+public class GuiToggleTestTreeAction extends AbstractAction {
 
 	/**
 	 * 
@@ -16,7 +16,7 @@ public class ToggleTestTreeAction extends AbstractAction {
 	JSplitPane m_splitPane;
 	SimpleTestExecutionPanel m_testPane;
 
-	public ToggleTestTreeAction(String name, Icon icon, String toolTip) {
+	public GuiToggleTestTreeAction(String name, Icon icon, String toolTip) {
 		super(name, icon);
 		putValue(SHORT_DESCRIPTION, toolTip);
 	}

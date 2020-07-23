@@ -17,7 +17,7 @@ import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 
-public class TestTreePanel extends JPanel {
+public class GuiTestTreePanel extends JPanel {
 	// TODO: Look at tooltips here
 	/**
 	 * 
@@ -25,7 +25,7 @@ public class TestTreePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	List<TestCaseModel> m_testCases;
 	DefaultTreeModel m_treeModel;
-	Map<String, TestCaseTreeNode> m_testCaseDict;
+	Map<String, GuiTestCaseTreeNode> m_testCaseDict;
 
 	public List<TestCaseModel> getTestCases() {
 		return m_testCases;
@@ -35,10 +35,10 @@ public class TestTreePanel extends JPanel {
 		m_testCases = testCases;
 	}
 
-	public TestTreePanel() {
+	public GuiTestTreePanel() {
 		m_testCases = new ArrayList<TestCaseModel>();
 		setLayout(new BorderLayout());
-		TestCaseTreeNode root = new TestCaseTreeNode(null);
+		GuiTestCaseTreeNode root = new GuiTestCaseTreeNode(null);
 		createNodes(root);
 		m_treeModel = new DefaultTreeModel(root);
 		JTree treeControl = new JTree(m_treeModel);
@@ -50,13 +50,13 @@ public class TestTreePanel extends JPanel {
 				
 	}
 	
-	TestCaseTreeNode getNodeByName(String name) {
-		TestCaseTreeNode rv = m_testCaseDict.get(name);
+	GuiTestCaseTreeNode getNodeByName(String name) {
+		GuiTestCaseTreeNode rv = m_testCaseDict.get(name);
 		return rv;
 	}
 	
-	TestCaseTreeNode getRootNode() {
-		return (TestCaseTreeNode) m_treeModel.getRoot();
+	GuiTestCaseTreeNode getRootNode() {
+		return (GuiTestCaseTreeNode) m_treeModel.getRoot();
 	}
 	
 	public void refresh() {
@@ -71,11 +71,11 @@ public class TestTreePanel extends JPanel {
 		
 		try {
 			m_testCases = db.getTestCases();
-			m_testCaseDict = new HashMap<String, TestCaseTreeNode>();
+			m_testCaseDict = new HashMap<String, GuiTestCaseTreeNode>();
 		}catch(ConfigurationException e) {
 			m_testCases = null;
 		}
-		TestCaseTreeNode root = (TestCaseTreeNode) m_treeModel.getRoot();
+		GuiTestCaseTreeNode root = (GuiTestCaseTreeNode) m_treeModel.getRoot();
 		createNodes(root);
 		m_treeModel.nodeStructureChanged(root);
 	}
@@ -94,11 +94,11 @@ public class TestTreePanel extends JPanel {
     		return;
     	}
     	for(TestCaseModel tc : m_testCases) {
-    		TestCaseTreeNode tcNode = new TestCaseTreeNode(tc);
+    		GuiTestCaseTreeNode tcNode = new GuiTestCaseTreeNode(tc);
     		m_testCaseDict.put(tc.getIdentifier(), tcNode);
     		top.add(tcNode);
     		for(TestStepModel ts : tc.getSteps()) {
-    			TestStepTreeNode tsNode = new TestStepTreeNode(ts);
+    			GuiTestStepTreeNode tsNode = new GuiTestStepTreeNode(ts);
     			tcNode.add(tsNode);
     		}
     	}

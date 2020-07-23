@@ -67,7 +67,7 @@ public class GuiTestListener implements TestExecutionListener {
 		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription,
 				m_testCaseExpectedResult ? "Pass" : "Fail",
 				(m_atomAborted || m_atomFailed) ? "Fail" : "Pass"); 
-		TestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
+		GuiTestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
 		if(tcNode != null) {
 			TestCaseModel tcModel = tcNode.getTestCase();
 			if(tcModel != null) {

@@ -4,7 +4,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import gov.gsa.conformancelib.configuration.TestCaseModel;
 
-public class TestCaseTreeNode extends DefaultMutableTreeNode {
+public class GuiTestCaseTreeNode extends DefaultMutableTreeNode {
 	
 	/**
 	 * 
@@ -20,16 +20,16 @@ public class TestCaseTreeNode extends DefaultMutableTreeNode {
 		m_testCase = testCase;
 	}
 
-	public TestCaseTreeNode() {
+	public GuiTestCaseTreeNode() {
 		m_testCase = null;
 	}
 
-	public TestCaseTreeNode(TestCaseModel testCase) {
+	public GuiTestCaseTreeNode(TestCaseModel testCase) {
 		super(testCase);
 		m_testCase = testCase;
 	}
 
-	public TestCaseTreeNode(TestCaseModel testCase, boolean allowsChildren) {
+	public GuiTestCaseTreeNode(TestCaseModel testCase, boolean allowsChildren) {
 		super(testCase, allowsChildren);
 		m_testCase = testCase;
 	}

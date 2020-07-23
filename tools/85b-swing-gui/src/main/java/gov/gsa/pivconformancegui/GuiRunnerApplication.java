@@ -20,6 +20,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
+import gov.gsa.conformancelib.configuration.TestRunLogController;
 import gov.gsa.pivconformance.utils.PCSCUtils;
 
 public class GuiRunnerApplication {
@@ -85,7 +86,7 @@ public class GuiRunnerApplication {
 					if(opened) {
 						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
 					}
-					TestExecutionController tc = TestExecutionController.getInstance();
+					GuiTestExecutionController tc = GuiTestExecutionController.getInstance();
 					tc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
 					tc.setTestTreePanel(window.m_mainContent.getTreePanel());
 					tc.setToolBar(window.m_toolBar);
@@ -199,7 +200,7 @@ public class GuiRunnerApplication {
 		m_mainFrame = mainFrame;
 	}
 
-	public TestTreePanel getTreePanel() {
+	public GuiTestTreePanel getTreePanel() {
 		return m_mainContent.getTreePanel();
 	}
 	

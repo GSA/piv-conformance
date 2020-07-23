@@ -18,16 +18,18 @@ import javax.swing.JOptionPane;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
+import gov.gsa.conformancelib.configuration.TestRunLogController;
+import gov.gsa.conformancelib.configuration.TimeStampedFileAppender;
 import gov.gsa.conformancelib.utilities.Csv2Html;
 
-public class DisplayTestReportAction extends AbstractAction {
-	private static final Logger s_logger = (Logger) LoggerFactory.getLogger(DisplayTestReportAction.class);
+public class GuiDisplayTestReportAction extends AbstractAction {
+	private static final Logger s_logger = (Logger) LoggerFactory.getLogger(GuiDisplayTestReportAction.class);
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public DisplayTestReportAction(String name, Icon icon, String toolTip) {
+	public GuiDisplayTestReportAction(String name, Icon icon, String toolTip) {
 		super(name, icon);
 		putValue(SHORT_DESCRIPTION, toolTip);
 	}
@@ -35,7 +37,7 @@ public class DisplayTestReportAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String errorMessage = null;
-		TestRunLogController lg = TestExecutionController.getInstance().getTestRunLogController();
+		TestRunLogController lg = GuiTestExecutionController.getInstance().getTestRunLogController();
 		if (lg != null) {
 			TimeStampedFileAppender<?> csvAppender = lg.getAppender("CONFORMANCELOG");
 			String htmlPathName = null;

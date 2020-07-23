@@ -14,7 +14,7 @@ public class DebugWindow extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	RawLogPanel m_logPane;
+	GuiRawLogPanel m_logPane;
 
 	public DebugWindow() throws HeadlessException {
 		this("");
@@ -23,7 +23,7 @@ public class DebugWindow extends JFrame {
 	public DebugWindow(String title) throws HeadlessException {	
 		JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
-		m_logPane = new RawLogPanel();
+		m_logPane = new GuiRawLogPanel();
 		tabbedPane.addTab("Log View", m_logPane);
 		UtilitiesPane up = new UtilitiesPane();
 		tabbedPane.addTab("Utilities", up);

@@ -26,29 +26,30 @@ import gov.gsa.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.conformancelib.configuration.ParameterProviderSingleton;
 import gov.gsa.conformancelib.configuration.TestCaseModel;
+import gov.gsa.conformancelib.configuration.TestRunLogController;
 import gov.gsa.conformancelib.configuration.TestStepModel;
 import gov.gsa.pivconformance.utils.PCSCWrapper;
 import gov.gsa.pivconformance.card.client.CachingDefaultPIVApplication;
 import gov.gsa.pivconformance.card.client.DataModelSingleton;
 
-public class TestExecutionController {
-	private static final Logger s_logger = LoggerFactory.getLogger(TestExecutionController.class);
-	private static final TestExecutionController INSTANCE = new TestExecutionController();
+public class GuiTestExecutionController {
+	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestExecutionController.class);
+	private static final GuiTestExecutionController INSTANCE = new GuiTestExecutionController();
 
 	private static final String tag30TestId = "8.2.2.1"; // TODO: Fixme
 
-	TestTreePanel m_testTreePanel;
+	GuiTestTreePanel m_testTreePanel;
 	SimpleTestExecutionPanel m_testExecutionPanel;
 	GuiRunnerToolbar m_toolBar;
 	boolean m_running;
 	LoggerContext m_ctx;
 	TestRunLogController m_trlc;
 
-	public static TestExecutionController getInstance() {
+	public static GuiTestExecutionController getInstance() {
 		return INSTANCE;
 	}
 
-	private TestExecutionController() {
+	private GuiTestExecutionController() {
 		reset();
 	}
 
@@ -60,11 +61,11 @@ public class TestExecutionController {
 		m_trlc = TestRunLogController.getInstance();
 	}
 
-	public TestTreePanel getTestTreePanel() {
+	public GuiTestTreePanel getTestTreePanel() {
 		return m_testTreePanel;
 	}
 
-	public void setTestTreePanel(TestTreePanel testTreePanel) {
+	public void setTestTreePanel(GuiTestTreePanel testTreePanel) {
 		m_testTreePanel = testTreePanel;
 	}
 
@@ -104,11 +105,11 @@ public class TestExecutionController {
 		m_ctx = ctx;
 	}
 	
-	void runAllTests(TestCaseTreeNode root) {
+	void runAllTests(GuiTestCaseTreeNode root) {
 		
 		m_trlc.setStartTimes();
 		
-		DisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
+		GuiDisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
 		display.setEnabled(false);
 		
 		s_logger.debug("----------------------------------------");
@@ -156,7 +157,7 @@ public class TestExecutionController {
 		int passes = 0;
 		
 		do {
-			TestCaseTreeNode curr = (TestCaseTreeNode) root.getFirstChild();
+			GuiTestCaseTreeNode curr = (GuiTestCaseTreeNode) root.getFirstChild();
 
 			while(curr != null) {
 				TestCaseModel testCase = curr.getTestCase();
@@ -164,7 +165,7 @@ public class TestExecutionController {
 				String id = testCase.getIdentifier();
 				if (passes % 2 == 1) { // TODO: Fixme
 					runTest = true;
-				} else if (id.compareTo(TestExecutionController.tag30TestId) == 0) {
+				} else if (id.compareTo(GuiTestExecutionController.tag30TestId) == 0) {
 					runTest = true;
 				}
 				if (runTest) {
@@ -249,7 +250,7 @@ public class TestExecutionController {
 					
 					l.execute(ldr);
 				}
-				curr = (TestCaseTreeNode) curr.getNextSibling();
+				curr = (GuiTestCaseTreeNode) curr.getNextSibling();
 			}
 		} while (++passes < 2); // End of CHUID priming workaround
 
@@ -284,11 +285,11 @@ public class TestExecutionController {
 		}
 	}
 
-	void runOneTest(TestCaseTreeNode testCase) {
+	void runOneTest(GuiTestCaseTreeNode testCase) {
 
 	}
 
-	void runSelectedTests(List<TestCaseTreeNode> testCases) {
+	void runSelectedTests(List<GuiTestCaseTreeNode> testCases) {
 
 	}
 }

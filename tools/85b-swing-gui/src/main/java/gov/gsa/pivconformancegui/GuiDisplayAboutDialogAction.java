@@ -5,14 +5,14 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
-public class DisplayAboutDialogAction extends AbstractAction{
+public class GuiDisplayAboutDialogAction extends AbstractAction{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public DisplayAboutDialogAction(String name, Icon icon, String toolTip) {
+	public GuiDisplayAboutDialogAction(String name, Icon icon, String toolTip) {
 		super(name, icon);
 		putValue(SHORT_DESCRIPTION, toolTip);
 	}

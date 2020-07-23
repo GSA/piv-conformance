@@ -10,12 +10,12 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class RawLogPanel extends JPanel {
+public class GuiRawLogPanel extends JPanel {
 
 	private static final long serialVersionUID = -91080473504561866L;
 	private JTextPane m_debugTextPane;
 	
-	public RawLogPanel() {
+	public GuiRawLogPanel() {
 		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		m_debugTextPane = new JTextPane();

@@ -1,4 +1,4 @@
-package gov.gsa.pivconformancegui;
+package gov.gsa.pivconformance.tools;
 
 import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;

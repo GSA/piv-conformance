@@ -191,8 +191,8 @@ public class SimpleTestExecutionPanel extends JPanel {
 					dialog.setVisible(true);
 					return;
 				}
-				TestExecutionController tc = TestExecutionController.getInstance();
-				TestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
+				GuiTestExecutionController tc = GuiTestExecutionController.getInstance();
+				GuiTestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
 				new Thread(() -> {
 					tc.runAllTests(root);
 				}).start();

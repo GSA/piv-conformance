@@ -1,0 +1,6 @@
+/x509-artifacts/
+/piv-artifacts/
+/logs/
+/fips201-cct/
+/.DS_Store
+/.lastlog-conformancelog

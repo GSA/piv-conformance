@@ -14,7 +14,7 @@ public class MainWindowContentPane extends JPanel {
 
 	private static final Logger s_logger = LoggerFactory.getLogger(MainWindowContentPane.class);
 	
-	private TestTreePanel m_treePanel;
+	private GuiTestTreePanel m_treePanel;
 	private JSplitPane m_splitPane;
 	private SimpleTestExecutionPanel m_testExecutionPanel;
 	
@@ -23,7 +23,7 @@ public class MainWindowContentPane extends JPanel {
 	}
 	
 	private void initialize() {
-		m_treePanel = new TestTreePanel();
+		m_treePanel = new GuiTestTreePanel();
 		m_treePanel.setMinimumSize(new Dimension(300,400));
 		m_testExecutionPanel = new SimpleTestExecutionPanel();
 		m_testExecutionPanel.setMinimumSize(new Dimension(600,400));
@@ -31,11 +31,11 @@ public class MainWindowContentPane extends JPanel {
 		m_splitPane.setDividerLocation(150);
 	}
 
-	public TestTreePanel getTreePanel() {
+	public GuiTestTreePanel getTreePanel() {
 		return m_treePanel;
 	}
 
-	public void setTreePanel(TestTreePanel treePanel) {
+	public void setTreePanel(GuiTestTreePanel treePanel) {
 		m_treePanel = treePanel;
 	}
 
