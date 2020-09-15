@@ -7,7 +7,7 @@
 		can be turned off as shown below. -->
 
 	<appender name="DEBUG"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/debug/debug.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -16,7 +16,7 @@
 	</appender>
 
 	<appender name="BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/BiometricInformationTemplatesGroupTemplate.log
 		</file>
 		<encoder>
@@ -27,7 +27,7 @@
 
 
 	<appender name="CARDCAPABILITYCONTAINER"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/CardCapabilityContainer.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -37,7 +37,7 @@
 
 
 	<appender name="CARDHOLDERUNIQUEIDENTIFIER"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/CardHolderUniqueIdentifier.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -47,7 +47,7 @@
 
 		
 	<appender name="FINGERPRINTS"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/Fingerprints.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -57,7 +57,7 @@
 
 
 	<appender name="IMAGEFORVISUALVERIFICATION"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/ImageForVisualVerification.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -67,7 +67,7 @@
 
 
 	<appender name="IMAGESFORIRIS"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/ImagesForIris.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -77,7 +77,7 @@
 
 
 	<appender name="KEYHISTORYOBJECT"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/KeyHistoryObject.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -87,7 +87,7 @@
 
 
 	<appender name="PAIRINGCODEREFERENCEDATACONTAINER"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/PairingCodeReferenceDataContainer.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -97,7 +97,7 @@
 
 
 	<appender name="PRINTEDINFORMATION"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/PrintedInformation.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -106,7 +106,7 @@
 	</appender>
 
 	<appender name="SECUREMESSAGINGCERTIFICATESIGNER"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/SecureMessagingCertificateSigner.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -116,7 +116,7 @@
 
 
 	<appender name="SECURITYOBJECT"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/SecurityObject.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -125,7 +125,7 @@
 	</appender>
 
 	<appender name="X509CERTIFICATEFORPIVAUTHENTICATION"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/X509CertificateForPivAuthentication.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
@@ -133,7 +133,7 @@
 	</appender>
 
 	<appender name="X509CERTIFICATEFORCARDAUTHENTICATION"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/X509CertificateForCardAuthentication.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
@@ -141,7 +141,7 @@
 	</appender>
 	
 	<appender name="X509CERTIFICATEFORDIGITALSIGNATURE"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/X509CertificateForDigitalSignature.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
@@ -149,7 +149,7 @@
 	</appender>	
 
 	<appender name="X509CERTIFICATEFORKEYMANAGEMENT"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/X509CertificateForKeyManagement.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
@@ -157,7 +157,7 @@
 	</appender>
 
 	<appender name="X509CERTIFICATEFORCHUIDSIGNATURE"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/containers/X509CertificateForChuidSignature.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
@@ -168,7 +168,7 @@
 		omitted if there's no need to crack this stream out into a separate file. -->
 
 	<appender name="TESTLOG"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/testlog/test_progress.log</file>
 		<encoder>
 			<pattern>%date{yyyy-MM-dd HH:mm:ss},%level,"%msg"%n</pattern>
@@ -179,7 +179,7 @@
 		order to get test reports, it **MUST** be called CONFORMANCELOG -->
 
 	<appender name="CONFORMANCELOG"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/conformancelog/conformance_results.csv</file>
 
 		<!-- the application will search out this appender by name and manually 
@@ -188,7 +188,7 @@
 			it. -->
 
 		<triggeringPolicy
-			class="gov.gsa.pivconformancegui.ManualTriggeringPolicy" />
+			class="gov.gsa.conformancelib.configuration.ManualTriggeringPolicy" />
 		<encoder>
 			<pattern>%date{yyyy-MM-dd HH:mm:ss},%msg%n</pattern>
 		</encoder>
@@ -198,7 +198,7 @@
 		traces, it **MUST** be called APDULOG -->
 
 	<appender name="APDULOG"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender">
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>logs/apdu/apdu_transmission.log</file>
 
 		<!-- the application will search out this appender by name and manually 
@@ -207,7 +207,7 @@
 			it. -->
 
 		<triggeringPolicy
-			class="gov.gsa.pivconformancegui.ManualTriggeringPolicy" />
+			class="gov.gsa.conformancelib.configuration.ManualTriggeringPolicy" />
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -216,7 +216,7 @@
 
 	<!-- this is fully optional and probably only desirable during development -->
 	<appender name="STDOUT"
-		class="gov.gsa.pivconformancegui.TimeStampedFileAppender"
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender"
 		type="Console">
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n

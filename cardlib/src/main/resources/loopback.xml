@@ -20,7 +20,7 @@
         </encoder>
     </appender>
 
-    <logger name="gov.gsa.pivconformance.card.client.X509CertificateDataObject.TLVParser" level="INFO"/>
+    <logger name="gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject.TLVParser" level="INFO"/>
 
     <root level="info">
         <appender-ref ref="FILE" />
