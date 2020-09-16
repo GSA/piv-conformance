@@ -36,8 +36,8 @@ eclipse {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.cardlib' + getVersion() + '.jar' }
-                lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.cardlib-sources' + getVersion() + '.jar'))
+                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.cardlib' +  '-' + getVersion() + '.jar' }
+                lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.cardlib-sources' + '-' + getVersion() + '.jar'))
             }
         }
     }
@@ -46,6 +46,18 @@ eclipse {
 repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
+}
+
+def getVersion = { ->
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
+    File versionFile = new File(resourcesDir, 'build.version')
+    if(!versionFile.exists()) {
+        resourcesDir.mkdirs()
+        versionFile.createNewFile()
+        println 'Initializing build.version file'
+        versionFile.text = '0.0-changeme'
+    }
+    String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
 // custom task from
@@ -93,20 +105,12 @@ dependencies {
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
-def getVersion() {
-    String archName = null;
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
-    File versionFile = new File(resourcesDir, 'build.version')
-    String buildVersion = versionFile.text
-    return buildVersion.replaceAll(~'/n','')
-}
-
 jar {
     doFirst {
-    	archiveName = 'gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'
-        println 'archveName: ' + archiveName
+        version = getVersion()
     }
     doLast {
+        println 'archiveName: ' + archiveName
         configurations.runtime.each { println it }
     }
 }
@@ -123,6 +127,9 @@ compileTestJava {
 
 // use junit platform for tests
 test {
+    doFirst {
+        println 'test:' + getVersion()
+    }
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
@@ -141,6 +148,7 @@ compileJava {
         inputs.property("moduleName", moduleName)
     }
     doFirst {
+        println 'compileJava:' + getVersion()
         options.compilerArgs = [
                 '--module-path', classpath.asPath,
         ]
@@ -149,6 +157,9 @@ compileJava {
 }
 
 compileTestJava {
+    doFirst {
+        println 'compileTestJava:' + getVersion()
+    }
     String moduleName = "";
     if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
         moduleName = 'gov.gsa.pivconformance.cardlib.test'
@@ -161,6 +172,7 @@ compileTestJava {
                 '--add-reads', "$moduleName=org.junit.jupiter.api",
                 '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
         ]
+        version = getVersion()	
         classpath = files()
     }
 }
@@ -201,28 +213,21 @@ compileJava.doFirst {
     def commitId = commit.abbreviatedId
     def commitDate = commit.getDate()
     def buildDate = new Date()
-
     File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
     File propertiesFile = new File(resourcesDir, 'version.properties')
-    File versionFile = new File(resourcesDir, 'build.version')
-    String buildVersion = versionFile.text
-    buildVersion = buildVersion.replaceAll(~'/n','')
 
     // The project may not have any resources, so create the directories and file
     if(!propertiesFile.exists()) {
         resourcesDir.mkdirs()
         propertiesFile.createNewFile()
-        versionFile.createNewFile()
-        println 'Creating version and properties files'
+        println 'Creating properties files'
     }
     Properties versionProperties = new Properties()
     versionProperties.setProperty('git.commit.time', commitDate.format('dd.MM.yy HH.mm.ss'))
     versionProperties.setProperty('build.time', buildDate.format('dd.MM.yy HH.mm.ss'))
     versionProperties.setProperty('git.commit.id', commitId)
-    versionProperties.setProperty('build.version', buildVersion)
+    versionProperties.setProperty('build.version', getVersion())
     versionProperties.store(propertiesFile.newWriter(), null)
-    project.version = buildVersion
-    println 'project.version: ' + project.version
 }
 
 extraJavaModuleInfo {
@@ -272,7 +277,7 @@ compileJava {
 
 task sourceJar(type: Jar, dependsOn: classes) {
     doFirst {
-        archiveName 'gov.gsa.pivconformance.cardlib-sources' + '-' + getVersion() + '.jar'
+        version = getVersion()
     }
     classifier 'sources'
     from sourceSets.main.allSource
@@ -286,24 +291,19 @@ task copyShadowLibs(type: Copy) {
 shadowJar.dependsOn copyShadowLibs
 
 shadowJar.doFirst {
-    archiveName 'gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'
     println 'shadowJar.doFirst.archveName: ' + archiveName
 }
 
 task installSource(type: Copy) {
-    println 'entering cardlib.installSource()'
     dependsOn copyShadowLibs
     dependsOn sourceJar
     from sourceJar
     into "$projectDir/../tools/85b-swing-gui/lib"
-    println 'leaving cardlib.installSource()'
 }
 
 task install(type: Copy) {
-    println 'entering cardlib.install()'
     dependsOn jar
     dependsOn installSource
     from jar
     into "$projectDir/../tools/85b-swing-gui/lib"
-    println 'leaving cardlib.install()'
 }
