@@ -189,7 +189,8 @@ public class TestRunLogController {
 	public void bootStrapLogging() {
 		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
-			File logConfigFile = new File("user_log_config.xml");
+			String localDir = System.getProperty("user.dir");
+			File logConfigFile = new File(localDir + "\\tools\\85b-swing-gui\\user_log_config.xml"); //TODO: Relocate to resource directory
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
 				configurator.setContext(m_ctx);

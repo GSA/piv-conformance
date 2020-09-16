@@ -26,7 +26,7 @@ import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 public class GuiRunnerApplication {
 
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
-	private static final String cctVersion = "v0.1.13-swing-beta";
+	private static final String cctVersion = "v0.2-1-beta";//TODO: get from build.version
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;

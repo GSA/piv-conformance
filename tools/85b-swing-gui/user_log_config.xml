@@ -237,103 +237,103 @@
 		to go through the logging apparatus -->
 
 	<logger level="OFF"
-		name="gov.gsa.pivconformance.card.client.X509CertificateDataObject.TLVParser" />
+		name="gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject.TLVParser" />
 	<logger level="OFF"
 		name="gov.gsa.conformancelib.configuration.TestStepModel" />
 
 	<!-- split test progress to its own appender -->
-	<logger level="INFO" name="gov.gsa.conformancelib.testProgress">
+	<logger level="INFO" name="gov.gsa.pivconformance.conformancelib.testProgress">
 		<appender-ref ref="TESTLOG" />
 	</logger>
 
 	<!-- split test results into a CSV -->
-	<logger level="INFO" name="gov.gsa.conformancelib.testResult">
+	<logger level="INFO" name="gov.gsa.pivconformance.conformancelib.testResult">
 		<appender-ref ref="CONFORMANCELOG" />
 	</logger>
 
 	<!-- APDUs into a separate log -->
-	<logger level="DEBUG" name="gov.gsa.pivconformance.apdu">
+	<logger level="DEBUG" name="gov.gsa.pivconformance.cardlib">
 		<appender-ref ref="APDULOG" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.BiometricInformationTemplatesGroupTemplate">
+		name="gov.gsa.pivconformance.cardlib.card.client.BiometricInformationTemplatesGroupTemplate">
 		<appender-ref
 			ref="BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.CardCapabilityContainer">
+		name="gov.gsa.pivconformance.cardlib.card.client.CardCapabilityContainer">
 		<appender-ref ref="CARDCAPABILITYCONTAINER" />
 	</logger>
 	
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.CardHolderUniqueIdentifier">
+		name="gov.gsa.pivconformance.cardlib.card.client.CardHolderUniqueIdentifier">
 		<appender-ref ref="CARDHOLDERUNIQUEIDENTIFIER" />
 	</logger>	
 	
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.Fingerprints">
+		name="gov.gsa.pivconformance.cardlib.card.client.Fingerprints">
 		<appender-ref ref="FINGERPRINTS" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.ImageForVisualVerification">
+		name="gov.gsa.pivconformance.cardlib.card.client.ImageForVisualVerification">
 		<appender-ref ref="IMAGEFORVISUALVERIFICATION" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.ImagesForIris">
+		name="gov.gsa.pivconformance.cardlib.card.client.ImagesForIris">
 		<appender-ref ref="IMAGESFORIRIS" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.KeyHistoryObject">
+		name="gov.gsa.pivconformance.cardlib.card.client.KeyHistoryObject">
 		<appender-ref ref="KEYHISTORYOBJECT" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.PairingCodeReferenceDataContainer">
+		name="gov.gsa.pivconformance.cardlib.card.client.PairingCodeReferenceDataContainer">
 		<appender-ref ref="PAIRINGCODEREFERENCEDATACONTAINER" />
 	</logger>
 	
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.PrintedInformation">
+		name="gov.gsa.pivconformance.cardlib.card.client.PrintedInformation">
 		<appender-ref ref="PRINTEDINFORMATION" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.SecureMessagingCertificateSigner">
+		name="gov.gsa.pivconformance.cardlib.card.client.SecureMessagingCertificateSigner">
 		<appender-ref ref="SECUREMESSAGINGCERTIFICATESIGNER" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.SecurityObject">
+		name="gov.gsa.pivconformance.cardlib.card.client.SecurityObject">
 		<appender-ref ref="SECURITYOBJECT" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.X509CertificateForPivAuthentication">
+		name="gov.gsa.pivconformance.cardlib.card.client.X509CertificateForPivAuthentication">
 		<appender-ref ref="X509CERTIFICATEFORPIVAUTHENTICATION" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.X509CertificateForCardAuthentication">
+		name="gov.gsa.pivconformance.cardlib.card.client.X509CertificateForCardAuthentication">
 		<appender-ref ref="X509CERTIFICATEFORCARDAUTHENTICATION" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.X509CertificateForDigitalSignature">
+		name="gov.gsa.pivconformance.cardlib.card.client.X509CertificateForDigitalSignature">
 		<appender-ref ref="X509CERTIFICATEFORDIGITALSIGNATURE" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.X509CertificateForKeyManagement">
+		name="gov.gsa.pivconformance.cardlib.card.client.X509CertificateForKeyManagement">
 		<appender-ref ref="X509CERTIFICATEFORKEYMANAGEMENT" />
 	</logger>
 
 	<logger level="DEBUG"
-		name="gov.gsa.pivconformance.card.client.X509CertificateForChuidSignature">
+		name="gov.gsa.pivconformance.cardlib.card.client.X509CertificateForChuidSignature">
 		<appender-ref ref="X509CERTIFICATEFORCHUIDSIGNATURE" />
 	</logger>
 
