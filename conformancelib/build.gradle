@@ -1,3 +1,4 @@
+// set up junit 5 support for gradle
 buildscript {
     repositories {
         mavenCentral()
@@ -25,37 +26,8 @@ apply plugin: 'org.junit.platform.gradle.plugin'
 
 targetCompatibility = targetJavaVersion
 
-repositories {
-    mavenCentral()
-    jcenter()
-    maven { url 'https://repository.apache.org/snapshots' }
-    flatDir {
-        dirs "../cardlib/build/libs"
-    }
-}
-
-def getVersion() {
-    String archName = null;
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
-    File versionFile = new File(resourcesDir, 'build.version')
-    String buildVersion = versionFile.text
-    project.version = buildVersion.replaceAll(~'/n','')
-    return project.version
-}
-
-jar {
-    doFirst {
-        File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
-        File versionFile = new File(resourcesDir, 'build.version')
-        String buildVersion = versionFile.text
-        project.version = buildVersion.replaceAll(~'/n','')
-        archiveName 'gov.gsa.pivconformance.conformancelib' + '-' + project.version + '.jar'
-    }
-    doLast {
-        println 'jar.archiveName: ' + archiveName
-        configurations.runtime.each { println it }
-    }
-}
+logger.warn("target java version: " + targetCompatibility)
+logger.warn("source java version: " + sourceCompatibility)
 
 import org.gradle.plugins.ide.eclipse.model.AccessRule
 
@@ -65,11 +37,31 @@ eclipse {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.conformancelib' + getVersion() + '.jar' }
-                lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.conformancelib-sources' + getVersion() + '.jar'))
+                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.conformancelib' +  '-' + getVersion() + '.jar' }
+                lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
             }
         }
     }
+}
+
+repositories {
+    jcenter()
+    maven { url 'https://repository.apache.org/snapshots' }
+    flatDir {
+        dirs '../cardlib/build/libs', '../../build/libs'
+    }
+}
+
+def getVersion = { ->
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
+    File versionFile = new File(resourcesDir, 'build.version')
+    if(!versionFile.exists()) {
+        resourcesDir.mkdirs()
+        versionFile.createNewFile()
+        println 'Initializing build.version file'
+        versionFile.text = '0.0-changeme'
+    }
+    String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
 // custom task from
@@ -115,6 +107,15 @@ dependencies {
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
+jar {
+    doFirst {
+        version = getVersion()
+    }
+    doLast {
+        println 'archiveName: ' + archiveName
+        configurations.runtime.each { println it }
+    }
+}
 
 extraJavaModuleInfo {
 
@@ -179,6 +180,7 @@ compileJava {
         inputs.property("moduleName", moduleName)
         println 'compileJava.moduleName and version: ' + moduleName + '-' + getVersion()
     }
+
     doFirst {
         options.compilerArgs = [
                 '--module-path', classpath.asPath,
@@ -217,7 +219,7 @@ junitPlatform {
 
 task sourceJar(type: Jar, dependsOn: classes) {
     doFirst {
-        archiveName 'gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'
+        version = getVersion()
     }
     classifier 'sources'
     from sourceSets.main.allSource
@@ -231,7 +233,6 @@ task copyShadowLibs(type: Copy) {
 shadowJar.dependsOn copyShadowLibs
 
 shadowJar.doFirst {
-    archiveName 'gov.gsa.pivconformance.conformancelib' + '-' + getVersion() + '.jar'
     println 'shadowJar.doFirst.archveName: ' + archiveName
 }
 
