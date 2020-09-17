@@ -22,11 +22,24 @@ apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'eclipse'
 
-//javaModule.name = 'gov.gsa.pivconformancegui'
-
 repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
+    flatDir {
+        dirs '../../cardlib/build/libs', '../../libs'
+    }
+}
+
+def getVersion = { ->
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
+    File versionFile = new File(resourcesDir, 'build.version')
+    if(!versionFile.exists()) {
+        resourcesDir.mkdirs()
+        versionFile.createNewFile()
+        println 'Initializing build.version file'
+        versionFile.text = '0.0-changeme'
+    }
+    String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
 dependencies {
@@ -47,8 +60,8 @@ dependencies {
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.32.3.2'
     compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
 
-    compile files('lib/gov.gsa.pivconformance.cardlib-0.2-1-beta.jar')
-    compile files('lib/gov.gsa.pivconformance.conformancelib-0.2-1-beta.jar')
+    compile files('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar')
+    compile files('../../libs/gov.gsa.pivconformance.conformancelib' + '-' + getVersion() + '.jar')
 
     compile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     compile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
