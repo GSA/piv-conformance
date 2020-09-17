@@ -46,6 +46,9 @@ eclipse {
 repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
+    flatDir {
+        dirs '../libs'
+    }
 }
 
 def getVersion = { ->
@@ -285,7 +288,7 @@ task sourceJar(type: Jar, dependsOn: classes) {
 
 task copyShadowLibs(type: Copy) {
     from configurations.shadow
-    into '$projectDir/../tools/85b-swing-gui/lib'
+    into '../libs'
 }
 
 shadowJar.dependsOn copyShadowLibs
@@ -298,12 +301,12 @@ task installSource(type: Copy) {
     dependsOn copyShadowLibs
     dependsOn sourceJar
     from sourceJar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs' 
 }
 
 task install(type: Copy) {
     dependsOn jar
     dependsOn installSource
     from jar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs' 
 }

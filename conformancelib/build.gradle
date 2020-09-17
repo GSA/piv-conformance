@@ -48,7 +48,7 @@ repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../cardlib/build/libs', '../../build/libs'
+        dirs '../cardlib/build/libs', '../libs'
     }
 }
 
@@ -227,7 +227,7 @@ task sourceJar(type: Jar, dependsOn: classes) {
 
 task copyShadowLibs(type: Copy) {
     from configurations.shadow
-    into '$projectDir/../tools/85b-swing-gui/lib'
+    into '../libs'
 }
 
 shadowJar.dependsOn copyShadowLibs
@@ -241,13 +241,13 @@ shadowJar.doFirst {
 task installSource(type: Copy) {
     dependsOn sourceJar
     from sourceJar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs'
 }
 
 task install(type: Copy) {
     dependsOn jar
     dependsOn installSource
     from jar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs'
 }
 
