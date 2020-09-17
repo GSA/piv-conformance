@@ -233,6 +233,7 @@ task copyShadowLibs(type: Copy) {
 shadowJar.dependsOn copyShadowLibs
 
 shadowJar.doFirst {
+    version = getVersion()
     println 'shadowJar.doFirst.archveName: ' + archiveName
 }
 
