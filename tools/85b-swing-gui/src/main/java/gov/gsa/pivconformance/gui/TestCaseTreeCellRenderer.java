@@ -7,8 +7,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import gov.gsa.pivconformance.conformancelib.configuration.TestCaseModel;
 import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
 import gov.gsa.pivconformance.conformancelib.configuration.TestStepModel;
+import org.w3c.dom.Node;
 
 public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements MouseListener {
 	
@@ -65,7 +65,7 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf,
 			int row, boolean hasFocus) {
-		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+		Component cell = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 		TestStatus status = TestStatus.NONE;
 		String description = "";
 		if(value instanceof GuiTestCaseTreeNode) {
@@ -92,6 +92,9 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 			//s_logger.info("Got {} for {}", icon.getDescription(), status);
 		} else {
 			s_logger.error("icon was null for tree node");
+		}
+		if (cell instanceof JComponent) {
+			((JComponent) cell).setToolTipText(description);
 		}
 		return this;
 	}

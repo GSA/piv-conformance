@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -42,6 +40,7 @@ public class GuiTestTreePanel extends JPanel {
 		createNodes(root);
 		m_treeModel = new DefaultTreeModel(root);
 		JTree treeControl = new JTree(m_treeModel);
+		ToolTipManager.sharedInstance().registerComponent(treeControl);
 		treeControl.setRootVisible(false);
 		treeControl.setCellRenderer(new TestCaseTreeCellRenderer());
 		JScrollPane scrollPane = new JScrollPane();
