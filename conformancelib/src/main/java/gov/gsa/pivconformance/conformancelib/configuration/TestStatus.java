@@ -5,6 +5,7 @@ import java.util.Optional;
 
 public enum TestStatus {
 
+	TESTCATEGORY(-2),
 	NONE(-1),
 	FAIL(0),
 	PASS(1),

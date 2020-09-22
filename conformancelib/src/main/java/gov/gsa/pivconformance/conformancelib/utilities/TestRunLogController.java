@@ -32,8 +32,6 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.ArtifactWriter;
-import gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender;
-
 
 /**
  * Singleton class that consolidates the appenders into a single disposable group

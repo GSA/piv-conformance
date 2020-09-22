@@ -1,6 +1,6 @@
 package gov.gsa.pivconformance.gui;
 
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
@@ -47,6 +47,12 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 					s_statusIcons.put(s, icon);
 					break;
 				}
+				case TESTCATEGORY:
+				{
+					ImageIcon icon = getStatusIcon("folder_page");
+					s_statusIcons.put(s, icon);
+					break;
+				}
 				default:
 				{
 					ImageIcon icon = getStatusIcon("page");
@@ -83,8 +89,13 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 				description = step.toString();
 			}
 		}
+		if (status.equals(TestStatus.TESTCATEGORY)) {
+			setFont(new Font("Tahoma", Font.BOLD, 11));
+		} else {
+			setFont(new Font("Tahoma", Font.PLAIN, 11));
+		}
 		ImageIcon icon = s_statusIcons.get(status);
-		if(icon != null) {
+		if (icon != null) {
 			if (description.length() != 0) {
 				icon.setDescription(description);
 			}
@@ -93,7 +104,9 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 		} else {
 			s_logger.error("icon was null for tree node");
 		}
+
 		if (cell instanceof JComponent) {
+
 			((JComponent) cell).setToolTipText(description);
 		}
 		return this;

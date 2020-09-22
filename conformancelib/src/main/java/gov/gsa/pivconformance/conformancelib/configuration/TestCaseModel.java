@@ -1,5 +1,8 @@
 package gov.gsa.pivconformance.conformancelib.configuration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,10 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sqlite.SQLiteException;
 
 public class TestCaseModel {
 	private static Logger s_logger = LoggerFactory.getLogger(TestCaseModel.class);
@@ -195,10 +194,14 @@ public class TestCaseModel {
 			pstepsQuery.setInt(1, testId);
 			ResultSet prs = pstepsQuery.executeQuery();
 			m_steps = new ArrayList<TestStepModel>();
-			while(prs.next()) {
-				TestStepModel ts = new TestStepModel(this.getDb());
-				ts.retrieveForId(prs.getInt("TestStepId"), testId);
-				m_steps.add(ts);
+			if (!prs.next()) {
+				this.setStatus(TestStatus.TESTCATEGORY.getValue());
+			} else {
+				do {
+					TestStepModel ts = new TestStepModel(this.getDb());
+					ts.retrieveForId(prs.getInt("TestStepId"), testId);
+					m_steps.add(ts);
+				} while(prs.next());
 			}
 			try {
 				PreparedStatement pContainerQuery = conn.prepareStatement(containerQuery);
