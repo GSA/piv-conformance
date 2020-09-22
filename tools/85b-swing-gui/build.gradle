@@ -28,12 +28,12 @@ repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../../cardlib/build/libs', '../../libs'
+        dirs '../../libs'
     }
 }
 
 def getVersion = { ->
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
     File versionFile = new File(resourcesDir, 'build.version')
     if(!versionFile.exists()) {
         resourcesDir.mkdirs()
@@ -158,9 +158,9 @@ eclipse {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
 
-                def cardlib               = entries.find { it.path.contains 'cardlib' }
-                cardlib.sourcePath        = fileReference(file('../../libs/' + 'gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
-                def conformancelib        = entries.find { it.path.contains 'fips' }
+                def cardlib = entries.find { it.path.contains 'cardlib' }
+                cardlib.sourcePath = fileReference(file('../../libs/' + 'gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
+                def conformancelib = entries.find { it.path.contains 'fips' }
                 conformancelib.sourcePath = fileReference(file('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
             }
         }
