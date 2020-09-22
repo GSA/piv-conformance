@@ -1,4 +1,5 @@
-// set up junit 5 support for gradle
+// 85b-swing-gui/build.gradle
+
 buildscript {
     repositories {
         mavenCentral()
@@ -7,10 +8,11 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'java-library'
     id 'application'
     id 'org.ajoberstar.grgit' version '2.1.0'
     id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'de.jjohannes.extra-java-module-info' version '0.1'
+ 
 }
 
 java {
@@ -57,7 +59,8 @@ dependencies {
     compile group: 'ch.qos.logback', name:'logback-classic', version: '1.3.0-alpha5'
     compile group: 'ch.qos.logback', name:'logback-core', version: '1.3.0-alpha5'
 
-    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.32.3.2'
+
+    compile group: 'com.jgoodies', name: 'jgoodies-common', version: '1.4.0'
     compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
 
     compile files('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar')
@@ -71,6 +74,70 @@ dependencies {
 
     shadow 'org.bouncycastle:bcprov-jdk15on:1.66'
     shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
+}
+
+extraJavaModuleInfo {
+
+    module("bcprov-ext-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
+        exports("bcprov.ext-jdk15on")
+    }
+    module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
+        exports("bcpkix.jdk15on")
+    }
+    module("ber-tlv-1.0-8.jar", "com.payneteasy", "1.08") {
+        exports("ber.tlv")
+    }
+    module("hamcrest-core-1.3.jar", "org.hamcrest", "1.3") {
+        exports("hamcrest.core")
+    }
+    module("slf4j-api-2.0.0-alpha1.jar", "org.slf4j", "1.4") {
+        exports("slf4j.api")
+    }
+    module("sqlite-jdbc-3.32.3.2.jar", "org.xerial.sqlite", "3.32.3.2") {
+        exports("org.sqlite")
+    }
+    module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
+        exports("org.apache.commons.cli")
+    }
+    module("junit-4.11.jar", "org.junit.jupiter", "4.11") {
+        exports("org.junit")
+        exports("org.junit.runner")
+        exports("org.junit.internal")
+    }
+    module("junit-platform-launcher-5.7.0-RC1.jar", "org.junit.platform", "5.7.0-RC1") {
+        exports("org.junit.platform.launcher")
+    }
+    module("junit-platform-commons-5.7.0-RC1.jar", "org.junit.platform.commons", "5.7.0-RC1") {
+        exports("org.junit.platform.commons")
+    }
+    module("activation-1.1.jar", "javax.activation", "1.1") {
+        exports("activation")
+    }
+    module("checker-framework-1.7.0.jar", "edu.washington.cs.types.checker", "1.7.0") {
+        exports("checker.framework")
+    }
+    module("commons-csv-1.6.jar", "org.apache.commons.csv", "1.6") {
+        exports("org.apache.commons.csv")
+    }
+    module("logback-classic-1.3.0-alpha5.jar", "ch.qos.logback", "1.3.0-alpha5") {
+        exports("logback.classic")
+    }
+    module("logback-core-1.3.0-alpha5.jar", "ch.qos.logback", "1.3.0-alpha5") {
+        exports("logback.core")
+        exports("logback.core.rolling")
+    }
+
+    module("jgoodies-common-1.4.0", "com.jgoodies", "1.4.0") {
+        exports("common")
+    }
+    module("jgoodies-forms-1.6.0", "com.jgoodies", "1.6.0") {
+        exports("forms")
+    }
+
+
+    automaticModule("ibatis-core-3.0.jar", "org.apache.ibatis")
+    automaticModule("jgoodies-forms-1.6.0.jar", "com.jgoodies.forms")
+    automaticModule("jgoodies-common-1.4.0.jar", "com.jgoodies.common")
 }
 
 sourceSets {
