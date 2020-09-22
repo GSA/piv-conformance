@@ -24,7 +24,8 @@ apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
 
-targetCompatibility = targetJavaVersion
+targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_11
 
 logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
@@ -37,8 +38,8 @@ eclipse {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.conformancelib' +  '-' + getVersion() + '.jar' }
-                lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
+                //def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.conformancelib' +  '-' + getVersion() + '.jar' }
+                //lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
             }
         }
     }
@@ -48,12 +49,12 @@ repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../cardlib/build/libs', '../libs'
+        dirs '../libs', '../cardlib/build/libs'
     }
 }
 
 def getVersion = { ->
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
     File versionFile = new File(resourcesDir, 'build.version')
     if(!versionFile.exists()) {
         resourcesDir.mkdirs()
