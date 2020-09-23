@@ -186,14 +186,17 @@ public class TestRunLogController {
 	/**
 	 * Bootstraps the logging system with sane values
 	 */
-	public void bootStrapLogging() {
+	public void bootStrapLogging(Object caller) {
 		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
 			//String localDir = System.getProperty("user.dir");
 			//File logConfigFile = new File(localDir + "\\tools\\85b-swing-gui\\user_log_config.xml"); //TODO: Relocate to resource directory
 
+System.out.println("bootstrapLogging()");
 			String logConfigLocation = "/user_log_config.xml";
-			URL configFileUrl = TestRunLogController.class.getResource(logConfigLocation);
+			
+			URL configFileUrl = caller.getClass().getResource(logConfigLocation);
+System.out.println("URL: " + configFileUrl.toString());
 			File logConfigFile = new File(configFileUrl.toURI().getPath());
 
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
@@ -207,10 +210,12 @@ public class TestRunLogController {
 			System.err.println("Unable to resolve logging config to a readable file");
 			e.printStackTrace();
 		} catch (URISyntaxException e) {
-			System.err.println("Unable to form the path to user config file");
+			System.err.println("Unable to form the path to user log config file");
 			e.printStackTrace();
+ 		} catch (Exception e) {
+			System.err.println("Exception opening user log config file: " + e.getMessage());
  		}
-		StatusPrinter.printIfErrorsOccured(m_ctx);
+ 		StatusPrinter.printIfErrorsOccured(m_ctx);
 		TestRunLogController trlc = getInstance();
 		trlc.initialize(m_ctx);
 	}
