@@ -6,6 +6,8 @@ package gov.gsa.pivconformance.conformancelib.utilities;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
@@ -187,8 +189,13 @@ public class TestRunLogController {
 	public void bootStrapLogging() {
 		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
-			String localDir = System.getProperty("user.dir");
-			File logConfigFile = new File(localDir + "\\tools\\85b-swing-gui\\user_log_config.xml"); //TODO: Relocate to resource directory
+			//String localDir = System.getProperty("user.dir");
+			//File logConfigFile = new File(localDir + "\\tools\\85b-swing-gui\\user_log_config.xml"); //TODO: Relocate to resource directory
+
+			String logConfigLocation = "/user_log_config.xml";
+			URL configFileUrl = TestRunLogController.class.getResource(logConfigLocation);
+			File logConfigFile = new File(configFileUrl.toURI().getPath());
+
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
 				configurator.setContext(m_ctx);
@@ -199,7 +206,10 @@ public class TestRunLogController {
 		} catch (IOException e) {
 			System.err.println("Unable to resolve logging config to a readable file");
 			e.printStackTrace();
-		}
+		} catch (URISyntaxException e) {
+			System.err.println("Unable to form the path to user config file");
+			e.printStackTrace();
+ 		}
 		StatusPrinter.printIfErrorsOccured(m_ctx);
 		TestRunLogController trlc = getInstance();
 		trlc.initialize(m_ctx);
