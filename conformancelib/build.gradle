@@ -1,4 +1,5 @@
-// set up junit 5 support for gradle
+// conformancelib/build.gradle
+
 buildscript {
     repositories {
         mavenCentral()
@@ -38,9 +39,9 @@ eclipse {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                def lib = entries.find { it.path.contains 'g' } //gov.gsa.pivconformance.conformancelib' +  '-' + getVersion() + '.jar' }
-                //println '--> ' + lib.tosString()
-                //lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
+                //def lib = entries.find { it.path.contains '.' }
+                //println '--> ' + lib
+                //lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
             }
         }
     }
@@ -136,13 +137,16 @@ extraJavaModuleInfo {
         exports("slf4j.api")
     }
     module("sqlite-jdbc-3.32.3.2.jar", "org.xerial.sqlite", "3.32.3.2") {
+        exports("org.xerial.sqlite")
         exports("org.sqlite")
     }
     module("commons-csv-1.6.jar","org.apache.commons.csv", "1.6") {
         exports("org.apache.commons.csv")
+        exports("commons.csv")
     }
     module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
         exports("org.apache.commons.cli")
+        exports("commons.cli")
     }
     module("junit-4.11.jar","org.junit.jupiter", "4.11") {
         exports("org.junit")
@@ -224,6 +228,9 @@ task sourceJar(type: Jar, dependsOn: classes) {
 }
 
 task copyShadowLibs(type: Copy) {
+    doFirst {
+        version = getVersion()
+    }
     from configurations.shadow
     into '../libs'
 }
@@ -237,12 +244,18 @@ shadowJar.doFirst {
 
 // copy a jar with library sources to make this easier to step through in eclipse
 task installSource(type: Copy) {
+    doFirst {
+        version = getVersion()
+    }
     dependsOn sourceJar
     from sourceJar
     into '../libs'
 }
 
 task install(type: Copy) {
+    doFirst {
+        version = getVersion()
+    }
     dependsOn jar
     dependsOn installSource
     from jar

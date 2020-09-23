@@ -107,3 +107,6 @@ target
 /tools/**/*.class
 /tools/**/*.csv
 /tools/**/*.jar
+
+# Ignore Gradle build output directory
+build

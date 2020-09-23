@@ -101,6 +101,7 @@ dependencies {
     shadow 'org.slf4j:slf4j-api:2.0.0-alpha1'
     shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
     shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
@@ -194,11 +195,14 @@ afterEvaluate {
     check.dependsOn(generateHtmlTestReports)
 }
 
+/*
 // when producing a jar that is suitable for distribution using the shadow plugin,
 // this will enbed a version properties file.
 compileJava.doFirst {
     options.compilerArgs = ['--add-modules', 'java.smartcardio']
-    def git = org.ajoberstar.grgit.Grgit.open(dir: "${project.rootDir}/..")
+    def dir = "${project.rootDir}/../"
+    println '**** DIR: ' + dir
+    def git = org.ajoberstar.grgit.Grgit.open(dir: dir)
     def commit = git.head()
 
     def commitId = commit.abbreviatedId
@@ -219,7 +223,9 @@ compileJava.doFirst {
     versionProperties.setProperty('git.commit.id', commitId)
     versionProperties.setProperty('build.version', getVersion())
     versionProperties.store(propertiesFile.newWriter(), null)
+
 }
+*/
 
 extraJavaModuleInfo {
 
@@ -243,9 +249,11 @@ extraJavaModuleInfo {
     }
     module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
         exports("org.apache.commons.cli")
+        exports("commons.cli")
     }
     module("commons-codec-1.4.jar", "org.apache.commons.codec", "1.11") {
         exports("org.apache.commons.codec")
+        exports("commons.codec")
     }
     module("junit-4.11.jar","org.junit.jupiter", "4.11") {
         exports("junit")
@@ -265,6 +273,7 @@ compileJava {
 
 task sourceJar(type: Jar, dependsOn: classes) {
     doFirst {
+        println 'sourceJar.doFirst.archveName: ' + archiveName
         version = getVersion()
     }
     classifier 'sources'

@@ -28,7 +28,7 @@ repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../../libs'
+        dirs '../../cardlib/build/libs ../../conformancelib/build/libs ../../libs'
     }
 }
 
@@ -158,10 +158,10 @@ eclipse {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
 
-                def cardlib = entries.find { it.path.contains 'cardlib' }
-                cardlib.sourcePath = fileReference(file('../../libs/' + 'gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
-                def conformancelib = entries.find { it.path.contains 'fips' }
-                conformancelib.sourcePath = fileReference(file('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
+                //def cardlib = entries.find { it.path.contains 'cardlib' }
+                //cardlib.sourcePath = fileReference(file('../../libs/' + 'gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
+                //def conformancelib = entries.find { it.path.contains 'fips' }
+                //conformancelib.sourcePath = fileReference(file('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
             }
         }
     }

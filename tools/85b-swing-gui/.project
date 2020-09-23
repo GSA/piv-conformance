@@ -3,6 +3,8 @@
 	<name>85b-swing-gui</name>
 	<comment>Project 85b-swing-gui created by Buildship.</comment>
 	<projects>
+		<project>gov.gsa.pivconformance.cardlib</project>
+		<project>gov.gsa.pivconformance.conformancelib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
