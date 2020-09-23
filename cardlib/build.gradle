@@ -11,7 +11,7 @@ plugins {
     id 'java-library'
     id 'org.ajoberstar.grgit' version '2.1.0'
     id 'com.github.johnrengelman.shadow' version '4.0.4'
-    id "de.jjohannes.extra-java-module-info" version "0.1"
+    id 'de.jjohannes.extra-java-module-info' version '0.1'
 }
 
 java {
@@ -22,6 +22,7 @@ apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'de.jjohannes.extra-java-module-info'
 
 targetCompatibility = targetJavaVersion
 
@@ -299,8 +300,10 @@ task installSource(type: Copy) {
 }
 
 task install(type: Copy) {
+    version = getVersion()
     dependsOn jar
-    dependsOn installSource
+    //dependsOn installSource
+    dependsOn shadowJar
     from jar
     into '../libs' 
 }
