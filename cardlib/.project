@@ -3,7 +3,6 @@
 	<name>gov.gsa.pivconformance.cardlib</name>
 	<comment></comment>
 	<projects>
-		<project>gov.gsa.pivconformance.cardlib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
