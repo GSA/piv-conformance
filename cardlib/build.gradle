@@ -273,10 +273,6 @@ compileJava {
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
-    doFirst {
-        println 'sourceJar.doFirst.archveName: ' + archiveName
-        version = getVersion()
-    }
     classifier 'sources'
     from sourceSets.main.allSource
 }
@@ -289,6 +285,7 @@ task copyShadowLibs(type: Copy) {
 shadowJar.dependsOn copyShadowLibs
 
 shadowJar.doFirst {
+    version = getVersion()
     println 'shadowJar.doFirst.archveName: ' + archiveName
 }
 
@@ -302,7 +299,6 @@ task installSource(type: Copy) {
 task install(type: Copy) {
     version = getVersion()
     dependsOn jar
-    //dependsOn installSource
     dependsOn shadowJar
     from jar
     into '../libs' 
