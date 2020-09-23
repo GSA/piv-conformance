@@ -39,7 +39,7 @@ public class GuiRunnerApplication {
 	public static void main(String[] args) {
 
 		TestRunLogController trlc = TestRunLogController.getInstance();
-		trlc.bootStrapLogging();
+		trlc.bootStrapLogging(GuiRunnerApplication.class);
 
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
