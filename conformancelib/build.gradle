@@ -195,6 +195,7 @@ compileTestJava {
     String moduleName = "";
     if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
         moduleName = 'gov.gsa.pivconformance.conformancelib.test'
+        version = getVersion()
         inputs.property("moduleName", moduleName)
     }
     doFirst {
@@ -208,29 +209,26 @@ compileTestJava {
     }
 }
 
-// use junit platform for tests
 test {
+    version = getVersion()
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
     }
 }
 
-junitPlatform {
+//junitPlatform { }
+
+compileJava {
+    options.debugOptions.debugLevel = "source,lines,vars"
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
-    doFirst {
-        version = getVersion()
-    }
     classifier 'sources'
     from sourceSets.main.allSource
 }
 
 task copyShadowLibs(type: Copy) {
-    doFirst {
-        version = getVersion()
-    }
     from configurations.shadow
     into '../libs'
 }
@@ -242,22 +240,17 @@ shadowJar.doFirst {
     println 'shadowJar.doFirst.archveName: ' + archiveName
 }
 
-// copy a jar with library sources to make this easier to step through in eclipse
 task installSource(type: Copy) {
-    doFirst {
-        version = getVersion()
-    }
+    dependsOn copyShadowLibs
     dependsOn sourceJar
     from sourceJar
-    into '../libs'
+    into '../libs' 
 }
 
 task install(type: Copy) {
-    doFirst {
-        version = getVersion()
-    }
+    version = getVersion()
     dependsOn jar
-    dependsOn installSource
+    dependsOn shadowJar
     from jar
-    into '../libs'
+    into '../libs' 
 }
