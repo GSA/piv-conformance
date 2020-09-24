@@ -79,7 +79,6 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
     compile 'commons-cli:commons-cli:1.4'
     compile group: 'org.apache.commons', name: 'commons-csv', version: '1.6'
-    //compile 'commons-codec:commons-codec:1.14'
     compile 'commons-codec:commons-codec:1.11'
     compile 'com.payneteasy:ber-tlv:1.0-8'
     compile group: 'org.slf4j', name:'slf4j-api', version: '2.0.0-alpha1'
@@ -148,12 +147,6 @@ extraJavaModuleInfo {
     module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
         exports("org.apache.commons.cli")
     }
-/*
-    module("commons-codec-1.14.jar", "org.apache.commons.codec", "1.14") {
-        exports("org.apache.commons.codec")
-        exports("org.apache.commons.codec.binary")
-    }
-*/
     module("commons-codec-1.11.jar", "org.apache.commons.codec", "1.11") {
         exports("org.apache.commons.codec")
         exports("org.apache.commons.codec.binary")

@@ -19,6 +19,7 @@ module gov.gsa.pivconformance.conformancelib {
 	requires org.junit.jupiter;
 	requires org.apache.commons.cli;
 	requires org.apache.commons.csv;
+	requires org.apache.commons.codec;
 	requires ch.qos.logback.classic;
 	requires ch.qos.logback.core;
 	requires java.desktop;
