@@ -76,6 +76,7 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
 
     implementation 'commons-cli:commons-cli:1.4'           // plain library
+    //implementation 'commons-codec:commons-codec:1.14'
     implementation 'commons-codec:commons-codec:1.11'
 
     implementation 'com.payneteasy:ber-tlv:1.0-8'
@@ -88,6 +89,7 @@ dependencies {
     testCompile 'org.bouncycastle:bcpkix-jdk15on:1.66'
 
     testCompile 'commons-cli:commons-cli:1.4'
+    //testCompile 'commons-codec:commons-codec:1.14'
     testCompile 'commons-codec:commons-codec:1.11'
     testCompile 'com.payneteasy:ber-tlv:1.0-8'
     testCompile 'org.slf4j:slf4j-api:2.0.0-alpha1'
@@ -231,7 +233,7 @@ compileJava.doFirst {
 extraJavaModuleInfo {
 
     module("bcprov-ext-jdk15on-1.66.jar", "org.bouncycastle.provider.ext", "1.66") {
-        exports("bcprov.ext-jdk15on")
+        exports("bcprov.jdk15on")
     }
     module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle.pkix", "1.66") {
         exports("bcpkix.jdk15on")
@@ -252,8 +254,16 @@ extraJavaModuleInfo {
         exports("org.apache.commons.cli")
         exports("commons.cli")
     }
-    module("commons-codec-1.4.jar", "org.apache.commons.codec", "1.11") {
+/*
+    module("commons-codec-1.14.jar", "org.apache.commons.codec", "1.14") {
         exports("org.apache.commons.codec")
+        exports("org.apache.commons.codec.binary")
+        exports("commons.codec")
+    }
+*/
+    module("commons-codec-1.11.jar", "org.apache.commons.codec", "1.11") {
+        exports("org.apache.commons.codec")
+        exports("org.apache.commons.codec.binary")
         exports("commons.codec")
     }
     module("junit-4.11.jar","org.junit.jupiter", "4.11") {
