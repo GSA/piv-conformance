@@ -28,7 +28,7 @@ repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../../cardlib/build/libs ../../conformancelib/build/libs ../../libs'
+        dirs '../../libs'
     }
 }
 
@@ -63,8 +63,11 @@ dependencies {
     compile group: 'com.jgoodies', name: 'jgoodies-common', version: '1.4.0'
     compile group: 'com.jgoodies', name: 'jgoodies-forms', version: '1.6.0'
 
-    compile files('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar')
-    compile files('../../libs/gov.gsa.pivconformance.conformancelib' + '-' + getVersion() + '.jar')
+    compile 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:0.2.1-beta'
+    compile 'gov.gsa.pivconformance.conformancelib:gov.gsa.pivconformance.conformancelib:0.2.1-beta'
+
+    //compile files('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar')
+    //compile files('../../libs/gov.gsa.pivconformance.conformancelib' + '-' + getVersion() + '.jar')
 
     compile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     compile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
@@ -175,10 +178,8 @@ shadowJar {
 mainClassName = 'gov.gsa.pivconformance.gui.GuiRunnerApplication'
 
 jar {
+    version = getVersion()
     dependsOn(shadowJar { classifier = null })
-    doFirst {
-        version = getVersion()
-    }
     manifest {
         attributes 'Main-Class': mainClassName
     }
@@ -204,4 +205,37 @@ test {
 
 compileJava {
     options.debugOptions.debugLevel = "source,lines,vars"
+}
+
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task copyShadowLibs(type: Copy) {
+    from configurations.shadow
+    into '../../libs'
+}
+
+shadowJar.dependsOn copyShadowLibs
+
+shadowJar.doFirst {
+    archiveName = 'gov.gsa.pivconformance.gui' + '-' + getVersion() + '-shadow.jar' 
+    println 'shadowJar.doFirst.archveName: ' + archiveName
+}
+
+task installSource(type: Copy) {
+    version = getVersion()
+    dependsOn copyShadowLibs
+    dependsOn sourceJar
+    from sourceJar
+    into '../../libs' 
+}
+
+task install(type: Copy) {
+    version = getVersion()
+    dependsOn jar
+    dependsOn shadowJar
+    from jar
+    into '../../libs' 
 }
