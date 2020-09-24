@@ -22,7 +22,6 @@ import gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
-import gov.gsa.pivconformance.conformancelib.utilities.CardUtils;
 
 public class AtomHelper {
     private static final Logger s_logger = LoggerFactory.getLogger(AtomHelper.class);
