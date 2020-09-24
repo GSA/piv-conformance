@@ -98,6 +98,8 @@ target
 **/*.class
 **/*.db
 **/*.csv
+**/.DS_Store
+**/build
 
 /cardlib/**/*.class
 /cardlib/out
