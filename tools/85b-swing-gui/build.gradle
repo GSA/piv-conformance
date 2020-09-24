@@ -99,9 +99,6 @@ extraJavaModuleInfo {
     module("sqlite-jdbc-3.32.3.2.jar", "org.xerial.sqlite", "3.32.3.2") {
         exports("org.sqlite")
     }
-    module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
-        exports("org.apache.commons.cli")
-    }
     module("junit-4.11.jar", "org.junit.jupiter", "4.11") {
         exports("org.junit")
         exports("org.junit.runner")
@@ -119,9 +116,16 @@ extraJavaModuleInfo {
     module("checker-framework-1.7.0.jar", "edu.washington.cs.types.checker", "1.7.0") {
         exports("checker.framework")
     }
+    module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
+        exports("org.apache.commons.cli")
+    }    
     module("commons-csv-1.6.jar", "org.apache.commons.csv", "1.6") {
         exports("org.apache.commons.csv")
     }
+     module("commons-codec-1.11.jar", "org.apache.commons.codec", "1.11") {
+        exports("org.apache.commons.codec")
+        exports("org.apache.commons.codec.binary")
+    }   
     module("logback-classic-1.3.0-alpha5.jar", "ch.qos.logback", "1.3.0-alpha5") {
         exports("logback.classic")
     }
@@ -129,7 +133,6 @@ extraJavaModuleInfo {
         exports("logback.core")
         exports("logback.core.rolling")
     }
-
     module("jgoodies-common-1.4.0", "com.jgoodies", "1.4.0") {
         exports("common")
     }
@@ -235,7 +238,6 @@ task installSource(type: Copy) {
 task install(type: Copy) {
     version = getVersion()
     dependsOn jar
-    dependsOn shadowJar
-    from jar
+    from shadowJar
     into '../../libs' 
 }
