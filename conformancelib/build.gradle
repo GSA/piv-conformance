@@ -49,6 +49,7 @@ eclipse {
 
 repositories {
     jcenter()
+    mavenCentral()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
         dirs '../libs', '../cardlib/build/libs'
@@ -78,10 +79,8 @@ dependencies {
     //implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
     implementation 'org.apache.commons:commons-cli:1.4'
-
     implementation 'org.apache.commons:commons-csv:1.8'
-
-    implementation 'org.apache.commons:commons-codec:1.11'
+    implementation 'org.apache.commons:commons-codec:1.13'
     implementation 'com.payneteasy:ber-tlv:1.0-8'
     implementation 'org.slf4j:slf4j-api:2.0.0-alpha1'
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
@@ -100,10 +99,8 @@ dependencies {
     //testRuntime 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
     testRuntime 'org.bouncycastle:bcprov-jdk15on:1.66'
     testRuntime 'org.apache.commons:commons-cli:1.4'
-
     testRuntime 'org.apache.commons:commons-csv:1.8'
-
-    testRuntime 'org.apache.commons:commons-codec:1.11'
+    testRuntime 'org.apache.commons:commons-codec:1.13'
     testRuntime 'com.payneteasy:ber-tlv:1.0-8'
     testRuntime 'org.slf4j:slf4j-api:2.0.0-alpha1'
     testRuntime 'ch.qos.logback:logback-classic:1.3.0-alpha5'
@@ -122,10 +119,8 @@ dependencies {
     //runtime 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
     runtime 'org.bouncycastle:bcprov-jdk15on:1.66'
     runtime 'org.apache.commons:commons-cli:1.4'
-
     runtime 'org.apache.commons:commons-csv:1.8'
-
-    runtime 'org.apache.commons:commons-codec:1.11'
+    runtime 'org.apache.commons:commons-codec:1.13'
     runtime 'com.payneteasy:ber-tlv:1.0-8'
     runtime 'org.slf4j:slf4j-api:2.0.0-alpha1'
     runtime 'ch.qos.logback:logback-classic:1.3.0-alpha5'
@@ -185,7 +180,7 @@ extraJavaModuleInfo {
         exports("org.apache.commons.cli")
         exports("commons.cli")
     }
-    module("commons-codec-1.11.jar", "org.apache.commons.codec", "1.11") {
+    module("commons-codec-1.13.jar", "org.apache.commons.codec", "1.13") {
         exports("org.apache.commons.codec.binary")
         exports("org.apache.commons.codec")
         exports("commons.codec")
