@@ -6,8 +6,9 @@ module gov.gsa.pivconformance.cardlib {
 
 	requires java.smartcardio;
 	requires java.sql;
-	requires org.apache.commons.cli;
-	requires org.apache.commons.codec;
+	requires commons.cli;
+	requires commons.codec;
+	requires org.apache.commons.csv;
 	requires org.bouncycastle.pkix;
 	requires org.bouncycastle.provider;
 	requires org.slf4j;
