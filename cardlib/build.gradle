@@ -73,7 +73,7 @@ configurations {
 
 dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.66'
-    implementation 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
 
     implementation 'commons-cli:commons-cli:1.4'           // plain library
     //implementation 'commons-codec:commons-codec:1.14'
@@ -85,7 +85,7 @@ dependencies {
 
     implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
 
-    testCompile 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
+    testCompile 'org.bouncycastle:bcprov-jdk15on:1.66'
     testCompile 'org.bouncycastle:bcpkix-jdk15on:1.66'
 
     testCompile 'commons-cli:commons-cli:1.4'
@@ -102,7 +102,7 @@ dependencies {
 
     shadow 'commons-cli:commons-cli:1.4'
     shadow 'org.slf4j:slf4j-api:2.0.0-alpha1'
-    shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.66'
+    shadow 'org.bouncycastle:bcprov-jdk15on:1.66'
     shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
     shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
 
@@ -232,7 +232,7 @@ compileJava.doFirst {
 
 extraJavaModuleInfo {
 
-    module("bcprov-ext-jdk15on-1.66.jar", "org.bouncycastle.provider.ext", "1.66") {
+    module("bcprov-jdk15on-1.66.jar", "org.bouncycastle.provider.ext", "1.66") {
         exports("bcprov.jdk15on")
     }
     module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle.pkix", "1.66") {
