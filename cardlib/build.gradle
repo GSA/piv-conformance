@@ -49,7 +49,7 @@ repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../libs'
+        dirs 'build/libs'
     }
 }
 
@@ -73,59 +73,58 @@ configurations {
 }
 
 dependencies {
+    implementation 'junit:junit:4.11'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.66'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
-
     implementation 'commons-cli:commons-cli:1.4'           // plain library
     implementation 'org.apache.commons:commons-csv:1.8'
     implementation 'commons-codec:commons-codec:1.15'
-
     implementation 'com.payneteasy:ber-tlv:1.0-8'
     implementation 'org.slf4j:slf4j-api:2.0.0-alpha1'
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
-
     implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
 
+    testCompile 'junit:junit:4.11'
     testCompile 'org.bouncycastle:bcprov-jdk15on:1.66'
     testCompile 'org.bouncycastle:bcpkix-jdk15on:1.66'
-
     testCompile 'commons-cli:commons-cli:1.4'
     testCompile 'org.apache.commons:commons-csv:1.8'
     testCompile 'commons-codec:commons-codec:1.15'
     testCompile 'com.payneteasy:ber-tlv:1.0-8'
     testCompile 'org.slf4j:slf4j-api:2.0.0-alpha1'
     testCompile 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.7.0-RC1'
-    testCompile 'org.junit.jupiter:junit-jupiter-params:5.7.0-RC1'
- 
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.7.0-RC1'
-    testRuntime 'org.junit.jupiter:junit-jupiter-params:5.7.0-RC1'
-    
+    testRuntime 'junit:junit:4.11'
+    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    runtime 'junit:junit:4.11'
     runtime 'org.bouncycastle:bcpkix-jdk15on:1.66'
     runtime 'org.bouncycastle:bcprov-jdk15on:1.66'
-
     runtime 'commons-cli:commons-cli:1.4'           // plain library
     runtime 'org.apache.commons:commons-csv:1.8'
     runtime 'commons-codec:commons-codec:1.15'
-
     runtime 'com.payneteasy:ber-tlv:1.0-8'
     runtime 'org.slf4j:slf4j-api:2.0.0-alpha1'
     runtime 'ch.qos.logback:logback-classic:1.3.0-alpha5'
     runtime 'org.xerial:sqlite-jdbc:3.32.3.2'
 
+    shadow 'junit:junit:4.11'
+    shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    shadow 'org.bouncycastle:bcprov-jdk15on:1.66'
     shadow 'commons-cli:commons-cli:1.4'
     shadow 'org.apache.commons:commons-csv:1.8'
     shadow 'commons-codec:commons-codec:1.15'
     shadow 'org.slf4j:slf4j-api:2.0.0-alpha1'
     shadow 'ch.qos.logback:logback-classic:1.3.0-alpha5'
     shadow 'com.payneteasy:ber-tlv:1.0-8'
-    shadow 'org.bouncycastle:bcprov-jdk15on:1.66'
-    shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
-    shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    shadow 'org.xerial:sqlite-jdbc:3.32.3.2'
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
+
+clean.doFirst { println 'Cleaning...'}
+clean.doLast { println 'Cleaning complete.' }
 
 // use junit platform for tests
 test {
@@ -147,6 +146,24 @@ junitPlatform {
 jar {
     doFirst {
         version = getVersion()
+        project.version = version
+    }
+    manifest {
+        attributes(
+			'Manifest-Version': '0.2.1-beta',
+			'Created-By': 'General Services Administration',
+			'Automatic-Module-Name': 'gov.gsa.pivconformance.cardlib',
+			'Multi-Release': 'true',
+			// 'Main-Class': 'changeme',
+			// 'Launcher-Agent-Class': 'changeme',
+			'Implementation-Title': 'gov.gsa.pivconformance.cardlib',
+			'Implementation-Version': '0.2.1-beta',
+			'Implementation-Vendor': 'General Services Administration',
+			'Specification-Title': 'gov.gsa.pivconformance.cardlib',
+			'Specification-Version': '0.2.1-beta',
+			'Specification-Vendor': 'General Services Administration',
+			'Sealed': 'false'
+        )
     }
     doLast {
         println 'archiveName: ' + archiveName
@@ -216,7 +233,6 @@ afterEvaluate {
     check.dependsOn(generateHtmlTestReports)
 }
 
-/*
 // when producing a jar that is suitable for distribution using the shadow plugin,
 // this will enbed a version properties file.
 compileJava.doFirst {
@@ -246,15 +262,14 @@ compileJava.doFirst {
     versionProperties.store(propertiesFile.newWriter(), null)
 
 }
-*/
 
 extraJavaModuleInfo {
 
     module("bcprov-jdk15on-1.66.jar", "org.bouncycastle.provider.ext", "1.66") {
-        exports("bcprov.jdk15on")
+        exports("org.bouncycastle.provider")
     }
     module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle.pkix", "1.66") {
-        exports("bcpkix.jdk15on")
+        exports("org.bouncycastle.pkix")
     }
     module("ber-tlv-1.0-8.jar", "com.payneteasy", "1.08") {
         exports("ber.tlv")
@@ -277,11 +292,8 @@ extraJavaModuleInfo {
         exports("org.apache.commons.codec")
         exports("commons.codec");
     }
-    module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
-        exports("org.apache.commons.csv")
-    }
-    module("junit-4.11.jar","org.junit.jupiter", "4.11") {
-        exports("junit")
+    module("commons-csv-1.8.jar", "commons.csv", "1.8") {
+        exports("commons.csv")
     }
     module("activation-1.1.jar","javax.activation", "1.1") {
         exports("activation")
@@ -289,7 +301,9 @@ extraJavaModuleInfo {
     module("checker-framework-1.7.0.jar","edu.washington.cs.types.checker", "1.7.0") {
         exports("checker.framework")
     }
-
+    
+    automaticModule("ibatis-core-3.0.jar", "org.apache.ibatis")
+    automaticModule("junit-4.11.jar","junit") 
 }
 
 compileJava {
@@ -303,7 +317,7 @@ task sourceJar(type: Jar, dependsOn: classes) {
 
 task copyShadowLibs(type: Copy) {
     from configurations.shadow
-    into '../libs'
+    into 'build/libs'
 }
 
 shadowJar.dependsOn copyShadowLibs
@@ -317,7 +331,7 @@ task installSource(type: Copy) {
     dependsOn copyShadowLibs
     dependsOn sourceJar
     from sourceJar
-    into '../libs' 
+    into 'build/libs' 
 }
 
 task install(type: Copy) {
@@ -325,5 +339,5 @@ task install(type: Copy) {
     dependsOn jar
     dependsOn shadowJar
     from jar
-    into '../libs' 
+    into 'build/libs' 
 }
