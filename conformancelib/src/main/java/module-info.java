@@ -14,9 +14,11 @@ module gov.gsa.pivconformance.conformancelib {
 	requires org.xerial.sqlite;
 	requires org.junit.jupiter.api;
 	requires org.junit.jupiter.params;
+	requires org.junit.platform.engine;
+	requires org.junit.platform.launcher;
+	requires org.junit.platform.commons;
 	requires org.bouncycastle.pkix;
 	requires org.bouncycastle.provider;
-	requires org.junit.jupiter;
 	requires org.apache.commons.cli;
 	requires org.apache.commons.csv;
 	requires org.apache.commons.codec;
