@@ -24,7 +24,7 @@ public class DefaultPIVApplication extends AbstractPIVApplication {
     /**
      *
      * Set the PIV Card Application as the currently selected card application and establish
-     * the PIV Card Applicationâs security state.
+     * the PIV Card Application's security state.
      *
      * @param cardHandle CardHandle object that encapsulates connection to a card
      * @param applicationAID ApplicationAID object containing the AID of the PIV Card Application

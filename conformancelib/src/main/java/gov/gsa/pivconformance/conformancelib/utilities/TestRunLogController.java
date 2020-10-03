@@ -193,7 +193,7 @@ public class TestRunLogController {
 			//File logConfigFile = new File(localDir + "\\tools\\85b-swing-gui\\user_log_config.xml"); //TODO: Relocate to resource directory
 
 System.out.println("bootstrapLogging()");
-			String logConfigLocation = "/user_log_config.xml";
+			String logConfigLocation = "user_log_config.xml";
 			
 			URL configFileUrl = caller.getClass().getResource(logConfigLocation);
 System.out.println("URL: " + configFileUrl.toString());

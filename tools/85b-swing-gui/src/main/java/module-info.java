@@ -1,7 +1,9 @@
 module gov.gsa.pivconformance.gui {
 	exports gov.gsa.pivconformance.gui;
+
 	requires ch.qos.logback.classic;
 	requires ch.qos.logback.core;
+	requires com.jgoodies.forms;
 	requires gov.gsa.pivconformance.cardlib;
 	requires gov.gsa.pivconformance.conformancelib;
 	requires java.desktop;
@@ -9,6 +11,7 @@ module gov.gsa.pivconformance.gui {
 	requires java.sql;
 	requires java.xml;
 	requires org.apache.commons.codec;
+	requires org.bouncycastle.pkix;
 	requires org.junit.platform.commons;
 	requires org.junit.platform.engine;
 	requires org.junit.platform.launcher;
