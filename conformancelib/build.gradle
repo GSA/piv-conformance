@@ -4,9 +4,6 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
-    }
 }
 
 plugins {
@@ -23,7 +20,6 @@ java {
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'org.junit.platform.gradle.plugin'
 
 targetCompatibility = JavaVersion.VERSION_11
 sourceCompatibility = JavaVersion.VERSION_11
@@ -41,19 +37,19 @@ eclipse {
                 //jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
                 //def lib = entries.find { it.path.contains '.' }
                 //println '--> ' + lib
-                //lib.sourcePath = fileReference(file('build/libs/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
+                //lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
             }
         }
     }
 }
 
 repositories {
-    flatDir {
-        dirs '../cardlib/build/libs/'
-    }
     jcenter()
     mavenCentral()
     maven { url 'https://repository.apache.org/snapshots' }
+    flatDir {
+        dirs '../libs', '../cardlib/build/libs'
+    }
 }
 
 def getVersion = { ->
@@ -75,94 +71,56 @@ configurations {
     junitXmlToHtml
 }
 dependencies {
-
-    implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
-    implementation 'ch.qos.logback:logback-core:1.3.0-alpha5'
-    implementation 'commons-cli:commons-cli:1.4'           // plain library
-    implementation 'commons-codec:commons-codec:1.15'
-    implementation 'com.payneteasy:ber-tlv:1.0-8'
-    implementation 'info.picocli:picocli:3.6.0'
-    implementation 'org.apache.commons:commons-csv:1.8'
-    implementation 'org.apache.ibatis:ibatis-core:3.0'
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.66'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
-    implementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    implementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    implementation 'org.junit.platform:junit-platform-launcher:1.7.0'
-    implementation 'org.junit.platform:junit-platform-commons:1.7.0'
+    implementation 'org.apache.commons:commons-cli:1.4'
+    implementation 'org.apache.commons:commons-csv:1.8'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'com.payneteasy:ber-tlv:1.0-11'
     implementation 'org.slf4j:slf4j-api:2.0.0-alpha1'
+    implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
     implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
-    api 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:0.2.1-beta'// + getVersion()
+    implementation 'org.apache.ibatis:ibatis-core:3.0'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    implementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    implementation 'org.junit.platform:junit-platform-engine:1.7.0'
+    implementation 'org.junit.platform:junit-platform-launcher:1.7.0'
+    implementation 'org.junit.platform:junit-platform-commons:1.5.0'
+    implementation 'org.junit.vintage:junit-vintage-engine:1.7.0'
 
-/*
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    testImplementation 'org.junit.platform:junit-platform-launcher:1.7.0'
-    testImplementation 'org.junit.platform:junit-platform-commons:1.7.0'
-    runtime 'ch.qos.logback:logback-classic:1.3.0-alpha5'
-    runtime 'ch.qos.logback:logback-core:1.3.0-alpha5'
-    runtime 'commons-cli:commons-cli:1.4'
-    runtime 'commons-codec:commons-codec:1.15'
-    runtime 'com.payneteasy:ber-tlv:1.0-8'
-    runtime 'info.picocli:picocli:3.6.0'
-    runtime 'org.apache.commons:commons-csv:1.8'
-    runtime 'org.apache.ibatis:ibatis-core:3.0'
-    runtime 'org.bouncycastle:bcpkix-jdk15on:1.66'
-    runtime 'org.bouncycastle:bcprov-jdk15on:1.66'
-    runtime 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    runtime 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    runtime 'org.junit.platform:junit-platform-launcher:1.7.0'
-    runtime 'org.junit.platform:junit-platform-commons:1.7.0'
-    runtime 'org.slf4j:slf4j-api:2.0.0-alpha1'
-    runtime 'org.xerial:sqlite-jdbc:3.32.3.2'
-    runtime 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:0.2.1-beta'// + getVersion()
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    testRuntime 'org.junit.platform:junit-platform-launcher:1.7.0'
-    testRuntime 'org.junit.platform:junit-platform-commons:1.7.0'
-*/
-    shadow 'ch.qos.logback:logback-classic:1.3.0-alpha5'
-    shadow 'ch.qos.logback:logback-core:1.3.0-alpha5'
-    shadow 'com.payneteasy:ber-tlv:1.0-8'
-    shadow 'info.picocli:picocli:3.6.0'
-    shadow 'org.apache.ibatis:ibatis-core:3.0'
-    shadow 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    shadow 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    shadow 'org.junit.platform:junit-platform-launcher:1.7.0'
-    shadow 'org.junit.platform:junit-platform-commons:1.7.0'
-    shadow 'org.slf4j:slf4j-api:2.0.0-alpha1'
-    shadow 'org.xerial:sqlite-jdbc:3.32.3.2'
-    shadow 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:0.2.1-beta'// + getVersion()
- 
+    implementation 'info.picocli:picocli:3.6.0'
+    implementation 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:' + getVersion()
+
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
 jar {
     doFirst {
         version = getVersion()
-        project.version = version
     }
     manifest {
         attributes(
-			'Manifest-Version'      : '0.2.1-beta',
-			'Created-By'            : 'General Services Administration',
-			'Automatic-Module-Name' : 'gov.gsa.pivconformance.conformancelib',
-			'Multi-Release'         : 'true',
-			'Class-Path'            : 'gov.gsa.pivconformance.conformancelib-0.2.1-beta.jar',
-			'Implementation-Title'  : 'gov.gsa.pivconformance.conformancelib',
-			'Implementation-Version': '0.2.1-beta',
-			'Implementation-Vendor' : 'General Services Administration',
-			'Bundle-ManifestVersion' :'2',
-			'Bundle-SymbolicName': 'gov.gsa.pivconformance.conformancelib',
-			'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
-			'Bundle-Vendor': 'gov.gsa',
-			'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
-			//'Export-Package': 'gov.gsa.pivconformance.cardlib;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.client;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.tools;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.utils;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.tlv;version=0.2.1-beta',
-			//'Import-Package':  'java.smartcardio, java.sql, commons.cli, commons.codec, commons.csv, org.bouncycastle.pkix,org.bouncycastle.provider, org.slf4j',
-			'Specification-Title'   : 'gov.gsa.pivconformance.conformancelib',
-			'Specification-Version' : '0.2.1-beta',
-			'Specification-Vendor'  : 'General Services Administration',
-			'Sealed'                : 'false'
+	'Manifest-Version'      : '0.2.1-beta',
+	'Created-By'            : 'General Services Administration',
+	'Automatic-Module-Name' : 'gov.gsa.pivconformance.conformancelib',
+	'Multi-Release'         : 'false',
+	'Class-Path'            : configurations.compile.collect { it.getName() }.join(' '),
+	'Implementation-Title'  : 'gov.gsa.pivconformance.conformancelib',
+	'Implementation-Version': '0.2.1-beta',
+	'Implementation-Vendor' : 'General Services Administration',
+	'Bundle-ManifestVersion' :'2',
+	'Bundle-SymbolicName': 'gov.gsa.pivconformance.conformancelib',
+	'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
+	'Bundle-Vendor': 'gov.gsa',
+	'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
+	//'Export-Package': 'gov.gsa.pivconformance.cardlib;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.client;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.tools;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.utils;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.tlv;version=0.2.1-beta',
+	//'Import-Package':  'java.smartcardio, java.sql, commons.cli, commons.codec, commons.csv, org.bouncycastle.pkix,org.bouncycastle.provider, org.slf4j',
+		'Export-Package': '*',
+		'Import-Package': '*',
+	'Specification-Title'   : 'gov.gsa.pivconformance.conformancelib',
+	'Specification-Version' : '0.2.1-beta',
+	'Specification-Vendor'  : 'General Services Administration',
+	'Sealed'                : 'false'
         )
     }
     doLast {
@@ -172,17 +130,14 @@ jar {
 }
 
 extraJavaModuleInfo {
-    module("gov.gsa.pivconformance.cardlib-0.2.1-beta.jar", "gov.gsa.pivconformance.cardlib", "0.2.1-beta") {
-        exports("gov.gsa.pivconformance.cardlib");
-    }
 
-    module("bcprov-jdk15on-1.66.jar", "org.bouncycastle.provider.ext", "1.66") {
-        exports("org.bouncycastle.provider")
+    module("bcprov-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
+        exports("bcprov.jdk15on")
     }
-    module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle.pkix", "1.66") {
-        exports("org.bouncycastle.pkix")
+    module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
+        exports("bcpkix.jdk15on")
     }
-    module("ber-tlv-1.0-8.jar", "com.payneteasy", "1.08") {
+    module("ber-tlv-1.0-11.jar", "com.payneteasy", "1.0-11") {
         exports("ber.tlv")
     }
     module("hamcrest-core-1.3.jar", "org.hamcrest", "1.3") {
@@ -193,30 +148,16 @@ extraJavaModuleInfo {
     }
     module("sqlite-jdbc-3.32.3.2.jar", "org.xerial.sqlite", "3.32.3.2") {
         exports("org.xerial.sqlite")
-        exports("org.sqlite")
     }
-    module("commons-cli-1.4.jar", "commons.cli", "1.4") {
-        exports("org.apache.commons.cli")
-        exports("commons.cli");
-    }
-    module("commons-codec-1.15.jar", "commons.codec", "1.15") {
-        exports("org.apache.commons.codec.binary")
-        exports("org.apache.commons.codec")
-        exports("commons.codec");
-    }
-    module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
+    module("commons-csv-1.8.jar","org.apache.commons.csv", "1.8") {
         exports("org.apache.commons.csv")
     }
-    module("junit-platform-engine-5.7.0.jar","junit.platform.engine", "5.7.0") {
-        exports("junit.jupiter.engine")
+    module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
+        exports("org.apache.commons.cli")
     }
-    module("junit-platform-launcher-1.7.0.jar","junit.platform.launcher", "1.7.0") {
-        exports("junit.platform.launcher")
-        exports("org.junit.platform.launcher")
-    }
-    module("junit-platform-commons-1.7.0.jar","junit-platform-commons", "1.7.0") {
-        exports("org.junit.platform.commons")
-        exports("org.junit.platform.commons.util to org.junit.jupiter.api org.junit.jupiter.engine org.junit.jupiter.params org.junit.platform.launcher org.junit.vintage.engine org.jun it.platform.reporting org.junit.jupiter.migrationsupport org.junit.platform.suite.api org.junit.platform.runner org.junit.platform.console org.junit.platform.engine org.junit.platform.t estkit");
+    module("commons-codec-1.15.jar", "org.apache.commons.codec", "1.15") {
+        exports("org.apache.commons.codec.binary")
+        exports("org.apache.commons.codec")
     }
     module("activation-1.1.jar","javax.activation", "1.1") {
         exports("activation")
@@ -230,9 +171,7 @@ extraJavaModuleInfo {
     module("logback-core-1.3.0-alpha5.jar","ch.qos.logback", "1.3.0-alpha5") {
         exports("logback.core")
     }
-    automaticModule("ibatis-core-3.0.jar", "org.apache.ibatis")
-    automaticModule("junit-4.11.jar","org.junit") 
-   
+    automaticModule("ibatis-core-3.0.jar","org.apache.ibatis")
 }
 
 compileJava {
@@ -247,7 +186,6 @@ compileJava {
     doFirst {
         options.compilerArgs = [
                 '--module-path', classpath.asPath,
-                '--add-modules', 'org.junit.jupiter.api',
                 '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
         ]
         classpath = files()
@@ -265,9 +203,9 @@ compileTestJava {
         options.compilerArgs = [
                 '--module-path', classpath.asPath,
                 '--add-modules', 'org.junit.jupiter.api',
-                '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib',
                 '--add-reads', "$moduleName=org.junit.jupiter.api",
-                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
+                '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib',
+                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
         ]
         classpath = files()
     }
@@ -294,7 +232,7 @@ task sourceJar(type: Jar, dependsOn: classes) {
 
 task copyShadowLibs(type: Copy) {
     from configurations.shadow
-    into 'build/libs'
+    into '../libs'
 }
 
 shadowJar.dependsOn copyShadowLibs
@@ -308,7 +246,7 @@ task installSource(type: Copy) {
     dependsOn copyShadowLibs
     dependsOn sourceJar
     from sourceJar
-    into 'build/libs' 
+    into '../libs' 
 }
 
 task install(type: Copy) {
@@ -316,5 +254,5 @@ task install(type: Copy) {
     dependsOn jar
     dependsOn shadowJar
     from jar
-    into 'build/libs' 
+    into '../libs' 
 }
