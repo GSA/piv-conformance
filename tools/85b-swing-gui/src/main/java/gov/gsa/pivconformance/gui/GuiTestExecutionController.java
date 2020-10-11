@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
+import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -134,7 +135,7 @@ public class GuiTestExecutionController {
 				m_testExecutionPanel.getRunButton().setEnabled(false);
 				// TODO: Fix this or else
 				m_toolBar.getComponents()[0].setEnabled(false);
-				progress.setMaximum(root.getChildCount());
+				progress.setMaximum(db.getTestCaseCount());
 				progress.setValue(0);
 				progress.setVisible(true);
 				progress.setStringPainted(true);
@@ -167,6 +168,10 @@ public class GuiTestExecutionController {
 					runTest = true;
 				} else if (id.compareTo(GuiTestExecutionController.tag30TestId) == 0) {
 					runTest = true;
+				}
+				if (testCase.getTestStatus().equals(TestStatus.TESTCATEGORY)) {
+					// Test categories don't need to be processed
+					runTest = false;
 				}
 				if (runTest) {
 					LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
