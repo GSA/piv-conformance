@@ -39,7 +39,7 @@ public enum Theme {
 	 *   | '-- test 11 [A] aborted
 	 *   '-- container FINAL
 	 *     +-- skipped [S] because
-	 *     '-- failing [X] B'MM
+	 *     '-- failing [X] BäMM
 	 * </pre>
 	 */
 	ASCII(".", "| ", "+--", "'--", "[OK]", "[A]", "[X]", "[S]"),
@@ -59,7 +59,7 @@ public enum Theme {
 	 *    │  └─ test 11 ■ aborted
 	 *    └─ container FINAL ✔
 	 *       ├─ skipped ↷ because
-	 *       └─ failing ✘ B*MM
+	 *       └─ failing ✘ BäMM
 	 * </pre>
 	 */
 	UNICODE("╷", "│  ", "├─", "└─", "✔", "■", "✘", "↷");
