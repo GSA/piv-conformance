@@ -1,27 +1,20 @@
 package gov.gsa.pivconformance.gui;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JToolBar;
-import javax.swing.UIManager;
-import javax.swing.text.DefaultEditorKit;
-
-import org.slf4j.LoggerFactory;
-
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-
+import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import gov.gsa.pivconformance.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController;
-import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Paths;
 
 public class GuiRunnerApplication {
 
@@ -37,9 +30,15 @@ public class GuiRunnerApplication {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-
 		TestRunLogController trlc = TestRunLogController.getInstance();
-		trlc.bootStrapLogging(GuiRunnerApplication.class);
+		try {
+			URL resource = GuiRunnerApplication.class.getResource("/user_log_config.xml");
+			File userLogConfigfile = Paths.get(resource.toURI()).toFile();
+			trlc.bootStrapLogging(userLogConfigfile);
+		} catch (Exception e) {
+			System.err.println("Unable to form the path to user log config file");
+			e.printStackTrace();
+		}
 
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
