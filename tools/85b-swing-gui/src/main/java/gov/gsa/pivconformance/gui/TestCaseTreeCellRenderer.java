@@ -80,6 +80,11 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 			if(test != null) {
 				status = test.getTestStatus();
 				description = test.getDescription();
+				if (status.equals(TestStatus.TESTCATEGORY)) {
+					setFont(new Font("Tahoma", Font.BOLD, 11));
+				} else {
+					setFont(new Font("Tahoma", Font.PLAIN, 11));
+				}
 			}
 		} else if(value instanceof GuiTestStepTreeNode) {
 			GuiTestStepTreeNode node = (GuiTestStepTreeNode)value;
@@ -88,11 +93,6 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 				status = step.getTestStatus();
 				description = step.toString();
 			}
-		}
-		if (status.equals(TestStatus.TESTCATEGORY)) {
-			setFont(new Font("Tahoma", Font.BOLD, 11));
-		} else {
-			setFont(new Font("Tahoma", Font.PLAIN, 11));
 		}
 		ImageIcon icon = s_statusIcons.get(status);
 		if (icon != null) {
