@@ -4,6 +4,9 @@ buildscript {
     repositories {
         mavenCentral()
     }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
+    }
 }
 
 plugins {
@@ -20,6 +23,7 @@ java {
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 targetCompatibility = JavaVersion.VERSION_11
 sourceCompatibility = JavaVersion.VERSION_11
@@ -79,14 +83,14 @@ dependencies {
     implementation 'com.payneteasy:ber-tlv:1.0-11'
     implementation 'org.slf4j:slf4j-api:2.0.0-alpha1'
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    implementation 'ch.qos.logback:logback-core:1.3.0-alpha5'
     implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
     implementation 'org.apache.ibatis:ibatis-core:3.0'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    implementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     implementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    implementation 'org.junit.platform:junit-platform-engine:1.7.0'
     implementation 'org.junit.platform:junit-platform-launcher:1.7.0'
-    implementation 'org.junit.platform:junit-platform-commons:1.5.0'
-    implementation 'org.junit.vintage:junit-vintage-engine:1.7.0'
+    implementation 'junit:junit:4.13'
 
     implementation 'info.picocli:picocli:3.6.0'
     implementation 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:' + getVersion()
@@ -98,31 +102,6 @@ jar {
     doFirst {
         version = getVersion()
     }
-    manifest {
-        attributes(
-	'Manifest-Version'      : '0.2.1-beta',
-	'Created-By'            : 'General Services Administration',
-	'Automatic-Module-Name' : 'gov.gsa.pivconformance.conformancelib',
-	'Multi-Release'         : 'false',
-	'Class-Path'            : configurations.compile.collect { it.getName() }.join(' '),
-	'Implementation-Title'  : 'gov.gsa.pivconformance.conformancelib',
-	'Implementation-Version': '0.2.1-beta',
-	'Implementation-Vendor' : 'General Services Administration',
-	'Bundle-ManifestVersion' :'2',
-	'Bundle-SymbolicName': 'gov.gsa.pivconformance.conformancelib',
-	'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
-	'Bundle-Vendor': 'gov.gsa',
-	'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
-	//'Export-Package': 'gov.gsa.pivconformance.cardlib;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.client;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.tools;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.utils;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.tlv;version=0.2.1-beta',
-	//'Import-Package':  'java.smartcardio, java.sql, commons.cli, commons.codec, commons.csv, org.bouncycastle.pkix,org.bouncycastle.provider, org.slf4j',
-		'Export-Package': '*',
-		'Import-Package': '*',
-	'Specification-Title'   : 'gov.gsa.pivconformance.conformancelib',
-	'Specification-Version' : '0.2.1-beta',
-	'Specification-Vendor'  : 'General Services Administration',
-	'Sealed'                : 'false'
-        )
-    }
     doLast {
         println 'archiveName: ' + archiveName
         configurations.runtime.each { println it }
@@ -130,13 +109,6 @@ jar {
 }
 
 extraJavaModuleInfo {
-
-    module("bcprov-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
-        exports("bcprov.jdk15on")
-    }
-    module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
-        exports("bcpkix.jdk15on")
-    }
     module("ber-tlv-1.0-11.jar", "com.payneteasy", "1.0-11") {
         exports("ber.tlv")
     }
@@ -145,9 +117,6 @@ extraJavaModuleInfo {
     }
     module("slf4j-api-2.0.0-alpha1.jar", "org.slf4j", "1.4") {
         exports("slf4j.api")
-    }
-    module("sqlite-jdbc-3.32.3.2.jar", "org.xerial.sqlite", "3.32.3.2") {
-        exports("org.xerial.sqlite")
     }
     module("commons-csv-1.8.jar","org.apache.commons.csv", "1.8") {
         exports("org.apache.commons.csv")
@@ -159,19 +128,19 @@ extraJavaModuleInfo {
         exports("org.apache.commons.codec.binary")
         exports("org.apache.commons.codec")
     }
-    module("activation-1.1.jar","javax.activation", "1.1") {
-        exports("activation")
-    }
-    module("checker-framework-1.7.0.jar","edu.washington.cs.types.checker", "1.7.0") {
-        exports("checker.framework")
-    }
     module("logback-classic-1.3.0-alpha5.jar","ch.qos.logback", "1.3.0-alpha5") {
         exports("logback.classic")
     }
     module("logback-core-1.3.0-alpha5.jar","ch.qos.logback", "1.3.0-alpha5") {
         exports("logback.core")
     }
+    automaticModule("junit-4.13.jar", "junit")
     automaticModule("ibatis-core-3.0.jar","org.apache.ibatis")
+    automaticModule("sqlite-jdbc-3.32.3.2.jar","org.xerial")
+    automaticModule("activation-1.1.jar","javax.activation")
+    automaticModule("checker-framework-1.7.0.jar","edu.washington.cs.types.checker")
+    automaticModule("bcpkix-jdk15on-1.66.jar","org.bouncycastle.pkix")
+    automaticModule("bcprov-jdk15on-1.66.jar","org.bouncycastle.provider")
 }
 
 compileJava {
