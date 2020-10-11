@@ -3,11 +3,20 @@
  */
 package gov.gsa.pivconformance.conformancelib.utilities;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
+import gov.gsa.pivconformance.cardlib.card.client.ArtifactWriter;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
@@ -22,18 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.slf4j.LoggerFactory;
-
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
-import gov.gsa.pivconformance.cardlib.card.client.ArtifactWriter;
 
 /**
  * Singleton class that consolidates the appenders into a single disposable group
@@ -129,7 +126,6 @@ public class TestRunLogController {
 	 */
 	@SuppressWarnings("unchecked")
 	public void initialize(LoggerContext ctx) {
-
 		if (m_appenders == null) {
 			m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
 			m_filenames = new HashMap<String, String>();
@@ -186,21 +182,13 @@ public class TestRunLogController {
 	/**
 	 * Bootstraps the logging system with sane values
 	 */
-	public void bootStrapLogging(Object caller) {
+	public void bootStrapLogging(File logConfigFile) {
 		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
-			//String localDir = System.getProperty("user.dir");
-			//File logConfigFile = new File(localDir + "\\tools\\85b-swing-gui\\user_log_config.xml"); //TODO: Relocate to resource directory
-
-System.out.println("bootstrapLogging()");
-			String logConfigLocation = "user_log_config.xml";
-			
-			URL configFileUrl = caller.getClass().getResource(logConfigLocation);
-System.out.println("URL: " + configFileUrl.toString());
-			File logConfigFile = new File(configFileUrl.toURI().getPath());
-
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
+				// overriding the log directory property programmatically
+				m_ctx.putProperty("LOG_DIR", getCwd() + "\\logs");
 				configurator.setContext(m_ctx);
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
 			}
@@ -209,10 +197,7 @@ System.out.println("URL: " + configFileUrl.toString());
 		} catch (IOException e) {
 			System.err.println("Unable to resolve logging config to a readable file");
 			e.printStackTrace();
-		} catch (URISyntaxException e) {
-			System.err.println("Unable to form the path to user log config file");
-			e.printStackTrace();
- 		} catch (Exception e) {
+		} catch (Exception e) {
 			System.err.println("Exception opening user log config file: " + e.getMessage());
  		}
  		StatusPrinter.printIfErrorsOccured(m_ctx);
@@ -529,10 +514,23 @@ System.out.println("URL: " + configFileUrl.toString());
 		}
 		return (x == y);
 	}
-	
+
 	/**
 	 * Gets the currently running directory
 	 * @return the currently running directory
+	 */
+
+	public static String getCwd() {
+		File jarFile = new File(TestRunLogController.class.getProtectionDomain()
+				.getCodeSource().getLocation().getPath());
+		return jarFile.getAbsolutePath().replace(jarFile.getName(), "")
+				.replace("\\libs", "");
+
+	}
+
+	/**
+	 * Gets the currently running directory based on input
+	 * @return the currently running directory w.r.t input class
 	 */
 	
 	public static String getCwd(String caller) {
