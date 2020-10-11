@@ -102,6 +102,29 @@ jar {
     doFirst {
         version = getVersion()
     }
+    manifest {
+        attributes(
+		'Manifest-Version': '0.2.1-beta',
+		'Created-By': 'General Services Administration',
+		'Automatic-Module-Name': 'gov.gsa.pivconformance.conformancelib',
+		'Multi-Release': 'false',
+		'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+		'Implementation-Title': 'gov.gsa.pivconformance.conformancelib',
+		'Implementation-Version': '0.2.1-beta',
+		'Implementation-Vendor': 'General Services Administration',
+		'Bundle-ManifestVersion' : '2',
+		'Bundle-SymbolicName': 'gov.gsa.pivconformance.conformancelib',
+		'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
+		'Bundle-Vendor': 'gov.gsa',
+		'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
+		'Export-Package': '*',
+		'Import-Package': '*',
+		'Specification-Title': 'gov.gsa.pivconformance.conformancelib',
+		'Specification-Version': '0.2.1-beta',
+		'Specification-Vendor': 'General Services Administration',
+		'Sealed': 'false'
+        )
+    }
     doLast {
         println 'archiveName: ' + archiveName
         configurations.runtime.each { println it }

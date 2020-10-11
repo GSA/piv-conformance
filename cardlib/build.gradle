@@ -122,6 +122,31 @@ jar {
     doFirst {
         version = getVersion()
     }
+    manifest {
+        attributes(
+		'Manifest-Version': '0.2.1-beta',
+		'Created-By': 'General Services Administration',
+		'Automatic-Module-Name': 'gov.gsa.pivconformance.cardlib',
+		'Multi-Release': 'false',
+		'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+		'Implementation-Title': 'gov.gsa.pivconformance.cardlib',
+		'Implementation-Version': '0.2.1-beta',
+		'Implementation-Vendor': 'General Services Administration',
+		'Bundle-ManifestVersion' : '2',
+		'Bundle-SymbolicName': 'gov.gsa.pivconformance.cardlib',
+		'Bundle-Name': 'gov.gsa.pivconformance.cardlib',
+		'Bundle-Vendor': 'gov.gsa',
+		'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
+//		'Export-Package': 'gov.gsa.pivconformance.cardlib;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.client;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.tools;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.utils;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.tlv;version=0.2.1-beta',
+//		'Import-Package':  'java.smartcardio, java.sql, commons.cli, commons.codec, commons.csv, org.bouncycastle.pkix,org.bouncycastle.provider, org.slf4j',
+		'Export-Package': '*',
+		'Import-Package': '*',
+		'Specification-Title': 'gov.gsa.pivconformance.cardlib',
+		'Specification-Version': '0.2.1-beta',
+		'Specification-Vendor': 'General Services Administration',
+		'Sealed': 'false'
+        )
+    }
     doLast {
         println 'archiveName: ' + archiveName
         configurations.runtime.each { println it }
