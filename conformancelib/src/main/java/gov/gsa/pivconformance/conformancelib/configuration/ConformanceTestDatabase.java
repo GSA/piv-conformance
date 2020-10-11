@@ -35,7 +35,15 @@ public class ConformanceTestDatabase {
 	public void setConnconnection(Connection conn) {
 		m_conn = conn;
 	}
-	
+
+	public int getTestCaseCount() {
+		return this.testCaseCount;
+	}
+
+	public void setTestCaseCount(int count) {
+		this.testCaseCount = count;
+	}
+
 	/**
 	 * Opens the Sqlite database in the file and makes the connection handle available
 	 * @param filename of the file to be opened
@@ -89,17 +97,23 @@ public class ConformanceTestDatabase {
 			throw new ConfigurationException("getTestCases() called without any database.");
 		}
 		ArrayList<TestCaseModel> rv = new ArrayList<TestCaseModel>();
+		int count = 0;
 		try (Statement testStatement = m_conn.createStatement()) {
             ResultSet rs = testStatement.executeQuery(TEST_SET);
             while(rs.next()) {
                 TestCaseModel testCase = new TestCaseModel(this);
                 testCase.retrieveForId(rs.getInt("Id"));
+                if (!testCase.getTestStatus().equals(TestStatus.TESTCATEGORY)) {
+                	// If it's not a test category, then its a test we have to run
+					count++;
+				}
                 rv.add(testCase);
             }
             //m_conn.close();
 		} catch(SQLException e) {
 			s_logger.error("Failed to retrieve test cases from database: {}", e.getMessage());
 		}
+		setTestCaseCount(count);
 		return rv;
 	}
 	
@@ -173,4 +187,5 @@ public class ConformanceTestDatabase {
 	}
 
 	private Connection m_conn;
+	private int testCaseCount;
 }
