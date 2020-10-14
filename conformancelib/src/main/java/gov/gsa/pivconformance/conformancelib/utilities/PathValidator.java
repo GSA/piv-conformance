@@ -56,7 +56,7 @@ public class PathValidator {
             // This output file contains a series of issuing CA's trusted by a given trust anchor
 
             // open an input stream to the file
-            /*FileInputStream fis = new FileInputStream("C:\\Users\\Madhuri\\TopTal\\Dropbox\\Fontana Group - PKI project\\Test certificates\\all_from_common.p7b");
+            /*FileInputStream fis = new FileInputStream("all_from_common.p7b");
             // instantiate a CertificateFactory for X.509
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             // extract the certification path from
