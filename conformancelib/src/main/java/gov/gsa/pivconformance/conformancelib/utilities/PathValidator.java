@@ -29,9 +29,8 @@ public class PathValidator {
             System.out.println ("Usage: PathValidator <end certificate filepath> <Space delimited string of acceptable policy OIDs> <trust anchor filepath>");
         }
 
-        File endEntityCertFile = new File("C:\\Users\\Madhuri\\TopTal\\Dropbox\\Fontana Group - PKI project\\Test certificates\\lorraine.crt");
-        File trustAnchorFile = new File("C:\\Users\\Madhuri\\TopTal\\Dropbox\\Fontana Group - PKI project\\Test certificates\\Trust Anchor\\federal_common_policy_ca.cer");
-
+        File endEntityCertFile = new File("test.crt");
+        File trustAnchorFile = new File("federal_common_policy_ca.cer");
         String policyOids = "2.16.840.1.101.3.2.1.3.18";
         new PathValidator().isValid(endEntityCertFile, policyOids, trustAnchorFile);
     }
