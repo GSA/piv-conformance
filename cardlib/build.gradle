@@ -75,7 +75,7 @@ configurations {
 dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.66'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
-    implementation 'commons-cli:commons-cli:1.4'           // plain library
+    implementation 'commons-cli:commons-cli:1.4'
     implementation 'org.apache.commons:commons-csv:1.8'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'com.payneteasy:ber-tlv:1.0-11'
@@ -121,31 +121,6 @@ junitPlatform {
 jar {
     doFirst {
         version = getVersion()
-    }
-    manifest {
-        attributes(
-		'Manifest-Version': '0.2.1-beta',
-		'Created-By': 'General Services Administration',
-		'Automatic-Module-Name': 'gov.gsa.pivconformance.cardlib',
-		'Multi-Release': 'false',
-		'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-		'Implementation-Title': 'gov.gsa.pivconformance.cardlib',
-		'Implementation-Version': '0.2.1-beta',
-		'Implementation-Vendor': 'General Services Administration',
-		'Bundle-ManifestVersion' : '2',
-		'Bundle-SymbolicName': 'gov.gsa.pivconformance.cardlib',
-		'Bundle-Name': 'gov.gsa.pivconformance.cardlib',
-		'Bundle-Vendor': 'gov.gsa',
-		'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
-//		'Export-Package': 'gov.gsa.pivconformance.cardlib;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.client;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.card.tools;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.utils;version=0.2.1-beta,gov.gsa.pivconformance.cardlib.tlv;version=0.2.1-beta',
-//		'Import-Package':  'java.smartcardio, java.sql, commons.cli, commons.codec, commons.csv, org.bouncycastle.pkix,org.bouncycastle.provider, org.slf4j',
-		'Export-Package': '*',
-		'Import-Package': '*',
-		'Specification-Title': 'gov.gsa.pivconformance.cardlib',
-		'Specification-Version': '0.2.1-beta',
-		'Specification-Vendor': 'General Services Administration',
-		'Sealed': 'false'
-        )
     }
     doLast {
         println 'archiveName: ' + archiveName
@@ -290,12 +265,12 @@ task copyShadowLibs(type: Copy) {
     into '../libs'
 }
 
-shadowJar.dependsOn copyShadowLibs
+/*shadowJar.dependsOn copyShadowLibs
 
 shadowJar.doFirst {
     version = getVersion()
     println 'shadowJar.doFirst.archveName: ' + archiveName
-}
+}*/
 
 task installSource(type: Copy) {
     dependsOn copyShadowLibs
@@ -307,7 +282,7 @@ task installSource(type: Copy) {
 task install(type: Copy) {
     version = getVersion()
     dependsOn jar
-    dependsOn shadowJar
+    //dependsOn shadowJar
     from jar
     into '../libs' 
 }

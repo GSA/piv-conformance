@@ -13,13 +13,30 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 public class GuiRunnerApplication {
 
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
-	private static final String cctVersion = "v0.2-1-beta";//TODO: get from build.version
+	private static String cctVersion = null; // "v0.2.1-beta";//TODO: get from build.version
+
+	static {
+		try {
+			cctVersion = getVersion();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private JFrame m_mainFrame;
 	private DebugWindow m_debugFrame;
@@ -209,5 +226,12 @@ public class GuiRunnerApplication {
 
 	public MainWindowContentPane getMainContent() {
 		return m_mainContent;
+	}
+
+	private static String getVersion() throws URISyntaxException, IOException {
+		URL resource = GuiRunnerApplication.class.getResource("/build.version");
+		Path buildVersionFile = Paths.get(resource.toURI()).toAbsolutePath();
+		String buildVersion = Files.readAllLines(buildVersionFile).get(0);
+		return buildVersion != null ? buildVersion : "*.*.*";
 	}
 }
