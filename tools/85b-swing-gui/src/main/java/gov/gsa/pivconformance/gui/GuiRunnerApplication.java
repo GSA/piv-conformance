@@ -13,15 +13,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 public class GuiRunnerApplication {
 
@@ -29,13 +26,7 @@ public class GuiRunnerApplication {
 	private static String cctVersion = null; // "v0.2.1-beta";//TODO: get from build.version
 
 	static {
-		try {
-			cctVersion = getVersion();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		cctVersion = getVersion();
 	}
 
 	private JFrame m_mainFrame;
@@ -49,9 +40,7 @@ public class GuiRunnerApplication {
 	public static void main(String[] args) {
 		TestRunLogController trlc = TestRunLogController.getInstance();
 		try {
-			URL resource = GuiRunnerApplication.class.getResource("/user_log_config.xml");
-			File userLogConfigfile = Paths.get(resource.toURI()).toFile();
-			trlc.bootStrapLogging(userLogConfigfile);
+			trlc.bootStrapLogging(getLogConfigFile());
 		} catch (Exception e) {
 			System.err.println("Unable to form the path to user log config file");
 			e.printStackTrace();
@@ -60,7 +49,7 @@ public class GuiRunnerApplication {
 		// Smart card essentials1 due to Java bug
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
-		
+
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 		    public void run() {
 		        trlc.cleanup();
@@ -79,7 +68,7 @@ public class GuiRunnerApplication {
 					c.setApp(window);
 					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-					
+
 					a.setContext(lc);
 					a.start();
 					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
@@ -88,12 +77,12 @@ public class GuiRunnerApplication {
 					s_logger.debug("FIPS 201 CCT " + cctVersion);
 					s_logger.debug("----------------------------------------");
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
-					
+
 					// The only action permitted is opening a database
 					String dbFilename = "";
-					
+
 					boolean opened = false;
-					
+
 					c.setTestDatabase(db);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 
@@ -106,7 +95,7 @@ public class GuiRunnerApplication {
 					txc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
 					txc.setTestTreePanel(window.m_mainContent.getTreePanel());
 					txc.setToolBar(window.m_toolBar);
-					
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -129,20 +118,20 @@ public class GuiRunnerApplication {
 		m_mainFrame.setBounds(100, 100, 1024, 768);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool " + cctVersion);
-		
-		
+
+
 		JMenuBar menuBar = new JMenuBar();
 		m_mainFrame.setJMenuBar(menuBar);
-		
+
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
-		
+
 		GuiRunnerAppController c = GuiRunnerAppController.getInstance();
-		
+
 		JMenuItem mntmOpen = new JMenuItem(c.getOpenDatabaseAction());
 		mntmOpen.setIcon(null);
 		mnFile.add(mntmOpen);
-		
+
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mntmExit.addActionListener(new ActionListener() {
 			@Override
@@ -151,10 +140,10 @@ public class GuiRunnerApplication {
 			}
 		});
 		mnFile.add(mntmExit);
-		
+
 		JMenu mnEdit = new JMenu("Edit");
 		menuBar.add(mnEdit);
-		
+
 		JMenuItem mntmCut = new JMenuItem(new DefaultEditorKit.CutAction());
 		mntmCut.setText("Cut");
 		mnEdit.add(mntmCut);
@@ -228,10 +217,37 @@ public class GuiRunnerApplication {
 		return m_mainContent;
 	}
 
-	private static String getVersion() throws URISyntaxException, IOException {
-		URL resource = GuiRunnerApplication.class.getResource("/build.version");
-		Path buildVersionFile = Paths.get(resource.toURI()).toAbsolutePath();
-		String buildVersion = Files.readAllLines(buildVersionFile).get(0);
+	private static File getLogConfigFile() {
+		File logConfigFile = new File("user_log_config.xml");
+		if (logConfigFile.exists() && logConfigFile.canRead()) return logConfigFile;
+
+		// Special handling for developer mode - when debugging from IDE
+		String currentDir = System.getProperty("user.dir");
+		logConfigFile = new File(currentDir + "/tools/85b-swing-gui/user_log_config.xml");
+		if (!logConfigFile.exists()) s_logger.error("Unable to locate user_log_config.xml");
+
+		return logConfigFile;
+	}
+	
+	/**
+	 * Gets the version out of the build.version file
+	 * @return version string or null if an exception is thrown
+	 */
+	private static String getVersion() {
+		String buildVersion = null;
+		try {
+			URL resource = GuiRunnerApplication.class.getResource("/build.version");
+			System.out.println("URL resource: " + resource.getFile());
+			System.out.println("URL external form: " + GuiRunnerApplication.class.getResource("/build.version").toExternalForm());
+			Path buildVersionFile = Paths.get(resource.toURI()).toAbsolutePath();
+			buildVersion = Files.readAllLines(buildVersionFile).get(0);
+		} catch (URISyntaxException e) {
+			s_logger.error("URISyntaxException: " + e.getMessage());
+		} catch (IOException e) {
+			s_logger.error("IOException: " + e.getMessage());	
+		} catch (Exception e) {
+			s_logger.error("Exception: " + e.getMessage());	
+		}
 		return buildVersion != null ? buildVersion : "*.*.*";
 	}
 }
