@@ -236,7 +236,7 @@ public class PIVDataObject {
 			// Get the container name
 			String canonicalName = classz.getCanonicalName();
 			String containerName = getContainerName();
-			if (containerName == null) containerName = APDUConstants.oidNameMap.get(m_OID).replaceAll("_", "");
+			if (containerName == null) containerName = APDUConstants.oidNameMap.get(m_OID).replaceAll(" ", "");
 			String className = containerName == null ? canonicalName
 					: classz.getPackage().toString().replace("package ", "") + "." + containerName;
 			// Find the path where containers are written
