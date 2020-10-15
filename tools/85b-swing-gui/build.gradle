@@ -120,6 +120,11 @@ eclipse {
     }
 }
 
+task copyResources(type: Copy) {
+    from "${buildDir}/resources", "$projectDir/tools/85b-swing-gui/user_log_config.xml", "${projectDir}/conformancelib/testdata/*.db"
+    into "${buildDir}/distributions"
+}
+
 shadowJar {
     classifier = ''
 }
@@ -129,6 +134,7 @@ mainClassName = 'gov.gsa.pivconformance.gui.GuiRunnerApplication'
 
 jar {
     version = getVersion()
+    dependsOn(copyResources)
     dependsOn(shadowJar { classifier = null })
     manifest {
         attributes 'Main-Class': mainClassName
