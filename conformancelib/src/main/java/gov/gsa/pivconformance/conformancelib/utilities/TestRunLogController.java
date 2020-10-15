@@ -188,7 +188,7 @@ public class TestRunLogController {
 			if(logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
 				// overriding the log directory property programmatically
-				m_ctx.putProperty("LOG_DIR", getCwd() + "\\logs");
+				m_ctx.putProperty("LOG_DIR", "logs");
 				configurator.setContext(m_ctx);
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
 			}
@@ -513,19 +513,6 @@ public class TestRunLogController {
 				x++;
 		}
 		return (x == y);
-	}
-
-	/**
-	 * Gets the currently running directory
-	 * @return the currently running directory
-	 */
-
-	public static String getCwd() {
-		File jarFile = new File(TestRunLogController.class.getProtectionDomain()
-				.getCodeSource().getLocation().getPath());
-		return jarFile.getAbsolutePath().replace(jarFile.getName(), "")
-				.replace("\\libs", "");
-
 	}
 
 	/**
