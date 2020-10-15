@@ -8,7 +8,7 @@
 
 	<appender name="DEBUG"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/debug/debug.log</file>
+		<file>logs/debug/debug.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -17,7 +17,7 @@
 
 	<appender name="BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/BiometricInformationTemplatesGroupTemplate.log
+		<file>logs/containers/BiometricInformationTemplatesGroupTemplate.log
 		</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -28,7 +28,7 @@
 
 	<appender name="CARDCAPABILITYCONTAINER"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/CardCapabilityContainer.log</file>
+		<file>logs/containers/CardCapabilityContainer.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -38,7 +38,7 @@
 
 	<appender name="CARDHOLDERUNIQUEIDENTIFIER"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/CardHolderUniqueIdentifier.log</file>
+		<file>logs/containers/CardHolderUniqueIdentifier.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -48,7 +48,7 @@
 		
 	<appender name="FINGERPRINTS"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/Fingerprints.log</file>
+		<file>logs/containers/Fingerprints.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -58,7 +58,7 @@
 
 	<appender name="IMAGEFORVISUALVERIFICATION"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/ImageForVisualVerification.log</file>
+		<file>logs/containers/ImageForVisualVerification.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -68,7 +68,7 @@
 
 	<appender name="IMAGESFORIRIS"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/ImagesForIris.log</file>
+		<file>logs/containers/ImagesForIris.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -78,7 +78,7 @@
 
 	<appender name="KEYHISTORYOBJECT"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/KeyHistoryObject.log</file>
+		<file>logs/containers/KeyHistoryObject.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -88,7 +88,7 @@
 
 	<appender name="PAIRINGCODEREFERENCEDATACONTAINER"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/PairingCodeReferenceDataContainer.log</file>
+		<file>logs/containers/PairingCodeReferenceDataContainer.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -98,7 +98,7 @@
 
 	<appender name="PRINTEDINFORMATION"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/PrintedInformation.log</file>
+		<file>logs/containers/PrintedInformation.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -107,7 +107,7 @@
 
 	<appender name="SECUREMESSAGINGCERTIFICATESIGNER"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/SecureMessagingCertificateSigner.log</file>
+		<file>logs/containers/SecureMessagingCertificateSigner.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -117,7 +117,7 @@
 
 	<appender name="SECURITYOBJECT"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/SecurityObject.log</file>
+		<file>logs/containers/SecurityObject.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>
@@ -126,7 +126,7 @@
 
 	<appender name="X509CERTIFICATEFORPIVAUTHENTICATION"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/X509CertificateForPivAuthentication.log</file>
+		<file>logs/containers/X509CertificateForPivAuthentication.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
 		</encoder>
@@ -134,7 +134,7 @@
 
 	<appender name="X509CERTIFICATEFORCARDAUTHENTICATION"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/X509CertificateForCardAuthentication.log</file>
+		<file>logs/containers/X509CertificateForCardAuthentication.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
 		</encoder>
@@ -142,7 +142,7 @@
 	
 	<appender name="X509CERTIFICATEFORDIGITALSIGNATURE"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/X509CertificateForDigitalSignature.log</file>
+		<file>logs/containers/X509CertificateForDigitalSignature.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
 		</encoder>
@@ -150,7 +150,7 @@
 
 	<appender name="X509CERTIFICATEFORKEYMANAGEMENT"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/X509CertificateForKeyManagement.log</file>
+		<file>logs/containers/X509CertificateForKeyManagement.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
 		</encoder>
@@ -158,7 +158,7 @@
 
 	<appender name="X509CERTIFICATEFORCHUIDSIGNATURE"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/containers/X509CertificateForChuidSignature.log</file>
+		<file>logs/containers/X509CertificateForChuidSignature.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
 		</encoder>
@@ -169,7 +169,7 @@
 
 	<appender name="TESTLOG"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/testlog/test_progress.log</file>
+		<file>logs/testlog/test_progress.log</file>
 		<encoder>
 			<pattern>%date{yyyy-MM-dd HH:mm:ss},%level,"%msg"%n</pattern>
 		</encoder>
@@ -180,7 +180,7 @@
 
 	<appender name="CONFORMANCELOG"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/conformancelog/conformance_results.csv</file>
+		<file>logs/conformancelog/conformance_results.csv</file>
 
 		<!-- the application will search out this appender by name and manually 
 			rotate it at the beginning of each conformance run. this triggering policy 
@@ -199,7 +199,7 @@
 
 	<appender name="APDULOG"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
-		<file>${LOG_DIR}/apdu/apdu_transmission.log</file>
+		<file>logs/apdu/apdu_transmission.log</file>
 
 		<!-- the application will search out this appender by name and manually 
 			rotate it at the beginning of each conformance run. this triggering policy 
