@@ -219,11 +219,12 @@ public class GuiRunnerApplication {
 
 	private static File getLogConfigFile() {
 		File logConfigFile = new File("user_log_config.xml");
+		s_logger.debug("Looking for log config file " + logConfigFile.getAbsolutePath());
 		if (logConfigFile.exists() && logConfigFile.canRead()) return logConfigFile;
 
 		// Special handling for developer mode - when debugging from IDE
 		String currentDir = System.getProperty("user.dir");
-		logConfigFile = new File(currentDir + "/tools/85b-swing-gui/user_log_config.xml");
+		logConfigFile = new File(currentDir + "/user_log_config.xml");
 		if (!logConfigFile.exists()) s_logger.error("Unable to locate user_log_config.xml");
 
 		return logConfigFile;
@@ -235,18 +236,27 @@ public class GuiRunnerApplication {
 	 */
 	private static String getVersion() {
 		String buildVersion = null;
+		File versionFile = new File("build.version");
+		Path buildVersionPath = null;
+		s_logger.debug("Looking for build version file " + versionFile.getAbsolutePath());
 		try {
-			URL resource = GuiRunnerApplication.class.getResource("/build.version");
-			System.out.println("URL resource: " + resource.getFile());
-			System.out.println("URL external form: " + GuiRunnerApplication.class.getResource("/build.version").toExternalForm());
-			Path buildVersionFile = Paths.get(resource.toURI()).toAbsolutePath();
-			buildVersion = Files.readAllLines(buildVersionFile).get(0);
-		} catch (URISyntaxException e) {
-			s_logger.error("URISyntaxException: " + e.getMessage());
-		} catch (IOException e) {
-			s_logger.error("IOException: " + e.getMessage());	
-		} catch (Exception e) {
-			s_logger.error("Exception: " + e.getMessage());	
+			if (versionFile.exists() && versionFile.canRead()) {
+				buildVersionPath = versionFile.toPath();
+			} else {
+				// Special handling for developer mode - when debugging from IDE
+				String currentDir = System.getProperty("user.dir");
+				versionFile = new File(currentDir + "/build.version");	
+				System.out.println("Looking for resource " + versionFile.getAbsolutePath());
+				if (versionFile.exists() && versionFile.canRead()) {
+					buildVersionPath = versionFile.toPath();
+				} else {
+					s_logger.error("Unable to locate build.version");
+				}	
+			} 
+			buildVersion = Files.readAllLines(buildVersionPath).get(0);
+
+		} catch (IOException e){
+			
 		}
 		return buildVersion != null ? buildVersion : "*.*.*";
 	}
