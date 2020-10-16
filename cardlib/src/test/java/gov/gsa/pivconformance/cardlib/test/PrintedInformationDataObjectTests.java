@@ -13,7 +13,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,13 +24,21 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PrintedInformationDataObjectTests {
+    private static String resDir = null;
+    static {
+        resDir = new PrintedInformationDataObjectTests().getClass().getResource("").getPath();
+        System.out.println("Looking in: " + resDir);
+    }
+    
     @DisplayName("Test Printed Information Object Data Object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
     @MethodSource("dataObjectTestProvider")
+
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get(OSUtils.getTempDir(), file);
+        Path filePath = Paths.get(resDir + File.separator + file);
+        System.out.println("Looking for " + filePath);
         byte[] fileData = null;
         try {
             fileData = Files.readAllBytes(filePath);
@@ -63,51 +73,51 @@ public class PrintedInformationDataObjectTests {
     private static Stream<Arguments> dataObjectTestProvider() {
         return Stream.of(
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/25_Disco_Object_Not_Present/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/25_Disco_Object_Not_Present/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/26_Disco_Object_Present_App_PIN_Only/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/26_Disco_Object_Present_App_PIN_Only/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/27_Disco_Object_Present_App_PIN_Primary/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/27_Disco_Object_Present_App_PIN_Primary/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/28_Disco_Object_Present_Global_PIN_Primary/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/28_Disco_Object_Present_Global_PIN_Primary/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/37_Golden_FIPS_201-2_PIV_PPS_F=512_D=64/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/37_Golden_FIPS_201-2_PIV_PPS_F=512_D=64/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/38_Bad_Hash_in_Sec_Object/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/38_Bad_Hash_in_Sec_Object/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/39_Golden_FIPS_201-2_Fed_PIV-I/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/39_Golden_FIPS_201-2_Fed_PIV-I/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/41_Re-keyed_Card/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/41_Re-keyed_Card/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/42_OCSP_Expired/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/42_OCSP_Expired/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/43_OCSP_revoked_w_nocheck/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/43_OCSP_revoked_w_nocheck/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/44_OCSP_revoked_wo_nocheck/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/44_OCSP_revoked_wo_nocheck/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/45_OCSP_Invalid_Signature/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/45_OCSP_Invalid_Signature/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/47_Golden_FIPS_201-2_PIV_SAN_Order/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/47_Golden_FIPS_201-2_PIV_SAN_Order/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/48_T=0_with_Non-Zero_PPS_LEN_Value/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/48_T=0_with_Non-Zero_PPS_LEN_Value/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/49_FIPS_201-2_Facial_Image_CBEFF_Expired/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/49_FIPS_201-2_Facial_Image_CBEFF_Expired/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/50_FIPS_201-2_Facial_Image_CBEFF_Expires_before_CHUID/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/50_FIPS_201-2_Facial_Image_CBEFF_Expires_before_CHUID/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/51_FIPS_201-2_Fingerprint_CBEFF_Expired/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/51_FIPS_201-2_Fingerprint_CBEFF_Expired/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/52_FIPS_201-2_Fingerprint_CBEFF_Expires_before_CHUID/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/52_FIPS_201-2_Fingerprint_CBEFF_Expires_before_CHUID/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/53_FIPS_201-2_Large_Card_Auth_Cert/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/53_FIPS_201-2_Large_Card_Auth_Cert/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/54_Golden_FIPS_201-2_NFI_PIV-I/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/54_Golden_FIPS_201-2_NFI_PIV-I/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/55_FIPS_201-2_Missing_Security_Object/11 - Printed Information"),
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/55_FIPS_201-2_Missing_Security_Object/11 - Printed Information"),
                 Arguments.of(APDUConstants.PRINTED_INFORMATION_OID,
-                        "cards/ICAM_Card_Objects/56_FIPS_201-2_Signer_Expires/11 - Printed Information")
+                        "gsa-icam-card-builder/cards/ICAM_Card_Objects/56_FIPS_201-2_Signer_Expires/11 - Printed Information")
                 );
     }
 }

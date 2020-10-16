@@ -13,6 +13,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -30,13 +32,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class X509DataObjectTests {
+	private static String resDir = null;
+	static {
+	    resDir = new X509DataObjectTests().getClass().getResource("").getPath();
+	    System.out.println("Looking in: " + resDir);
+	}
     @DisplayName("Test X.509 Data Object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
     @MethodSource("dataObjectTestProvider")
+ 
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get(OSUtils.getTempDir(), file);
+        Path filePath = Paths.get(resDir + File.separator + file);
         List<String> lines = null;
         try {
         	
@@ -99,35 +107,35 @@ public class X509DataObjectTests {
  */
     private static Stream<Arguments> dataObjectTestProvider() {
 			return Stream.of(
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/25_Disco_Object_Not_Present/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Missing_DO.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/26_Disco_Object_Present_App_PIN_Only/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_App_PIN_Only.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/27_Disco_Object_Present_App_PIN_Primary/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_App_PIN_Prim.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/28_Disco_Object_Present_Global_PIN_Primary/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Global_PIN_Prim.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/37_Golden_FIPS_201-2_PIV_PPS_F=512_D=64/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_PPS.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/38_Bad_Hash_in_Sec_Object/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Bad_SO_Hash.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/41_Re-keyed_Card/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Re-key.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/42_OCSP_Expired/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Expired.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/43_OCSP_revoked_w_nocheck/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Revoked_NOCHECK.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/44_OCSP_revoked_wo_nocheck/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Revoked_WO_NOCHECK.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/45_OCSP_Invalid_Signature/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Invalid_Signature.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_8/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_8/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_ICI_8.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_9/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_9/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_ICI_9.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/47_Golden_FIPS_201-2_PIV_SAN_Order/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_SAN_Order.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/48_T=0_with_Non-Zero_PPS_LEN_Value/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Non-Zero_PPS_LEN.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/49_FIPS_201-2_Facial_Image_CBEFF_Expired/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FI_Expired.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/50_FIPS_201-2_Facial_Image_CBEFF_Expires_before_CHUID/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FI_will_Expire.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/51_FIPS_201-2_Fingerprint_CBEFF_Expired/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FP_Expired.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/52_FIPS_201-2_Fingerprint_CBEFF_Expires_before_CHUID/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FP_will_Expire.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/53_FIPS_201-2_Large_Card_Auth_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Large_Cert.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/55_FIPS_201-2_Missing_Security_Object/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Missing_SO.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/56_FIPS_201-2_Signer_Expires/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Signer_Expires.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/57_Revoked_CHUID_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/57_Revoked_CHUID_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Revoked_CHUID_Cert.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/58_Revoked_Card_Auth_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Revoked_Card_Auth_Cert.crt"),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "cards/ICAM_Card_Objects/59_Valid_CBEFF_for_Card_51/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FP_Expired.crt")
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/25_Disco_Object_Not_Present/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Missing_DO.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/26_Disco_Object_Present_App_PIN_Only/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_App_PIN_Only.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/27_Disco_Object_Present_App_PIN_Primary/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_App_PIN_Prim.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/28_Disco_Object_Present_Global_PIN_Primary/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Global_PIN_Prim.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/37_Golden_FIPS_201-2_PIV_PPS_F=512_D=64/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_PPS.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/38_Bad_Hash_in_Sec_Object/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Bad_SO_Hash.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/41_Re-keyed_Card/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Re-key.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/42_OCSP_Expired/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Expired.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/43_OCSP_revoked_w_nocheck/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Revoked_NOCHECK.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/44_OCSP_revoked_wo_nocheck/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Revoked_WO_NOCHECK.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/45_OCSP_Invalid_Signature/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_OCSP_Invalid_Signature.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_8/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_8/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_ICI_8.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_9/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/46_Golden_FIPS_201-2_PIV_ICI_9/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_ICI_9.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/47_Golden_FIPS_201-2_PIV_SAN_Order/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_SAN_Order.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/48_T=0_with_Non-Zero_PPS_LEN_Value/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Non-Zero_PPS_LEN.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/49_FIPS_201-2_Facial_Image_CBEFF_Expired/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FI_Expired.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/50_FIPS_201-2_Facial_Image_CBEFF_Expires_before_CHUID/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FI_will_Expire.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/51_FIPS_201-2_Fingerprint_CBEFF_Expired/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FP_Expired.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/52_FIPS_201-2_Fingerprint_CBEFF_Expires_before_CHUID/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FP_will_Expire.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/53_FIPS_201-2_Large_Card_Auth_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Large_Cert.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/55_FIPS_201-2_Missing_Security_Object/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Missing_SO.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/56_FIPS_201-2_Signer_Expires/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Signer_Expires.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/57_Revoked_CHUID_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/57_Revoked_CHUID_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Revoked_CHUID_Cert.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/58_Revoked_Card_Auth_Cert/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_Revoked_Card_Auth_Cert.crt"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gsa-icam-card-builder/cards/ICAM_Card_Objects/59_Valid_CBEFF_for_Card_51/3 - ICAM_Test_Card_PIV_Auth_SP_800-73-4_FP_Expired.crt")
 
 		        );
 

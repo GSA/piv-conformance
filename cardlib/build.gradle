@@ -31,6 +31,7 @@ logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
 
 import org.gradle.plugins.ide.eclipse.model.AccessRule
+import org.ajoberstar.grgit.Grgit
 
 eclipse {
     classpath {
@@ -101,10 +102,19 @@ dependencies {
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
+task icamCardBuilder {
+    File cardsDir = new File(project.getRootDir(), 'src/test/resources/gsa-icam-card-builder')
+    delete cardsDir
+    def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
+    grgit.describe()
+}
+
 // use junit platform for tests
 test {
+    dependsOn(icamCardBuilder)
     doFirst {
         println 'test:' + getVersion()
+        delete 'x509-artifacts', 'piv-artifacts', 'log', 'logs'
     }
     useJUnitPlatform()
     testLogging {
@@ -171,9 +181,9 @@ task generateHtmlTestReports {
         reportsDir.mkdirs()
 
         ant.taskdef(
-                name: 'junitReport',
-                classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
-                classpath: configurations.junitXmlToHtml.asPath
+            name: 'junitReport',
+            classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+            classpath: configurations.junitXmlToHtml.asPath
         )
 
         ant.junitReport(todir: "$buildDir/test-results/junit-platform", tofile: "aggregated-test-results.xml") {
