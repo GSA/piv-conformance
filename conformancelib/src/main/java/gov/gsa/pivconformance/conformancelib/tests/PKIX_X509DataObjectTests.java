@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -75,6 +78,7 @@ import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgument
 import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.conformancelib.utilities.KeyValidationHelper;
+import gov.gsa.pivconformance.conformancelib.utilities.PathValidator;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.cardlib.card.client.CardHandle;
@@ -250,38 +254,32 @@ public class PKIX_X509DataObjectTests {
 			if (policyOidName.equals(oid)) {	
 				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));	
 				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
-				rv.put(containerOid, paramList3);
 				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
+		        CertificateFactory fac;
+				try {
+					fac = CertificateFactory.getInstance("X509");
+			        
+					X509Certificate trustAnchorCert;
+					try {
+						File trustAnchorFile = new File((cert.getSubjectX500Principal().getName().contains("ICAM")) ? 
+							"ICAM_Test_Card_PIV_Root_CA_-_gold_gen1-3.crt" : "federal_common_policy_ca.cer");
+						s_logger.debug("Looking for " + trustAnchorFile.getAbsolutePath());
+						trustAnchorCert = (X509Certificate) fac.generateCertificate(new FileInputStream(trustAnchorFile));
+						boolean valid = gov.gsa.pivconformance.conformancelib.utilities.PathValidator.isValid(
+							cert, paramList3.toString(), trustAnchorCert);
+						assertTrue(valid, "Cert not valid");
+					} catch (CertificateException | FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}		
+				} catch (CertificateException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				assertTrue(false, "Cert failed");
 			}
 		}
-		
-		//Get certificate policies extension
-		byte[] cpex = cert.getExtensionValue("2.5.29.32");
-		
-		//Confirm certificate policies extension is present
-		assertTrue(cpex != null, "Certificate policies extension is absent");
-		
-		CertificatePolicies policies = null;
-		try {
-			policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(cpex));
-		} catch (IOException e) {
-			fail(e);
-		}
-		assertNotNull(policies);
-		boolean containsOOID = false;
-		
-	    PolicyInformation[] policyInformation = policies.getPolicyInformation();
-	    for (PolicyInformation pInfo : policyInformation) {
-	    	ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-	    	s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMap.get(oid));
-	    	if(rv.get(oid).contains(curroid.getId())) {
-	    		containsOOID = true;
-	    		break;
-	    	}
-	    }
-
-	    //Confirm that oid matches is asserted in certificate policies
-	    assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
