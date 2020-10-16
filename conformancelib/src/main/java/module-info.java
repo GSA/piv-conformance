@@ -28,4 +28,5 @@ module gov.gsa.pivconformance.conformancelib {
 	requires jdk.jlink;
 	requires jdk.jdeps;
 	requires java.scripting;
+	requires org.junit.platform.commons;
 }
