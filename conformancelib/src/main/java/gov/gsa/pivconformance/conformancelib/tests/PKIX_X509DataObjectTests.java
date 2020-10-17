@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
+import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -256,23 +257,23 @@ public class PKIX_X509DataObjectTests {
 				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
 				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
 		        CertificateFactory fac;
+				s_logger.debug("Looking for keystore " + new File("cacerts.keystore").getAbsolutePath());
 				try {
 					fac = CertificateFactory.getInstance("X509");
-			        
-					X509Certificate trustAnchorCert;
+					KeyStore ks = KeyStore.getInstance("JKS");					
+					ks.load(new FileInputStream("cacerts.keystore"), null);
+					X509Certificate trustAnchorCert = null;
 					try {
-						File trustAnchorFile = new File((cert.getSubjectX500Principal().getName().contains("ICAM")) ? 
-							"ICAM_Test_Card_PIV_Root_CA_-_gold_gen1-3.crt" : "federal_common_policy_ca.cer");
-						s_logger.debug("Looking for " + trustAnchorFile.getAbsolutePath());
-						trustAnchorCert = (X509Certificate) fac.generateCertificate(new FileInputStream(trustAnchorFile));
-						boolean valid = gov.gsa.pivconformance.conformancelib.utilities.PathValidator.isValid(
-							cert, paramList3.toString(), trustAnchorCert);
+						String trustAnchorAlias = (cert.getSubjectX500Principal().getName().contains("ICAM")) ?  "icam_test_card_root_ca" : "federal_common_policy_ca";
+						s_logger.debug("Looking for trust anchor " + trustAnchorAlias);
+						trustAnchorCert = (X509Certificate) ks.getCertificate(trustAnchorAlias);
+						boolean valid = gov.gsa.pivconformance.conformancelib.utilities.PathValidator.isValid( cert, paramList3.toString(), trustAnchorCert);
 						assertTrue(valid, "Cert not valid");
-					} catch (CertificateException | FileNotFoundException e) {
+					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}		
-				} catch (CertificateException e1) {
+				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
