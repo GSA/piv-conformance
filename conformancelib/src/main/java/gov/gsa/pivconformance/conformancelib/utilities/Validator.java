@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Path;
 import java.security.Security;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathBuilder;
@@ -26,12 +29,33 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PathValidator {
-    static Logger s_logger = LoggerFactory.getLogger(PathValidator.class);
+public class Validator {
+    static Logger s_logger = LoggerFactory.getLogger(Validator.class);
 
+    /**
+     * Gets a file from the specified resource for the specified class.
+     * @param clazz the class requesting its resource
+     * @param fileName the basename of the resource file
+     * @return InputStream to the open resource
+     */
+    public static InputStream getFileFromResourceAsStream(Class clazz, String fileName) {
+        ClassLoader classLoader = clazz.getClassLoader();
+        URL url = classLoader.getResource(fileName);
+        if (url != null) {
+            String path = url.getPath();
+        }
+        InputStream inputStream = null;
+        try {
+            inputStream = classLoader.getResourceAsStream(fileName);
+        } catch (Exception e) {
+            s_logger.error("Can't open '" + fileName + "': ", e.getMessage());
+        }
+        return inputStream;
+    }
+    
     public static void main(String[] args) {
         if (args.length == 0) {
-            System.out.println ("Usage: PathValidator <end certificate filepath> <Space delimited string of acceptable policy OIDs> <trust anchor filepath>");
+            System.out.println ("Usage: Validator <end certificate filepath> <Space delimited string of acceptable policy OIDs> <trust anchor filepath>");
         }
 
         File endEntityCertFile = new File("test.crt");

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -41,7 +42,6 @@ import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.DERTaggedObject;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
@@ -79,7 +79,7 @@ import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgument
 import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.conformancelib.utilities.KeyValidationHelper;
-import gov.gsa.pivconformance.conformancelib.utilities.PathValidator;
+import gov.gsa.pivconformance.conformancelib.utilities.Validator;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.AbstractPIVApplication;
 import gov.gsa.pivconformance.cardlib.card.client.CardHandle;
@@ -92,6 +92,32 @@ import gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject;;
 public class PKIX_X509DataObjectTests {
 
 	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
+	private final KeyStore m_keystore = getKeyStore();
+
+	private KeyStore getKeyStore() {
+		File keyStoreFile = new File("cacerts.keystore");
+		KeyStore ks = null;
+		s_logger.debug("Looking for keystore file " + keyStoreFile.getAbsolutePath());
+		
+
+		if (!keyStoreFile.exists()) {
+			String currentDir = System.getProperty("user.dir");
+			keyStoreFile = new File(currentDir + "/cacerts.keystore");
+			if (!keyStoreFile.exists()) {
+				s_logger.error("Unable to locate " + keyStoreFile.getAbsolutePath());
+				return ks;
+			}
+		}
+		FileInputStream fis;
+		try {
+			ks = KeyStore.getInstance("JKS");
+			fis = new FileInputStream(keyStoreFile.getAbsolutePath());
+			ks.load(fis, "changeit".toCharArray());	
+		} catch (Exception e) {
+			s_logger.error(e.getMessage());
+		}
+		return ks;
+	}
 
 	// Confirm keyUsage extension is present
 	@DisplayName("PKIX.2 test")
@@ -256,18 +282,13 @@ public class PKIX_X509DataObjectTests {
 				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));	
 				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
 				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
-		        CertificateFactory fac;
-				s_logger.debug("Looking for keystore " + new File("cacerts.keystore").getAbsolutePath());
 				try {
-					fac = CertificateFactory.getInstance("X509");
-					KeyStore ks = KeyStore.getInstance("JKS");					
-					ks.load(new FileInputStream("cacerts.keystore"), null);
 					X509Certificate trustAnchorCert = null;
 					try {
-						String trustAnchorAlias = (cert.getSubjectX500Principal().getName().contains("ICAM")) ?  "icam_test_card_root_ca" : "federal_common_policy_ca";
+						String trustAnchorAlias = (cert.getSubjectX500Principal().getName().contains("ICAM")) ?  "icam test card root ca" : "federal common policy ca";
 						s_logger.debug("Looking for trust anchor " + trustAnchorAlias);
-						trustAnchorCert = (X509Certificate) ks.getCertificate(trustAnchorAlias);
-						boolean valid = gov.gsa.pivconformance.conformancelib.utilities.PathValidator.isValid( cert, paramList3.toString(), trustAnchorCert);
+						trustAnchorCert = (X509Certificate) m_keystore.getCertificate(trustAnchorAlias);
+						boolean valid = Validator.isValid(cert, paramList3.toString(), trustAnchorCert);
 						assertTrue(valid, "Cert not valid");
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
