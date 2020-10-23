@@ -2,7 +2,6 @@ module gov.gsa.pivconformance.conformancelib {
 	exports gov.gsa.pivconformance.conformancelib.utilities;
 	exports gov.gsa.pivconformance.conformancelib.tools.junitconsole;
 	exports gov.gsa.pivconformance.conformancelib.tools;
-	//exports gov.gsa.pivconformance.conformancelib.test;
 	exports gov.gsa.pivconformance.conformancelib.tests;
 	exports gov.gsa.pivconformance.conformancelib.configuration;
 	exports gov.gsa.pivconformance.conformancelib.junitoptions;
@@ -10,7 +9,6 @@ module gov.gsa.pivconformance.conformancelib {
 	requires ch.qos.logback.classic;
 	requires ch.qos.logback.core;
 	requires gov.gsa.pivconformance.cardlib;
-	requires info.picocli;
 	requires java.smartcardio;
 	requires java.sql;
 	requires junit;
@@ -26,4 +24,5 @@ module gov.gsa.pivconformance.conformancelib {
 	requires org.junit.platform.engine;
 	requires org.junit.platform.launcher;
 	requires org.slf4j;
+	requires org.junit.platform.commons;
 }
