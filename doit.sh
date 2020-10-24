@@ -37,5 +37,10 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
 	cp -p ../tools/85b-swing-gui/build/resources/main/user_log_config.xml .
 	cp -p ../tools/85b-swing-gui/build/resources/main/build.version .
 	tar xvf ../tools/85b-swing-gui/build/distributions/gov.gsa.pivconformance.gui-shadow-$VERSION.tar
+        rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
 	mv gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
 popd
+
+TS=$(date +%Y%m%d%H%M%S)
+mv fips201-card-conformance-tool-0.2.1-beta fips201-card-conformance-tool-0.2.1-beta-${TS}
+zip fips201-card-conformance-tool-0.2.1-beta-${TS}.zip fips201-card-conformance-tool-0.2.1-beta-${TS}/*
