@@ -1,45 +1,37 @@
-// set up junit 5 support for gradle
+// cardlib/build.gradle
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
         classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
     }
 }
-
 plugins {
+    id 'java-library'
     id 'org.ajoberstar.grgit' version '2.1.0'
-    //id 'com.zyxist.chainsaw' version '0.1.3'
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id 'de.jjohannes.extra-java-module-info' version '0.1'
 }
 
-apply plugin: 'java'
-apply plugin: 'application'
+java {
+    modularity.inferModulePath.set(true)
+}
+
+apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'de.jjohannes.extra-java-module-info'
 
 targetCompatibility = targetJavaVersion
 
 logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
 
-sourceSets {
-    main {
-        java {
-            if(targetCompatibility != JavaVersion.VERSION_11)
-                exclude '**/module-info.java'
-        }
-    }
-}
-
-task sourceJar(type: Jar, dependsOn: classes) {
-    classifier 'sources'
-    from sourceSets.main.allSource
-}
-
 import org.gradle.plugins.ide.eclipse.model.AccessRule
+import org.ajoberstar.grgit.Grgit
 
 eclipse {
     classpath {
@@ -47,18 +39,31 @@ eclipse {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
+                //def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.cardlib' +  '-' + getVersion() + '.jar' }
+                //lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.cardlib-sources' + '-' + getVersion() + '.jar'))
             }
         }
     }
 }
-    
-
-//if(targetCompatibility != JavaVersion.VERSION_1_8)
-//    javaModule.name = 'gov.gsa.pivconformance'
 
 repositories {
     jcenter()
     maven { url 'https://repository.apache.org/snapshots' }
+    flatDir {
+        dirs '../libs'
+    }
+}
+
+def getVersion = { ->
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
+    File versionFile = new File(resourcesDir, 'build.version')
+    if(!versionFile.exists()) {
+        resourcesDir.mkdirs()
+        versionFile.createNewFile()
+        println 'Initializing build.version file'
+        versionFile.text = '0.0-changeme'
+    }
+    String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
 // custom task from
@@ -69,70 +74,48 @@ configurations {
 }
 
 dependencies {
-    compile 'org.bouncycastle:bcprov-jdk15on:1.64+'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.64+'
-    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.64+'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
+    implementation 'commons-cli:commons-cli:1.4'
+    implementation 'org.apache.commons:commons-csv:1.8'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'com.payneteasy:ber-tlv:1.0-11'
+    implementation 'org.slf4j:slf4j-api:2.0.0-alpha1'
+    implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    implementation 'ch.qos.logback:logback-core:1.3.0-alpha5'
+    implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
 
-    compile 'commons-cli:commons-cli:1.4'
-    compile 'commons-codec:commons-codec:1.11'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
 
-    compile 'com.payneteasy:ber-tlv:1.0-8'
-    compile 'org.slf4j:slf4j-api:1.8+'
-    compile 'ch.qos.logback:logback-classic:1.3+'
+    shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    shadow 'org.bouncycastle:bcprov-jdk15on:1.66'
+    shadow 'commons-cli:commons-cli:1.4'
+    shadow 'org.apache.commons:commons-csv:1.8'
+    shadow 'commons-codec:commons-codec:1.15'
+    shadow 'org.slf4j:slf4j-api:2.0.0-alpha1'
+    shadow 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    shadow 'com.payneteasy:ber-tlv:1.0-11'
+    shadow 'org.xerial:sqlite-jdbc:3.32.3.2'
 
-    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
-
-    testCompile 'org.bouncycastle:bcprov-jdk15on:1.64+'
-    testCompile 'org.bouncycastle:bcprov-ext-jdk15on:1.64+'
-    testCompile 'org.bouncycastle:bcpkix-jdk15on:1.64+'
-
-    testCompile 'commons-cli:commons-cli:1.4'
-    testCompile 'commons-codec:commons-codec:1.11'
-    testCompile 'com.payneteasy:ber-tlv:1.0-8'
-    testCompile 'org.slf4j:slf4j-api:1.8+'
-    testCompile 'ch.qos.logback:logback-classic:1.3+'
-
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-    testCompile 'org.junit.jupiter:junit-jupiter-params:5.1.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
-    testRuntime 'org.junit.jupiter:junit-jupiter-params:5.1.0'
-
-    shadow 'org.bouncycastle:bcprov-jdk15on:1.64'
-    shadow 'org.bouncycastle:bcprov-ext-jdk15on:1.64'
-    shadow 'org.bouncycastle:bcpkix-jdk15on:1.64+'
-
-    junitXmlToHtml 'org.apache.ant:ant-junit:1.9.7'
-
+    junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
-// Define the main class for the application jar that will be produced
-/*mainClassName = 'gov.gsa.pivconformance.tools.ConformanceTestRunner'*/
-
-jar {
-    /*
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }*/
-    println("Runtime dependencies:")
-    doLast {
-     configurations.runtime.each { println it }
-    }
-}
-
-run {
-    if (project.hasProperty("appArgs")) {
-        args Eval.me(appArgs)
-    }
-}
-
-// because the tests are also modular and we don't muck with the package exported by the library.
-// An alternate approach may be preferable here, but this makes both gradle and the IDEs happy.
-compileTestJava {
-    //javaModule.name = 'gov.gsa.pivconformancetest'
+task icamCardBuilder {
+    File cardsDir = new File(project.getRootDir(), 'src/test/resources/gsa-icam-card-builder/')
+    delete cardsDir
+    def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
+    grgit.describe()
 }
 
 // use junit platform for tests
 test {
+    dependsOn(icamCardBuilder)
+    doFirst {
+        println 'test:' + getVersion()
+        delete 'x509-artifacts', 'piv-artifacts', 'log', 'logs'
+    }
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
@@ -141,9 +124,55 @@ test {
 
 // a place to configure junit platform plugin... not currently necessary, but it is very likely desirable
 // to filter tests by tag
+
 junitPlatform {
 }
 
+jar {
+    doFirst {
+        version = getVersion()
+    }
+    doLast {
+        println 'archiveName: ' + archiveName
+        configurations.runtime.each { println it }
+    }
+}
+
+compileJava {
+    String moduleName = "";
+    if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
+        moduleName = 'gov.gsa.pivconformance.cardlib'
+        inputs.property("moduleName", moduleName)
+    }
+    doFirst {
+        println 'compileJava:' + getVersion()
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+        ]
+        classpath = files()
+    }
+}
+
+compileTestJava {
+    doFirst {
+        println 'compileTestJava:' + getVersion()
+    }
+    String moduleName = "";
+    if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
+        moduleName = 'gov.gsa.pivconformance.cardlib.test'
+        inputs.property("moduleName", moduleName)
+    }
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'org.junit.jupiter.api',
+                '--add-reads', "$moduleName=org.junit.jupiter.api",
+                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+        ]
+        version = getVersion()	
+        classpath = files()
+    }
+}
 
 // get readable test reports since gradle eats the summary unless there's a failure
 task generateHtmlTestReports {
@@ -172,51 +201,98 @@ afterEvaluate {
 }
 
 // when producing a jar that is suitable for distribution using the shadow plugin,
-// this will enbed a version properties file.
+// this will embed a version properties file.
 compileJava.doFirst {
-        //options.compilerArgs = ['--add-modules', 'java.smartcardio']
-        def git = org.ajoberstar.grgit.Grgit.open(dir: "${project.rootDir}/..")
-        def commit = git.head()
+    options.compilerArgs = ['--add-modules', 'java.smartcardio']
+    def dir = "${project.rootDir}/../"
+    println '**** DIR: ' + dir
+    def git = org.ajoberstar.grgit.Grgit.open(dir: dir)
+    def commit = git.head()
 
-        def commitId = commit.abbreviatedId
-        def commitDate = commit.getDate()
-        def buildDate = new Date()
+    def commitId = commit.abbreviatedId
+    def commitDate = commit.getDate()
+    def buildDate = new Date()
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
+    File propertiesFile = new File(resourcesDir, 'version.properties')
 
-        File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/gov/gsa/pivconformance/utils')
-        File propertiesFile = new File(resourcesDir, 'version.properties')
+    // The project may not have any resources, so create the directories and file
+    if(!propertiesFile.exists()) {
+        resourcesDir.mkdirs()
+        propertiesFile.createNewFile()
+        println 'Creating properties files'
+    }
+    Properties versionProperties = new Properties()
+    versionProperties.setProperty('git.commit.time', commitDate.format('dd.MM.yy HH.mm.ss'))
+    versionProperties.setProperty('build.time', buildDate.format('dd.MM.yy HH.mm.ss'))
+    versionProperties.setProperty('git.commit.id', commitId)
+    versionProperties.setProperty('build.version', getVersion())
+    versionProperties.store(propertiesFile.newWriter(), null)
 
-        // The project may not have any resources, so create the directories and file
-        if(!propertiesFile.exists()) {
-            resourcesDir.mkdirs()
-            propertiesFile.createNewFile()
-        }
-        Properties versionProperties = new Properties()
-        versionProperties.setProperty('git.commit.time', commitDate.format('dd.MM.yy HH.mm.ss'))
-        versionProperties.setProperty('build.time', buildDate.format('dd.MM.yy HH.mm.ss'))
-        versionProperties.setProperty('git.commit.id', commitId)
-        versionProperties.setProperty('build.version', version)
-        versionProperties.store(propertiesFile.newWriter(), null)
+}
+
+extraJavaModuleInfo {
+    module("ber-tlv-1.0-11.jar", "com.payneteasy", "1.0-11") {
+        exports("ber.tlv")
+    }
+    module("hamcrest-core-1.3.jar", "org.hamcrest", "1.3") {
+        exports("hamcrest.core")
+    }
+    module("slf4j-api-2.0.0-alpha1.jar", "org.slf4j", "1.4") {
+        exports("slf4j.api")
+    }
+    module("sqlite-jdbc-3.32.3.2.jar", "org.xerial", "3.32.3.2") {
+        exports("sqlite.jdbc")
+    }
+    module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
+        exports("org.apache.commons.cli")
+    }
+    module("commons-codec-1.15.jar", "org.apache.commons.codec", "1.15") {
+        exports("org.apache.commons.codec.binary")
+        exports("org.apache.commons.codec")
+    }
+    module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
+        exports("org.apache.commons.csv")
+    }
+    automaticModule("bcpkix-jdk15on-1.66.jar","org.bouncycastle.pkix")
+    automaticModule("bcprov-jdk15on-1.66.jar","org.bouncycastle.provider")
+    automaticModule("sqlite-jdbc-3.32.3.2.jar","org.xerial")
+    automaticModule("activation-1.1.jar","javax.activation")
+    automaticModule("checker-framework-1.7.0.jar","edu.washington.cs.types.checker")
+    automaticModule("ibatis-core-3.0.jar", "org.apache.ibatis")
 }
 
 compileJava {
     options.debugOptions.debugLevel = "source,lines,vars"
 }
 
-task getDeps(type: Copy) {
-  from sourceSets.main.runtimeClasspath
-  into 'runtime/'
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier 'sources'
+    from sourceSets.main.allSource
 }
 
+task copyShadowLibs(type: Copy) {
+    from configurations.shadow
+    into '../libs'
+}
+
+/*shadowJar.dependsOn copyShadowLibs
+
+shadowJar.doFirst {
+    version = getVersion()
+    println 'shadowJar.doFirst.archveName: ' + archiveName
+}*/
+
 task installSource(type: Copy) {
+    dependsOn copyShadowLibs
     dependsOn sourceJar
     from sourceJar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs' 
 }
 
 task install(type: Copy) {
-    dependsOn jar 
-    dependsOn installSource
+    version = getVersion()
+    dependsOn jar
+    //dependsOn shadowJar
     from jar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs' 
 }
-

@@ -1,62 +1,67 @@
+// conformancelib/build.gradle
+
 buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
-    }
 }
 
 plugins {
+    id 'java-library'
     id 'org.ajoberstar.grgit' version '2.1.0'
-    //id 'com.zyxist.chainsaw' version '0.1.3'
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+    id "de.jjohannes.extra-java-module-info" version "0.1"
 }
 
-apply plugin: 'java'
+java {
+    modularity.inferModulePath.set(true)
+}
+
+apply plugin: 'java-library'
 apply plugin: 'eclipse'
-//apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'org.junit.platform.gradle.plugin'
 
-//javaModule.name = 'gov.gsa.pivconformancetests'
-targetCompatibility = targetJavaVersion
+targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_11
 
-repositories {
-    jcenter()
-    maven { url 'https://repository.apache.org/snapshots' }
-}
+logger.warn("target java version: " + targetCompatibility)
+logger.warn("source java version: " + sourceCompatibility)
 
-sourceSets {
-    main {
-        java {
-            if(targetCompatibility != JavaVersion.VERSION_11)
-                exclude '**/module-info.java'
-            // temporarily ignore a pile of things that i want to push to the server but still needs to be fixed to build
-            // with some of the changes that outpaced the cli runner
-            //exclude 'gov/gsa/conformancelib/pivconformancetools/**'
-        }
-    }
-}
-
-task sourceJar(type: Jar, dependsOn: classes) {
-    classifier 'sources'
-    from sourceSets.main.allSource
-}
-
-import org.gradle.plugins.ide.eclipse.model.AccessRule
+//import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 eclipse {
     classpath {
         file {
             whenMerged {
-                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
-                jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                def lib = entries.find { it.path.contains 'cardlib.jar' }
-                lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/cardlib-sources.jar'))
+                //def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
+                //jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
+                //def lib = entries.find { it.path.contains '.' }
+                //println '--> ' + lib
+                //lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
             }
         }
     }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven { url 'https://repository.apache.org/snapshots' }
+    flatDir {
+        dirs '../libs', '../cardlib/build/libs'
+    }
+}
+
+def getVersion = { ->
+    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
+    File versionFile = new File(resourcesDir, 'build.version')
+    if(!versionFile.exists()) {
+        resourcesDir.mkdirs()
+        versionFile.createNewFile()
+        println 'Initializing build.version file'
+        versionFile.text = '0.0-changeme'
+    }
+    String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
 // custom task from
@@ -65,66 +70,136 @@ eclipse {
 configurations {
     junitXmlToHtml
 }
-
 dependencies {
-    compile 'org.bouncycastle:bcprov-jdk15on:1.64+'
-    compile 'org.bouncycastle:bcprov-ext-jdk15on:1.64+'
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.64+'
-    compile 'commons-cli:commons-cli:1.4'
-    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.6'
-    compile 'commons-codec:commons-codec:1.11'
-    compile 'com.payneteasy:ber-tlv:1.0-8'
-    compile 'org.slf4j:slf4j-api:1.8+'
-    compile 'ch.qos.logback:logback-classic:1.3+'
-    compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0.1'
-    compile files('../tools/85b-swing-gui/lib/cardlib.jar')
-    compile group: 'org.apache.ibatis', name: 'ibatis-core', version: '3.0'
-    compile 'org.junit.jupiter:junit-jupiter-api:5.4.2'
-    compile 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
-    compile 'org.junit.jupiter:junit-jupiter-params:5.4.2'
-    compile 'org.junit.jupiter:junit-jupiter-params:5.4.2'
-    compile 'org.junit.platform:junit-platform-launcher:1.4.2'
-    compile group: 'info.picocli', name: 'picocli', version: '3.6.0'
-    runtime 'org.junit.jupiter:junit-jupiter-api:5.4.2'
-    runtime 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
-    runtime 'org.junit.jupiter:junit-jupiter-params:5.4.2'
-    testRuntime 'org.junit.jupiter:junit-jupiter-api:5.4.2'
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
-    testRuntime 'org.junit.jupiter:junit-jupiter-params:5.4.2'
-    runtime 'org.junit.jupiter:junit-jupiter-api:5.4.2'
-    runtime 'org.junit.jupiter:junit-jupiter-params:5.4.2'
-    runtime 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
-    runtime 'org.junit.platform:junit-platform-launcher:1.4.2'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.66'
+    implementation 'commons-cli:commons-cli:1.4'
+    implementation 'org.apache.commons:commons-csv:1.8'
+    implementation 'commons-codec:commons-codec:1.15'
+    implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    implementation 'ch.qos.logback:logback-core:1.3.0-alpha5'
+    implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
+    implementation 'org.apache.ibatis:ibatis-core:3.0'
+    implementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    implementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    implementation 'org.junit.platform:junit-platform-launcher:1.7.0'
+    implementation 'junit:junit:4.13'
 
-    junitXmlToHtml 'org.apache.ant:ant-junit:1.9.7'
+    implementation 'info.picocli:picocli:3.6.0'
+    implementation 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:' + getVersion()
+
+    // Required by IDE while running unit tests
+    testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
+
+    junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
+}
+
+jar {
+    doFirst {
+        version = getVersion()
+    }
+    doLast {
+        println 'archiveName: ' + archiveName
+        configurations.runtime.each { println it }
+    }
+}
+
+extraJavaModuleInfo {
+    automaticModule("ber-tlv-1.0-11.jar","com.payneteasy")
+    automaticModule("slf4j-api-2.0.0-alpha1.jar", "org.slf4j")
+    automaticModule("hamcrest-core-1.3.jar","org.hamcrest")
+    automaticModule("commons-cli-1.4.jar","org.apache.commons.cli")
+    automaticModule("commons-codec-1.15.jar","org.apache.commons.codec")
+    automaticModule("commons-csv-1.8.jar","org.apache.commons.csv")
+    automaticModule("logback-classic-1.3.0-alpha5.jar", "ch.qos.logback")
+    automaticModule("logback-core-1.3.0-alpha5.jar", "ch.qos.logback")
+    automaticModule("junit-4.13.jar", "junit")
+    automaticModule("ibatis-core-3.0.jar","org.apache.ibatis")
+    automaticModule("sqlite-jdbc-3.32.3.2.jar","org.xerial")
+    automaticModule("activation-1.1.jar","javax.activation")
+    automaticModule("checker-framework-1.7.0.jar","edu.washington.cs.types.checker")
 }
 
 compileJava {
     options.debugOptions.debugLevel = "source,lines,vars"
+    String moduleName = "";
+    if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
+        moduleName = 'gov.gsa.pivconformance.conformancelib'
+        inputs.property("moduleName", moduleName)
+        println 'compileJava.moduleName and version: ' + moduleName + '-' + getVersion()
+    }
+
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
+        ]
+        classpath = files()
+    }
 }
 
-// use junit platform for tests
+compileTestJava {
+    String moduleName = "";
+    if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
+        moduleName = 'gov.gsa.pivconformance.conformancelib.test'
+        version = getVersion()
+        inputs.property("moduleName", moduleName)
+    }
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'org.junit.jupiter.api',
+                '--add-reads', "$moduleName=org.junit.jupiter.api",
+                '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib',
+                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+        ]
+        classpath = files()
+    }
+}
+
 test {
+    version = getVersion()
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
     }
 }
 
-junitPlatform {
+//junitPlatform { }
+
+compileJava {
+    options.debugOptions.debugLevel = "source,lines,vars"
 }
 
-// copy a jar with library sources to make this easier to step through in eclipse
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task copyShadowLibs(type: Copy) {
+    from configurations.shadow
+    into '../libs'
+}
+
+shadowJar.dependsOn copyShadowLibs
+
+shadowJar.doFirst {
+    version = getVersion()
+    println 'shadowJar.doFirst.archveName: ' + archiveName
+}
+
 task installSource(type: Copy) {
+    dependsOn copyShadowLibs
     dependsOn sourceJar
     from sourceJar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs' 
 }
 
 task install(type: Copy) {
-    dependsOn jar 
-    dependsOn installSource
+    version = getVersion()
+    dependsOn jar
+    dependsOn shadowJar
     from jar
-    into "$projectDir/../tools/85b-swing-gui/lib"
+    into '../libs' 
 }
-

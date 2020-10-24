@@ -98,6 +98,8 @@ target
 **/*.class
 **/*.db
 **/*.csv
+**/.DS_Store
+**/build
 
 /cardlib/**/*.class
 /cardlib/out
@@ -107,3 +109,6 @@ target
 /tools/**/*.class
 /tools/**/*.csv
 /tools/**/*.jar
+
+# Ignore Gradle build output directory
+build

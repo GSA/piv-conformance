@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>cardlib</name>
+	<name>gov.gsa.pivconformance.cardlib</name>
 	<comment></comment>
 	<projects>
-		<project>bc-java</project>
-		<project>core</project>
-		<project>mail</project>
-		<project>pkix</project>
-		<project>prov</project>
-		<project>tls</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -26,15 +20,4 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
 	</natures>
-	<filteredResources>
-		<filter>
-			<id>1</id>
-			<name></name>
-			<type>22</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-module-info.java</arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
 </projectDescription>
