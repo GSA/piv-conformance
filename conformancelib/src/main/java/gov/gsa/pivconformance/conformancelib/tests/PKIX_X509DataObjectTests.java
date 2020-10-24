@@ -92,32 +92,6 @@ import gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject;;
 public class PKIX_X509DataObjectTests {
 
 	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
-	private final KeyStore m_keystore = getKeyStore();
-
-	private KeyStore getKeyStore() {
-		File keyStoreFile = new File("cacerts.keystore");
-		KeyStore ks = null;
-		s_logger.debug("Looking for keystore file " + keyStoreFile.getAbsolutePath());
-		
-
-		if (!keyStoreFile.exists()) {
-			String currentDir = System.getProperty("user.dir");
-			keyStoreFile = new File(currentDir + "/cacerts.keystore");
-			if (!keyStoreFile.exists()) {
-				s_logger.error("Unable to locate " + keyStoreFile.getAbsolutePath());
-				return ks;
-			}
-		}
-		FileInputStream fis;
-		try {
-			ks = KeyStore.getInstance("JKS");
-			fis = new FileInputStream(keyStoreFile.getAbsolutePath());
-			ks.load(fis, "changeit".toCharArray());	
-		} catch (Exception e) {
-			s_logger.error(e.getMessage());
-		}
-		return ks;
-	}
 
 	// Confirm keyUsage extension is present
 	@DisplayName("PKIX.2 test")
@@ -285,9 +259,12 @@ public class PKIX_X509DataObjectTests {
 				try {
 					X509Certificate trustAnchorCert = null;
 					try {
+						Validator validator = new Validator();
+						validator.setKeyStore("x509-certs/cacerts.keystore", "changeit"); //TODO: Make this a property
+						KeyStore ks = validator.getKeyStore();
 						String trustAnchorAlias = (cert.getSubjectX500Principal().getName().contains("ICAM")) ?  "icam test card root ca" : "federal common policy ca";
 						s_logger.debug("Looking for trust anchor " + trustAnchorAlias);
-						trustAnchorCert = (X509Certificate) m_keystore.getCertificate(trustAnchorAlias);
+						trustAnchorCert = (X509Certificate) ks.getCertificate(trustAnchorAlias);
 						boolean valid = Validator.isValid(cert, paramList3.toString(), trustAnchorCert);
 						assertTrue(valid, "Cert not valid");
 					} catch (Exception e) {

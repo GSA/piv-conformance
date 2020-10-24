@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.utilities;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathBuilder;
@@ -29,8 +33,49 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Provides the API to validating a given end entity certificate for
+ * a given certificate policy. 
+ *
+ */
 public class Validator {
     static Logger s_logger = LoggerFactory.getLogger(Validator.class);
+    private static KeyStore m_keystore = null;
+    
+    /*
+     * Constructor
+     */
+    
+    public Validator() {
+    	setKeyStore("x509-certs/cacerts.keystore", "changeit");
+    }
+    
+    /**
+     * Sets the validator's KeyStore to keyStoreName
+     * @param keyStoreName the path to the KeyStore file
+     */
+
+    public void setKeyStore(String keyStoreName, String password) {
+        InputStream is = Validator.getFileFromResourceAsStream(Validator.class, keyStoreName);
+        KeyStore ks = null;
+        try {
+            ks = KeyStore.getInstance("JKS");
+            ks.load(is, password.toCharArray());
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        }
+        m_keystore = ks;
+    }
+    
+    public KeyStore getKeyStore() {
+    	return m_keystore;
+    }
 
     /**
      * Gets a file from the specified resource for the specified class.
