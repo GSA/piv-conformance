@@ -1,4 +1,5 @@
 // cardlib/build.gradle
+
 buildscript {
     repositories {
         jcenter()
@@ -8,6 +9,7 @@ buildscript {
         classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
     }
 }
+
 plugins {
     id 'java-library'
     id 'org.ajoberstar.grgit' version '2.1.0'
@@ -103,15 +105,21 @@ dependencies {
 }
 
 task icamCardBuilder {
-    File cardsDir = new File(project.getRootDir(), 'src/test/resources/gsa-icam-card-builder/')
+    File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
     delete cardsDir
     def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
     grgit.describe()
 }
 
+task copyLogConfig(type: Copy) {
+    from file('../tools/85b-swing-gui/src/main/resources/user_log_config.xml')
+    into projectDir
+}
+
 // use junit platform for tests
 test {
     dependsOn(icamCardBuilder)
+    dependsOn(copyLogConfig)
     doFirst {
         println 'test:' + getVersion()
         delete 'x509-artifacts', 'piv-artifacts', 'log', 'logs'
@@ -139,11 +147,6 @@ jar {
 }
 
 compileJava {
-    String moduleName = "";
-    if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
-        moduleName = 'gov.gsa.pivconformance.cardlib'
-        inputs.property("moduleName", moduleName)
-    }
     doFirst {
         println 'compileJava:' + getVersion()
         options.compilerArgs = [
@@ -151,24 +154,24 @@ compileJava {
         ]
         classpath = files()
     }
+    String moduleName = "";
+    if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
+        moduleName = 'gov.gsa.pivconformance.cardlib'
+        inputs.property("moduleName", moduleName)
+    }
 }
 
 compileTestJava {
     doFirst {
-        println 'compileTestJava:' + getVersion()
-    }
-    String moduleName = "";
-    if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
-        moduleName = 'gov.gsa.pivconformance.cardlib.test'
-        inputs.property("moduleName", moduleName)
-    }
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-                '--add-modules', 'org.junit.jupiter.api',
-                '--add-reads', "$moduleName=org.junit.jupiter.api",
-                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
-        ]
+        if(targetCompatibility >= (String) JavaVersion.VERSION_11) {
+            String moduleName = 'gov.gsa.pivconformance.cardlib.test'
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '--add-modules', 'org.junit.jupiter.api',
+                    '--add-reads', "$moduleName=org.junit.jupiter.api",
+                    '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+            ]
+        }
         version = getVersion()	
         classpath = files()
     }
@@ -274,13 +277,6 @@ task copyShadowLibs(type: Copy) {
     from configurations.shadow
     into '../libs'
 }
-
-/*shadowJar.dependsOn copyShadowLibs
-
-shadowJar.doFirst {
-    version = getVersion()
-    println 'shadowJar.doFirst.archveName: ' + archiveName
-}*/
 
 task installSource(type: Copy) {
     dependsOn copyShadowLibs
