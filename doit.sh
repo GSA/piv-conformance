@@ -1,11 +1,27 @@
 #!/bin/bash
 
+# Default to always test with Gradle
+
+TESTOPT=1
+if [ "$1" == "-notest" ]; then
+  TESTOPT=0
+fi
+
 pushd cardlib >/dev/null 2>&1
-	./gradlew -x junitPlatformTest -x generateHtmlTestReports clean build install
+	if [ $TESTOPT -eq 1 ]; then
+		./gradlew clean build install
+	else
+		./gradlew -x junitPlatformTest -x generateHtmlTestReports clean build install
+	fi
+
 popd >/dev/null 2>&1
 
 pushd conformancelib >/dev/null 2>&1
-	./gradlew -x test clean build install
+	if [ $TESTOPT -eq 1 ]; then
+		./gradlew clean build install
+	else
+		./gradlew -x test clean build install
+	fi	
 popd >/dev/null 2>&1
 
 pushd tools/85b-swing-gui 2>&1
