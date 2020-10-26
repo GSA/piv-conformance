@@ -58,8 +58,8 @@ class ValidatorTest {
         try {
             System.out.println("cacerts.keystore contains alias icam test card root ca: " + m_keystore.containsAlias("icam test card root ca"));
             CertificateFactory fac = CertificateFactory.getInstance("X509");
-            FileInputStream fis = (FileInputStream) Validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
-            X509Certificate eeCert = (X509Certificate) fac.generateCertificate(new FileInputStream("x509-certs/valid" + File.separator +endEntityCertFile));
+            BufferedInputStream fis = (BufferedInputStream) Validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
+            X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
             X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(certsDir, eeCert);
                    
             System.out.print("Validating " + eeCert.getSubjectDN().getName());
