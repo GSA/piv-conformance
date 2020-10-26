@@ -45,5 +45,5 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
 popd
 
 TS=$(date +%Y%m%d%H%M%S)
-mv fips201-card-conformance-tool-0.2.1-beta fips201-card-conformance-tool-0.2.1-beta-${TS}
-zip fips201-card-conformance-tool-0.2.1-beta-${TS}.zip fips201-card-conformance-tool-0.2.1-beta-${TS}/*
+mv fips201-card-conformance-tool-${VERSION} fips201-card-conformance-tool-${VERSION}-${TS}
+zip fips201-card-conformance-tool-${VERSION}-beta-${TS}.zip fips201-card-conformance-tool-${VERSION}-${TS}/*
