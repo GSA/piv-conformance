@@ -48,7 +48,7 @@ repositories {
     mavenCentral()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../libs', '../cardlib/build/libs'
+        dirs '../cardlib/build/libs'
     }
 }
 
@@ -87,7 +87,7 @@ dependencies {
     implementation 'junit:junit:4.13'
 
     implementation 'info.picocli:picocli:3.6.0'
-    implementation 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:' + getVersion()
+    implementation 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
 
     // Required by IDE while running unit tests
     testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
@@ -99,6 +99,29 @@ jar {
     doFirst {
         version = getVersion()
     }
+    manifest {
+         attributes(
+ 		'Manifest-Version': '0.2.2-beta',
+ 		'Created-By': 'General Services Administration',
+ 		'Automatic-Module-Name': 'gov.gsa.pivconformance.conformancelib',
+ 		'Multi-Release': 'false',
+ 		'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+ 		'Implementation-Title': 'gov.gsa.pivconformance.conformancelib',
+ 		'Implementation-Version': '0.2.2-beta',
+ 		'Implementation-Vendor': 'General Services Administration',
+ 		'Bundle-ManifestVersion' : '2',
+ 		'Bundle-SymbolicName': 'gov.gsa.pivconformance.conformancelib',
+ 		'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
+ 		'Bundle-Vendor': 'gov.gsa',
+ 		'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
+ 		'Export-Package': 'gov.gsa.pivconformance.conformancelib;version=0.2.2-beta,gov.gsa.pivconformance.conformancelib.test;version=0.2.2-beta,gov.gsa.pivconformance.conformancelib.configuration;version=0.2.2-beta,gov.gsa.pivconformance.conformancelib.junitoptions;version=0.2.2-beta,gov.gsa.pivconformance.conformancelib.tests;version=0.2.2-beta,gov.gsa.pivconformance.conformancelib.tools.junitoptions;version=0.2.2-beta,gov.gsa.pivconformance.conformancelib.utilities;version=0.2.2-beta',
+ 		'Import-Package': '*',
+ 		'Specification-Title': 'gov.gsa.pivconformance.conformancelib',
+ 		'Specification-Version': '0.2.2-beta',
+ 		'Specification-Vendor': 'General Services Administration',
+ 		'Sealed': 'false'
+         )
+     }
     doLast {
         println 'archiveName: ' + archiveName
         configurations.runtime.each { println it }
@@ -152,7 +175,7 @@ compileTestJava {
                 '--add-modules', 'org.junit.jupiter.api',
                 '--add-reads', "$moduleName=org.junit.jupiter.api",
                 '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib',
-                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+                '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
         ]
         classpath = files()
     }

@@ -122,11 +122,14 @@ test {
     dependsOn(copyLogConfig)
     doFirst {
         println 'test:' + getVersion()
-        delete 'x509-artifacts', 'piv-artifacts', 'log', 'logs'
+        delete 'x509-artifacts', 'piv-artifacts', 'log', 'logs', 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder'
     }
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
+    }
+    doLast {
+        delete 'build/classes/java/test/gov/pivconformance/cardlib/test/gsa-icam-card-builder'
     }
 }
 
@@ -140,6 +143,29 @@ jar {
     doFirst {
         version = getVersion()
     }
+    manifest {
+         attributes(
+ 		'Manifest-Version': getVersion(),
+ 		'Created-By': 'General Services Administration',
+ 		'Automatic-Module-Name': 'gov.gsa.pivconformance.cardlib',
+ 		'Multi-Release': 'false',
+ 		'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+ 		'Implementation-Title': 'gov.gsa.pivconformance.cardlib',
+ 		'Implementation-Version': getVersion(),
+ 		'Implementation-Vendor': 'General Services Administration',
+ 		'Bundle-ManifestVersion' : '2',
+ 		'Bundle-SymbolicName': 'gov.gsa.pivconformance.cardlib',
+ 		'Bundle-Name': 'gov.gsa.pivconformance.cardlib',
+ 		'Bundle-Vendor': 'gov.gsa',
+ 		'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
+ 		'Export-Package': 'gov.gsa.pivconformance.cardlib;version=0.2.2-beta,gov.gsa.pivconformance.cardlib.tlv;version=0.2.2-beta,gov.gsa.pivconformance.cardlib.card;version=0.2.2-beta, gov.gsa.pivconformance.cardlib.card.client;version=0.2.2-beta,gov.gsa.pivconformance.cardlib.tools;version=0.2.2-beta,gov.gsa.pivconformance.cardlib.utils;version=0.2.2-beta,gov.gsa.pivconformance.cardlib.test;version=0.2.2-beta',
+ 		'Import-Package': '*',
+ 		'Specification-Title': 'gov.gsa.pivconformance.cardlib',
+ 		'Specification-Version': '0.2.2-beta',
+ 		'Specification-Vendor': 'General Services Administration',
+ 		'Sealed': 'false'
+         )
+     }
     doLast {
         println 'archiveName: ' + archiveName
         configurations.runtime.each { println it }
