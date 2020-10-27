@@ -114,7 +114,9 @@ public class CardUtils {
 			} else {
 				// Here, check whether this is invoked out of a Junit test in which case
 				// there's no GUI, so give the user an opportunity to enter a pin.
+				
 				if (calledByJunit()) {
+					s_logger.debug("authenticateSingleton() called by JUnit");
 					Scanner scanInput = new Scanner(System.in);
 					boolean done = false;
 					while (!done) {
@@ -130,6 +132,8 @@ public class CardUtils {
 						}
 					}
 					scanInput.close();            ;
+				} else {
+					s_logger.debug("authenticateSingleton() not called by JUnit");
 				}
 				if (css.getApplicationPin() == null || css.getApplicationPin().length() == 0) {
 					css.setLastLoginStatus(LOGIN_STATUS.LOGIN_FAIL);
@@ -203,10 +207,12 @@ public class CardUtils {
 	public static boolean calledByJunit() {
 		boolean rv = true;
 		StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
-		String clazz = null;
+		String clazzStr = null;
 		for (StackTraceElement st: stElements) {
-			clazz = st.getClassName();
+			clazzStr = st.getClassName();
 		}
-		return (clazz.startsWith("org.eclipse.jdt.internal.junit") ? true : false);
+		s_logger.debug("Last getClassName() returned " + clazzStr);
+		rv = clazzStr.startsWith("org.eclipse.jdt.internal.junit") ? true : false;
+		return rv;
 	}
 }

@@ -1,23 +1,22 @@
 package gov.gsa.pivconformance.conformancelib.utilities;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPublicKey;
-
-import javax.smartcardio.ResponseAPDU;
-
-import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.CardClientException;
 import gov.gsa.pivconformance.cardlib.card.client.GeneralAuthenticateHelper;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
+import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.smartcardio.ResponseAPDU;
+import java.security.Security;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class KeyValidationHelper {
 	static Logger s_logger = LoggerFactory.getLogger(KeyValidationHelper.class);
@@ -82,7 +81,12 @@ public class KeyValidationHelper {
 			// for RSA. We likely need to change that.
 			boolean verified = GeneralAuthenticateHelper.verifyResponseSignature("sha256WithRSA", pubKey, cr, challenge);
 			s_logger.info("verify returns: {}", verified);
-			assertTrue(verified, "Unable to verify signature over challenge");
+			assertTrue(verified, "Unable to verify RSA signature over challenge");
+		} else if (containerCert.getPublicKey() instanceof ECPublicKey) {
+			boolean verified = false;
+			//TODO: Get this fixed ASAP
+			s_logger.error("ECPublicKey challenge not supported");
+			throw new ConformanceTestException("ECPublicKey challenge not supported");
 		}
 	}
 	

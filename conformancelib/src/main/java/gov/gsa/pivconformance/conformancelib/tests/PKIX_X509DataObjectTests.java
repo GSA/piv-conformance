@@ -262,7 +262,17 @@ public class PKIX_X509DataObjectTests {
 						Validator validator = new Validator();
 						validator.setKeyStore("x509-certs/cacerts.keystore", "changeit"); //TODO: Make this a property
 						KeyStore ks = validator.getKeyStore();
-						String trustAnchorAlias = (cert.getSubjectX500Principal().getName().contains("ICAM")) ?  "icam test card root ca" : "federal common policy ca";
+						String subjectName = cert.getSubjectX500Principal().getName();
+						String trustAnchorAlias = null;
+						if (subjectName.contains("ICAM")) {
+							if (subjectName.contains("PIV-I")) {
+								trustAnchorAlias = "icam test card piv-i root ca";
+							} else {
+								trustAnchorAlias = "icam test card piv root ca";
+							}
+						} else {
+							trustAnchorAlias = "federal common policy ca";
+						}
 						s_logger.debug("Looking for trust anchor " + trustAnchorAlias);
 						trustAnchorCert = (X509Certificate) ks.getCertificate(trustAnchorAlias);
 						boolean valid = Validator.isValid(cert, paramList3.toString(), trustAnchorCert);
