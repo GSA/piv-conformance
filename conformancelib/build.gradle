@@ -124,72 +124,7 @@ jar {
     }
     doLast {
         println 'archiveName: ' + archiveName
-/*`
-configuration ':annotationProcessor'
-configuration ':api'
-configuration ':apiElements'
-configuration ':archives'
-configuration ':compile'
-configuration ':compileClasspath'
-configuration ':compileOnly'
-configuration ':default'
-configuration ':implementation'
-configuration ':junitXmlToHtml'
-configuration ':runtime'
-configuration ':runtimeClasspath'
-configuration ':runtimeElements'
-configuration ':runtimeOnly'
-configuration ':shadow'
-configuration ':testAnnotationProcessor'
-configuration ':testCompile'
-configuration ':testCompileClasspath'
-configuration ':testCompileOnly'
-configuration ':testImplementation'
-configuration ':testRuntime'
-configuration ':testRuntimeClasspath'
-configuration ':testRuntimeOnly'
-*/
-        //configurations.default.each { println it } WORKS
         configurations.testRuntimeClasspath.each { println it }
-/*
-testRuntime
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.7.0/eadb73c5074a4ac71061defd00fc176152a4d12c/junit-platform-engine-1.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.7.0/84e309fbf21d857aac079a3c1fffd84284e1114d/junit-platform-commons-1.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.vintage/junit-vintage-engine/5.7.0/2b808fa5dbbf0b0e16bce19d9936ef78333a030e/junit-vintage-engine-5.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.1.0/fc9dff4bb36d627bdc553de77e1f17efd790876c/apiguardian-api-1.1.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/junit/junit/4.13/e49ccba652b735c93bd6e6f59760d8254cf597dd/junit-4.13.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.2.0/28c11eb91f9b6d8e200631d46e20a7f407f2a046/opentest4j-1.2.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar
-*/
-/*
-testRuntimeClasspath
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk15on/1.66/86cca2c1a32775abe92316d9628b7ee50b6f19ad/bcpkix-jdk15on-1.66.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk15on/1.66/ed564ade61defca27e26fb1378a70b22831fc5c1/bcprov-jdk15on-1.66.jar
-/Users/bob/.gradle/caches/transforms-2/files-2.1/d8459d258643c1d2c182d2ae3572f394/commons-cli-1.4-module.jar
-/Users/bob/.gradle/caches/transforms-2/files-2.1/cac2cdb235da128a82710643e9aa1fbb/commons-csv-1.8-module.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.15/49d94806b6e3dc933dacbd8acb0fdbab8ebd1e5d/commons-codec-1.15.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.3.0-alpha5/3195156aa3b62b2f4407a7841700f2759bebf192/logback-classic-1.3.0-alpha5.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.3.0-alpha5/4f3163d95c96b7be69d9e5245573834fd130a4bb/logback-core-1.3.0-alpha5.jar
-/Users/bob/.gradle/caches/transforms-2/files-2.1/39283ad96f318e8f10fdd9250859b5e6/sqlite-jdbc-3.32.3.2-module.jar
-/Users/bob/.gradle/caches/transforms-2/files-2.1/3e1a95f3564ec1fbbcb9ae03f4af9b8a/ibatis-core-3.0-module.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-params/5.7.0/521dbecace93d5d7ef13a74aab231befd7954424/junit-jupiter-params-5.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/1.7.0/cfd2d9c8b6ff9f3880faad828454cd0166bc12d7/junit-platform-launcher-1.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.vintage/junit-vintage-engine/5.7.0/2b808fa5dbbf0b0e16bce19d9936ef78333a030e/junit-vintage-engine-5.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.7.0/eadb73c5074a4ac71061defd00fc176152a4d12c/junit-platform-engine-1.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.7.0/84e309fbf21d857aac079a3c1fffd84284e1114d/junit-platform-commons-1.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.7.0/d9044d6b45e2232ddd53fa56c15333e43d1749fd/junit-jupiter-engine-5.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.7.0/b25f3815c4c1860a73041e733a14a0379d00c4d5/junit-jupiter-api-5.7.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/junit/junit/4.13/e49ccba652b735c93bd6e6f59760d8254cf597dd/junit-4.13.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/info.picocli/picocli/3.6.0/658e0dce77754c7df1e770c246aea0d25808dca7/picocli-3.6.0.jar
-/Users/bob/IdeaProjects/piv-conformance/cardlib/build/libs/gov.gsa.pivconformance.cardlib-0.2.2-beta.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.0-alpha1/e979781e847d44d3618c4479d438956593b6b080/slf4j-api-2.0.0-alpha1.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/com.sun.mail/javax.mail/1.6.2/935151eb71beff17a2ffac15dd80184a99a0514f/javax.mail-1.6.2.jar
-/Users/bob/.gradle/caches/transforms-2/files-2.1/5dddf02d07a3829a1fcc0f7729365953/checker-framework-1.7.0-module.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.apiguardian/apiguardian-api/1.1.0/fc9dff4bb36d627bdc553de77e1f17efd790876c/apiguardian-api-1.1.0.jar
-/Users/bob/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.2.0/28c11eb91f9b6d8e200631d46e20a7f407f2a046/opentest4j-1.2.0.jar
-/Users/bob/.gradle/caches/transforms-2/files-2.1/8e5a4261f05a0c1a6d58040aca090aed/hamcrest-core-1.3-module.jar
-/Users/bob/.gradle/caches/transforms-2/files-2.1/681427822f666f6d1e944aa6970eacff/activation-1.1-module.jar
-*/
     }
 }
 
@@ -247,8 +182,13 @@ compileTestJava {
 }
 
 test {
+    classpath = files()
     version = getVersion()
     useJUnitPlatform()
+    List<String> argumentList = new ArrayList<String>();
+    argumentList.add('-Djava.security.debug=certpath,pkcs11,provider')
+    allJvmArgs = argumentList
+
     testLogging {
         events "passed", "skipped", "failed"
     }
