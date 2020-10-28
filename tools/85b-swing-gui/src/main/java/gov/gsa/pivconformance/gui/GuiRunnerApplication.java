@@ -5,6 +5,7 @@ import ch.qos.logback.classic.LoggerContext;
 import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import gov.gsa.pivconformance.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController;
+import gov.gsa.pivconformance.conformancelib.utilities.Validator;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
@@ -12,21 +13,21 @@ import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 
 public class GuiRunnerApplication {
 
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(GuiRunnerApplication.class);
-	private static String cctVersion = null; // "v0.2.1-beta";//TODO: get from build.version
+	private static String cctVersion = null;
 
 	static {
-		cctVersion = getVersion();
+		cctVersion = getVersion("build.version");
 	}
 
 	private JFrame m_mainFrame;
@@ -229,35 +230,15 @@ public class GuiRunnerApplication {
 
 		return logConfigFile;
 	}
-	
-	/**
-	 * Gets the version out of the build.version file
-	 * @return version string or null if an exception is thrown
-	 */
-	private static String getVersion() {
-		String buildVersion = null;
-		File versionFile = new File("build.version");
-		Path buildVersionPath = null;
-		s_logger.debug("Looking for build version file " + versionFile.getAbsolutePath());
-		try {
-			if (versionFile.exists() && versionFile.canRead()) {
-				buildVersionPath = versionFile.toPath();
-			} else {
-				// Special handling for developer mode - when debugging from IDE
-				String currentDir = System.getProperty("user.dir");
-				versionFile = new File(currentDir + "/build.version");	
-				System.out.println("Looking for resource " + versionFile.getAbsolutePath());
-				if (versionFile.exists() && versionFile.canRead()) {
-					buildVersionPath = versionFile.toPath();
-				} else {
-					s_logger.error("Unable to locate build.version");
-				}	
-			} 
-			buildVersion = Files.readAllLines(buildVersionPath).get(0);
 
-		} catch (IOException e){
-			
+	private static String getVersion(String name) {
+		String version = null;
+		try {
+		BufferedReader versionFile = new BufferedReader (new FileReader(name));
+		version = versionFile.readLine();
+		} catch (IOException e) {
+			s_logger.error("Can't open " + name);
 		}
-		return buildVersion != null ? buildVersion : "*.*.*";
+		return version;
 	}
 }
