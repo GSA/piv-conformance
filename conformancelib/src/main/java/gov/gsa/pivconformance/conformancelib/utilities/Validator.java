@@ -85,10 +85,6 @@ public class Validator {
      */
     public static InputStream getFileFromResourceAsStream(Class clazz, String fileName) {
         ClassLoader classLoader = clazz.getClassLoader();
-        URL url = classLoader.getResource(fileName);
-        if (url != null) {
-            String path = url.getPath();
-        }
         InputStream inputStream = null;
         try {
             inputStream = classLoader.getResourceAsStream(fileName);
