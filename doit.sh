@@ -12,7 +12,7 @@ pushd cardlib >/dev/null 2>&1
 		./gradlew clean
 		./gradlew build install
 	else
-		./gradlew -x junitPlatformTest -x generateHtmlTestReports clean build install
+		./gradlew -x junitPlatformTest -x generateHtmlTestReports clean install
 	fi
 
 popd >/dev/null 2>&1
@@ -20,14 +20,14 @@ popd >/dev/null 2>&1
 pushd conformancelib >/dev/null 2>&1
 	if [ $TESTOPT -eq 1 ]; then
 		./gradlew clean
-		./gradlew install
+		./gradlew build install
 	else
-		./gradlew -x test clean build install
+		./gradlew -x test clean install
 	fi	
 popd >/dev/null 2>&1
 
 pushd tools/85b-swing-gui 2>&1
-	./gradlew -x test clean build
+	./gradlew -x test clean build install
 	cp build/libs/*shadow* ../../libs
 popd >/dev/null 2>&1
 
@@ -45,5 +45,5 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
 popd
 
 TS=$(date +%Y%m%d%H%M%S)
-mv fips201-card-conformance-tool-0.2.1-beta fips201-card-conformance-tool-0.2.1-beta-${TS}
-zip fips201-card-conformance-tool-0.2.1-beta-${TS}.zip fips201-card-conformance-tool-0.2.1-beta-${TS}/*
+mv fips201-card-conformance-tool-$VERSION fips201-card-conformance-tool-${VERSION}-${TS}
+zip fips201-card-conformance-tool-${VERSION}-${TS}.zip fips201-card-conformance-tool-${VERSION}-${TS}/*
