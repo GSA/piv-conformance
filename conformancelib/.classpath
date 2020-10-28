@@ -27,7 +27,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5">
 		<attributes>
 			<attribute name="module" value="true"/>
-			<attribute name="add-exports" value="org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib"/>
+			<attribute name="add-exports" value="org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib.test"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
