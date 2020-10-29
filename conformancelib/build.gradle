@@ -185,10 +185,9 @@ test {
     classpath = files()
     version = getVersion()
     useJUnitPlatform()
-    List<String> argumentList = new ArrayList<String>();
-    argumentList.add('-Djava.security.debug=certpath,pkcs11,provider')
+    List<String> argumentList = allJvmArgs
     allJvmArgs = argumentList
-
+    allJvmArgs.add('-Djava.security.debug=certpath,pkcs11,provider')
     testLogging {
         events "passed", "skipped", "failed"
     }
