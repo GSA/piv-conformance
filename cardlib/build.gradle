@@ -151,7 +151,9 @@ dependencies {
 
 task icamCardBuilder {
     File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
-    delete cardsDir
+    if (cardsDir.exists()) {
+        delete cardsDir
+    }
     def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
     grgit.describe()
 }
