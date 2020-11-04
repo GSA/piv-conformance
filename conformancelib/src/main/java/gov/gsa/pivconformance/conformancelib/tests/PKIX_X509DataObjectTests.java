@@ -221,6 +221,8 @@ public class PKIX_X509DataObjectTests {
 						KeyStore ks = validator.getKeyStore();
 						String subjectName = cert.getSubjectX500Principal().getName();
 						String trustAnchorAlias = null;
+
+						//TODO: Needs to configurable
 						if (subjectName.contains("ICAM")) {
 							if (subjectName.contains("PIV-I")) {
 								trustAnchorAlias = "icam test card piv-i root ca";
@@ -232,8 +234,13 @@ public class PKIX_X509DataObjectTests {
 						}
 						s_logger.debug("Looking for trust anchor " + trustAnchorAlias);
 						trustAnchorCert = (X509Certificate) ks.getCertificate(trustAnchorAlias);
-						boolean valid = Validator.isValid(cert, paramList3.toString(), trustAnchorCert);
-						assertTrue(valid, "Cert not valid");
+						if (trustAnchorCert != null) {
+							s_logger.debug("Validating to trust anchor " + trustAnchorCert.getSubjectDN().getName());
+							boolean valid = Validator.isValid(cert, paramList3.toString(), trustAnchorCert);
+							assertTrue(valid, "Cert not valid");
+						} else {
+							fail("Can't load trust anchor " + trustAnchorAlias);
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -242,7 +249,6 @@ public class PKIX_X509DataObjectTests {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-
 				assertTrue(false, "Cert failed");
 			}
 		}
