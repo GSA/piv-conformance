@@ -149,15 +149,6 @@ dependencies {
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
-task icamCardBuilder {
-    File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
-    if (cardsDir.exists()) {
-        delete cardsDir
-    }
-    def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
-    grgit.describe()
-}
-
 task copyLogConfig(type: Copy) {
     from file('../tools/85b-swing-gui/src/main/resources/user_log_config.xml')
     into projectDir
@@ -165,11 +156,15 @@ task copyLogConfig(type: Copy) {
 
 // use junit platform for tests
 test {
-    dependsOn(icamCardBuilder)
     dependsOn(copyLogConfig)
     doFirst {
         println 'test:' + getVersion()
-        delete 'x509-artifacts', 'piv-artifacts', 'log', 'logs', 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder'
+        File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
+        if (cardsDir.exists()) {
+            delete cardsDir
+        }
+        def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
+    grgit.describe()
     }
     useJUnitPlatform()
     testLogging {
