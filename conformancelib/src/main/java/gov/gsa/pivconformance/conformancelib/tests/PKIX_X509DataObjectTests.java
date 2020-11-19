@@ -197,12 +197,12 @@ public class PKIX_X509DataObjectTests {
 		if (test != null) {
 			s_logger.debug("Directly asserted flag: " + test.getAbsolutePath());
 		}
-		if (test.exists()) {
-			s_logger.debug("Checking directly asserted policy OID");
-			PKIX_Test_6_DirectlyAsserted(oid, containersAndPolicyOids, reporter);
+		if (!test.exists()) {
+			s_logger.debug("Peforming PD-VAL with " + containersAndPolicyOids.toString());
+			PKIX_Test_6_PD_VAL(oid, containersAndPolicyOids, reporter);
 			return;
 		}
-		s_logger.debug("Performing PD-VAL");
+		s_logger.debug("Directly-asserted test");
 		// PDVAL starts here
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
@@ -263,7 +263,7 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_6_DirectlyAsserted(String oid, String containersAndPolicyOids, TestReporter reporter) {
+    void PKIX_Test_6_PD_VAL(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;		
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
