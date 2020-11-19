@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.cardlib.tlv.*;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Arrays;
@@ -26,6 +28,8 @@ public class X509CertificateDataObject extends PIVDataObject {
 	private static final Logger s_logger = LoggerFactory.getLogger(X509CertificateDataObject.class);
 
 	private X509Certificate m_cert;
+	private byte[] m_rawCertBuf = null;
+	private boolean m_compressed = false;
 	private ArtifactWriter m_x509ArtifactCache;
 
 
@@ -35,8 +39,10 @@ public class X509CertificateDataObject extends PIVDataObject {
 	public X509CertificateDataObject() {
 
 		m_cert = null;
+		m_rawCertBuf = null;
 		setErrorDetectionCode(false);
 		setErrorDetectionCodeHasData(false);
+		setIsCompressed(false);
 		m_content = new HashMap<BerTag, byte[]>();
 		m_x509ArtifactCache = new ArtifactWriter("x509-artifacts");
 	}
@@ -92,7 +98,6 @@ public class X509CertificateDataObject extends PIVDataObject {
 						}
 
 						List<BerTlv> values2 = outer2.getList();
-						byte[] rawCertBuf = null;
 						byte[] certInfoBuf = null;
 						byte[] mSCUIDBuf = null;
 						for (BerTlv tlv2 : values2) {
@@ -103,10 +108,10 @@ public class X509CertificateDataObject extends PIVDataObject {
 								super.m_tagList.add(tlv2.getTag());
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.CERTIFICATE_TAG)) {
 									if (tlv2.hasRawValue()) {
-										rawCertBuf = tlv2.getBytesValue();
+										m_rawCertBuf = tlv2.getBytesValue();
 										m_content.put(tlv2.getTag(), tlv2.getBytesValue());
 										s_logger.trace("Tag {}: {}", Hex.encodeHexString(tlv2.getTag().bytes),
-												Hex.encodeHexString(rawCertBuf));
+												Hex.encodeHexString(m_rawCertBuf));
 									}
 
 									String oid = getOID();
@@ -121,8 +126,8 @@ public class X509CertificateDataObject extends PIVDataObject {
 										setContainerName("X.509_Certificate_for_Digital_Signature");
 									else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0)
 										setContainerName("X.509 Certificate_for_Key_Management");
-
-									m_x509ArtifactCache.saveObject("x509-artifacts", APDUConstants.getFileNameForOid(oid)+ ".cer", rawCertBuf);
+									else if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0)
+										setContainerName("Content_Signing");
 								}
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 									setErrorDetectionCode(true);
@@ -136,8 +141,11 @@ public class X509CertificateDataObject extends PIVDataObject {
 									certInfoBuf = tlv2.getBytesValue();
 									m_content.put(tlv2.getTag(), tlv2.getBytesValue());
 									s_logger.trace("Got cert info buffer: {}", Hex.encodeHexString(certInfoBuf));
+									if (certInfoBuf != null && Arrays.equals(certInfoBuf, TagConstants.COMPRESSED_TAG)) {
+										m_compressed = true;
+									}
+									s_logger.debug("Cert buffer is " + ((m_compressed) ? "compressed" : "uncompressed"));
 								}
-
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.MSCUID_TAG)) {
 									mSCUIDBuf = tlv2.getBytesValue();
 									m_content.put(tlv2.getTag(), tlv2.getBytesValue());
@@ -147,22 +155,10 @@ public class X509CertificateDataObject extends PIVDataObject {
 						}
 
 						// Check to make sure certificate buffer is not null
-						if (rawCertBuf == null || rawCertBuf.length == 0) {
+						if (m_rawCertBuf == null || m_rawCertBuf.length == 0) {
 							s_logger.error("Error parsing X.509 Certificate, unable to get certificate buffer.");
 							return false;
 						}
-
-						InputStream certIS = null;
-						// Check if the certificate buffer is compressed
-						if (certInfoBuf != null && Arrays.equals(certInfoBuf, TagConstants.COMPRESSED_TAG)) {
-							certIS = new GZIPInputStream(new ByteArrayInputStream(rawCertBuf));
-						} else {
-							certIS = new ByteArrayInputStream(rawCertBuf);
-						}
-
-						CertificateFactory cf = CertificateFactory.getInstance("X509");
-						m_cert = (X509Certificate) cf.generateCertificate(certIS);
-						s_logger.debug("Subject: {}", m_cert.getSubjectDN().toString());
 					} else {
 						s_logger.trace("Object: {}", Hex.encodeHexString(tlv.getTag().bytes));
 					}
@@ -171,14 +167,38 @@ public class X509CertificateDataObject extends PIVDataObject {
 				s_logger.error("Error parsing X.509 Certificate", ex);
 				return false;
 			}
-
-			if (m_cert == null)
-				return false;
-
 		}
 		super.setRequiresPin(true);
 
+		InputStream certIS = null;
+		if (m_compressed) {
+			try {
+				certIS = new GZIPInputStream(new ByteArrayInputStream(m_rawCertBuf));
+			} catch (IOException e) {
+				s_logger.error(e.getMessage() + " in GZIPInputStream()");
+			}
+		} else {
+			certIS = new ByteArrayInputStream(m_rawCertBuf);
+		}
+		CertificateFactory cf = null;
+		try {
+			cf = CertificateFactory.getInstance("X509");
+			m_cert = (X509Certificate) cf.generateCertificate(certIS);
+			s_logger.debug("Subject: {}", m_cert.getSubjectDN().toString());
+			m_x509ArtifactCache.saveObject("x509-artifacts", APDUConstants.getFileNameForOid(getOID())+ ".cer",  m_cert.getEncoded());
+		} catch (CertificateException e) {
+			e.printStackTrace();
+		}
+
 		dump(this.getClass());
 		return true;
+	}
+
+	public void setIsCompressed(boolean isCompressed) {
+		m_compressed = isCompressed;
+	}
+
+	public boolean getIsCompressed() {
+		return m_compressed;
 	}
 }
