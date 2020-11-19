@@ -185,14 +185,85 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(cpex != null, "Certificate policies extension is absent");
 		
     }
-	
+
+    // Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
+	// is asserted in certificate policies (parameters required)
+	@DisplayName("PKIX.6 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("pKIX_PIVAuthx509TestProvider2")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
+		File test = new File("directly-asserted.flag");
+		if (test != null) {
+			s_logger.debug("Directly asserted flag: " + test.getAbsolutePath());
+		}
+		if (test.exists()) {
+			s_logger.debug("Checking directly asserted policy OID");
+			PKIX_Test_6_DirectlyAsserted(oid, containersAndPolicyOids, reporter);
+			return;
+		}
+		s_logger.debug("Performing PD-VAL");
+		// PDVAL starts here
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+
+		if (containersAndPolicyOids == null) {
+			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
+			fail(e);
+		}
+		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
+
+		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
+
+		for(String p : containerOidList) {
+			String[] allowedPolicies = p.split(":");
+			String policyOidName = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
+			if (policyOidName.equals(oid)) {
+				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));
+				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
+				rv.put(containerOid, paramList3);
+				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
+			}
+		}
+
+		//Get certificate policies extension
+		byte[] cpex = cert.getExtensionValue("2.5.29.32");
+
+		//Confirm certificate policies extension is present
+		assertTrue(cpex != null, "Certificate policies extension is absent");
+
+		CertificatePolicies policies = null;
+		try {
+			policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(cpex));
+		} catch (IOException e) {
+			fail(e);
+		}
+		assertNotNull(policies);
+		boolean containsOOID = false;
+
+		PolicyInformation[] policyInformation = policies.getPolicyInformation();
+		for (PolicyInformation pInfo : policyInformation) {
+			ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
+			s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMap.get(oid));
+			if(rv.get(oid).contains(curroid.getId())) {
+				containsOOID = true;
+				break;
+			}
+		}
+
+		//Confirm that oid matches is asserted in certificate policies
+		assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
+	}
+
 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
 	// is asserted in certificate policies (parameters required)
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
+    void PKIX_Test_6_DirectlyAsserted(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;		
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
