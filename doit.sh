@@ -12,6 +12,7 @@ pushd cardlib >/dev/null 2>&1
         ./gradlew clean
         ./gradlew build install installSource
     else
+        ./gradlew clean
         ./gradlew -x junitPlatformTest -x generateHtmlTestReports clean install installSource
     fi
 
@@ -27,6 +28,7 @@ pushd conformancelib >/dev/null 2>&1
 popd >/dev/null 2>&1
 
 pushd tools/85b-swing-gui 2>&1
+    ./gradlew clean
     ./gradlew -x test clean build install installSource
     cp build/libs/*shadow* ../../libs
 popd >/dev/null 2>&1
