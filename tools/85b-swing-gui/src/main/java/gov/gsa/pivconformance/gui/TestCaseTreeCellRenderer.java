@@ -102,7 +102,7 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 			setIcon(icon);
 			//s_logger.info("Got {} for {}", icon.getDescription(), status);
 		} else {
-			s_logger.error("icon was null for tree node");
+			s_logger.trace("icon was null for tree node");
 		}
 
 		if (cell instanceof JComponent) {
