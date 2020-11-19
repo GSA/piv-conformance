@@ -164,7 +164,7 @@ public class Validator {
             params.addCertStore(certStore);
             params.setRevocationEnabled(false);
             params.setMaxPathLength(10);
-
+            params.setSigProvider("BC");
             // Defining required Policy OID
             HashSet<String> policies = new HashSet<>();
             String[] allowedPolicies = policyOids.split(":");

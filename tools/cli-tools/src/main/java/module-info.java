@@ -3,9 +3,9 @@ open module gov.gsa.pivconformancetools {
     requires java.sql;
     requires org.slf4j;
     requires org.apache.commons.codec;
-    requires commons.cli;
-    requires bcpkix.jdk15on;
-    requires bcprov.jdk15on;
+    requires org.apache.commons.cli;
+    requires org.bouncycastle.bcpkix.jdk15on;
+    requires org.bouncycastle.bcprov.jdk15on;
     requires gov.gsa.pivconformance;
     //requires gov.gsa.pivconformance.card.client;
     requires gov.gsa.conformancelib;

@@ -53,15 +53,15 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on:1.66'
     implementation 'commons-cli:commons-cli:1.4'
     implementation 'commons-codec:commons-codec:1.15'
-    implementation 'commons-csv:commons-csv:1.8'
+    implementation 'org.apache.commons:commons-csv:1.8'
     implementation 'com.payneteasy:ber-tlv:1.0-8'
     implementation 'org.slf4j:slf4j-api:2.0.0-alpha1'
     implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
     implementation 'ch.qos.logback:logback-core:1.3.0-alpha5'
     implementation 'com.jgoodies:jgoodies-common:1.4.0'
     implementation 'com.jgoodies:jgoodies-forms:1.6.0'
-    implementation 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:0.2.1-beta'
-    implementation 'gov.gsa.pivconformance.conformancelib:gov.gsa.pivconformance.conformancelib:0.2.1-beta'
+    implementation 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:' + getVersion()
+    implementation 'gov.gsa.pivconformance.conformancelib:gov.gsa.pivconformance.conformancelib:' + getVersion()
     implementation 'junit:junit:4.13'
     implementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     implementation 'org.junit.jupiter:junit-jupiter-params:5.1.0'
@@ -73,15 +73,15 @@ dependencies {
     shadow 'org.bouncycastle:bcprov-jdk15on:1.66'
     shadow 'commons-cli:commons-cli:1.4'
     shadow 'commons-codec:commons-codec:1.15'
-    shadow 'commons-csv:commons-csv:1.8'
+    shadow 'org.apache.commons:commons-csv:1.8'
     shadow 'com.payneteasy:ber-tlv:1.0-8'
     shadow 'org.slf4j:slf4j-api:2.0.0-alpha1'
     shadow 'ch.qos.logback:logback-classic:1.3.0-alpha5'
     shadow 'ch.qos.logback:logback-core:1.3.0-alpha5'
     shadow 'com.jgoodies:jgoodies-common:1.4.0'
     shadow 'com.jgoodies:jgoodies-forms:1.6.0'
-    shadow 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:0.2.1-beta'
-    shadow 'gov.gsa.pivconformance.conformancelib:gov.gsa.pivconformance.conformancelib:0.2.1-beta'
+    shadow 'gov.gsa.pivconformance.cardlib:gov.gsa.pivconformance.cardlib:' + getVersion()
+    shadow 'gov.gsa.pivconformance.conformancelib:gov.gsa.pivconformance.conformancelib:' + getVersion()
     shadow 'junit:junit:4.13'
     shadow 'org.junit.jupiter:junit-jupiter-api:5.1.0'
     shadow 'org.junit.jupiter:junit-jupiter-params:5.1.0'
@@ -92,12 +92,19 @@ dependencies {
 //--add-exports org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib
 extraJavaModuleInfo {
 
+    automaticModule("bcpkix-jdk15on-1.66.jar","org.bouncycastle.pkix")
+    automaticModule("bcprov-jdk15on-1.66.jar","org.bouncycastle.provider")
+
+/*
     module("bcprov-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
+        exports("org.bouncycastle.bcprov.ext-jdk15on")
         exports("bcprov.ext-jdk15on")
     }
     module("bcpkix-jdk15on-1.66.jar", "org.bouncycastle", "1.66") {
+        exports("org.bouncycastle.bcpkix.jdk15on")
         exports("bcpkix.jdk15on")
     }
+*/
     module("ber-tlv-1.0-8.jar", "com.payneteasy", "1.08") {
         exports("ber.tlv")
     }
@@ -132,9 +139,8 @@ extraJavaModuleInfo {
     }    
     module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
         exports("org.apache.commons.csv")
-        exports("commons.csv")
     }
-     module("commons-codec-1.13.jar", "org.apache.commons.codec", "1.15") {
+     module("commons-codec-1.15.jar", "org.apache.commons.codec", "1.15") {
         exports("org.apache.commons.codec")
         exports("org.apache.commons.codec.binary")
     }   
