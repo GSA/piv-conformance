@@ -30,9 +30,8 @@ public class AtomHelper {
     * Helper function that retrieves a data object from the card based on the container OID
     * and performs certain pre-screening functions for atoms.
     * 
-    * @param OID String containing OID value identifying data object whose data content is to be
+    * @param oid String containing OID value identifying data object whose data content is to be
     * retrieved
-    * @param data PIVDataObject object that will store retrieved data content
     * @return MiddlewareStatus value indicating the result of the function call
     */
 	public static PIVDataObject getDataObject(String oid) {
@@ -151,7 +150,6 @@ public class AtomHelper {
 	 * either the cert in the CMS cert bag *or* the CHUID content signer certificate.  For X509 certificates,
 	 * the certificate is in Tag 70.
 	 * @param pivDataObject o the PIV data object being processed
-	 * @param oid the OID for the container
 	 * @return Certificate from container
 	 */
 	public static X509Certificate getCertificateForContainer(PIVDataObject pivDataObject) {
@@ -199,7 +197,7 @@ public class AtomHelper {
 	 * 
 	 * This function will only throw RuntimeErrors and will not cause an atom to fail
 	 * 
-	 * @param OID  String containing OID value identifying data object whose data
+	 * @param oid  String containing OID value identifying data object whose data
 	 *             content is to be retrieved
 	 * @param authenticate controls whether the helper will attempt to log in
 	 * @return true if the object was found, false otherwise
