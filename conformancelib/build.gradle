@@ -85,12 +85,29 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
     implementation 'org.junit.platform:junit-platform-launcher:1.7.0'
     implementation 'junit:junit:4.13'
-
     implementation 'info.picocli:picocli:3.6.0'
     implementation 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
-
     // Required by IDE while running unit tests
     testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
+    shadow 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    shadow 'org.bouncycastle:bcprov-jdk15on:1.66'
+    shadow 'commons-cli:commons-cli:1.4'
+    shadow 'org.apache.commons:commons-csv:1.8'
+    shadow 'commons-codec:commons-codec:1.15'
+    shadow 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    shadow 'ch.qos.logback:logback-core:1.3.0-alpha5'
+    shadow 'org.xerial:sqlite-jdbc:3.32.3.2'
+    shadow 'org.apache.ibatis:ibatis-core:3.0'
+    shadow 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    shadow 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    shadow 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    shadow 'org.junit.platform:junit-platform-launcher:1.7.0'
+    shadow 'junit:junit:4.13'
+    shadow 'info.picocli:picocli:3.6.0'
+    shadow 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
+    shadow 'org.junit.vintage:junit-vintage-engine:5.7.0'
+
+
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
