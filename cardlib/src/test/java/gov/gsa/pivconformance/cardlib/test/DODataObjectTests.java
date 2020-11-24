@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class DODataObjectTests {
 	private static String resDir = null;
 	static {
-	    resDir = new DODataObjectTests().getClass().getResource("").getPath();
+	    resDir = new DODataObjectTests().getClass().getResource("").getFile();
 	    System.out.println("Looking in: " + resDir);
 	}
 
