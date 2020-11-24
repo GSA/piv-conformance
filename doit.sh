@@ -44,7 +44,7 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
     tar xvf ../tools/85b-swing-gui/build/distributions/gov.gsa.pivconformance.gui-shadow-$VERSION.tar
     mv gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
     rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
-    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar)" >run.bat
+    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >console.log 2>&1\r" >run.bat
     echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >console.log 2>&1" >run.sh
 popd
 
