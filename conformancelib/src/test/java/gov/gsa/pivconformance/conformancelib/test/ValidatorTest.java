@@ -56,7 +56,6 @@ class ValidatorTest {
     public void testIsValid(String oid, String endEntityCertFile, TestReporter reporter) {
         final Path certsDir = Path.of("", "x509-certs/valid");
         try {
-            System.out.println("cacerts.keystore contains alias icam test card root ca: " + m_keystore.containsAlias("icam test card root ca"));
             CertificateFactory fac = CertificateFactory.getInstance("X509");
             BufferedInputStream fis = (BufferedInputStream) Validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
