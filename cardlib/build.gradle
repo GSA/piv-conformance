@@ -93,37 +93,9 @@ dependencies {
     api 'org.junit.jupiter:junit-jupiter-params:5.7.0'
     api 'org.junit.platform:junit-platform-commons:1.7.0'
     api 'org.junit.platform:junit-platform-engine:1.7.0'
-    //api 'org.junit:junit-bom:5.7.0'
     api 'org.opentest4j:opentest4j:1.2.0'
     api 'org.slf4j:slf4j-api:2.0.0-alpha1'
     api 'org.xerial:sqlite-jdbc:3.32.3.2'
-/*
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-
-    runtime 'ch.qos.logback:logback-classic:1.3.0-alpha5'
-    runtime 'ch.qos.logback:logback-core:1.3.0-alpha5'
-    runtime 'com.payneteasy:ber-tlv:1.0-11'
-    runtime 'com.sun.mail:javax.mail:1.6.2'
-    runtime 'commons-cli:commons-cli:1.4'
-    runtime 'commons-codec:commons-codec:1.15'
-    runtime 'edu.washington.cs.types.checker:checker-framework:1.7.0'
-    runtime 'javax.activation:activation:1.1'
-    runtime 'org.apache.commons:commons-csv:1.8'
-    runtime 'org.apiguardian:apiguardian-api:1.1.0'
-    runtime 'org.bouncycastle:bcpkix-jdk15on:1.66'
-    runtime 'org.bouncycastle:bcprov-jdk15on:1.66'
-    runtime 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    runtime 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    runtime 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    runtime 'org.junit.platform:junit-platform-commons:1.7.0'
-    runtime 'org.junit.platform:junit-platform-engine:1.7.0'
-
-    runtime 'org.opentest4j:opentest4j:1.2.0'
-    runtime 'org.slf4j:slf4j-api:2.0.0-alpha1'
-    runtime 'org.xerial:sqlite-jdbc:3.32.3.2'
-*/
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
@@ -159,13 +131,11 @@ test {
 junitPlatform {
 }
 
-archivesBaseName = "gov.gsa.pivconformance.cardlib-" + getVersion()
+//archivesBaseName = "gov.gsa.pivconformance.cardlib-" + getVersion()
 
 jar {
     doFirst {
         version = getVersion()
-        println 'doFirst.Module name: ' + project.getName()
-        println 'doFirst.archivesBaseName: ' + archivesBaseName
     }
     manifest {
         attributes(
@@ -191,7 +161,6 @@ jar {
         )
      }
     doLast {
-        println 'doLast.archivesBaseName(): ' + archivesBaseName
         configurations.runtime.each { println it }
     }
 }
@@ -255,7 +224,6 @@ afterEvaluate {
 compileJava.doFirst {
     options.compilerArgs = ['--add-modules', 'java.smartcardio']
     def dir = "${project.rootDir}/../"
-    println '**** DIR: ' + dir
     def git = org.ajoberstar.grgit.Grgit.open(dir: dir)
     def commit = git.head()
 
@@ -287,9 +255,6 @@ extraJavaModuleInfo {
     module("hamcrest-core-1.3.jar", "org.hamcrest", "1.3") {
         exports("hamcrest.core")
     }
-//    module("slf4j-api-2.0.0-alpha1.jar", "org.slf4j", "1.4") {
-//        exports("slf4j.api")
-//    }
     module("sqlite-jdbc-3.32.3.2.jar", "org.xerial", "3.32.3.2") {
         exports("sqlite.jdbc")
     }
@@ -303,8 +268,6 @@ extraJavaModuleInfo {
     module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
         exports("org.apache.commons.csv")
     }
-//    automaticModule("bcpkix-jdk15on-1.66.jar", "org.bouncycastle.pkix")
-//    automaticModule("bcprov-jdk15on-1.66.jar", "org.bouncycastle.provider")
     automaticModule("sqlite-jdbc-3.32.3.2.jar", "org.xerial")
     automaticModule("activation-1.1.jar", "javax.activation")
     automaticModule("checker-framework-1.7.0.jar", "edu.washington.cs.types.checker")
@@ -316,12 +279,6 @@ compileJava {
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
-    doFirst {
-        project.setVersion(getVersion())
-        setVersion(project.getVersion())
-        setArchiveVersion(project.getVersion())
-        println 'Archive version: ' + getArchiveVersion()
-    }
     classifier 'sources'
     from sourceSets.main.allSource
 }
@@ -340,7 +297,6 @@ task installSource(type: Copy) {
 
 task install(type: Copy) {
     dependsOn jar
-    //dependsOn shadowJar
     from jar
     into '../libs' 
 }
