@@ -2,7 +2,9 @@ package gov.gsa.pivconformance.conformancelib.utilities;
 
 //import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.apache.commons.cli.*;
+//import org.bouncycastle.jcajce.provider.asymmetric.X509;
+//import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,9 +13,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
@@ -24,13 +23,31 @@ import java.util.*;
  */
 public class Validator {
     static Logger s_logger = LoggerFactory.getLogger(Validator.class);
+    private static final Options s_options = new Options();
     private static KeyStore m_keystore = null;
     private static final String m_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
     private static final String m_monitorFileName = "all.p7b";
     private static URL m_monitorUrl = null;
 
+    static {
+        Option eeCertFileOption = Option.builder("ee").hasArg(true).argName("ee").desc("end-entity certificate").build();
+        Option taCertFileOption = Option.builder("ta").hasArg(true).argName("ta").desc("trust anchor certificate").build();
+        Option oidsOption = Option.builder("oids").hasArg(true).argName("oids").desc("list of certificate policy oids").build();
+        Option jvmOption = Option.builder("D").hasArgs().valueSeparator('=').build();
+        Option resourceOption = Option.builder("resourceDir").hasArg(true).argName("resourceDir").desc("base directory for resources and files").build();
+        s_options.addOption(eeCertFileOption);
+        s_options.addOption(taCertFileOption);
+        s_options.addOption(oidsOption);
+        s_options.addOption(jvmOption);
+        s_options.addOption(resourceOption);
+    }
+
     public Validator() {
-        setKeyStore("x509-certs/cacerts.keystore", "changeit");
+        new Validator("x509-certs/cacerts.keystore", "changeit");
+    }
+
+    public Validator(String keyStorePath, String keyPass) {
+        setKeyStore(keyStorePath, keyPass);
     }
 
     /**
@@ -83,19 +100,65 @@ public class Validator {
         return inputStream;
     }
 
+
+    private static void PrintHelpAndExit(int exitCode) {
+        new HelpFormatter().printHelp("CertDump <options>", s_options);
+        System.exit(exitCode);
+    }
     public static void main(String[] args) {
-        if (args.length == 0) {
-            System.out.println("Usage: Validator <end certificate filepath>  <trust anchor filepath> <Space delimited string of acceptable policy OIDs>");
+        CommandLineParser p = new DefaultParser();
+        CommandLine cmd = null;
+        File endEntityCertFile = null;
+        File trustAnchorCertFile = null;
+        String policyOids = null;
+        Properties props = null;
+        HashMap<String,String> jvmProps = new HashMap<String,String>();
+        try {
+            cmd = p.parse(s_options, args);
+            s_logger.debug("Command line: " + args.toString());
+        } catch (ParseException e) {
+            s_logger.error("Failed to parse command line arguments", e);
+            PrintHelpAndExit(1);
         }
 
-        File endEntityCertFile = new File(args[0]);
-        File trustAnchorFile = new File(args[1]);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 2; i < args.length; i++) {
-            if (sb.length() != 0) sb.append("|");
+        if(cmd.hasOption("help")) {
+            PrintHelpAndExit(0);
         }
-        String policyOids = sb.toString();
-        isValid(endEntityCertFile, policyOids, trustAnchorFile);
+        if(cmd.hasOption("D")) {
+            props = cmd.getOptionProperties("D");
+            for(String key : props.stringPropertyNames()) {
+                jvmProps.put(key, props.getProperty(key));
+            }
+        }
+        if(cmd.hasOption("ee")) {
+            endEntityCertFile = new File(cmd.getOptionValue("ee"));
+            s_logger.info("endEntityCertFile: {}",  endEntityCertFile.getAbsolutePath());
+        }
+        if(cmd.hasOption("ta")) {
+            trustAnchorCertFile = new File(cmd.getOptionValue("ta"));
+            s_logger.info("trustAnchorEntityCertFile: {}",  trustAnchorCertFile.getAbsolutePath());
+        }
+        if(cmd.hasOption("oids")) {
+            String oids = cmd.getOptionValue("oids");
+            String oidArray[] = oids.split("[\\s]");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < oidArray.length; i++) {
+                if (sb.length() != 0) sb.append("|");
+                sb.append(oidArray[i]);
+            }
+            policyOids = sb.toString();
+        }
+        if(cmd.hasOption("resourceDir")) {
+            String resourceDir = cmd.getOptionValue("resourceDir");
+            if (resourceDir != null) {
+                if (endEntityCertFile != null)
+                    endEntityCertFile = new File(resourceDir + File.separator + cmd.getOptionValue("ee"));
+                if (trustAnchorCertFile != null)
+                    trustAnchorCertFile = new File(resourceDir + File.separator + cmd.getOptionValue("ta"));
+            }
+        }
+
+        isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
 
     public static boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) {
@@ -107,15 +170,30 @@ public class Validator {
     public static boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) {
         CertificateFactory fac;
         boolean rv = false;
+        X509Certificate eeCert = null;
+        X509Certificate trustAnchorCert = null;
+
         try {
             fac = CertificateFactory.getInstance("X509");
-            X509Certificate eeCert = (X509Certificate) fac.generateCertificate(new FileInputStream(endEntityCertFile));
-            X509Certificate trustAnchorCert = (X509Certificate) fac.generateCertificate(new FileInputStream(trustAnchorFile));
-            return isValid(eeCert, policyOids, trustAnchorCert);
+            eeCert = (X509Certificate) fac.generateCertificate(new FileInputStream(endEntityCertFile));
+
         } catch (CertificateException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            String msg = endEntityCertFile.getName() + ": " + e.getMessage();
+            System.out.println(msg);
+            s_logger.error(msg);
+            return rv;
         }
+
+        try {
+            fac = CertificateFactory.getInstance("X509");
+            trustAnchorCert = (X509Certificate) fac.generateCertificate(new FileInputStream(trustAnchorFile));
+            rv = isValid(eeCert, policyOids, trustAnchorCert);
+        } catch (CertificateException | IOException e) {
+            String msg = trustAnchorFile.getName() + ": " + e.getMessage();
+            System.out.println(msg);
+            s_logger.error(msg);;
+        }
+
         return rv;
     }
 
@@ -211,18 +289,17 @@ public class Validator {
             eeCertSelector.setCertificate(eeCert);
             TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
 
-            Security.addProvider(new BouncyCastleProvider());
 
-            // Create CertPathBuilder that implements the "PKIX" algorithm
-            CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX", "BC");
 
             // ---------------------------------------------------------------------------------- //
             // Uncomment to use Bouncy Castle Provider - Requires FPKI Crawler's output file
             // This output file contains a series of issuing CA's trusted by a given trust anchor
-
+            //Security.addProvider(new BouncyCastleProvider());
+            // Create CertPathBuilder that implements the "PKIX" algorithm
+            CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX");//, "BC");
             // Open an input stream to the bundle file
             //
-            if (loadBundle(m_monitorUrlString)) {
+/*            if (loadBundle(m_monitorUrlString)) {
 
                 FileInputStream fis = new FileInputStream(m_monitorFileName);
                 if (fis != null) {
@@ -236,7 +313,7 @@ public class Validator {
                 } else {
                     s_logger.warn(m_monitorUrlString + " was not found");
                 }
-            }
+            }*/
             //
             // ---------------------------------------------------------------------------------- //
 
@@ -261,10 +338,11 @@ public class Validator {
             CertPath certPath = cpbResult.getCertPath();
             s_logger.info("Build passed, path contents: " + certPath);
             return certPath != null;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
+
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (CertificateException e) {
+//            e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
