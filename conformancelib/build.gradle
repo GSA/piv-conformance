@@ -118,12 +118,9 @@ dependencies {
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
-archivesBaseName = "gov.gsa.pivconformance.conformancelib-" + getVersion()
-
 jar {
     doFirst {
-        println 'doFirst.Module name: ' + project.getName()
-        println 'doFirst.archivesBaseName: ' + archivesBaseName
+        version = getVersion()
     }
     manifest {
          attributes(
@@ -149,7 +146,6 @@ jar {
          )
     }
     doLast {
-        println 'archiveName: ' + archiveFileName
         configurations.testRuntimeClasspath.each { println it }
     }
 }
@@ -246,16 +242,11 @@ task sourceJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+//shadowJar.dependsOn copyShadowLibs
+
 task copyShadowLibs(type: Copy) {
     from configurations.shadow
     into '../libs'
-}
-
-shadowJar.dependsOn copyShadowLibs
-
-shadowJar.doFirst {
-    version = getVersion()
-    println 'shadowJar.doFirst.archveName: ' + archiveName
 }
 
 task installSource(type: Copy) {
