@@ -118,9 +118,12 @@ test {
             delete cardsDir
         }
         def grgit = org.ajoberstar.grgit.Grgit.clone //dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
-    grgit.describe()
+        grgit.describe()
     }
-    useJUnitPlatform()
+
+    if (junitPlatformTest.getEnabled() == true)
+        useJUnitPlatform()
+
     testLogging {
         events "passed", "skipped", "failed"
     }
@@ -133,18 +136,19 @@ test {
 // to filter tests by tag
 
 junitPlatformTest {
-    TerminalFactory factory = TerminalFactory.getDefault();
-    List<CardTerminal> terminals = null;
     try {
-        terminals = factory.terminals().list();
+        TerminalFactory factory = TerminalFactory.getDefault()
+        List<CardTerminal> terminals = factory.terminals().list()
         if (terminals.size() == 0) {
-            println 'Cannot run JUnit tests'
             junitPlatformTest.setEnabled(true)
+            println '**** No smart card readers connected1, proceeding with tests'
         } else {
+            println '**** Cannot run JUnit tests with smart reader connected'
             junitPlatformTest.setEnabled(false)
         }
     } catch (Exception ex) {
-        println 'Exception ' + '\n' + ex.getStackTrace();
+        println '**** No smart card readers connected2, proceeding with tests'
+        println 'Exception ' + '\n' + ex.getStackTrace()
         junitPlatformTest.setEnabled(false)
     }
 }

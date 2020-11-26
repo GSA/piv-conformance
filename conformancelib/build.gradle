@@ -243,21 +243,21 @@ test {
     }
 }
 
-
-junitPlatformTest {
-    try {
-        TerminalFactory factory = TerminalFactory.getDefault();
-        List<CardTerminal> terminals = factory.terminals().list();
-        if (terminals.size() == 0) {
-            println 'Cannot run JUnit tests'
-            junitPlatformTest.setEnabled(true)
-        } else {
-            junitPlatformTest.setEnabled(false)
-        }
-    } catch (Exception ex) {
-        println 'Exception ' + '\n' + ex.getStackTrace();
+try {
+    TerminalFactory factory = TerminalFactory.getDefault()
+    List<CardTerminal> terminals = factory.terminals().list()
+    if (terminals.size() == 0) {
+        junitPlatformTest.setEnabled(true)
+        println '**** No smart card readers connected, proceeding with tests'
+    } else {
+        println '**** Cannot run JUnit tests with smart reader connected'
         junitPlatformTest.setEnabled(false)
     }
+} catch (Exception ex) {
+    println '**** No smart card readers connected, proceeding with tests'
+    println 'Exception ' + '\n' + ex.getStackTrace()
+    junitPlatformTest.setEnabled(false)
+}
 }
 
 compileJava {
