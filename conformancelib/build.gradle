@@ -1,3 +1,6 @@
+import javax.smartcardio.CardTerminal
+import javax.smartcardio.TerminalFactory
+
 // conformancelib/build.gradle
 
 buildscript {
@@ -75,7 +78,6 @@ configurations {
 }
 
 //sourceSets.main.java.srcDirs = ['src']
-
 
 dependencies {
     api 'org.bouncycastle:bcpkix-jdk15on:1.66'
@@ -183,6 +185,7 @@ sourceSets {
         }
     }
 }
+
 compileJava {
     options.debugOptions.debugLevel = "source,lines,vars"
     if(JavaVersion.current().isJava9Compatible()) {
@@ -194,8 +197,12 @@ compileJava {
     doFirst {
         options.compilerArgs = [
             '--module-path', classpath.asPath,
+            '--add-exports', 'java.base/com.sun.crypto.provider=gov.gsa.pivconformance.conformancelib',
             '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
         ]
+        List<String> argumentList = options.getAllCompilerArgs()
+        println 'Compiler args:'
+        argumentList.each { println '  [' + it +']' }
         classpath = files()
     }
 }
@@ -212,26 +219,46 @@ compileTestJava {
             '--module-path', classpath.asPath,
             '--add-modules', 'org.junit.jupiter.api',
             '--add-reads', "$moduleName=org.junit.jupiter.api",
+            '--add-exports', 'java.base/com.sun.crypto.provider=gov.gsa.pivconformance.conformancelib',
             '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib',
             '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
         ]
         classpath = files()
+        List<String> argumentList = options.getAllCompilerArgs()
+        println 'Compiler args:'
+        argumentList.each { println '  [' + it +']' }
     }
 }
 
 test {
-    classpath = files()
+    classpath = files().filter { it.excludeTestsMatching '*Tests*' }
     version = getVersion()
     useJUnitPlatform()
-    List<String> argumentList = allJvmArgs
-    allJvmArgs = argumentList
-    allJvmArgs.add('-Djava.security.debug=certpath,pkcs11,provider')
+    allJvmArgs += '-Djava.security.debug=certpath,pkcs11,provider'
+    List<String> argumentList = test.getAllJvmArgs()
+    println 'Args:'
+    argumentList.each { println '  [' + it +']' }
     testLogging {
         events "passed", "skipped", "failed"
     }
 }
 
-junitPlatform { }
+
+junitPlatformTest {
+    try {
+        TerminalFactory factory = TerminalFactory.getDefault();
+        List<CardTerminal> terminals = factory.terminals().list();
+        if (terminals.size() == 0) {
+            println 'Cannot run JUnit tests'
+            junitPlatformTest.setEnabled(true)
+        } else {
+            junitPlatformTest.setEnabled(false)
+        }
+    } catch (Exception ex) {
+        println 'Exception ' + '\n' + ex.getStackTrace();
+        junitPlatformTest.setEnabled(false)
+    }
+}
 
 compileJava {
     options.debugOptions.debugLevel = "source,lines,vars"
