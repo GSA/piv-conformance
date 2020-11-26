@@ -32,6 +32,10 @@ logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
 
 import org.gradle.plugins.ide.eclipse.model.AccessRule
+
+import javax.smartcardio.CardTerminal
+import javax.smartcardio.TerminalFactory
+
 //import org.ajoberstar.grgit.Grgit
 
 eclipse {
@@ -128,7 +132,21 @@ test {
 // a place to configure junit platform plugin... not currently necessary, but it is very likely desirable
 // to filter tests by tag
 
-junitPlatform {
+junitPlatformTest {
+    TerminalFactory factory = TerminalFactory.getDefault();
+    List<CardTerminal> terminals = null;
+    try {
+        terminals = factory.terminals().list();
+        if (terminals.size() == 0) {
+            println 'Cannot run JUnit tests'
+            junitPlatformTest.setEnabled(true)
+        } else {
+            junitPlatformTest.setEnabled(false)
+        }
+    } catch (Exception ex) {
+        println 'Exception ' + '\n' + ex.getStackTrace();
+        junitPlatformTest.setEnabled(false)
+    }
 }
 
 //archivesBaseName = "gov.gsa.pivconformance.cardlib-" + getVersion()
@@ -216,7 +234,8 @@ task generateHtmlTestReports {
 afterEvaluate {
     def junitPlatformTestTask = tasks.getByName('junitPlatformTest')
     generateHtmlTestReports.dependsOn(junitPlatformTestTask)
-    check.dependsOn(generateHtmlTestReports)
+    if (junitPlatformTest.getEnabled() == true)
+        check.dependsOn(generateHtmlTestReports)
 }
 
 // when producing a jar that is suitable for distribution using the shadow plugin,
@@ -274,6 +293,11 @@ extraJavaModuleInfo {
     automaticModule("ibatis-core-3.0.jar", "org.apache.ibatis")
 }
 
+shadowJar.doFirst {
+    version = getVersion()
+    dependencies { sourceJar }
+}
+
 compileJava {
     options.debugOptions.debugLevel = "source,lines,vars"
 }
@@ -296,6 +320,7 @@ task installSource(type: Copy) {
 }
 
 task install(type: Copy) {
+    version = getVersion()
     dependsOn jar
     from jar
     into '../libs' 
