@@ -4,7 +4,8 @@ package gov.gsa.pivconformance.conformancelib.utilities;
 
 import org.apache.commons.cli.*;
 //import org.bouncycastle.jcajce.provider.asymmetric.X509;
-//import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.math.ec.rfc8032.Ed448;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +23,14 @@ import java.util.*;
  * a given certificate policy.
  */
 public class Validator {
-    static Logger s_logger = LoggerFactory.getLogger(Validator.class);
+    private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
+    private static final Validator INSTANCE = null;
     private static final Options s_options = new Options();
-    private static KeyStore m_keystore = null;
     private static final String m_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
     private static final String m_monitorFileName = "all.p7b";
-    private static URL m_monitorUrl = null;
+    private static CertPathBuilder m_cpb = null;
+    private static URL m_monitorUrl;
+    private KeyStore m_keystore = null;
 
     static {
         Option eeCertFileOption = Option.builder("ee").hasArg(true).argName("ee").desc("end-entity certificate").build();
@@ -35,19 +38,20 @@ public class Validator {
         Option oidsOption = Option.builder("oids").hasArg(true).argName("oids").desc("list of certificate policy oids").build();
         Option jvmOption = Option.builder("D").hasArgs().valueSeparator('=').build();
         Option resourceOption = Option.builder("resourceDir").hasArg(true).argName("resourceDir").desc("base directory for resources and files").build();
+        Option providerOption = Option.builder("provider").hasArg(true).argName("provider").desc("provider string (BC or Sun)").build();
+
         s_options.addOption(eeCertFileOption);
         s_options.addOption(taCertFileOption);
         s_options.addOption(oidsOption);
         s_options.addOption(jvmOption);
         s_options.addOption(resourceOption);
+        s_options.addOption(providerOption);
     }
 
-    public Validator() {
-        new Validator("x509-certs/cacerts.keystore", "changeit");
-    }
-
-    public Validator(String keyStorePath, String keyPass) {
-        setKeyStore(keyStorePath, keyPass);
+    public Validator getInstance() throws NoSuchProviderException, NoSuchAlgorithmException {
+        setKeyStore("x509-certs/cacerts.keystore", "changeit");
+        setCpb("Sun");
+        return INSTANCE;
     }
 
     /**
@@ -100,18 +104,48 @@ public class Validator {
         return inputStream;
     }
 
+    /**
+     * Sets the provider for path validation
+     * @param providerString provider string
+     * @throws NoSuchAlgorithmException
+     */
+    public void setCpb(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException {
+        try {
+            if (providerString.toLowerCase().compareTo("bc") == 0) {
+                if (Security.getProvider("BC") == null) {
+                    Security.addProvider(new BouncyCastleProvider());
+                    m_cpb = CertPathBuilder.getInstance("PKIX", providerString);
+                    s_logger.debug("Changing to" + providerString + " provider");
+                }
+            } else if (providerString.toLowerCase().startsWith("sun")) {
+                m_cpb = CertPathBuilder.getInstance("PKIX");
+                s_logger.debug("Changing to Oracle default provider");
+            } else {
+                s_logger.error("This application doesn't support the " + providerString + " provider");
+                throw new NoSuchProviderException();
+            }
+        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
+            s_logger.error("SetCpb(" + providerString + "): " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private CertPathBuilder getCpb() {
+        return m_cpb;
+    }
 
     private static void PrintHelpAndExit(int exitCode) {
         new HelpFormatter().printHelp("CertDump <options>", s_options);
         System.exit(exitCode);
     }
-    public static void main(String[] args) {
+    public void main(String[] args) throws NoSuchProviderException, NoSuchAlgorithmException {
         CommandLineParser p = new DefaultParser();
         CommandLine cmd = null;
         File endEntityCertFile = null;
         File trustAnchorCertFile = null;
         String policyOids = null;
         Properties props = null;
+        String provider = null;
         HashMap<String,String> jvmProps = new HashMap<String,String>();
         try {
             cmd = p.parse(s_options, args);
@@ -157,7 +191,10 @@ public class Validator {
                     trustAnchorCertFile = new File(resourceDir + File.separator + cmd.getOptionValue("ta"));
             }
         }
-
+        if(cmd.hasOption("provider")) {
+            provider = cmd.getOptionValue("provider");
+            setCpb(provider);
+        }
         isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
 
@@ -289,17 +326,15 @@ public class Validator {
             eeCertSelector.setCertificate(eeCert);
             TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
 
-
-
             // ---------------------------------------------------------------------------------- //
             // Uncomment to use Bouncy Castle Provider - Requires FPKI Crawler's output file
             // This output file contains a series of issuing CA's trusted by a given trust anchor
             //Security.addProvider(new BouncyCastleProvider());
             // Create CertPathBuilder that implements the "PKIX" algorithm
-            CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX");//, "BC");
+            // This is now set during instantiation CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX");//, "BC");
             // Open an input stream to the bundle file
             //
-/*            if (loadBundle(m_monitorUrlString)) {
+            if (loadBundle(m_monitorUrlString)) {
 
                 FileInputStream fis = new FileInputStream(m_monitorFileName);
                 if (fis != null) {
@@ -309,11 +344,11 @@ public class Validator {
                     CertPath cp = cf.generateCertPath(fis, "PKCS7");
                     List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
                     certList.addAll(certs);
-                    cpb = CertPathBuilder.getInstance("PKIX");//, new BouncyCastleProvider());
+                    //cpb = CertPathBuilder.getInstance("PKIX");//, new BouncyCastleProvider());
                 } else {
                     s_logger.warn(m_monitorUrlString + " was not found");
                 }
-            }*/
+            }
             //
             // ---------------------------------------------------------------------------------- //
 
@@ -324,7 +359,7 @@ public class Validator {
             params.addCertStore(certStore);
             params.setRevocationEnabled(false);
             params.setMaxPathLength(10);
-            params.setSigProvider("BC");
+            params.setSigProvider(m_cpb.getProvider().getName());
             // Defining required Policy OID
             HashSet<String> policies = new HashSet<>();
             String[] allowedPolicies = policyOids.split("|");
@@ -334,7 +369,7 @@ public class Validator {
             params.setPolicyMappingInhibited(false);
 
             System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(true));
-            CertPathBuilderResult cpbResult = cpb.build(params);
+            CertPathBuilderResult cpbResult = m_cpb.build(params);
             CertPath certPath = cpbResult.getCertPath();
             s_logger.info("Build passed, path contents: " + certPath);
             return certPath != null;

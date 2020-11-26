@@ -26,12 +26,12 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-class ValidatorTest {
+public class ValidatorTest {
     private static final Path trustAnchor = Path.of("", "x509-certs");
-    private static KeyStore m_keystore = getKeyStore();
+    private KeyStore m_keystore = getKeyStore();
     private static Validator m_validator = new Validator();
 
-    private static KeyStore getKeyStore() {
+    private KeyStore getKeyStore() {
 
         InputStream is = Validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/cacerts.keystore");
         KeyStore ks = null;
@@ -60,7 +60,8 @@ class ValidatorTest {
             BufferedInputStream fis = (BufferedInputStream) Validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
             X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(certsDir, eeCert);
-                   
+            System.out.println("Setting BC option");
+            m_validator.setCpb("BC");
             System.out.print("Validating " + eeCert.getSubjectDN().getName());
             boolean result = m_validator.isValid(eeCert, oid, trustAnchorCert); //(eeCert, oid, trustAnchorCert;
             
@@ -116,7 +117,7 @@ class ValidatorTest {
         } catch (Exception e) {
             fail("Exception reading the certificate.");
         }
-        trustAnchorCert = getCertFromKeyStore(m_keystore, trustCA);
+        trustAnchorCert = getCertFromKeyStore(m_validator.getKeyStore(), trustCA);
         System.out.println("Trust anchor: " + trustAnchorCert.getSubjectDN().getName());
         return trustAnchorCert;
     }
