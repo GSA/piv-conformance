@@ -31,7 +31,7 @@ public class PlaceholderTests {
 	// The cat shall jump over the moon...
 	// CCT parameter Type 1 (no parameters - single purpose)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProviderType1")
+	//@MethodSource("placeholderTestProviderType1")
 	@DisplayName("PlaceholderTestParamType1Model.1 Test")
 	void PlaceholderTestParamType1Model_1 (String oid, TestReporter reporter) {
 		
@@ -47,7 +47,7 @@ public class PlaceholderTests {
 	// Only if it's a cat, dog, or elephant, shall it jump over the moon 
 	// CCT parameter Type 2 model (one parameter, which could be a comma-separated list, multi-select [OR])
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProviderType2")
+	//@MethodSource("placeholderTestProviderType2")
 	@DisplayName("PlaceholderTestParamType1Model.2 Test")
 	void PlaceholderTestParamType2Model_1(String oid, String params, TestReporter reporter) {
 		
@@ -69,7 +69,7 @@ public class PlaceholderTests {
 	// If it's a cat, it must be:sleepy, if it's a dog, it must be:hungry, if it's an elephant:sad
 	// Model for CCT test parameter type 3 (comma-separated list of parameters, with each parameter being a name:value pair)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProviderType2")
+	//@MethodSource("placeholderTestProviderType2")
 	@DisplayName("PlaceholderTestParamType1Model.2 Test")
 	void PlaceholderTestParamType3Model_1(String oid, String params, TestReporter reporter) {
 		
@@ -98,7 +98,7 @@ public class PlaceholderTests {
 	// CCT parameter Type 1 (no parameters - single purpose)
 	@DisplayName("PlaceholderTest.1 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProviderType1")
+	//@MethodSource("placeholderTestProviderType1")
 	void PlaceholderTest_1(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -114,7 +114,7 @@ public class PlaceholderTests {
 	// CCT parameter Type 2 model (one parameter, which could be a comma-separated list, multi-select [OR])
 	@DisplayName("PlaceholderTest.2 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProviderType2")
+	//@MethodSource("placeholderTestProviderType2")
 	void PlaceholderTest_2(String oid, String params, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -134,7 +134,7 @@ public class PlaceholderTests {
 	
 	// Model for CCT test parameter type 3 (comma-separated list of parameters, with each parameter being a name:value pair)
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProviderType2")
+	//@MethodSource("placeholderTestProviderType2")
 	@DisplayName("PlaceholderTest.3 Test")
 	void PlaceholderTest_3(String oid, String params, TestReporter reporter) {
 		
