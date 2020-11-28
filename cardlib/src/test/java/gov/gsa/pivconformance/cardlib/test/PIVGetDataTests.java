@@ -15,6 +15,7 @@ import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestReporter;
 
 import javax.smartcardio.CardException;
@@ -39,12 +40,14 @@ public class PIVGetDataTests {
         }
     }
 
-    @Test @DisplayName("Ensure readers")
+    @Test
+    @DisplayName("Ensure readers")
     void testReaderList() {
         assert(terminals.size() > 0);
     }
 
-    @Test @DisplayName("Test connection")
+    @Test
+    @DisplayName("Test connection")
     void testConnection() {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
@@ -57,7 +60,8 @@ public class PIVGetDataTests {
         assert(result == MiddlewareStatus.PIV_OK);
     }
 
-    @Test @DisplayName("Test app selection")
+    @Test
+    @DisplayName("Test app selection")
     void testSelect(TestReporter reporter) {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
@@ -76,7 +80,9 @@ public class PIVGetDataTests {
         assertEquals(MiddlewareStatus.PIV_OK, result);
     }
 
-    @Test @DisplayName("Test authentication")
+    @Test
+    @Tag("PIN")
+    @DisplayName("Test authentication")
     void testAuth(TestReporter reporter) {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
@@ -98,7 +104,9 @@ public class PIVGetDataTests {
         assertEquals(MiddlewareStatus.PIV_OK, result);
     }
 
-    @Test @DisplayName("Test pivGetData")
+    @Test
+    @Tag("PIN")
+    @DisplayName("Test pivGetData")
     void testPIVGetData(TestReporter reporter) {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {

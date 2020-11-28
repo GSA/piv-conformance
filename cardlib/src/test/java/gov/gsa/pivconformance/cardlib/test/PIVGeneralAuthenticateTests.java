@@ -11,6 +11,7 @@ import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestReporter;
 
 import gov.gsa.pivconformance.cardlib.card.client.ApplicationAID;
@@ -62,7 +63,9 @@ public class PIVGeneralAuthenticateTests {
         }
     }
 
-    @Test @DisplayName("Test GENERAL AUTHENTICATE")
+    @Test
+    @Tag("PIN")
+    @DisplayName("Test GENERAL AUTHENTICATE")
     void testGeneralAuthenticate(TestReporter reporter) {
     	assertNull(null);
     }
