@@ -26,11 +26,12 @@ apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'de.jjohannes.extra-java-module-info'
-apply plugin: "org.ajoberstar.grgit"
 
 logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
 
+
+import org.ajoberstar.grgit.Grgit
 import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 import javax.smartcardio.CardTerminal
@@ -72,6 +73,25 @@ def getVersion = { ->
     String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
+def cardTerminalPresent = { ->
+    boolean terminalPresent = true // default to 'true' to prevent accidents
+    try {
+        TerminalFactory factory = TerminalFactory.getDefault()
+        List<CardTerminal> terminals = factory.terminals().list()
+        if (terminals.size() == 0) {
+            println '**** No smart card readers connected1, proceeding with tests'
+            terminalPresent = false
+        } else {
+            println '**** Cannot run JUnit tests with smart reader connected'
+            terminalPresent = true
+        }
+    } catch (Exception ex) {
+        println '**** No smart card readers connected2, proceeding with tests'
+        println 'Exception ' + '\n' + ex.getStackTrace()
+        terminalPresent = false
+    }
+    return terminalPresent
+}
 // custom task from
 // https://stackoverflow.com/questions/39444908/how-to-create-an-html-report-for-junit-5-tests
 // to get readable output for passing tests
@@ -108,27 +128,27 @@ task copyLogConfig(type: Copy) {
     into projectDir
 }
 
-// use junit platform for tests
 test {
     dependsOn(copyLogConfig)
-    doFirst {
-        project.setVersion(getVersion())
+    if (cardTerminalPresent() == false) {
+        // Run unit tests on static data
         File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
         if (cardsDir.exists()) {
             delete cardsDir
         }
-        def grgit = org.ajoberstar.grgit.Grgit.clone //dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
+        def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
         grgit.describe()
-    }
-
-    if (junitPlatformTest.getEnabled() == true)
-        useJUnitPlatform()
-
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-    doLast {
-        delete 'build/classes/java/test/gov/pivconformance/cardlib/test/gsa-icam-card-builder'
+        // Exlude tests that require a PIN
+        useJUnitPlatform {
+            excludeTags 'PIN'
+        }
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+        cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
+        if (cardsDir.exists()) {
+            //delete cardsDir
+        }
     }
 }
 
@@ -136,21 +156,7 @@ test {
 // to filter tests by tag
 
 junitPlatformTest {
-    try {
-        TerminalFactory factory = TerminalFactory.getDefault()
-        List<CardTerminal> terminals = factory.terminals().list()
-        if (terminals.size() == 0) {
-            junitPlatformTest.setEnabled(true)
-            println '**** No smart card readers connected1, proceeding with tests'
-        } else {
-            println '**** Cannot run JUnit tests with smart reader connected'
-            junitPlatformTest.setEnabled(false)
-        }
-    } catch (Exception ex) {
-        println '**** No smart card readers connected2, proceeding with tests'
-        println 'Exception ' + '\n' + ex.getStackTrace()
-        junitPlatformTest.setEnabled(false)
-    }
+
 }
 
 //archivesBaseName = "gov.gsa.pivconformance.cardlib-" + getVersion()
