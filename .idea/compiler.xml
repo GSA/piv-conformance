@@ -17,7 +17,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="gov.gsa.pivconformance.conformancelib.main" options="--add-modules java.smartcardio --add-exports gov.gsa.pivconformance.cardlib/org.slf4j=gov.gsa.pivconformance.conformancelib" />
+      <module name="gov.gsa.pivconformance.conformancelib.main" options="--add-modules java.smartcardio --add-exports gov.gsa.pivconformance.cardlib/org.slf4j=gov.gsa.pivconformance.conformancelib --add-exports org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib" />
     </option>
   </component>
 </project>
