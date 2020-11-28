@@ -92,6 +92,7 @@ def cardTerminalPresent = { ->
     }
     return terminalPresent
 }
+
 // custom task from
 // https://stackoverflow.com/questions/39444908/how-to-create-an-html-report-for-junit-5-tests
 // to get readable output for passing tests
