@@ -79,14 +79,14 @@ def cardTerminalPresent = { ->
         TerminalFactory factory = TerminalFactory.getDefault()
         List<CardTerminal> terminals = factory.terminals().list()
         if (terminals.size() == 0) {
-            println '**** No smart card readers connected1, proceeding with tests'
+            println '**** No smartcard readers connected1, proceeding with tests'
             terminalPresent = false
         } else {
-            println '**** Cannot run JUnit tests with smart reader connected'
+            println '**** Cannot run JUnit tests with smartcard reader connected'
             terminalPresent = true
         }
     } catch (Exception ex) {
-        println '**** No smart card readers connected2, proceeding with tests'
+        println '**** No smartcard readers connected2, proceeding with tests'
         println 'Exception ' + '\n' + ex.getStackTrace()
         terminalPresent = false
     }
