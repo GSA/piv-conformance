@@ -70,6 +70,26 @@ def getVersion = { ->
     return versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
+def cardTerminalPresent = { ->
+    boolean terminalPresent = true // default to 'true' to prevent accidents
+    try {
+        TerminalFactory factory = TerminalFactory.getDefault()
+        List<CardTerminal> terminals = factory.terminals().list()
+        if (terminals.size() == 0) {
+            println '**** No smart card readers connected1, proceeding with tests'
+            terminalPresent = false
+        } else {
+            println '**** Cannot run JUnit tests with smart reader connected'
+            terminalPresent = true
+        }
+    } catch (Exception ex) {
+        println '**** No smart card readers connected2, proceeding with tests'
+        println 'Exception ' + '\n' + ex.getStackTrace()
+        terminalPresent = false
+    }
+    return terminalPresent
+}
+
 // custom task from
 // https://stackoverflow.com/questions/39444908/how-to-create-an-html-report-for-junit-5-tests
 // to get readable output for passing tests
@@ -231,33 +251,25 @@ compileTestJava {
 }
 
 test {
-    classpath = files().filter { it.excludeTestsMatching '*Tests*' }
-    version = getVersion()
-    useJUnitPlatform()
-    allJvmArgs += '-Djava.security.debug=certpath,pkcs11,provider'
-    List<String> argumentList = test.getAllJvmArgs()
-    println 'Args:'
-    argumentList.each { println '  [' + it +']' }
-    testLogging {
-        events "passed", "skipped", "failed"
+    filter {
+        excludeTestsMatching "gov.gsa.pivconformance.PIV*"
     }
-}
-
-try {
-    TerminalFactory factory = TerminalFactory.getDefault()
-    List<CardTerminal> terminals = factory.terminals().list()
-    if (terminals.size() == 0) {
-        junitPlatformTest.setEnabled(true)
-        println '**** No smart card readers connected, proceeding with tests'
-    } else {
-        println '**** Cannot run JUnit tests with smart reader connected'
-        junitPlatformTest.setEnabled(false)
+    if (cardTerminalPresent() == false) {
+        def collection = files() //.filter { it.excludeTestsMatching 'PIV*' }
+        classpath = collection
+	      println 'collection.size() = ' + collection.size()
+        version = getVersion()
+        allJvmArgs += '-Djava.security.debug=certpath,pkcs11,provider'
+        List<String> argumentList = test.getAllJvmArgs()
+        println 'Args:'
+        argumentList.each { println '  [' + it +']' }
+        useJUnitPlatform {
+            excludeTags 'PIN'
+        }
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
     }
-} catch (Exception ex) {
-    println '**** No smart card readers connected, proceeding with tests'
-    println 'Exception ' + '\n' + ex.getStackTrace()
-    junitPlatformTest.setEnabled(false)
-}
 }
 
 compileJava {
