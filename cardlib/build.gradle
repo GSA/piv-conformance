@@ -138,7 +138,7 @@ test {
         }
         def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
         grgit.describe()
-        // Exlude tests that require a PIN
+        // Exclude tests that require a PIN
         useJUnitPlatform {
             excludeTags 'PIN'
         }
