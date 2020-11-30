@@ -147,7 +147,8 @@ public class Validator {
         new HelpFormatter().printHelp("CertDump <options>", s_options);
         System.exit(exitCode);
     }
-    public void main(String[] args) throws NoSuchProviderException, NoSuchAlgorithmException {
+
+    private void main(String[] args) {
         CommandLineParser p = new DefaultParser();
         CommandLine cmd = null;
         File endEntityCertFile = null;
@@ -202,7 +203,11 @@ public class Validator {
         }
         if(cmd.hasOption("provider")) {
             provider = cmd.getOptionValue("provider");
-            setCpb(provider);
+            try {
+                setCpb(provider);
+            } catch (Exception e) {
+                s_logger.error(e.getMessage());
+            }
         }
         isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
