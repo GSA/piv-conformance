@@ -33,7 +33,7 @@ public class ValidatorTest {
 
     private KeyStore getKeyStore() {
 
-        InputStream is = Validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/cacerts.keystore");
+        InputStream is = m_validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/cacerts.keystore");
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("JKS");
@@ -57,7 +57,8 @@ public class ValidatorTest {
         final Path certsDir = Path.of("", "x509-certs/valid");
         try {
             CertificateFactory fac = CertificateFactory.getInstance("X509");
-            BufferedInputStream fis = (BufferedInputStream) Validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
+            BufferedInputStream fis =
+                    (BufferedInputStream) m_validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
             X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(certsDir, eeCert);
             System.out.println("Setting BC option");
@@ -74,11 +75,11 @@ public class ValidatorTest {
         }
     }
 
-    private static Stream<Arguments> positiveCaseCertProvider() {
+    private Stream<Arguments> positiveCaseCertProvider() {
         final String policyFileName = "x509-certs/valid/policy.xml";
         try {
             ValidatorTest app = new ValidatorTest();
-            InputStream inputStream = Validator.getFileFromResourceAsStream(app.getClass(), policyFileName);
+            InputStream inputStream = m_validator.getFileFromResourceAsStream(app.getClass(), policyFileName);
             Properties properties = new Properties();
             properties.loadFromXML(inputStream);
             List<Arguments> argumentsList = new ArrayList<>();
@@ -94,7 +95,7 @@ public class ValidatorTest {
         }
     }
 
-    public static X509Certificate getCertFromKeyStore(KeyStore ks, String alias) {
+    public X509Certificate getCertFromKeyStore(KeyStore ks, String alias) {
         try {
             if (ks.containsAlias(alias)) {
                 return (X509Certificate) ks.getCertificate(alias);
@@ -105,7 +106,7 @@ public class ValidatorTest {
         return null;
     }
     
-    private static X509Certificate getTrustAnchorForGivenCertificate(Path certsDir, X509Certificate eeCert)  {
+    private X509Certificate getTrustAnchorForGivenCertificate(Path certsDir, X509Certificate eeCert)  {
         String trustCA = null;
         X509Certificate trustAnchorCert = null;
         try {

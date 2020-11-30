@@ -259,7 +259,7 @@ public class PKIX_X509DataObjectTests {
 
 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
 	// is asserted in certificate policies (parameters required)
-	@DisplayName("PKIX.6 test")
+	@DisplayName("PKIX.6.PD-VAL test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
@@ -290,6 +290,8 @@ public class PKIX_X509DataObjectTests {
 						Validator validator = new Validator();
 						validator.setKeyStore("x509-certs/cacerts.keystore", "changeit"); //TODO: Make this a property
 						KeyStore ks = validator.getKeyStore();
+						//validator.setCpb("BC");
+						validator.setUseCABundle(false);
 						String subjectName = cert.getSubjectX500Principal().getName();
 						String trustAnchorAlias = null;
 
@@ -307,7 +309,7 @@ public class PKIX_X509DataObjectTests {
 						trustAnchorCert = (X509Certificate) ks.getCertificate(trustAnchorAlias);
 						if (trustAnchorCert != null) {
 							s_logger.debug("Validating to trust anchor " + trustAnchorCert.getSubjectDN().getName());
-							boolean valid = Validator.isValid(cert, paramList3.toString(), trustAnchorCert);
+							boolean valid = validator.isValid(cert, paramList3.toString(), trustAnchorCert);
 							assertTrue(valid, "Cert not valid");
 						} else {
 							fail("Can't load trust anchor " + trustAnchorAlias);
