@@ -98,7 +98,7 @@ public class PlaceholderTests {
 	// CCT parameter Type 1 (no parameters - single purpose)
 	@DisplayName("PlaceholderTest.1 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	//@MethodSource("placeholderTestProviderType1")
+	@MethodSource("placeholderTestProviderType1")
 	void PlaceholderTest_1(String oid, TestReporter reporter) {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -153,18 +153,22 @@ public class PlaceholderTests {
 		assertTrue(o.getBytes().length >= 0, "Length is < 0");
 	}
 
-	// TODO: @Geoff, need a generic provider or two so that we can unit test this
-	@SuppressWarnings("unused")
-	private static Stream<Arguments> placeholderTestProviderType2() {
-
-		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, "-2,100"),
-						Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "-2,100"));
-	}
-
 	@SuppressWarnings("unused")
 	private static Stream<Arguments> placeholderTestProviderType1() {
 
-		return Stream.of(Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID),
-						Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID));
+		return Stream.of(
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID)
+		);
+	}
+
+	@SuppressWarnings("unused")
+	private static Stream<Arguments> placeholderTestProviderType2() {
+
+		return Stream.of(
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, "-2,100"),
+				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "-2,100")
+		);
 	}
 }
+

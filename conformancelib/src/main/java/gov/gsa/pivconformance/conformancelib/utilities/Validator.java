@@ -373,11 +373,6 @@ public class Validator {
             CertPath certPath = cpbResult.getCertPath();
             s_logger.info("Build passed, path contents: " + certPath);
             return certPath != null;
-
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (CertificateException e) {
-//            e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
