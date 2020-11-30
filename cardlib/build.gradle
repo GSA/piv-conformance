@@ -30,8 +30,6 @@ apply plugin: 'de.jjohannes.extra-java-module-info'
 logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
 
-
-import org.ajoberstar.grgit.Grgit
 import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 import javax.smartcardio.CardTerminal
