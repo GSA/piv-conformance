@@ -28,8 +28,9 @@ public class Validator {
     private static final Options s_options = new Options();
     private static final String m_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
     private static final String m_monitorFileName = "all.p7b";
-    private static CertPathBuilder m_cpb = null;
-    private static URL m_monitorUrl;
+    private CertPathBuilder m_cpb = null;
+    private boolean m_useCABundle = false;
+    private URL m_monitorUrl = null;
     private KeyStore m_keystore = null;
 
     static {
@@ -61,7 +62,7 @@ public class Validator {
      */
 
     public void setKeyStore(String keyStoreName, String password) {
-        InputStream is = Validator.getFileFromResourceAsStream(Validator.class, keyStoreName);
+        InputStream is = getFileFromResourceAsStream(Validator.class, keyStoreName);
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("JKS");
@@ -93,7 +94,7 @@ public class Validator {
      * @param fileName the basename of the resource file
      * @return InputStream to the open resource
      */
-    public static InputStream getFileFromResourceAsStream(Class clazz, String fileName) {
+    public InputStream getFileFromResourceAsStream(Class clazz, String fileName) {
         ClassLoader classLoader = clazz.getClassLoader();
         InputStream inputStream = null;
         try {
@@ -130,11 +131,19 @@ public class Validator {
         }
     }
 
-    private CertPathBuilder getCpb() {
+    public CertPathBuilder getCpb() {
         return m_cpb;
     }
 
-    private static void PrintHelpAndExit(int exitCode) {
+    public boolean getUseCABundle() {
+        return m_useCABundle;
+    }
+
+    public void setUseCABundle(boolean flag) {
+        m_useCABundle = flag;
+    }
+
+    private void PrintHelpAndExit(int exitCode) {
         new HelpFormatter().printHelp("CertDump <options>", s_options);
         System.exit(exitCode);
     }
@@ -198,13 +207,13 @@ public class Validator {
         isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
 
-    public static boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) {
+    public boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) {
         File eeFile = new File(endEndityCertFile);
         File taFile = new File(trustAnchorFile);
         return isValid(eeFile, policyOids, taFile);
     }
 
-    public static boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) {
+    public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) {
         CertificateFactory fac;
         boolean rv = false;
         X509Certificate eeCert = null;
@@ -239,7 +248,7 @@ public class Validator {
      * @param fileUrl
      * @return
      */
-    private static boolean loadBundle(String fileUrl) {
+    private boolean loadCABundle(String fileUrl) {
         if (getMonitorUrl() != null)
             return true; // Cached
 
@@ -298,7 +307,7 @@ public class Validator {
      * Sets the
      * @param url
      */
-    public static void setMonitorUrl(URL url) {
+    public void setMonitorUrl(URL url) {
         m_monitorUrl = url;
     }
 
@@ -306,7 +315,7 @@ public class Validator {
      * Gets the monitor URL
      * @return the monitor URL
      */
-    public static URL getMonitorUrl() {
+    public URL getMonitorUrl() {
         return m_monitorUrl;
     }
 
@@ -317,7 +326,7 @@ public class Validator {
      * @param trustAnchorCert
      * @return true if the certificate path was built, false if a path cannot be built
      */
-    public static boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) {
+    public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) {
         // CertiPath monitor creates a CA bundle file which we can use for trust anchors
         try {
             List<X509Certificate> certList = new ArrayList<>();
@@ -334,19 +343,20 @@ public class Validator {
             // This is now set during instantiation CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX");//, "BC");
             // Open an input stream to the bundle file
             //
-            if (loadBundle(m_monitorUrlString)) {
-
-                FileInputStream fis = new FileInputStream(m_monitorFileName);
-                if (fis != null) {
-                    // Instantiate a CertificateFactory for X.509
-                    CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                    // Extract the certification path from the PKCS7 SignedData structure
-                    CertPath cp = cf.generateCertPath(fis, "PKCS7");
-                    List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
-                    certList.addAll(certs);
-                    //cpb = CertPathBuilder.getInstance("PKIX");//, new BouncyCastleProvider());
-                } else {
-                    s_logger.warn(m_monitorUrlString + " was not found");
+            if (m_useCABundle ==  true) {
+                if (loadCABundle(m_monitorUrlString)) {
+                    FileInputStream fis = new FileInputStream(m_monitorFileName);
+                    if (fis != null) {
+                        // Instantiate a CertificateFactory for X.509
+                        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                        // Extract the certification path from the PKCS7 SignedData structure
+                        CertPath cp = cf.generateCertPath(fis, "PKCS7");
+                        List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
+                        certList.addAll(certs);
+                        //cpb = CertPathBuilder.getInstance("PKIX");//, new BouncyCastleProvider());
+                    } else {
+                        s_logger.warn(m_monitorUrlString + " was not found");
+                    }
                 }
             }
             //
@@ -370,6 +380,7 @@ public class Validator {
 
             System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(true));
             CertPathBuilderResult cpbResult = m_cpb.build(params);
+            s_logger.debug("cpb.build() returned " + cpbResult.toString());
             CertPath certPath = cpbResult.getCertPath();
             s_logger.info("Build passed, path contents: " + certPath);
             return certPath != null;
