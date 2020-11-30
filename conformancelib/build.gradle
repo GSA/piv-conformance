@@ -297,6 +297,7 @@ task installSource(type: Copy) {
 
 task install(type: Copy) {
     version = getVersion()
+    dependsOn build
     dependsOn jar
     dependsOn shadowJar
     from jar
