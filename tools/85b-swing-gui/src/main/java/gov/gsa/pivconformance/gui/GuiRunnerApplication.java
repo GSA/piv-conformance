@@ -13,12 +13,9 @@ import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 public class GuiRunnerApplication {
@@ -35,74 +32,19 @@ public class GuiRunnerApplication {
 	private GuiRunnerToolbar m_toolBar;
 	private MainWindowContentPane m_mainContent;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		TestRunLogController trlc = TestRunLogController.getInstance();
-		try {
-			trlc.bootStrapLogging(getLogConfigFile());
-		} catch (Exception e) {
-			System.err.println("Unable to form the path to user log config file");
-			e.printStackTrace();
+	public static String pathFixup(String inPath) {
+		String outPath = inPath;
+		if (System.getProperty("os.name").toLowerCase().contains("windows") == true) {
+			if (inPath.contains("/")) {
+				outPath = inPath.replace("/", "\\");
+			}
+		} else if (inPath.contains("\\")) {
+			outPath = inPath.replace("\\", "/");
 		}
 
-		// Smart card essentials1 due to Java bug
-		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
-		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
-
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-		    public void run() {
-		        trlc.cleanup();
-		    }
-		}));
-
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					PCSCUtils.ConfigureUserProperties();
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					GuiRunnerApplication window = new GuiRunnerApplication();
-					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
-					c.setCctVersion(cctVersion);
-					c.setApp(window);
-					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-
-					a.setContext(lc);
-					a.start();
-					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-					logger.addAppender(a);
-					s_logger.debug("----------------------------------------");
-					s_logger.debug("FIPS 201 CCT " + cctVersion);
-					s_logger.debug("----------------------------------------");
-					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
-
-					// The only action permitted is opening a database
-					String dbFilename = "";
-
-					boolean opened = false;
-
-					c.setTestDatabase(db);
-					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
-
-					window.m_mainFrame.setVisible(true);
-					if(opened) {
-						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
-					}
-					GuiTestExecutionController txc = GuiTestExecutionController.getInstance();
-					txc.setTestRunLogController(trlc);
-					txc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
-					txc.setTestTreePanel(window.m_mainContent.getTreePanel());
-					txc.setToolBar(window.m_toolBar);
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		return outPath;
 	}
+
 
 	/**
 	 * Create the application.
@@ -209,7 +151,7 @@ public class GuiRunnerApplication {
 	public GuiTestTreePanel getTreePanel() {
 		return m_mainContent.getTreePanel();
 	}
-	
+
 	public boolean isDebugPaneVisible() {
 		return false;
 	}
@@ -218,27 +160,141 @@ public class GuiRunnerApplication {
 		return m_mainContent;
 	}
 
-	private static File getLogConfigFile() {
-		File logConfigFile = new File("user_log_config.xml");
-		s_logger.debug("Looking for log config file " + logConfigFile.getAbsolutePath());
-		if (logConfigFile.exists() && logConfigFile.canRead()) return logConfigFile;
+	/**
+	 * Recursively search for a resource file
+	 * @param current directory
+	 * @param pattern pattern to search for
+	 * @param excludePattern patterns to exclude (full path)
+	 * @return File associated with the file on disk
+	 */
+	static File locateFile(File current, String pattern, String excludePattern) {
+		File file = null;
+		if (current.isDirectory()) {
+			File fileList[] = current.listFiles();
+			for (File f : fileList) {
+				file = locateFile(f, pattern, excludePattern);
+				if (file != null)
+					break;
+			}
+		} else {
+			if (!current.getAbsolutePath().toLowerCase().contains(excludePattern)) {
+				if (current.getName().equals(pattern)) {
+					return current;
+				}
+			}
+		}
+		return file;
+	}
 
-		// Special handling for developer mode - when debugging from IDE
-		String currentDir = System.getProperty("user.dir");
-		logConfigFile = new File(currentDir + "/user_log_config.xml");
-		if (!logConfigFile.exists()) s_logger.error("Unable to locate user_log_config.xml");
-
-		return logConfigFile;
+	private static File getResourceFile(String target, String excludePattern) {
+		File resourceFile = null;
+		s_logger.debug("Looking for resource:" + target);
+		resourceFile = locateFile(new File("./"), target, excludePattern);
+		return resourceFile;
 	}
 
 	private static String getVersion(String name) {
 		String version = null;
+		File resourceFile = getResourceFile("build.version", File.separator + "build" + File.separator);
 		try {
-		BufferedReader versionFile = new BufferedReader (new FileReader(name));
-		version = versionFile.readLine();
+			BufferedReader versionFile = new BufferedReader (new FileReader(resourceFile));
+			version = versionFile.readLine();
 		} catch (IOException e) {
 			s_logger.error("Can't open " + name);
 		}
 		return version;
+	}
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		String currentDirectory;
+		// When running out of a jar file, args[0] is the jar?
+		String path = pathFixup(GuiRunnerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		try {
+			if (path.endsWith(".jar")) {
+				path += File.separator;
+				String message = "Running from jar file";
+				s_logger.debug(message);
+			} else {
+				String message = "Running from IDE";
+				s_logger.debug(message);
+			}
+			currentDirectory = URLDecoder.decode(path, "UTF-8");
+			String message = "Current directory is " + currentDirectory;
+			s_logger.debug(message);
+		} catch (UnsupportedEncodingException e1) {
+			currentDirectory = path + File.separator + ".." + File.separator;
+			String message = "Current directory is " + currentDirectory;
+		} catch (Exception e) {
+			String message = e.getMessage();
+			s_logger.error(message);
+			return;
+		}
+
+		TestRunLogController trlc = TestRunLogController.getInstance();
+		try {
+			trlc.bootStrapLogging(getResourceFile("user_log_config.xml", File.separator + "build" + File.separator));
+		} catch (Exception e) {
+			System.err.println("Unable to form the path to user log config file");
+			e.printStackTrace();
+		}
+
+		// Smart card essentials1 due to Java bug
+		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
+		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
+
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			public void run() {
+				trlc.cleanup();
+			}
+		}));
+
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					PCSCUtils.ConfigureUserProperties();
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					GuiRunnerApplication window = new GuiRunnerApplication();
+					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
+					c.setCctVersion(cctVersion);
+					c.setApp(window);
+					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+
+					a.setContext(lc);
+					a.start();
+					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+					logger.addAppender(a);
+					s_logger.debug("----------------------------------------");
+					s_logger.debug("FIPS 201 CCT " + cctVersion);
+					s_logger.debug("----------------------------------------");
+					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
+
+					// The only action permitted is opening a database
+					String dbFilename = "";
+
+					boolean opened = false;
+
+					c.setTestDatabase(db);
+					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
+
+					window.m_mainFrame.setVisible(true);
+					if(opened) {
+						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
+					}
+					GuiTestExecutionController txc = GuiTestExecutionController.getInstance();
+					txc.setTestRunLogController(trlc);
+					txc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());
+					txc.setTestTreePanel(window.m_mainContent.getTreePanel());
+					txc.setToolBar(window.m_toolBar);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }
