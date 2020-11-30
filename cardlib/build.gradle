@@ -34,6 +34,8 @@ import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 import javax.smartcardio.CardTerminal
 import javax.smartcardio.TerminalFactory
+import java.lang.management.ManagementFactory
+import java.lang.management.RuntimeMXBean
 
 //import org.ajoberstar.grgit.Grgit
 
@@ -69,6 +71,41 @@ def getVersion = { ->
         versionFile.text = '0.0-changeme'
     }
     String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
+}
+
+def String killJavaPid() {
+    try {
+        RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
+        String name = runtimeBean.getName();
+        int k = name.indexOf('@');
+        if (k > 0) {
+            Runtime rt = Runtime.getRuntime();
+            rt.exec("taskkill /F /IM java.exe");
+        }
+        return name.substring(0, k);
+    } catch (Exception ex) {
+       System.out.println 'Couldn\'t kill java.exe'
+    }
+    return null;
+}
+
+def deleteCardsDir = { String directory ->
+    def cardsDir = new File(project.getRootDir(), directory)
+    def count = 0
+    while (count < 5) {
+        if (cardsDir.exists()) {
+            try {
+                System.out.println 'Attempting to delete ' + cardsDir.getAbsolutePath()
+                cardsDir.delete()
+                System.out.println 'Deleted ' + cardsDir.getAbsolutePath()
+                count = 5;
+            } catch (Exception e) {
+                System.out.println e.getMessage()
+                Thread.sleep(1000);
+                count++ 
+            }
+        }
+    }
 }
 
 def cardTerminalPresent = { ->
@@ -129,14 +166,8 @@ task copyLogConfig(type: Copy) {
 
 test {
     dependsOn(copyLogConfig)
+    File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
     if (cardTerminalPresent() == false) {
-        // Run unit tests on static data
-        File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
-        if (cardsDir.exists()) {
-            delete cardsDir
-        }
-        def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
-        grgit.describe()
         // Exclude tests that require a PIN
         useJUnitPlatform {
             excludeTags 'PIN'
@@ -144,9 +175,24 @@ test {
         testLogging {
             events "passed", "skipped", "failed"
         }
-        cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
+        Integer count = 0;
         if (cardsDir.exists()) {
-            //delete cardsDir
+            try {
+                deleteCardsDir(cardsDir)
+            } catch (Exception e) {
+                System.out.println 'Error: can\'t delete ' + cardsDir.getAbsolutePath()
+            }
+            //deleteCardsDir(cardsDir)
+        }
+    }
+    doLast {
+        if (!cardsDir.exists()) {
+            def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
+            if (grgit != null) {
+                grgit.describe()
+            } else {
+                System.out.println 'Couldn\t clone gsa-icam-card-builder'
+            }
         }
     }
 }
@@ -158,7 +204,7 @@ junitPlatformTest {
 
 }
 
-//archivesBaseName = "gov.gsa.pivconformance.cardlib-" + getVersion()
+//archivesBaseName = gov.gsa.pivconformance.cardlib-' + getVersion()
 
 jar {
     doFirst {
@@ -205,7 +251,7 @@ compileJava {
 compileTestJava {
     String moduleName
     doFirst {
-        version = getVersion()	
+        version = getVersion()    
         if(JavaVersion.current().isJava9Compatible()) {
             moduleName = 'gov.gsa.pivconformance.cardlib.test'
             options.compilerArgs = [
@@ -215,7 +261,7 @@ compileTestJava {
                     //'--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
             ]
         }
-        version = getVersion()	
+        version = getVersion()
         classpath = files()
     }
 }
