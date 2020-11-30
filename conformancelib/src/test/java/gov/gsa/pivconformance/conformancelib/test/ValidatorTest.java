@@ -61,8 +61,8 @@ public class ValidatorTest {
                     (BufferedInputStream) m_validator.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
             X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(certsDir, eeCert);
-            System.out.println("Setting BC option");
-            m_validator.setCpb("BC");
+            System.out.println("Setting Sun option");
+            m_validator.setCpb("Sun");
             System.out.print("Validating " + eeCert.getSubjectDN().getName());
             boolean result = m_validator.isValid(eeCert, oid, trustAnchorCert); //(eeCert, oid, trustAnchorCert;
             
