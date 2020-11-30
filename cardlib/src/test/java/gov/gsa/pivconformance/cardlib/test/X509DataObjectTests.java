@@ -17,6 +17,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,7 +36,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class X509DataObjectTests {
 	private static String resDir = null;
 	static {
-		resDir = new X509DataObjectTests().getClass().getResource("").getPath();
+		try {
+			URI uri = ClassLoader.getSystemResource("").toURI();
+			resDir = Paths.get(uri).toString();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		resDir = new DODataObjectTests().getClass().getResource("").getFile();
 		System.out.println("Looking in: " + resDir);
 	}
 	@DisplayName("Test X.509 Data Object parsing")

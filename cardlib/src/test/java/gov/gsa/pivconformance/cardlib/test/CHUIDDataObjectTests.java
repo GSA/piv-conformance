@@ -16,6 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,10 +29,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class CHUIDDataObjectTests {
 	private static String resDir = null;
-	static {
-	    resDir = new CHUIDDataObjectTests().getClass().getResource("").getPath();
-	    System.out.println("Looking in: " + resDir);
-	}
+    static {
+        try {
+            URI uri = ClassLoader.getSystemResource("").toURI();
+            resDir = Paths.get(uri).toString();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        resDir = new DODataObjectTests().getClass().getResource("").getFile();
+        System.out.println("Looking in: " + resDir);
+    }
 
     @DisplayName("Test CHUID Data Object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
