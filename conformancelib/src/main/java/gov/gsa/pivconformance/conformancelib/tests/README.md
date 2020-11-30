@@ -1,0 +1,1 @@
+##If these classes are run or debugged using JUnit, they will access the smart card reader with a default PIN of 123456.
