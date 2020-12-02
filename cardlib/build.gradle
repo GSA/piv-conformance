@@ -92,18 +92,17 @@ def String killJavaPid() {
 def deleteCardsDir = { String directory ->
     def cardsDir = new File(project.getRootDir(), directory)
     def count = 0
-    while (count < 5) {
-        if (cardsDir.exists()) {
-            try {
-                System.out.println 'Attempting to delete ' + cardsDir.getAbsolutePath()
-                cardsDir.delete()
-                System.out.println 'Deleted ' + cardsDir.getAbsolutePath()
-                count = 5;
-            } catch (Exception e) {
-                System.out.println e.getMessage()
-                Thread.sleep(1000);
-                count++ 
-            }
+    while (count < 5 && cardsDir.exists()) {
+        try {
+            System.out.println 'Attempting to delete ' + cardsDir.getAbsolutePath()
+            delete cardsDir
+            System.out.println 'Deleted ' + cardsDir.getAbsolutePath()
+            Thread.sleep(1000);
+            count++
+        } catch (Exception e) {
+            System.out.println e.getMessage()
+            Thread.sleep(1000);
+            count++ 
         }
     }
 }
@@ -166,33 +165,14 @@ task copyLogConfig(type: Copy) {
 
 test {
     dependsOn(copyLogConfig)
-    File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
     if (cardTerminalPresent() == false) {
+        deleteCardsDir('build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
         // Exclude tests that require a PIN
         useJUnitPlatform {
             excludeTags 'PIN'
         }
         testLogging {
             events "passed", "skipped", "failed"
-        }
-        Integer count = 0;
-        if (cardsDir.exists()) {
-            try {
-                deleteCardsDir(cardsDir)
-            } catch (Exception e) {
-                System.out.println 'Error: can\'t delete ' + cardsDir.getAbsolutePath()
-            }
-            //deleteCardsDir(cardsDir)
-        }
-    }
-    doLast {
-        if (!cardsDir.exists()) {
-            def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
-            if (grgit != null) {
-                grgit.describe()
-            } else {
-                System.out.println 'Couldn\t clone gsa-icam-card-builder'
-            }
         }
     }
 }
@@ -201,7 +181,21 @@ test {
 // to filter tests by tag
 
 junitPlatformTest {
-
+    doFirst {
+        println 'Cloning, please wait...'
+        File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
+        if (!cardsDir.exists()) {
+            def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
+            if (grgit != null) {
+                grgit.describe()
+                System.out.println 'Cloned ' + cardsDir.getName()
+            } else {
+                System.out.println 'Couldn\t clone gsa-icam-card-builder'
+            }
+        } else {
+            System.out.println cardsDir.getName() + ' exists, reusing'
+        }
+    }
 }
 
 //archivesBaseName = gov.gsa.pivconformance.cardlib-' + getVersion()
