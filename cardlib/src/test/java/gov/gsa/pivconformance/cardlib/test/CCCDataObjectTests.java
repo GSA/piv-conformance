@@ -35,7 +35,6 @@ public class CCCDataObjectTests {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        resDir = new DODataObjectTests().getClass().getResource("").getFile();
         System.out.println("Looking in: " + resDir);
     }
 

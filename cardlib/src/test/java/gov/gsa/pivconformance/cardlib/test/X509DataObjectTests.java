@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Provider;
@@ -42,9 +43,9 @@ public class X509DataObjectTests {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-		resDir = new DODataObjectTests().getClass().getResource("").getFile();
 		System.out.println("Looking in: " + resDir);
 	}
+
 	@DisplayName("Test X.509 Data Object parsing")
 	@ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
 	@MethodSource("dataObjectTestProvider")

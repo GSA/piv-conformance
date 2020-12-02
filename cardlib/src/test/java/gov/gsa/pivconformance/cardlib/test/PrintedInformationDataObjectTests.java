@@ -16,6 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,9 +28,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PrintedInformationDataObjectTests {
     private static String resDir = null;
-
     static {
-        resDir = new PrintedInformationDataObjectTests().getClass().getResource("").getPath();
+        try {
+            URI uri = ClassLoader.getSystemResource("").toURI();
+            resDir = Paths.get(uri).toString();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         System.out.println("Looking in: " + resDir);
     }
 
