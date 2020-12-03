@@ -3,11 +3,18 @@ This directory contains the 85B requirements expressed in a MS Excel workbook fo
 
 Create a directory, for instance, python_den, and change to it.  
 
-Run `sh ../setup-venv.sh`
+Run 
+```
+sh ../setup-venv.sh
+# Activate the virtual environment
+# On MacOS do this
+source venv-xlrd/bin/activate   
+
+```
 
 This creates a "virtual" Python environment in which all of the classes need to perform the Excel to SQL conversion.
 
-Copy the .py file from the directory above.
+Copy the `CctDatabasePopulator.py` and `conformance-schema.sql` files from the directory above.
 
 Run:
 ```
