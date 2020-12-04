@@ -338,9 +338,8 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		} else if(signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
 			databaseSigAlgParams.add(sha256Oid);	
 		} else if(signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
-			byte[] params = cert.getSigAlgParams(); 
-			byte [] sha256Encoding = {0x60, (byte) 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01};	
-			assertTrue(Arrays.equals(params, sha256Encoding), "Non-conformant signature algorithm OID");
+			byte[] params = cert.getSigAlgParams();
+			assertTrue(params == null, "Non-conformant signature algorithm OID");
 		} else if(signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
 			byte[] params = cert.getSigAlgParams(); 
 			assertTrue(params == null, "Non-conformant signature algorithm OID");
