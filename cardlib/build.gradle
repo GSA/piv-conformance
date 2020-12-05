@@ -12,6 +12,7 @@ buildscript {
 
 plugins {
     id 'java-library'
+    id 'eclipse'
     id "org.ajoberstar.grgit" version "4.1.0"
     id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'de.jjohannes.extra-java-module-info' version '0.1'
@@ -30,23 +31,19 @@ apply plugin: 'de.jjohannes.extra-java-module-info'
 logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
 
-import org.gradle.plugins.ide.eclipse.model.AccessRule
-
 import javax.smartcardio.CardTerminal
 import javax.smartcardio.TerminalFactory
 import java.lang.management.ManagementFactory
 import java.lang.management.RuntimeMXBean
-
-//import org.ajoberstar.grgit.Grgit
 
 eclipse {
     classpath {
         file {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
-                jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                //def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.cardlib' +  '-' + getVersion() + '.jar' }
-                //lib.sourcePath = fileReference(file('../tools/85b-swing-gui/lib/gov.gsa.pivconformance.cardlib-sources' + '-' + getVersion() + '.jar'))
+                //jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
+                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.cardlib-' + getVersion() + '.jar' }
+                lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.cardlib-' + getVersion() + '-sources' + '.jar'))
             }
         }
     }
