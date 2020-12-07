@@ -7,11 +7,10 @@ if [ "$1" == "-notest" ]; then
   TESTOPT=0
 fi
 
-GRADLE=$(type gradle 2>/dev/null)
-if [ -z "$GRADLE" ]; then gradle -stop; fi
+GRADLE=$(type gradle 2>/dev/null | awk '{ print $3 }')
+if [ ! -z "$GRADLE" ]; then gradle -stop; fi
 
 pushd cardlib >/dev/null 2>&1
-    ./gradlew --refresh-dependencies
     if [ $TESTOPT -eq 1 ]; then
         ./gradlew clean
         ./gradlew build install installSource || exit 1 
@@ -19,11 +18,9 @@ pushd cardlib >/dev/null 2>&1
         ./gradlew clean
         ./gradlew -x junitPlatformTest -x generateHtmlTestReports clean install installSource || exit 1
     fi
-    ./gradlew -stop
 popd >/dev/null 2>&1
 
 pushd conformancelib >/dev/null 2>&1
-    ./gradlew -stop
     ./gradlew --refresh-dependencies
     if [ $TESTOPT -eq 1 ]; then
         ./gradlew clean
@@ -31,19 +28,15 @@ pushd conformancelib >/dev/null 2>&1
     else
         ./gradlew -x test clean install installSource || exit 1
     fi    
-    ./gradlew -stop
 popd >/dev/null 2>&1
 
 pushd tools/85b-swing-gui 2>&1
-    ./gradlew -stop
     ./gradlew --refresh-dependencies
     ./gradlew clean
     ./gradlew -x test clean build install installSource || exit 1
     cp build/libs/*shadow* ../../libs
-    ./gradlew -stop
 popd >/dev/null 2>&1
 
-set -x
 VERSION=$(cat ./tools/85b-swing-gui/build/resources/main/build.version)
 rm -rf fips201-card-conformance-tool-$VERSION
 mkdir -p fips201-card-conformance-tool-$VERSION
