@@ -12,7 +12,6 @@ buildscript {
 
 plugins {
     id 'java-library'
-    id 'eclipse'
     id "org.ajoberstar.grgit" version "4.1.0"
     id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'de.jjohannes.extra-java-module-info' version '0.1'
@@ -23,7 +22,6 @@ java {
 }
 
 apply plugin: 'java-library'
-apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'org.junit.platform.gradle.plugin'
 apply plugin: 'de.jjohannes.extra-java-module-info'
@@ -35,19 +33,6 @@ import javax.smartcardio.CardTerminal
 import javax.smartcardio.TerminalFactory
 import java.lang.management.ManagementFactory
 import java.lang.management.RuntimeMXBean
-
-eclipse {
-    classpath {
-        file {
-            whenMerged {
-                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
-                //jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.cardlib-' + getVersion() + '.jar' }
-                lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.cardlib-' + getVersion() + '-sources' + '.jar'))
-            }
-        }
-    }
-}
 
 repositories {
     jcenter()
@@ -152,6 +137,7 @@ dependencies {
     api 'org.opentest4j:opentest4j:1.2.0'
     api 'org.slf4j:slf4j-api:2.0.0-alpha1'
     api 'org.xerial:sqlite-jdbc:3.32.3.2'
+    testCompile 'gov.gsa:gov.gsa.pivconformance.cardlib:0.2.3-beta'
     testRuntime 'gov.gsa:gov.gsa.pivconformance.cardlib:0.2.3-beta'
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
