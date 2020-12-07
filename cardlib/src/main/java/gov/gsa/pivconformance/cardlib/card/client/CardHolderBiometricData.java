@@ -266,7 +266,7 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
                         	super.m_tagList.add(tag);
                             if (Arrays.equals(tag.bytes, TagConstants.FINGERPRINT_I_AND_II_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_FINGERPRINTS_OID) == 0) {
 
-                            	setContainerName("Fingerprints");
+                            	super.setContainerName("CardholderFingerprints");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                 if (m_biometricData != null)
@@ -274,7 +274,7 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
 
                             } else if (Arrays.equals(tag.bytes, TagConstants.IMAGE_FOR_VISUAL_VERIFICATION_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID) == 0) {
 
-                            	setContainerName("ImageForVisualVerification");
+                            	setContainerName("CardholderFacialImage");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                if (m_biometricData != null)
@@ -282,7 +282,7 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
 
                             } else if (Arrays.equals(tag.bytes, TagConstants.IMAGES_FOR_IRIS_TAG) && getOID().compareTo(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID) == 0) {
 
-                            	setContainerName("ImagesForIris");
+                            	setContainerName("CardholderIrisImages");
                                 m_biometricData = value;
                                 m_content.put(tag, value);
                                 if (m_biometricData != null)

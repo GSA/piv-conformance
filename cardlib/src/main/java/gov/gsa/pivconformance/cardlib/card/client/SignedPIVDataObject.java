@@ -132,7 +132,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 *
 	 * Sets the signing certificate
 	 *
-	 * @param signingCertificate X509Certificate object containing the signing
+	 * @param signerCert X509Certificate object containing the signing
 	 *                           certificate
 	 */
 	public void setSignerCert(X509Certificate signerCert) {
@@ -280,7 +280,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 * Sets the message Encryption algorithm name extracted from the signer
 	 * information of the associated CMS.
 	 *
-	 * @param errorDetectionCode True if error Error Detection Code is present,
+	 * @param name True if error Error Detection Code is present,
 	 *                           false otherwise
 	 */
 	public void setEncryptionAlgorithmName(String name) {

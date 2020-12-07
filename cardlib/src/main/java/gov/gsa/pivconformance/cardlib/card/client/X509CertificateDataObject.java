@@ -115,19 +115,6 @@ public class X509CertificateDataObject extends PIVDataObject {
 									}
 
 									String oid = getOID();
-
-									if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0)
-										setContainerName("X.509_Certificate_for_PIV_Authentication");
-									else if (oid
-											.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0)
-										setContainerName("X.509_Certificate_for_Card_Authentication");
-									else if (oid
-											.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0)
-										setContainerName("X.509_Certificate_for_Digital_Signature");
-									else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0)
-										setContainerName("X.509 Certificate_for_Key_Management");
-									else if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0)
-										setContainerName("Content_Signing");
 								}
 								if (Arrays.equals(tlv2.getTag().bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 									setErrorDetectionCode(true);
@@ -185,7 +172,8 @@ public class X509CertificateDataObject extends PIVDataObject {
 			cf = CertificateFactory.getInstance("X509");
 			m_cert = (X509Certificate) cf.generateCertificate(certIS);
 			s_logger.debug("Subject: {}", m_cert.getSubjectDN().toString());
-			m_x509ArtifactCache.saveObject("x509-artifacts", APDUConstants.getFileNameForOid(getOID())+ ".cer",  m_cert.getEncoded());
+			m_x509ArtifactCache.saveObject(
+					"x509-artifacts", APDUConstants.getFileNameForOid(getOID()) + ".cer", m_cert.getEncoded());
 		} catch (CertificateException e) {
 			e.printStackTrace();
 		}

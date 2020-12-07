@@ -230,21 +230,23 @@ public class PIVDataObject {
 		return true;
 	}
 
-	public void dump(Class<?> classz) {
-		if (m_oidList.indexOf(m_OID) < 0) {
-			m_oidList.add(m_OID);
+	/**
+	 * Dumps the raw container into a file and logs the ascii hex representation of the tags to a file
+	 * @param clazz the name of the class dumping the container
+	 */
+	public void dump(Class<?> clazz) {
+		if (!m_oidList.contains(m_OID)) {
 			// Get the container name
-			String canonicalName = classz.getCanonicalName();
-			String containerName = getContainerName();
-			if (containerName == null) containerName = APDUConstants.oidNameMap.get(m_OID).replaceAll(" ", "");
-			String className = containerName == null ? canonicalName
-					: classz.getPackage().toString().replace("package ", "") + "." + containerName;
-			// Find the path where containers are written
-			Logger s_containerLogger = LoggerFactory.getLogger(className);
-			s_containerLogger.debug("Container: {}", APDUConstants.oidNameMap.get(m_OID).replace(" ", "_"));
+			String fqContainerName = this.getContainerName();
+			String alternateName = APDUConstants.getFileNameForOid(m_OID);
+			if (alternateName.compareTo(fqContainerName) != 0)// Failsafe
+				s_logger.error("Container names: " + alternateName + " and " + fqContainerName + " are not the same");
+			m_artifactCache.saveObject("piv-artifacts", this.getContainerName() + ".dat", m_dataBytes);
+
+			Logger s_containerLogger = LoggerFactory.getLogger(fqContainerName);
+			s_containerLogger.debug("Container: {}", fqContainerName);
 			s_containerLogger.debug("Raw bytes: {}", Hex.encodeHexString(m_dataBytes));
 
-			m_artifactCache.saveObject("piv-artifacts", APDUConstants.getFileNameForOid(m_OID)+ ".dat", m_dataBytes);
 			for (int i = 0; i < m_tagList.size(); i++) {
 				BerTag tag = m_tagList.get(i);
 				if (tag != null) {
@@ -261,8 +263,9 @@ public class PIVDataObject {
 					s_containerLogger.warn("Tag[{}] is null", i);
 				}
 			}
+			m_oidList.add(m_OID);
 		}
-		setContainerName(null);
+		//setContainerName(null);
 	}
 
 	/**
@@ -404,10 +407,9 @@ public class PIVDataObject {
 
 	/**
 	 *
-	 * Sets the signing certificate
+	 * Sets the container name for this PIVDataObject
 	 *
-	 * @param signingCertificate X509Certificate object containing the signing
-	 *                           certificate
+	 * @param containerName name of this container
 	 */
 	public void setContainerName(String containerName) {
 		m_containerName = containerName;

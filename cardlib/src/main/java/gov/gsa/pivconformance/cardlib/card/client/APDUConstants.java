@@ -74,7 +74,7 @@ public class APDUConstants {
 	public static final String X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID = "2.16.840.1.101.3.7.2.1.1";
 	public static final byte[] X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_TAG = { 0x5F, (byte) 0xC1, 0x05 };
 	public static final int X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_ID = 0x0101;
-	public static final String X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_NAME = "X.509 Certificate for PIV Authentication (Key Reference '9A')";
+	public static final String X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_NAME = "X.509 Certificate for PIV Authentication";
 
 	public static final String CARDHOLDER_FINGERPRINTS_OID = "2.16.840.1.101.3.7.2.96.16";
 	public static final byte[] CARDHOLDER_FINGERPRINTS_TAG = { 0x5F, (byte) 0xC1, 0x03 };
@@ -94,17 +94,17 @@ public class APDUConstants {
 	public static final String X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID = "2.16.840.1.101.3.7.2.5.0";
 	public static final byte[] X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_TAG = { 0x5F, (byte) 0xC1, 0x01 };
 	public static final int X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_ID = 0x0500;
-	public static final String X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_NAME = "X.509 Certificate for Card Authentication (Key Reference '9E')";
+	public static final String X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_NAME = "X.509 Certificate for Card Authentication";
 
 	public static final String X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID = "2.16.840.1.101.3.7.2.1.0";
 	public static final byte[] X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_TAG = { 0x5F, (byte) 0xC1, 0x0A };
 	public static final int X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_ID = 0x0100;
-	public static final String X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_NAME = "X.509 Certificate for Digital Signature (Key Reference '9C')";
+	public static final String X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_NAME = "X.509 Certificate for Digital Signature";
 
 	public static final String X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID = "2.16.840.1.101.3.7.2.1.2";
 	public static final byte[] X509_CERTIFICATE_FOR_KEY_MANAGEMENT_TAG = { 0x5F, (byte) 0xC1, 0x0B };
 	public static final int X509_CERTIFICATE_FOR_KEY_MANAGEMENT_ID = 0x0102;
-	public static final String X509_CERTIFICATE_FOR_KEY_MANAGEMENT_NAME = "X.509 Certificate for Key Management (Key Reference '9D')";
+	public static final String X509_CERTIFICATE_FOR_KEY_MANAGEMENT_NAME = "X.509 Certificate for Key Management";
 
 	public static final String PRINTED_INFORMATION_OID = "2.16.840.1.101.3.7.2.48.1";
 	public static final byte[] PRINTED_INFORMATION_TAG = { 0x5F, (byte) 0xC1, 0x09 };
@@ -841,15 +841,15 @@ public class APDUConstants {
 
 		return arr;
 	}
-	
+
 	/**
 	 * Helper function to generate a file name from an OID
 	 * @param oid the container OID
-	 * @return a file name consisting of the container name appended with ".dat"
+	 * @return a file name consisting of the container name appended with ".dat" that should
+	 * match the container's associated class name.
 	 */
 	
 	public static final String getFileNameForOid(String oid) {
-		String rv = oidNameMap.get(oid).replaceAll(" ", "_");
-		return rv;
+		return oidNameMap.get(oid).replaceAll(" for ", "For").replaceAll("[ .]", "");
 	}
 }

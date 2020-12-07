@@ -429,14 +429,13 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 												// Hang the CHUID signer cert here so that any test runner
 												// consumer can access it.
 												setChuidSignerCert(signerCert);
-												m_x509ArtifactCache.saveObject("x509-artifacts", APDUConstants.getFileNameForOid(getOID())+ ".cer", signerCert.getEncoded());
+												m_x509ArtifactCache.saveObject("x509-artifacts", APDUConstants.getFileNameForOid(getOID()) + ".cer", signerCert.getEncoded());
 											} else {
 												s_logger.error("Can't extract signer certificate");
 											}
 										}
 									}
 								}
-
 							} else if (Arrays.equals(tag.bytes, TagConstants.ERROR_DETECTION_CODE_TAG)) {
 								ecAdded = true;
 								m_content.put(tag, value);

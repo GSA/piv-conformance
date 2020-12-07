@@ -5,6 +5,8 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static gov.gsa.pivconformance.cardlib.card.client.APDUConstants.getFileNameForOid;
+
 public class CachingDefaultPIVApplication extends DefaultPIVApplication {
     private static final Logger s_logger = LoggerFactory.getLogger(CachingDefaultPIVApplication.class);
     
@@ -15,15 +17,18 @@ public class CachingDefaultPIVApplication extends DefaultPIVApplication {
 	public MiddlewareStatus pivGetData(CardHandle cardHandle, String OID, PIVDataObject data) {
     	MiddlewareStatus result = MiddlewareStatus.PIV_OK;
     	byte[] dataBytes = m_containerMap.get(OID);
-    	if(dataBytes == null) {
-    		result = super.pivGetData(cardHandle, OID, data);
-    		if(result == MiddlewareStatus.PIV_OK) {
-    			m_containerMap.put(OID, data.getBytes());
-    		}
-    	} else {
-    		data.setOID(OID);
-    		data.setBytes(dataBytes);
-    	}
+    	if(dataBytes == null) {  // Not cached
+			result = super.pivGetData(cardHandle, OID, data);
+			if (result == MiddlewareStatus.PIV_OK) {
+				m_containerMap.put(OID, data.getBytes());
+			}
+		} else {
+			data.setBytes(dataBytes);
+		}
+
+		data.setOID(OID);
+		data.setContainerName(getFileNameForOid(OID));
+
     	return result;
     }
 	

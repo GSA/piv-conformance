@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
+import static gov.gsa.pivconformance.cardlib.card.client.APDUConstants.getFileNameForOid;
+
 /**
  * A base class for items that will implement the IPIVApplication interface, to allow those methods that can be
  * common across implementations to be shared
@@ -286,15 +288,12 @@ abstract public class AbstractPIVApplication implements IPIVApplication {
 
             // Populate the response in PIVDataObject
             data.setOID(OID);
+            data.setContainerName(getFileNameForOid(OID));
             data.setBytes(response.getData());
-
-        }catch (SecurityException ex) {
-
+        } catch (SecurityException ex) {
             s_logger.error("Error retrieving data from the card application: {}", ex.getMessage(), ex);
             return MiddlewareStatus.PIV_SECURITY_CONDITIONS_NOT_SATISFIED;
-        }
-        catch (Exception ex) {
-
+        } catch (Exception ex) {
             s_logger.error("Error retrieving data from the card application: {}", ex.getMessage(), ex);
             return MiddlewareStatus.PIV_CONNECTION_FAILURE;
         }
