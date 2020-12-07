@@ -52,8 +52,7 @@ public class ConformanceTestDatabase {
 	
 	public void openDatabaseInFile(String filename) throws ConfigurationException {
 		Connection conn = null;
-        
-        File f = new File(filename);
+		File f = new File(filename);
         if (!f.exists()) {
             s_logger.error("No such file: {}", filename);
             throw new ConfigurationException("Database file " + filename + " does not exist");
@@ -61,8 +60,9 @@ public class ConformanceTestDatabase {
 
         String dbUrl = null;
         try {
-            dbUrl = "jdbc:sqlite:" + f.getCanonicalPath();
-        } catch (IOException e) {
+        	Class.forName("org.sqlite.JDBC");
+        	dbUrl = "jdbc:sqlite:" + f.getCanonicalPath();
+        } catch (IOException | ClassNotFoundException e) {
             s_logger.error("Unable to calculate canonical name for database file", e);
             throw new ConfigurationException("Unable to calculate canonical name for database file", e);
         }
