@@ -50,6 +50,7 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
     rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
     echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >console.log 2>&1\r" >run.bat
     echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >console.log 2>&1" >run.sh
+    chmod 755 run.sh
 popd
 
 TS=$(date +%Y%m%d%H%M%S)
