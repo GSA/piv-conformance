@@ -152,6 +152,7 @@ dependencies {
     api 'org.opentest4j:opentest4j:1.2.0'
     api 'org.slf4j:slf4j-api:2.0.0-alpha1'
     api 'org.xerial:sqlite-jdbc:3.32.3.2'
+    api 'gov.gsa:gov.gsa.pivconformance.cardlib:0.2.3-beta'
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
@@ -187,7 +188,7 @@ junitPlatformTest {
                 grgit.describe()
                 System.out.println 'Cloned ' + cardsDir.getName()
             } else {
-                System.out.println 'Couldn\t clone gsa-icam-card-builder'
+                System.out.println 'Couldn\'t clone gsa-icam-card-builder'
             }
         } else {
             System.out.println cardsDir.getName() + ' exists, reusing'
@@ -231,28 +232,69 @@ jar {
 
 compileJava {
     doFirst {
-        println 'compileJava: ' + getVersion()
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
+        version = getVersion()    
+
+        def dir = "${project.rootDir}/../"
+        def git = org.ajoberstar.grgit.Grgit.open(dir: dir)
+        def commit = git.head()
+
+        def commitId = commit.abbreviatedId
+        def commitDate = commit.getDate()
+        def buildDate = new Date()
+        File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
+        File propertiesFile = new File(resourcesDir, 'version.properties')
+
+        // The project may not have any resources, so create the directories and file
+        if(!propertiesFile.exists()) {
+            resourcesDir.mkdirs()
+            propertiesFile.createNewFile()
+            println 'Creating properties files'
+        }
+        Properties versionProperties = new Properties()
+        versionProperties.setProperty('git.commit.time', commitDate.format('dd.MM.yy HH.mm.ss'))
+        versionProperties.setProperty('build.time', buildDate.format('dd.MM.yy HH.mm.ss'))
+        versionProperties.setProperty('git.commit.id', commitId.toString())
+        versionProperties.setProperty('build.version', getVersion())
+        versionProperties.store(propertiesFile.newWriter(), null)
+
+        def moduleName = 'gov.gsa.pivconformance.cardlib'
+        options.debugOptions.debugLevel = "source,lines,vars"
+        if(JavaVersion.current().isJava9Compatible()) {
+            options.compilerArgs = [
+                    '--module-path', classpath.asPath,
+                    '--add-modules', 'java.smartcardio',
+                    '--add-modules', 'org.junit.jupiter.api',
+                    '--add-modules', 'org.slf4j'
+                    //'--add-reads', "$moduleName=org.junit.jupiter.api",
+                    //'--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
+            ]
+        }
+        version = getVersion()
+        List<String> argumentList = options.getAllCompilerArgs()
+        println 'Compiler args:'
+        argumentList.each { println '  [' + it +']' }
         classpath = files()
     }
 }
 
 compileTestJava {
-    String moduleName
     doFirst {
-        version = getVersion()    
+        def moduleName = 'gov.gsa.pivconformance.cardlib.test'
+        options.debugOptions.debugLevel = "source,lines,vars"
         if(JavaVersion.current().isJava9Compatible()) {
-            moduleName = 'gov.gsa.pivconformance.cardlib.test'
             options.compilerArgs = [
                     '--module-path', classpath.asPath,
+                    '--add-modules', 'java.smartcardio',
                     '--add-modules', 'org.junit.jupiter.api',
-                    '--add-reads', "$moduleName=org.junit.jupiter.api",
+                    '--add-modules', 'org.slf4j',
+                    '--add-reads', "$moduleName=gov.gsa.pivconformance.cardlib"
                     //'--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
             ]
         }
         version = getVersion()
+        List<String> argumentList = options.getAllCompilerArgs()
+        println 'Compiler args:'
+        argumentList.each { println '  [' + it +']' }
         classpath = files()
     }
 }
@@ -284,35 +326,6 @@ afterEvaluate {
         check.dependsOn(generateHtmlTestReports)
 }
 
-// when producing a jar that is suitable for distribution using the shadow plugin,
-// this will embed a version properties file.
-compileJava.doFirst {
-    options.compilerArgs = ['--add-modules', 'java.smartcardio']
-    def dir = "${project.rootDir}/../"
-    def git = org.ajoberstar.grgit.Grgit.open(dir: dir)
-    def commit = git.head()
-
-    def commitId = commit.abbreviatedId
-    def commitDate = commit.getDate()
-    def buildDate = new Date()
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
-    File propertiesFile = new File(resourcesDir, 'version.properties')
-
-    // The project may not have any resources, so create the directories and file
-    if(!propertiesFile.exists()) {
-        resourcesDir.mkdirs()
-        propertiesFile.createNewFile()
-        println 'Creating properties files'
-    }
-    Properties versionProperties = new Properties()
-    versionProperties.setProperty('git.commit.time', commitDate.format('dd.MM.yy HH.mm.ss'))
-    versionProperties.setProperty('build.time', buildDate.format('dd.MM.yy HH.mm.ss'))
-    versionProperties.setProperty('git.commit.id', commitId.toString())
-    versionProperties.setProperty('build.version', getVersion())
-    versionProperties.store(propertiesFile.newWriter(), null)
-
-}
-
 extraJavaModuleInfo {
     module("ber-tlv-1.0-11.jar", "com.payneteasy", "1.0-11") {
         exports("ber.tlv")
@@ -342,10 +355,6 @@ extraJavaModuleInfo {
 shadowJar.doFirst {
     version = getVersion()
     dependencies { sourceJar }
-}
-
-compileJava {
-    options.debugOptions.debugLevel = "source,lines,vars"
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {

@@ -19,6 +19,11 @@
 			<attribute name="gradle_used_by_scope" value="test"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.gsa.pivconformance.cardlib">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11/">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -30,6 +35,16 @@
 			<attribute name="add-exports" value="org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib.test"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/bf7450/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.0-alpha1/e979781e847d44d3618c4479d438956593b6b080/slf4j-api-2.0.0-alpha1.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="lib" path="C:/Users/bf7450/.p2/pool/plugins/org.junit.platform.commons_1.6.0.v20200203-2009.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://junit.org/junit5/docs/current/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>

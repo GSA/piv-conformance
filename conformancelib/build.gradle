@@ -33,17 +33,14 @@ apply plugin: 'de.jjohannes.extra-java-module-info'
 logger.warn("target java version: " + targetCompatibility)
 logger.warn("source java version: " + sourceCompatibility)
 
-//import org.gradle.plugins.ide.eclipse.model.AccessRule
-
 eclipse {
     classpath {
         file {
             whenMerged {
-                //def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
+                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 //jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                //def lib = entries.find { it.path.contains '.' }
-                //println '--> ' + lib
-                //lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.conformancelib-sources' + '-' + getVersion() + '.jar'))
+                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.conformanceblib-' + getVersion() + '.jar' }
+                lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.conformancelib-' + getVersion() + '-sources' + '.jar'))
             }
         }
     }
@@ -136,6 +133,7 @@ dependencies {
     shadow 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
 //    shadow 'org.junit.vintage:junit-vintage-engine:5.7.0'
     runtime 'org.junit.jupiter:junit-jupiter:5.7.0'
+    runtime 'info.picocli:picocli:3.6.0'
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
@@ -243,10 +241,10 @@ compileTestJava {
             '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib',
             '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
         ]
-        classpath = files()
         List<String> argumentList = options.getAllCompilerArgs()
         println 'Compiler args:'
         argumentList.each { println '  [' + it +']' }
+        classpath = files()
     }
 }
 
