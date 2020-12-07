@@ -7,8 +7,10 @@ if [ "$1" == "-notest" ]; then
   TESTOPT=0
 fi
 
+GRADLE=$(type gradle 2>/dev/null)
+if [ -z "$GRADLE" ]; then gradle -stop; fi
+
 pushd cardlib >/dev/null 2>&1
-    ./gradlew -stop
     ./gradlew --refresh-dependencies
     if [ $TESTOPT -eq 1 ]; then
         ./gradlew clean
@@ -50,7 +52,7 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
     cp -p ../cardlib/build/resources/main/user_log_config.xml .
     cp -p ../tools/85b-swing-gui/build/resources/main/build.version .
     tar xvf ../tools/85b-swing-gui/build/distributions/gov.gsa.pivconformance.gui-shadow-$VERSION.tar
-    mv gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
+    cp -p gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
     touch directly-asserted.flag
     rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
     echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >console.log 2>&1\r" >run.bat
