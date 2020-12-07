@@ -6,7 +6,6 @@ import gov.gsa.pivconformance.cardlib.card.client.CardHolderUniqueIdentifier;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.cardlib.card.client.SignedPIVDataObject;
-import gov.gsa.pivconformance.cardlib.utils.OSUtils;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
