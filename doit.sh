@@ -14,10 +14,10 @@ pushd cardlib >/dev/null 2>&1
     ./gradlew --refresh-dependencies
     if [ $TESTOPT -eq 1 ]; then
         ./gradlew clean
-        ./gradlew build install installSource
+        ./gradlew build install installSource || exit 1 
     else
         ./gradlew clean
-        ./gradlew -x junitPlatformTest -x generateHtmlTestReports clean install installSource
+        ./gradlew -x junitPlatformTest -x generateHtmlTestReports clean install installSource || exit 1
     fi
     ./gradlew -stop
 popd >/dev/null 2>&1
@@ -27,9 +27,9 @@ pushd conformancelib >/dev/null 2>&1
     ./gradlew --refresh-dependencies
     if [ $TESTOPT -eq 1 ]; then
         ./gradlew clean
-        ./gradlew build install installSource
+        ./gradlew build install installSource || exit 1
     else
-        ./gradlew -x test clean install installSource
+        ./gradlew -x test clean install installSource || exit 1
     fi    
     ./gradlew -stop
 popd >/dev/null 2>&1
@@ -38,7 +38,7 @@ pushd tools/85b-swing-gui 2>&1
     ./gradlew -stop
     ./gradlew --refresh-dependencies
     ./gradlew clean
-    ./gradlew -x test clean build install installSource
+    ./gradlew -x test clean build install installSource || exit 1
     cp build/libs/*shadow* ../../libs
     ./gradlew -stop
 popd >/dev/null 2>&1
