@@ -327,6 +327,9 @@ afterEvaluate {
 }
 
 extraJavaModuleInfo {
+    module("gov.gsa.pivconformance.cardlib-0.2.3-beta.jar", "gov.gsa", "0.2.3-beta") {
+        exports("gov.gsa.pivconformance.cardlib")
+    }
     module("ber-tlv-1.0-11.jar", "com.payneteasy", "1.0-11") {
         exports("ber.tlv")
     }
