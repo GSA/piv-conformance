@@ -118,7 +118,7 @@ dependencies {
     testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
     testRuntime 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
-    shadow 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
+    runtime 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
     runtime 'org.junit.jupiter:junit-jupiter:5.7.0'
     runtime 'info.picocli:picocli:3.6.0'
 
