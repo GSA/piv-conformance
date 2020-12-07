@@ -152,7 +152,7 @@ dependencies {
     api 'org.opentest4j:opentest4j:1.2.0'
     api 'org.slf4j:slf4j-api:2.0.0-alpha1'
     api 'org.xerial:sqlite-jdbc:3.32.3.2'
-    api 'gov.gsa:gov.gsa.pivconformance.cardlib:0.2.3-beta'
+    testRuntime 'gov.gsa:gov.gsa.pivconformance.cardlib:0.2.3-beta'
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
