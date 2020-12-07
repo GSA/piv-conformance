@@ -226,6 +226,7 @@ compileTestJava {
             '--add-reads', "$moduleName=org.junit.jupiter.api",
             '--add-exports', 'java.base/com.sun.crypto.provider=gov.gsa.pivconformance.conformancelib',
             '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib',
+            '--add-exports', 'gov.gsa.pivconformance.cardlib/gov.gsa.pivconformance.cardlib.test=gov.gsa.pivconformance.conformancelib',
             '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
         ]
         List<String> argumentList = options.getAllCompilerArgs()
