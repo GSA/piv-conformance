@@ -55,60 +55,31 @@ public class TestRunLogController {
 			put("APDULOG", "gov.gsa.pivconformance.cardlib");
 			
 			/* Container logs */
- 			put("BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE", "gov.gsa.pivconformance.cardlib.card.client.BiometricInformationTemplatesGroupTemplate");
- 			put("CARDCAPABILITYCONTAINER", "gov.gsa.pivconformance.cardlib.card.client.CardCapabilityContainer");
- 			put("CARDHOLDERUNIQUEIDENTIFIER", "gov.gsa.pivconformance.cardlib.card.client.CardHolderUniqueIdentifier");
- 			put("FINGERPRINTS", "gov.gsa.pivconformance.cardlib.card.client.Fingerprints");
- 			put("IMAGEFORVISUALVERIFICATION", "gov.gsa.pivconformance.cardlib.card.client.ImageForVisualVerification");
- 			put("IMAGESFORIRIS", "gov.gsa.pivconformance.cardlib.card.client.ImagesForIris");
- 			put("KEYHISTORYOBJECT", "gov.gsa.pivconformance.cardlib.card.client.KeyHistoryObject");
- 			put("PAIRINGCODEREFERENCEDATACONTAINER", "gov.gsa.pivconformance.cardlib.card.client.PairingCodeReferenceDataContainer");
- 			put("PRINTEDINFORMATION", "gov.gsa.pivconformance.cardlib.card.client.PrintedInformation");;
- 			put("SECUREMESSAGINGCERTIFICATESIGNER", "gov.gsa.pivconformance.cardlib.card.client.SecureMessagingCertificateSigner");
- 			put("SECURITYOBJECT", "gov.gsa.pivconformance.cardlib.card.client.SecurityObject");
- 			put("X509CERTIFICATEFORPIVAUTHENTICATION", "gov.gsa.pivconformance.cardlib.card.client.X509CertificateForPivAuthentication");
- 			put("X509CERTIFICATEFORCARDAUTHENTICATION", "gov.gsa.pivconformance.cardlib.card.client.X509CertificateForCardAuthentication");
- 			put("X509CERTIFICATEFORDIGITALSIGNATURE", "gov.gsa.pivconformance.cardlib.card.client.X509CertificateForDigitalSignature");
- 			put("X509CERTIFICATEFORKEYMANAGEMENT", "gov.gsa.pivconformance.cardlib.card.client.X509CertificateForKeyManagement");
- 			put("X509CERTIFICATEFORCHUIDSIGNATURE", "gov.gsa.pivconformance.cardlib.card.client.X509CertificateForChuidSignature");
- 			put("SECUREMESSAGINGCERTIFICATESIGNER", "gov.gsa.pivconformance.cardlib.card.client.SecureMessagingCertificateSigner");
+ 			put("BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE", "BiometricInformationTemplatesGroupTemplate");
+ 			put("CARDCAPABILITYCONTAINER",                    "CardCapabilityContainer");
+ 			put("CARDHOLDERUNIQUEIDENTIFIER",                 "CardHolderUniqueIdentifier");
+ 			put("CARDHOLDERFINGERPRINTS",                     "CardholderFingerprints");
+ 			put("CARDHOLDERFACIALIMAGE",                      "CardholderFacialImage");
+ 			put("CARDHOLDERIRISIMAGES",                       "CardholderIrisImages");
+ 			put("KEYHISTORYOBJECT",                           "KeyHistoryObject");
+ 			put("PAIRINGCODEREFERENCEDATACONTAINER",          "PairingCodeReferenceDataContainer");
+ 			put("PRINTEDINFORMATION",                         "PrintedInformation");;
+ 			put("SECUREMESSAGINGCERTIFICATESIGNER",           "SecureMessagingCertificateSigner");
+ 			put("SECURITYOBJECT",                             "SecurityObject");
+ 			put("X509CERTIFICATEFORPIVAUTHENTICATION",        "X509CertificateForPIVAuthentication");
+ 			put("X509CERTIFICATEFORCARDAUTHENTICATION",       "X509CertificateForCardAuthentication");
+ 			put("X509CERTIFICATEFORDIGITALSIGNATURE",         "X509CertificateForDigitalSignature");
+ 			put("X509CERTIFICATEFORKEYMANAGEMENT",            "X509CertificateForKeyManagement");
+ 			put("SECUREMESSAGINGCERTIFICATESIGNER",           "SecureMessagingCertificateSigner");
 		}
 	};
 
-	static final HashMap<String, String> m_oidLoggerMap = new HashMap<String, String>() {
-		static final long serialVersionUID = 1L;
-		{		
-			/* Container logs */
- 			put(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, "BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE");
- 			put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, "CARDCAPABILITYCONTAINER");
- 			put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, "CARDHOLDERUNIQUEIDENTIFIER");
- 			put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, "FINGERPRINTS");
- 			put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, "IMAGEFORVISUALVERIFICATION");
- 			put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, "IMAGESFORIRIS");
- 			put(APDUConstants.KEY_HISTORY_OBJECT_OID, "KEYHISTORYOBJECT");
- 			put(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, "PAIRINGCODEREFERENCEDATACONTAINER");
- 			put(APDUConstants.PRINTED_INFORMATION_OID, "PRINTEDINFORMATION");
- 			put(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID, "SECUREMESSAGINGCERTIFICATESIGNER");
- 			put(APDUConstants.SECURITY_OBJECT_OID, "SECURITYOBJECT");
- 			put(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "X509CERTIFICATEFORPIVAUTHENTICATION");
- 			put(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "X509CERTIFICATEFORCARDAUTHENTICATION");
- 			put(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID, "X509CERTIFICATEFORDIGITALSIGNATURE");
- 			put(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID, "X509CERTIFICATEFORKEYMANAGEMENT");
- 			put(APDUConstants.getFileNameForOid(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID), "X509CERTIFICATEFORCHUIDSIGNATURE");
-		}
-	};
-
-	public String getLoggerNameByOid(String oid) {
-		return m_oidLoggerMap.get(oid);
-	}
-	
 	private HashMap<String, TimeStampedFileAppender<?>> m_appenders = null;
 	private HashMap<String, String> m_filenames = null;
 	private LoggerContext m_ctx = null;
 	private boolean m_initialized = false;
 	private String m_timeStampedLogPath = null;
 	private String m_timeStamp;
-
 	
 	public static TestRunLogController getInstance() {
 		return INSTANCE;
