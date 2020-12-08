@@ -320,7 +320,7 @@ public class CardAuthTest {
 				String digestOid = NISTObjectIdentifiers.id_sha256.toString();
 				byte[] paddedChallenge = GeneralAuthenticateHelper.preparePKCS1Challenge(challenge, digestOid, modulusLen);
 				s_logger.debug("padded challenge: {}", Hex.encodeHexString(paddedChallenge));
-				byte[] template = GeneralAuthenticateHelper.generateRequest(jceKeyAlg, containerOid, paddedChallenge);
+				byte[] template = GeneralAuthenticateHelper.generateRequest(containerOid, paddedChallenge);
 				ResponseAPDU resp = null;
 				try {
 					resp = GeneralAuthenticateHelper.sendRequest(css.getCardHandle(), 0x07, containerId, template);
@@ -335,7 +335,7 @@ public class CardAuthTest {
 				}
 				s_logger.info("parsed challenge response: {}", Hex.encodeHexString(cr));
 				// XXX *** for now, the digest we'll use in the challenge block is always sha256 for RSA. We likely need to change that.
-				boolean verified = GeneralAuthenticateHelper.verifyResponseSignature("sha256WithRSA", pubKey, cr, challenge);
+				boolean verified = GeneralAuthenticateHelper.verifyResponseSignature(containerCert.getSigAlgName(), pubKey, cr, challenge);
 				s_logger.info("verify returns: {}", verified);
         	}
         }

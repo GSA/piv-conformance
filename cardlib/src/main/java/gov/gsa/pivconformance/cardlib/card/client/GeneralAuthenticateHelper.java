@@ -52,7 +52,7 @@ public class GeneralAuthenticateHelper {
     public static final int APDU_MAX = 255;
     public static final int APDU_MAX_DATA = APDU_MAX - 5;
 
-	public static byte[] generateRequest(String jceKeyType, String containerOid, byte[] paddedChallenge) {
+	public static byte[] generateRequest(String containerOid, byte[] paddedChallenge) {
 		BerTlvBuilder b = new BerTlvBuilder();
 		b.addEmpty(new BerTag(GA_RESPONSE));
 		b.addBytes(new BerTag(GA_CHALLENGE), paddedChallenge);
@@ -205,11 +205,11 @@ public class GeneralAuthenticateHelper {
 	public static boolean verifyResponseSignature(String jceSignatureAlgName, PublicKey containerCertKey, byte[] signature, byte[] challenge) {
 		boolean verified = false;
 		try {
-			Signature verifier = Signature.getInstance(jceSignatureAlgName);
+			Signature verifier = Signature.getInstance(jceSignatureAlgName, "BC");
 			verifier.initVerify(containerCertKey);
 			verifier.update(challenge);
 			verified = verifier.verify(signature);
-		} catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+		} catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidKeyException | SignatureException e) {
 			s_logger.error("Unable to process signature for verification", e);
 		}
 		return verified;
