@@ -39,7 +39,7 @@ repositories {
     mavenCentral()
     maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs '../libs'
+        dirs 'build/libs','../libs'
     }
 }
 
@@ -251,8 +251,6 @@ compileJava {
                     '--add-modules', 'java.smartcardio',
                     '--add-modules', 'org.junit.jupiter.api',
                     '--add-modules', 'org.slf4j'
-                    //'--add-reads', "$moduleName=org.junit.jupiter.api",
-                    //'--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
             ]
         }
         version = getVersion()
@@ -274,7 +272,6 @@ compileTestJava {
                     '--add-modules', 'org.junit.jupiter.api',
                     '--add-modules', 'org.slf4j',
                     '--add-reads', "$moduleName=gov.gsa.pivconformance.cardlib"
-                    //'--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath,
             ]
         }
         version = getVersion()
@@ -313,9 +310,6 @@ afterEvaluate {
 }
 
 extraJavaModuleInfo {
-    module("gov.gsa.pivconformance.cardlib-0.2.3-beta.jar", "gov.gsa", "0.2.3-beta") {
-        exports("gov.gsa.pivconformance.cardlib")
-    }
     module("ber-tlv-1.0-11.jar", "com.payneteasy", "1.0-11") {
         exports("ber.tlv")
     }
