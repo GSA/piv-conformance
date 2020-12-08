@@ -112,3 +112,8 @@ target
 
 # Ignore Gradle build output directory
 build
+
+# Build artifacts
+fips201-card-conformance-tool-[0-9]*\.[0-9]*\.[0-9]*-beta-[0-9]*\.zip
+fips201-card-conformance-tool-[0-9]*\.[0-9]*\.[0-9]*-beta-[0-9]*/*
+libs/*
