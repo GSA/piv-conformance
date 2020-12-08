@@ -135,22 +135,19 @@ public class KeyValidationHelper {
 					.findFirst();
 			assertTrue(result.isPresent(), "Public key point is not on a supported curve");
 
-			String sigAlg = containerCert.getSigAlgOID();
 			int digestLen = 0;
 			byte cryptoMechanism = 0;
 			switch (result.get().getKey()) {
 				case "P-256":
-					assertTrue(containerCert.getSigAlgOID().compareTo(X9ObjectIdentifiers.ecdsa_with_SHA256.getId()) == 0, "Invalid signature algorithm for Public Key");
 					digestLen = 32;
 					cryptoMechanism = 0x11;
 					break;
 				case "P-384":
-					assertTrue(containerCert.getSigAlgOID().compareTo(X9ObjectIdentifiers.ecdsa_with_SHA384.getId()) == 0, "Invalid signature algorithm for Public Key");
 					digestLen = 48;
 					cryptoMechanism = 0x14;
 					break;
 				default:
-					fail("Invalid signature algorithm for Public key");
+					fail("Unsupported curve");
 			}
 
 			byte[] digest = GeneralAuthenticateHelper.generateChallenge(digestLen);
