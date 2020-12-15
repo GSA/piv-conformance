@@ -26,12 +26,12 @@ PYTHON=${PYTHON:-$(which python)}
 $PYTHON -mvenv venv-xlrd
 source ./venv-xlrd/bin/activate
 pip install --upgrade pip
-pip install xlrd
+pip install xlrd==1.2.0
 pip install xlwt
 pip install xlsxwriter
 source ./venv-xlrd/bin/activate
 
-for F in PIV_Production_Cards.xlsx PIV-I_Production_Cards.xlsx PIV_ICAM_Test_Cards.xlsx PIV-I_ICAM_Test_Cards.xlsx
+for F in PIV_Production_Cards.xlsx PIV-I_Production_Cards.xlsx PIV_ICAM_Test_Cards.xlsx PIV-I_ICAM_Test_Cards.xlsx PIV-I_Carillon_Cards.xlsx PIV-I_XTec_First_Data_Cards.xlsx PIV-I-GSA_MSO_Cards.xlsx
 do
 	BASE=$(basename $F .xlsx)
 	echo "Processing $F..."
@@ -39,8 +39,12 @@ do
 	rm -f $BASE.sql
 	if [ -f $BASE.xlsx ]; then 
 		python CctDatabasePopulator.py -i $BASE.xlsx -o $BASE.sql
-		sqlite3 $BASE.db < $BASE.sql
-		cp -p $BASE.db ../../tools/85b-swing-gui/
+        if [ $? -eq 0 ]; then
+		    sqlite3 $BASE.db < $BASE.sql
+            if [ $? -eq 0 ]; then
+		        cp -p $BASE.db ../../tools/85b-swing-gui/
+            fi
+        fi
 	else
 		echo "$BASE.xlsx is missing"
 	fi
