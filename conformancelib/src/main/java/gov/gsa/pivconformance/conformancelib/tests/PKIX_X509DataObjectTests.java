@@ -50,6 +50,25 @@ public class PKIX_X509DataObjectTests {
 
 	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
 
+	/**
+	 * Converts a boolean array to a byte array representing the bitmap in high-order first
+	 * representation
+	 * @param in incoming boolean array representing bits
+	 * @return byte array representing the bitmap
+	 */
+	byte[] bitsToBytes(boolean[] in) {
+		byte[] outBytes = new byte[(in.length / 8) + 1];
+		int inIdx = 0;
+		for (int octetctr = 0; octetctr < outBytes.length; octetctr++) {
+			for (int bitctr = 7; inIdx < in.length && bitctr >=0; bitctr--) {
+				if (in[inIdx++]) {
+					outBytes[octetctr] |= 1 << bitctr;
+				}
+			}
+		}
+		return outBytes;
+	}
+
 	// Confirm keyUsage extension is present
 	@DisplayName("PKIX.2 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
@@ -95,76 +114,106 @@ public class PKIX_X509DataObjectTests {
 			return;		
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-		boolean[] ku = cert.getKeyUsage();
-
+		boolean[] foundBits = cert.getKeyUsage();
+		assertNotNull(foundBits, "keyUsage extension is absent");
+		byte[] foundBytes = bitsToBytes(foundBits);
+		KeyUsage foundUsage = KeyUsage.getInstance(new DERBitString(foundBytes, 6));
 		// confirm key usage extension is present
-		if(ku == null) {
+		if(foundUsage == null) {
 			Exception e = new Exception("key usage is null");
 			fail(e);
 		}
-		
-		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0){
-			// Confirm digitalSignature bit is set
-			assertTrue(ku[0] == true, "digitalSignature bit is not set");
-			assertTrue(ku[1] == false, "nonRepudiation bit is set");
-			assertTrue(ku[2] == false, "keyEncipherment bit is set");
-			assertTrue(ku[3] == false, "dataEncipherment bit is set");
-			assertTrue(ku[4] == false, "keyAgreement bit is set");
-			assertTrue(ku[5] == false, "keyCertSign bit is set");
-			assertTrue(ku[6] == false, "cRLSign bit is set");
-			assertTrue(ku[7] == false, "encipherOnly bit is set");
-			assertTrue(ku[8] == false, "decipherOnly bit is set");
 
+		int legalUsages = 0;
+		int illegalUsages = 0;
+
+		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0){
+			legalUsages =
+					KeyUsage.digitalSignature;
+			illegalUsages =
+					KeyUsage.nonRepudiation |
+					KeyUsage.keyAgreement |
+					KeyUsage.dataEncipherment |
+					KeyUsage.keyEncipherment |
+					KeyUsage.keyCertSign|
+					KeyUsage.cRLSign|
+					KeyUsage.encipherOnly|
+					KeyUsage.decipherOnly;
         } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0){
         	// Confirm digitalSignature and nonRepudiation bits are set
-    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
-    		assertTrue(ku[1] == true, "nonRepudiation bit is set");
-    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
-    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
-    		assertTrue(ku[4] == false, "keyAgreement bit is set");
-    		assertTrue(ku[5] == false, "keyCertSign bit is set");
-    		assertTrue(ku[6] == false, "cRLSign bit is set");
-    		assertTrue(ku[7] == false, "encipherOnly bit is set");
-    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+			legalUsages =
+					KeyUsage.digitalSignature |
+					KeyUsage.nonRepudiation;
+			illegalUsages =
+					KeyUsage.keyEncipherment |
+					KeyUsage.keyAgreement |
+					KeyUsage.dataEncipherment |
+					KeyUsage.keyCertSign|
+					KeyUsage.cRLSign|
+					KeyUsage.encipherOnly|
+					KeyUsage.decipherOnly;
 
-        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0){
-        	// Confirm keyEncipherment bit is set
-    		assertTrue(ku[0] == false, "digitalSignature bit is not set");
-    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
-    		assertTrue(ku[2] == true, "keyEncipherment bit is set");
-    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
-    		assertTrue(ku[4] == false, "keyAgreement bit is set");
-    		assertTrue(ku[5] == false, "keyCertSign bit is set");
-    		assertTrue(ku[6] == false, "cRLSign bit is set");
-    		assertTrue(ku[7] == false, "encipherOnly bit is set");
-    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+        } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0) {
+
+			if (cert.getPublicKey() instanceof RSAPublicKey) {
+				// Confirm keyEncipherment bit is set
+				legalUsages =
+						KeyUsage.keyEncipherment;
+				illegalUsages =
+						KeyUsage.digitalSignature |
+						KeyUsage.nonRepudiation |
+						KeyUsage.keyAgreement |
+						KeyUsage.dataEncipherment |
+						KeyUsage.keyCertSign |
+						KeyUsage.cRLSign |
+						KeyUsage.encipherOnly |
+						KeyUsage.decipherOnly;
+			} else if (cert.getPublicKey() instanceof ECPublicKey) {
+				// Confirm keyEncipherment bit is set
+				legalUsages =
+						KeyUsage.keyAgreement;
+				illegalUsages =
+						KeyUsage.digitalSignature |
+						KeyUsage.nonRepudiation |
+						KeyUsage.dataEncipherment |
+						KeyUsage.keyEncipherment |
+						KeyUsage.keyCertSign |
+						KeyUsage.cRLSign |
+						KeyUsage.encipherOnly |
+						KeyUsage.decipherOnly;
+			}
 
         } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
         	// Confirm digitalSignature bit is set
-    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
-    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
-    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
-    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
-    		assertTrue(ku[4] == false, "keyAgreement bit is set");
-    		assertTrue(ku[5] == false, "keyCertSign bit is set");
-    		assertTrue(ku[6] == false, "cRLSign bit is set");
-    		assertTrue(ku[7] == false, "encipherOnly bit is set");
-    		assertTrue(ku[8] == false, "decipherOnly bit is set");
+			legalUsages =
+					KeyUsage.digitalSignature;
+			illegalUsages =
+					KeyUsage.nonRepudiation |
+					KeyUsage.keyAgreement |
+					KeyUsage.dataEncipherment |
+					KeyUsage.keyEncipherment |
+					KeyUsage.keyCertSign|
+					KeyUsage.cRLSign|
+					KeyUsage.encipherOnly|
+					KeyUsage.decipherOnly;
 
         } else if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0){
         	// Confirm digitalSignature bit is set
-    		assertTrue(ku[0] == true, "digitalSignature bit is not set");
-    		assertTrue(ku[1] == false, "nonRepudiation bit is set");
-    		assertTrue(ku[2] == false, "keyEncipherment bit is set");
-    		assertTrue(ku[3] == false, "dataEncipherment bit is set");
-    		assertTrue(ku[4] == false, "keyAgreement bit is set");
-    		assertTrue(ku[5] == false, "keyCertSign bit is set");
-    		assertTrue(ku[6] == false, "cRLSign bit is set");
-    		assertTrue(ku[7] == false, "encipherOnly bit is set");
-    		assertTrue(ku[8] == false, "decipherOnly bit is set");
-
+			legalUsages =
+					KeyUsage.digitalSignature;
+			illegalUsages =
+					KeyUsage.nonRepudiation |
+					KeyUsage.keyAgreement |
+					KeyUsage.dataEncipherment |
+					KeyUsage.keyEncipherment |
+					KeyUsage.keyCertSign|
+					KeyUsage.cRLSign|
+					KeyUsage.encipherOnly|
+					KeyUsage.decipherOnly;
         }
 
+		assertTrue (foundUsage.hasUsages(legalUsages), "keyUsage " + Integer.toBinaryString(legalUsages) + "b for " + APDUConstants.containerOidToNameMap.get(oid) + " is absent for this certificate");
+		assertFalse(foundUsage.hasUsages(illegalUsages), "keyUsage " + Integer.toBinaryString(illegalUsages) + "b for " + APDUConstants.containerOidToNameMap.get(oid) + " must not be asserted for this certificate");
 	}
 
 	// Confirm certificate policies extension is present
@@ -568,100 +617,38 @@ public class PKIX_X509DataObjectTests {
 			assertTrue(((RSAPublicKey) (pubKey)).getPublicExponent().compareTo(be) >= 0, "Public exponent is not >= 65537" );
 		} 		
     }
-	
+
 	//Confirm digitalSignature and nonRepudiation bits are set
 	@DisplayName("PKIX.15 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_DigSigx509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_15(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;		
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + oid);
+		PKIX_Test_4(oid, reporter);
+	}
 
-		boolean[] ku = cert.getKeyUsage();
-
-		// confirm key usage extension is present
-		assertTrue(ku != null);
-
-		// taken out and placed somewhere else?
-		// Confirm digitalSignature and nonRepudiation bit is set
-		assertTrue(ku[0] == true, "digitalSignature bit is not set");
-		assertTrue(ku[1] == true, "nonRepudiation bit is not set");
-    }
-	
-	
-	//Confirm Key Management certificates for RSA keys have keyEncipherment bit set
-	@DisplayName("PKIX.16 test")
+	// Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set
+	// If the public key algorithm is RSA, then the keyUsage extension shall only assert the
+	// keyEncipherment bit. If the algorithm is Elliptic Curve key, then the keyUsage extension
+	// shall only b assert the keyAgreement bit.	@DisplayName("PKIX.16 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_KeyMgmtx509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_16(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;		
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + oid);
-
-		boolean[] ku = cert.getKeyUsage();
-
-		// confirm key usage extension is present
-		assertTrue(ku != null);
-
-		// taken out and placed somewhere else?
-		// Confirm keyEncipherment bit is set
-		assertTrue(ku[2] == true, "keyEncipherment bit is not set");
+		PKIX_Test_4(oid, reporter);
     }
 	
-	// Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set 
+	// Confirm Key Management certificates for elliptic curve keys have keyAgreement bit set
 	// If the public key algorithm is RSA, then the keyUsage extension shall only assert the
 	// keyEncipherment bit. If the algorithm is Elliptic Curve key, then the keyUsage extension
 	// shall only assert the keyAgreement bit.
-	/*
-	 *  KeyUsage ::= BIT STRING {
-     digitalSignature        (0),
-     nonRepudiation          (1),
-     keyEncipherment         (2),
-     dataEncipherment        (3),
-     keyAgreement            (4),
-     keyCertSign             (5),
-     cRLSign                 (6),
-     encipherOnly            (7),
-     decipherOnly            (8) }
-     
-	 */
+
 	@DisplayName("PKIX.17 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_KeyMgmtx509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_17(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;		
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + oid);
-		
-		PublicKey pubKey = cert.getPublicKey();
-
-		if(pubKey instanceof RSAPublicKey) {
-			boolean[] ku = cert.getKeyUsage();
-
-			// confirm key usage extension is present
-			assertTrue(ku != null, "Key usage extension is absent");
-			// Confirm keyEncipherment bit is set
-			assertTrue(ku[2] == true, "keyEncipherment bit is not set");
-			assertTrue(!ku[0] && !ku[1] && !ku[3] && !ku[4] && !ku[5] && !ku[6] && !ku[7] && !ku[8], "additional RSA keyUsage bits are set");
-			
-		} else if (pubKey instanceof ECPublicKey) {
-		
-			boolean[] ku = cert.getKeyUsage();
-
-			// confirm key usage extension is present
-			assertTrue(ku != null, "Key usage extension is absent");
-			// Confirm keyAgreement bit is set
-			assertTrue(ku[4] == true, "keyAgeeement bit is not set");
-			assertTrue(!ku[0] && !ku[1] && !ku[2] && !ku[3] && !ku[5] && !ku[6] && !ku[7] && !ku[8], "additional ECC keyUsage bits are set");
-		}
-		
+		PKIX_Test_4(oid, reporter);
     }
 	
 	//Confirm that id- fpki-common-cardAuth 2.16.840.1.101.3.2.1.3.17 OID is asserted in certificate policies
