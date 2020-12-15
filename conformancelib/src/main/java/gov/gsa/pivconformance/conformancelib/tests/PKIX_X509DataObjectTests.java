@@ -124,96 +124,69 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
 
-		int legalUsages = 0;
-		int illegalUsages = 0;
-
 		if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0){
-			legalUsages =
-					KeyUsage.digitalSignature;
-			illegalUsages =
-					KeyUsage.nonRepudiation |
-					KeyUsage.keyAgreement |
-					KeyUsage.dataEncipherment |
-					KeyUsage.keyEncipherment |
-					KeyUsage.keyCertSign|
-					KeyUsage.cRLSign|
-					KeyUsage.encipherOnly|
-					KeyUsage.decipherOnly;
+			assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.dataEncipherment), "dataEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyEncipherment), "keyEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyCertSign), "keyCertSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.cRLSign), "cRLSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly");
+			assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly");
         } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0){
-        	// Confirm digitalSignature and nonRepudiation bits are set
-			legalUsages =
-					KeyUsage.digitalSignature |
-					KeyUsage.nonRepudiation;
-			illegalUsages =
-					KeyUsage.keyEncipherment |
-					KeyUsage.keyAgreement |
-					KeyUsage.dataEncipherment |
-					KeyUsage.keyCertSign|
-					KeyUsage.cRLSign|
-					KeyUsage.encipherOnly|
-					KeyUsage.decipherOnly;
-
+			assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
+			assertTrue(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is not set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.dataEncipherment), "dataEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyEncipherment), "keyEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyCertSign), "keyCertSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.cRLSign), "cRLSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly is set");
         } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0) {
-
 			if (cert.getPublicKey() instanceof RSAPublicKey) {
-				// Confirm keyEncipherment bit is set
-				legalUsages =
-						KeyUsage.keyEncipherment;
-				illegalUsages =
-						KeyUsage.digitalSignature |
-						KeyUsage.nonRepudiation |
-						KeyUsage.keyAgreement |
-						KeyUsage.dataEncipherment |
-						KeyUsage.keyCertSign |
-						KeyUsage.cRLSign |
-						KeyUsage.encipherOnly |
-						KeyUsage.decipherOnly;
+				assertFalse(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.dataEncipherment), "dataEncipherment is set");
+				assertTrue(foundUsage.hasUsages(KeyUsage.keyEncipherment), "keyEncipherment is not set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.keyCertSign), "keyCertSign is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.cRLSign), "cRLSign is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly is set");
 			} else if (cert.getPublicKey() instanceof ECPublicKey) {
-				// Confirm keyEncipherment bit is set
-				legalUsages =
-						KeyUsage.keyAgreement;
-				illegalUsages =
-						KeyUsage.digitalSignature |
-						KeyUsage.nonRepudiation |
-						KeyUsage.dataEncipherment |
-						KeyUsage.keyEncipherment |
-						KeyUsage.keyCertSign |
-						KeyUsage.cRLSign |
-						KeyUsage.encipherOnly |
-						KeyUsage.decipherOnly;
+				assertFalse(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
+				assertTrue(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is not set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.dataEncipherment), "dataEncipherment is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.keyEncipherment), "keyEncipherment is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.keyCertSign), "keyCertSign is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.cRLSign), "cRLSign is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly is set");
+				assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly is set");
 			}
-
         } else if(oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0){
-        	// Confirm digitalSignature bit is set
-			legalUsages =
-					KeyUsage.digitalSignature;
-			illegalUsages =
-					KeyUsage.nonRepudiation |
-					KeyUsage.keyAgreement |
-					KeyUsage.dataEncipherment |
-					KeyUsage.keyEncipherment |
-					KeyUsage.keyCertSign|
-					KeyUsage.cRLSign|
-					KeyUsage.encipherOnly|
-					KeyUsage.decipherOnly;
-
+			assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.dataEncipherment), "dataEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyEncipherment), "keyEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyCertSign), "keyCertSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.cRLSign), "cRLSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly");
+			assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly");
         } else if(oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0){
-        	// Confirm digitalSignature bit is set
-			legalUsages =
-					KeyUsage.digitalSignature;
-			illegalUsages =
-					KeyUsage.nonRepudiation |
-					KeyUsage.keyAgreement |
-					KeyUsage.dataEncipherment |
-					KeyUsage.keyEncipherment |
-					KeyUsage.keyCertSign|
-					KeyUsage.cRLSign|
-					KeyUsage.encipherOnly|
-					KeyUsage.decipherOnly;
+			assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.dataEncipherment), "dataEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyEncipherment), "keyEncipherment is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.keyCertSign), "keyCertSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.cRLSign), "cRLSign is set");
+			assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly");
+			assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly");
         }
-
-		assertTrue (foundUsage.hasUsages(legalUsages), "keyUsage " + Integer.toBinaryString(legalUsages) + "b for " + APDUConstants.containerOidToNameMap.get(oid) + " is absent for this certificate");
-		assertFalse(foundUsage.hasUsages(illegalUsages), "keyUsage " + Integer.toBinaryString(illegalUsages) + "b for " + APDUConstants.containerOidToNameMap.get(oid) + " must not be asserted for this certificate");
 	}
 
 	// Confirm certificate policies extension is present
