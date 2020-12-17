@@ -137,18 +137,10 @@ dependencies {
     api 'org.opentest4j:opentest4j:1.2.0'
     api 'org.slf4j:slf4j-api:2.0.0-alpha1'
     api 'org.xerial:sqlite-jdbc:3.32.3.2'
-    testCompile 'gov.gsa:gov.gsa.pivconformance.cardlib:0.2.3-beta'
-    testRuntime 'gov.gsa:gov.gsa.pivconformance.cardlib:0.2.3-beta'
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
 
-task copyLogConfig(type: Copy) {
-    from file('../tools/85b-swing-gui/src/main/resources/user_log_config.xml')
-    into projectDir
-}
-
 test {
-    dependsOn(copyLogConfig)
     if (cardTerminalPresent() == false) {
         deleteCardsDir('build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
         // Exclude tests that require a PIN
@@ -181,8 +173,6 @@ junitPlatformTest {
         }
     }
 }
-
-//archivesBaseName = gov.gsa.pivconformance.cardlib-' + getVersion()
 
 jar {
     doFirst {
