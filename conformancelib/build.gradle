@@ -187,12 +187,6 @@ sourceSets {
         }
         java { "src/main/java" }
     }
-    test {
-        resources {
-            source allResources.resources
-        }
-        java { "src/test/java" }
-    }
 }
 
 compileJava {
@@ -211,7 +205,7 @@ compileJava {
     List<String> argumentList = options.getAllCompilerArgs()
     println 'Compiler args:'
     argumentList.each { println '  [' + it +']' }
-    //classpath = files()
+    println 'Classpath: ' + classpath.toString()
 }
 
 compileTestJava {
@@ -263,8 +257,6 @@ task sourceJar(type: Jar, dependsOn: classes) {
     classifier 'sources'
     from sourceSets.main.allSource
 }
-
-//shadowJar.dependsOn copyShadowLibs
 
 task copyShadowLibs(type: Copy) {
     from configurations.shadow
