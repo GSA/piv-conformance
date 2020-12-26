@@ -25,4 +25,5 @@ module gov.gsa.pivconformance.conformancelib {
 	requires org.junit.platform.launcher;
 	requires org.slf4j;
 	requires org.junit.platform.commons;
+    requires info.picocli;
 }
