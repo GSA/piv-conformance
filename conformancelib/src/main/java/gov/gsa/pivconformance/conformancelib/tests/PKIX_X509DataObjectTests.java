@@ -225,7 +225,6 @@ public class PKIX_X509DataObjectTests {
 			return;
 		}
 		s_logger.debug("Directly-asserted test");
-		// PDVAL starts here
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
@@ -309,14 +308,11 @@ public class PKIX_X509DataObjectTests {
 				try {
 					X509Certificate trustAnchorCert = null;
 					try {
-						Validator validator = new Validator();
-						validator.setKeyStore("x509-certs/cacerts.keystore", "changeit"); //TODO: Make this a property
+						//TODO: Needs to configurable
+						Validator validator = new Validator("Sun", "x509-certs/cacerts.keystore", "changeit");
 						KeyStore ks = validator.getKeyStore();
-						//validator.setCpb("BC");
-						validator.setUseCABundle(false);
 						String subjectName = cert.getSubjectX500Principal().getName();
 						String trustAnchorAlias = null;
-
 						//TODO: Needs to configurable
 						if (subjectName.contains("ICAM")) {
 							if (subjectName.contains("PIV-I")) {
