@@ -4,12 +4,12 @@ import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 
+import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ValidatorHelper {
@@ -36,28 +36,6 @@ public class ValidatorHelper {
     }
 
     /**
-     * Corrects the path separators for a path.
-     *
-     * @param inPath
-     *            the path as read from a configuration file, etc.
-     * @return a path with the correct path separators for the local OS
-     */
-
-    public static String pathFixup(String inPath) {
-        boolean windowsOs = (System.getProperty("os.name").toLowerCase().contains("windows"));
-        String outPath = inPath;
-        if (windowsOs == true) {
-            if (inPath.contains("/")) {
-                outPath = inPath.replace("/", "\\");
-            }
-        } else if (inPath.contains("\\")) {
-            outPath = inPath.replace("\\", "/");
-        }
-
-        return outPath;
-    }
-
-    /**
      * Gets a file from the specified resource for the specified class.
      *
      * @param fileName the basename of the resource file
@@ -65,6 +43,7 @@ public class ValidatorHelper {
      * @throws ConformanceTestException if any error occurs
      */
     public static InputStream getStreamFromResourceFile(String fileName) throws ConformanceTestException {
+        s_logger.debug("getStreamFromResourceFile:" + fileName);
         FileInputStream inputStream = null;
         String msg = null;
 
@@ -89,18 +68,42 @@ public class ValidatorHelper {
      */
 
     public static X509Certificate getTrustAnchorForGivenCertificate(KeyStore keyStore, X509Certificate eeCert) throws ConformanceTestException {
-        String trustCA = null;
-        X509Certificate trustAnchorCert = null;
-        try {
-            if (eeCert.getSubjectDN().getName().contains("ICAM")) {
-                trustCA = "icam test card root ca";
-            } else {
-                trustCA = "federal common policy ca";
-            }
-        } catch (Exception e) {
-            fail("Exception reading the certificate.");
+        if (keyStore == null) {
+            s_logger.error("getTrustAnchorForGivenCertificate: keyStore is null");
+            return null;
         }
-        trustAnchorCert = getCertFromKeyStore(keyStore, trustCA);
+        if (eeCert == null) {
+            s_logger.error("getTrustAnchorForGivenCertificate: eeCert is null");
+            return null;
+        }
+        s_logger.debug("getTrustAnchorForGivenCertificate:" + eeCert.getSubjectDN().getName());
+        String alias = null;
+        X509Certificate trustAnchorCert = null;
+        String subjectName = eeCert.getSubjectDN().getName();
+        if (subjectName.contains("ICAM")) {
+            if (subjectName.contains("PIV-I")) {
+                alias = "icam test card piv-i root ca";
+            } else {
+                alias = "icam test card piv root ca";
+            }
+        } else {
+            alias = "federal common policy ca";
+        }
+
+        try {
+            trustAnchorCert = getCertFromKeyStore(keyStore, alias);
+            if (trustAnchorCert == null) {
+                String msg = "Couldn't get trust anchor from keyStore: " + alias;
+                s_logger.error(msg);
+                throw new ConformanceTestException(msg);
+            }
+        } catch (ConformanceTestException e) {
+            throw e;
+        } catch (Exception e) {
+            String msg = "getTrustAnchorForGivenCertificate: " + e.getMessage();
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
+        }
         s_logger.debug("Trust anchor: " + trustAnchorCert.getSubjectDN().getName());
         return trustAnchorCert;
     }
@@ -113,15 +116,28 @@ public class ValidatorHelper {
      */
 
     public static X509Certificate getCertFromKeyStore(KeyStore ks, String alias) throws ConformanceTestException {
+        if (ks == null) {
+            s_logger.error("getCertFromKeyStore: ks is null");
+            return null;
+        }
+        if (alias == null) {
+            s_logger.error("getCertFromKeyStore: alias is null");
+            return null;
+        }
+
+        s_logger.debug("getCertFromKeyStore: " + alias);
         try {
             if (ks.containsAlias(alias)) {
                 return (X509Certificate) ks.getCertificate(alias);
+            } else {
+                String msg = "getCertFromKeyStore: Couldn't find cert with alias [" + alias + "]";
+                s_logger.error(msg);
+                throw new ConformanceTestException(msg);
             }
         } catch (Exception e) {
             String message = e.getMessage();
             s_logger.error("getCertFromKeyStore: " + message);
             throw new ConformanceTestException(message);
         }
-        return null;
     }
 }

@@ -216,7 +216,7 @@ compileJava {
     List<String> argumentList = options.getAllCompilerArgs()
     println 'Compiler args:'
     argumentList.each { println '  [' + it +']' }
-    println 'Classpath: ' + classpath.toString()
+    //println 'Classpath: ' + classpath.toString()
 }
 
 compileTestJava {
@@ -231,9 +231,6 @@ compileTestJava {
     options.compilerArgs = [
         '--module-path', classpath.asPath,
         '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",'--add-exports',
-        /*
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
-          */
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=$moduleName",
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=$moduleName",
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
@@ -242,7 +239,7 @@ compileTestJava {
     List<String> argumentList = options.getAllCompilerArgs()
     println 'Compiler args:'
     argumentList.each { println '  [' + it +']' }
-    println 'Classpath: ' + classpath.toString()
+    //println 'Classpath: ' + classpath.toString()
 }
 
 task installTest (type: Copy) {
@@ -286,7 +283,8 @@ junitPlatform {
         tags {
             exclude "PIN"
             exclude "Card"
-            include "PKI"
+            include "Sun"
+            exclude "BC"
         }
     }
     enableStandardTestTask true

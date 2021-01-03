@@ -1,13 +1,8 @@
 package gov.gsa.pivconformance.conformancelib.utilities;
 
-//import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import checkers.units.quals.C;
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.apache.commons.cli.*;
-//import org.bouncycastle.jcajce.provider.asymmetric.X509;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.math.ec.rfc8032.Ed448;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +15,9 @@ import java.net.URLDecoder;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
+
+import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
+import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getStreamFromResourceFile;
 
 /**
  * Provides the API to validating a given end entity certificate for
@@ -94,7 +92,6 @@ public class Validator {
         }
     }
 
-
     /**
      * Sets the validator's KeyStore to keyStoreName
      *
@@ -104,9 +101,9 @@ public class Validator {
     public void setKeyStore(String keyStoreName, String password) throws ConformanceTestException {
         String javaClassPath = System.getProperty("java.class.path");
         String currentDirectory = "?";
-        System.out.println("java.class.path:" + javaClassPath);
+        //System.out.println("java.class.path:" + javaClassPath);
         // When running out of a jar file, args[0] is the jar?
-        String path = ValidatorHelper.pathFixup(
+        String path = pathFixup(
                 this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
         try {
             if (path.endsWith(".jar")) {
@@ -114,7 +111,7 @@ public class Validator {
                 String message = "Running from jar file";
                 System.out.println(message);
             } else {
-                String message = "Running from IDE";
+                String message = "Running from IDE/Gradle";
                 System.out.println(message);
             }
             currentDirectory = URLDecoder.decode(path, "UTF-8");
@@ -128,7 +125,7 @@ public class Validator {
             return;
         }
         InputStream is = null;
-        is = ValidatorHelper.getStreamFromResourceFile(keyStoreName);
+        is = getStreamFromResourceFile(System.getProperty("user.dir") + File.separator + keyStoreName);
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("JKS");
@@ -168,7 +165,7 @@ public class Validator {
                 throw new NoSuchProviderException();
             }
         } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
-            s_logger.error("SetCpb(" + providerString + "): " + e.getMessage());
+            s_logger.error("setCpb(" + providerString + "): " + e.getMessage());
             throw e;
         }
     }
@@ -185,12 +182,12 @@ public class Validator {
         m_useCABundle = flag;
     }
 
-    private void PrintHelpAndExit(int exitCode) {
+    private static void PrintHelpAndExit(int exitCode) {
         new HelpFormatter().printHelp("CertDump <options>", s_options);
         System.exit(exitCode);
     }
 
-    private void main(String[] args) {
+    public static void main(String[] args) throws ConformanceTestException {
         CommandLineParser p = new DefaultParser();
         CommandLine cmd = null;
         File endEntityCertFile = null;
@@ -243,23 +240,38 @@ public class Validator {
                     trustAnchorCertFile = new File(resourceDir + File.separator + cmd.getOptionValue("ta"));
             }
         }
+        Validator v = new Validator();
         if(cmd.hasOption("provider")) {
             provider = cmd.getOptionValue("provider");
             try {
-                setCpb(provider);
+                v.setCpb(provider);
             } catch (Exception e) {
                 s_logger.error(e.getMessage());
             }
         }
-        isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
+        v.isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
 
+    /**
+     * Determines whether the certificate in the given end entity certificate is valid for the specified policy OID(s).
+     * @param endEndityCertFile name of file containing X.509 certificate of the end entity
+     * @param policyOids comma-separated string of certificate policy OIDs
+     * @param trustAnchorFile name of file containing X.509 certificate of the trust anchor
+     * @return true if the certificate can be validated for the given policy, false if any error occurs
+     */
     public boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) {
         File eeFile = new File(endEndityCertFile);
         File taFile = new File(trustAnchorFile);
         return isValid(eeFile, policyOids, taFile);
     }
 
+    /**
+     * Determines whether the certificate in the given end entity certificate is valid for the specified policy OID(s).
+     * @param endEntityCertFile file object containing X.509 certificate of the end entity
+     * @param policyOids comma-separated string of certificate policy OIDs
+     * @param trustAnchorFile file object containing X.509 certificate of the trust anchor
+     * @return true if the certificate can be validated for the given policy, false if any error occurs
+     */
     public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) {
         CertificateFactory fac;
         boolean rv = false;
@@ -269,7 +281,6 @@ public class Validator {
         try {
             fac = CertificateFactory.getInstance("X509");
             eeCert = (X509Certificate) fac.generateCertificate(new FileInputStream(endEntityCertFile));
-
         } catch (CertificateException | IOException e) {
             String msg = endEntityCertFile.getName() + ": " + e.getMessage();
             System.out.println(msg);
@@ -309,11 +320,9 @@ public class Validator {
                     return null;
                 }
 
-                public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) { }
 
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                }
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
             }};
             // Install the all-trusting trust manager
             final SSLContext sc = SSLContext.getInstance("SSL");
@@ -407,7 +416,7 @@ public class Validator {
             policies = new HashSet<>(Arrays.asList(allowedPolicies));
             PKIXBuilderParameters params = new PKIXBuilderParameters(trustAnchors, eeCertSelector);
             params.addCertStore(certStore);
-            params.setRevocationEnabled(false);
+            params.setRevocationEnabled(true);
             params.setMaxPathLength(10);
             params.setSigProvider(m_cpb.getProvider().getName());
             params.setInitialPolicies(policies);
@@ -415,6 +424,8 @@ public class Validator {
             params.setPolicyMappingInhibited(false);
 
             System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(true));
+            System.setProperty("com.sun.security.crl.timeout", String.valueOf(120));
+            System.setProperty("ocsp.enable", String.valueOf(true));
             CertPathBuilderResult cpbResult = m_cpb.build(params);
             s_logger.debug("cpb.build() returned " + cpbResult.toString());
             CertPath certPath = cpbResult.getCertPath();
