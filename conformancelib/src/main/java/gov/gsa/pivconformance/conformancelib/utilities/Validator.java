@@ -2,6 +2,8 @@ package gov.gsa.pivconformance.conformancelib.utilities;
 
 //import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import checkers.units.quals.C;
+import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.apache.commons.cli.*;
 //import org.bouncycastle.jcajce.provider.asymmetric.X509;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -14,6 +16,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
@@ -24,7 +27,6 @@ import java.util.*;
  */
 public class Validator {
     private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
-    private static final Validator INSTANCE = null;
     private static final Options s_options = new Options();
     private static final String m_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
     private static final String m_monitorFileName = "all.p7b";
@@ -49,11 +51,49 @@ public class Validator {
         s_options.addOption(providerOption);
     }
 
-    public Validator getInstance() throws NoSuchProviderException, NoSuchAlgorithmException {
+    /**
+     *
+     * @throws ConformanceTestException
+     */
+    public Validator() throws ConformanceTestException {
+        reset("Sun");
         setKeyStore("x509-certs/cacerts.keystore", "changeit");
-        setCpb("Sun");
-        return INSTANCE;
     }
+
+    /**
+     *
+     * @param provider
+     * @throws ConformanceTestException
+     */
+    public Validator (String provider) throws ConformanceTestException {
+        reset(provider);
+        setKeyStore("x509-certs/cacerts.keystore", "changeit");
+    }
+
+    /**
+     * @param provider
+     * @param keyStoreName
+     * @throws ConformanceTestException
+     */
+    public Validator (String provider, String keyStoreName, String password) throws ConformanceTestException {
+        reset(provider);
+        setKeyStore(keyStoreName, password);
+    }
+
+    /**
+     * Resets the object to the desired provider
+     * @param provider Crypto and path builder provider
+     * @throws ConformanceTestException
+     */
+    private void reset(String provider) throws ConformanceTestException {
+        try {
+            setCpb(provider);
+        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
+            s_logger.error(e.getMessage());
+            throw new ConformanceTestException(e.getMessage());
+        }
+    }
+
 
     /**
      * Sets the validator's KeyStore to keyStoreName
@@ -61,20 +101,41 @@ public class Validator {
      * @param keyStoreName the path to the KeyStore file
      */
 
-    public void setKeyStore(String keyStoreName, String password) {
-        InputStream is = getFileFromResourceAsStream(Validator.class, keyStoreName);
+    public void setKeyStore(String keyStoreName, String password) throws ConformanceTestException {
+        String javaClassPath = System.getProperty("java.class.path");
+        String currentDirectory = "?";
+        System.out.println("java.class.path:" + javaClassPath);
+        // When running out of a jar file, args[0] is the jar?
+        String path = ValidatorHelper.pathFixup(
+                this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+        try {
+            if (path.endsWith(".jar")) {
+                path += File.separator;
+                String message = "Running from jar file";
+                System.out.println(message);
+            } else {
+                String message = "Running from IDE";
+                System.out.println(message);
+            }
+            currentDirectory = URLDecoder.decode(path, "UTF-8");
+            String message = "Current directory is " + currentDirectory;
+            System.out.println(message);
+        } catch (UnsupportedEncodingException e1) {
+            currentDirectory = path + File.separator + ".." + File.separator;
+        } catch (Exception e) {
+            String message = e.getMessage();
+            System.out.println(message);
+            return;
+        }
+        InputStream is = null;
+        is = ValidatorHelper.getStreamFromResourceFile(keyStoreName);
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("JKS");
             ks.load(is, password.toCharArray());
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+            s_logger.error(e.getMessage());
+            throw new ConformanceTestException(e.getMessage());
         }
         m_keystore = ks;
     }
@@ -86,25 +147,6 @@ public class Validator {
     public KeyStore getKeyStore() {
         return m_keystore;
     }
-
-    /**
-     * Gets a file from the specified resource for the specified class.
-     *
-     * @param clazz    the class requesting its resource
-     * @param fileName the basename of the resource file
-     * @return InputStream to the open resource
-     */
-    public InputStream getFileFromResourceAsStream(Class clazz, String fileName) {
-        ClassLoader classLoader = clazz.getClassLoader();
-        InputStream inputStream = null;
-        try {
-            inputStream = classLoader.getResourceAsStream(fileName);
-        } catch (Exception e) {
-            s_logger.error("Can't open '" + fileName + "': ", e.getMessage());
-        }
-        return inputStream;
-    }
-
     /**
      * Sets the provider for path validation
      * @param providerString provider string
@@ -340,14 +382,6 @@ public class Validator {
             eeCertSelector.setCertificate(eeCert);
             TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
 
-            // ---------------------------------------------------------------------------------- //
-            // Uncomment to use Bouncy Castle Provider - Requires FPKI Crawler's output file
-            // This output file contains a series of issuing CA's trusted by a given trust anchor
-            //Security.addProvider(new BouncyCastleProvider());
-            // Create CertPathBuilder that implements the "PKIX" algorithm
-            // This is now set during instantiation CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX");//, "BC");
-            // Open an input stream to the bundle file
-            //
             if (m_useCABundle ==  true) {
                 if (loadCABundle(m_monitorUrlString)) {
                     FileInputStream fis = new FileInputStream(m_monitorFileName);
@@ -358,27 +392,24 @@ public class Validator {
                         CertPath cp = cf.generateCertPath(fis, "PKCS7");
                         List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
                         certList.addAll(certs);
-                        //cpb = CertPathBuilder.getInstance("PKIX");//, new BouncyCastleProvider());
                     } else {
                         s_logger.warn(m_monitorUrlString + " was not found");
                     }
                 }
             }
-            //
-            // ---------------------------------------------------------------------------------- //
 
             CertStore certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             Set<TrustAnchor> trustAnchors = new HashSet<>();
             trustAnchors.add(trustAnchor);
+            // Defining required Policy OID
+            HashSet<String> policies = new HashSet<>();
+            String[] allowedPolicies = policyOids.split("|");
+            policies = new HashSet<>(Arrays.asList(allowedPolicies));
             PKIXBuilderParameters params = new PKIXBuilderParameters(trustAnchors, eeCertSelector);
             params.addCertStore(certStore);
             params.setRevocationEnabled(false);
             params.setMaxPathLength(10);
             params.setSigProvider(m_cpb.getProvider().getName());
-            // Defining required Policy OID
-            HashSet<String> policies = new HashSet<>();
-            String[] allowedPolicies = policyOids.split("|");
-            policies = new HashSet<>(Arrays.asList(allowedPolicies));
             params.setInitialPolicies(policies);
             params.setExplicitPolicyRequired(true);
             params.setPolicyMappingInhibited(false);

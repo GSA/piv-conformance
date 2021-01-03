@@ -225,7 +225,6 @@ public class PKIX_X509DataObjectTests {
 			return;
 		}
 		s_logger.debug("Directly-asserted test");
-		// PDVAL starts here
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
@@ -288,8 +287,8 @@ public class PKIX_X509DataObjectTests {
     void PKIX_Test_6_PD_VAL(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;		
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + oid);
+		X509Certificate eeCert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		assertNotNull(eeCert, "Certificate could not be read for " + oid);
 
 		if (containersAndPolicyOids == null) {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
@@ -309,14 +308,11 @@ public class PKIX_X509DataObjectTests {
 				try {
 					X509Certificate trustAnchorCert = null;
 					try {
-						Validator validator = new Validator();
-						validator.setKeyStore("x509-certs/cacerts.keystore", "changeit"); //TODO: Make this a property
+						//TODO: Needs to configurable
+						Validator validator = new Validator("Sun", "x509-certs/cacerts.keystore", "changeit");
 						KeyStore ks = validator.getKeyStore();
-						//validator.setCpb("BC");
-						validator.setUseCABundle(false);
-						String subjectName = cert.getSubjectX500Principal().getName();
+						String subjectName = eeCert.getSubjectX500Principal().getName();
 						String trustAnchorAlias = null;
-
 						//TODO: Needs to configurable
 						if (subjectName.contains("ICAM")) {
 							if (subjectName.contains("PIV-I")) {
@@ -328,10 +324,10 @@ public class PKIX_X509DataObjectTests {
 							trustAnchorAlias = "federal common policy ca";
 						}
 						s_logger.debug("Looking for trust anchor " + trustAnchorAlias);
-						trustAnchorCert = (X509Certificate) ks.getCertificate(trustAnchorAlias);
+						trustAnchorCert = gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getTrustAnchorForGivenCertificate(ks, eeCert);
 						if (trustAnchorCert != null) {
 							s_logger.debug("Validating to trust anchor " + trustAnchorCert.getSubjectDN().getName());
-							boolean valid = validator.isValid(cert, paramList3.toString(), trustAnchorCert);
+							boolean valid = validator.isValid(eeCert, paramList3.toString(), trustAnchorCert);
 							assertTrue(valid, "Cert not valid");
 						} else {
 							fail("Can't load trust anchor " + trustAnchorAlias);

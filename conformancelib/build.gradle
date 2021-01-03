@@ -104,7 +104,6 @@ dependencies {
     api 'commons-codec:commons-codec:1.15'
     api 'ch.qos.logback:logback-classic:1.3.0-alpha5'
     api 'ch.qos.logback:logback-core:1.3.0-alpha5'
-    api 'org.xerial:sqlite-jdbc:3.32.3.2'
     api 'org.apache.ibatis:ibatis-core:3.0'
     api 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     api 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
@@ -112,15 +111,16 @@ dependencies {
     api 'org.junit.platform:junit-platform-launcher:1.7.0'
     api 'junit:junit:4.13'
     api 'info.picocli:picocli:3.6.0'
-    api 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
 
     testCompile 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
     testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
-    testRuntime 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
+    implementation 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
+
     runtime 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
     runtime 'org.junit.jupiter:junit-jupiter:5.7.0'
     runtime 'info.picocli:picocli:3.6.0'
+    runtime 'org.xerial:sqlite-jdbc:3.32.3.2'
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
@@ -144,7 +144,7 @@ jar {
  		'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
  		'Bundle-Vendor': 'gov.gsa',
  		'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
-        'Export-Package':'gov.gsa.pivconformance.conformancelib;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.test;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.configuration;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tests;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tools.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.utilities;version=' + getVersion(),
+        'Export-Package':'gov.gsa.pivconformance.conformancelib;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.configuration;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tests;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tools.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.utilities;version=' + getVersion(),
         'Import-Package': '*',
  		'Specification-Title': 'gov.gsa.pivconformance.conformancelib',
  		'Specification-Version': getVersion(),
@@ -168,7 +168,9 @@ extraJavaModuleInfo {
     automaticModule("logback-core-1.3.0-alpha5.jar", "ch.qos.logback")
     automaticModule("junit-4.13.jar", "junit")
     automaticModule("ibatis-core-3.0.jar","org.apache.ibatis")
-    automaticModule("sqlite-jdbc-3.32.3.2.jar","org.xerial")
+    module("sqlite-jdbc-3.32.3.2.jar", "org.xerial", "3.32.3.2") {
+        exports("sqlite.jdbc")
+    }
     automaticModule("activation-1.1.jar","javax.activation")
     automaticModule("checker-framework-1.7.0.jar","edu.washington.cs.types.checker")
 }
@@ -183,88 +185,117 @@ sourceSets {
         resources {
             source allResources.resources
         }
+        java { "src/main/java" }
     }
     test {
         resources {
-            source allResources.resources
+            srcDir "src/main/resources"
         }
     }
 }
 
 compileJava {
     options.debugOptions.debugLevel = "source,lines,vars"
+    def moduleName = 'gov.gsa.pivconformance.conformancelib'
     if(JavaVersion.current().isJava9Compatible()) {
-        def moduleName = 'gov.gsa.pivconformance.conformancelib'
         inputs.property("moduleName", moduleName)
-        println 'compileJava.moduleName and version: ' + moduleName + '-' + getVersion()
+        println 'compileJava.moduleName and version: ' + moduleName + ', version ' + getVersion()
     }
 
-    doFirst {
-        options.compilerArgs = [
-            '--module-path', classpath.asPath,
-            '--add-exports', 'java.base/com.sun.crypto.provider=gov.gsa.pivconformance.conformancelib',
-            '--add-exports', 'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
-        ]
-        List<String> argumentList = options.getAllCompilerArgs()
-        println 'Compiler args:'
-        argumentList.each { println '  [' + it +']' }
-        classpath = files()
-    }
+    options.compilerArgs = [
+        '--module-path', classpath.asPath,
+        '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",
+        /*
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
+          */
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=$moduleName",
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=$moduleName",
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED"
+    ]
+    List<String> argumentList = options.getAllCompilerArgs()
+    println 'Compiler args:'
+    argumentList.each { println '  [' + it +']' }
+    println 'Classpath: ' + classpath.toString()
 }
 
 compileTestJava {
-    def moduleName
+    options.debugOptions.debugLevel = "source,lines,vars"
+    def moduleName = 'gov.gsa.pivconformance.conformancelib'
     if(JavaVersion.current().isJava9Compatible()) {
-        moduleName = 'gov.gsa.pivconformance.conformancelib.test'
         version = getVersion()
         inputs.property("moduleName", moduleName)
+        println 'compileTestJava.moduleName and version: ' + moduleName + ', version ' + getVersion()
     }
-    doFirst {
-        options.compilerArgs = [
-            '--module-path', classpath.asPath,
-            '--add-modules', 'org.junit.jupiter.api',
-            '--add-reads', "$moduleName=org.junit.jupiter.api",
-            '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath
-        ]
-        List<String> argumentList = options.getAllCompilerArgs()
-        println 'Compiler args:'
-        argumentList.each { println '  [' + it +']' }
-        classpath = files()
+
+    options.compilerArgs = [
+        '--module-path', classpath.asPath,
+        '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",'--add-exports',
+        /*
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
+          */
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=$moduleName",
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=$moduleName",
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
+        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED"
+    ]
+    List<String> argumentList = options.getAllCompilerArgs()
+    println 'Compiler args:'
+    argumentList.each { println '  [' + it +']' }
+    println 'Classpath: ' + classpath.toString()
+}
+
+task installTest (type: Copy) {
+    println "Test Resources:"
+    sourceSets.test.resources.each { println '  [' + it +']' }
+    from sourceSets.test.resources
+    into 'build/classes/java/main'
+}
+
+task installTestIDE (type: Copy) {
+    println "TestIDE Resources:"
+    sourceSets.test.resources.each { println '  [' + it +']' }
+    from (sourceSets.test.resources) {
+        include '**/x509-certs/cacerts.keystore'
+        include '**/x509-certs/valid/**'
     }
+    into './'
 }
 
 test {
-    filter {
-        excludeTestsMatching "gov.gsa.pivconformance.PIV*"
-    }
+    dependsOn installTest
+    allJvmArgs += '-Djava.security.debug=certpath,pkcs11,provider'
+    allJvmArgs += '--add-exports org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED"'
+    allJvmArgs += '--add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED"'
+    println 'JVM args: '
+    allJvmArgs.each { println '  [' + it +']' }
     if (cardTerminalPresent() == false) {
-        def collection = files() //.filter { it.excludeTestsMatching 'PIV*' }
-        classpath = collection
-	      println 'collection.size() = ' + collection.size()
         version = getVersion()
-        allJvmArgs += '-Djava.security.debug=certpath,pkcs11,provider'
         List<String> argumentList = test.getAllJvmArgs()
         println 'Args:'
         argumentList.each { println '  [' + it +']' }
-        useJUnitPlatform {
-            excludeTags 'PIN'
-        }
+        useJUnitPlatform { includeTags "PKI" }
         testLogging {
             events "passed", "skipped", "failed"
         }
     }
 }
 
-compileJava {
-    options.debugOptions.debugLevel = "source,lines,vars"
+junitPlatform {
+    filters {
+        tags {
+            exclude "PIN"
+            exclude "Card"
+            include "PKI"
+        }
+    }
+    enableStandardTestTask true
 }
 
 task sourceJar(type: Jar, dependsOn: classes) {
     classifier 'sources'
     from sourceSets.main.allSource
 }
-
-//shadowJar.dependsOn copyShadowLibs
 
 task copyShadowLibs(type: Copy) {
     from configurations.shadow
@@ -286,3 +317,4 @@ task install(type: Copy) {
     from jar
     into '../libs' 
 }
+
