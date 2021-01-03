@@ -36,12 +36,6 @@ logger.warn("source java version: " + sourceCompatibility)
 eclipse {
     classpath {
         file {
-            whenMerged {
-                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
-                //jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-                def lib = entries.find { it.path.contains 'gov.gsa.pivconformance.conformanceblib-' + getVersion() + '.jar' }
-                lib.sourcePath = fileReference(file('../libs/gov.gsa.pivconformance.conformancelib-' + getVersion() + '-sources' + '.jar'))
-            }
         }
     }
 }
@@ -68,23 +62,21 @@ def getVersion = { ->
 }
 
 def cardTerminalPresent = { ->
-    boolean terminalPresent = true // default to 'true' to prevent accidents
     try {
         TerminalFactory factory = TerminalFactory.getDefault()
         List<CardTerminal> terminals = factory.terminals().list()
         if (terminals.size() == 0) {
             println '**** No smartcard readers connected1, proceeding with tests'
-            terminalPresent = false
+            return false
         } else {
             println '**** Cannot run JUnit tests with smartcard reader connected'
-            terminalPresent = true
+            return true
         }
     } catch (Exception ex) {
         println '**** No smartcard readers connected2, proceeding with tests'
         println 'Exception ' + '\n' + ex.getStackTrace()
-        terminalPresent = false
+        return false
     }
-    return terminalPresent
 }
 
 // custom task from
@@ -126,9 +118,6 @@ dependencies {
 }
 
 jar {
-    doFirst {
-        version = getVersion()
-    }
     manifest {
          attributes(
  		'Manifest-Version': getVersion(),
@@ -191,6 +180,9 @@ sourceSets {
         resources {
             srcDir "src/main/resources"
         }
+        java {
+            srcDir "src/main/java"
+        }
     }
 }
 
@@ -205,9 +197,6 @@ compileJava {
     options.compilerArgs = [
         '--module-path', classpath.asPath,
         '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",
-        /*
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
-          */
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=$moduleName",
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=$moduleName",
@@ -230,7 +219,7 @@ compileTestJava {
 
     options.compilerArgs = [
         '--module-path', classpath.asPath,
-        '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",'--add-exports',
+        '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=$moduleName",
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=$moduleName",
         '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
@@ -244,14 +233,14 @@ compileTestJava {
 
 task installTest (type: Copy) {
     println "Test Resources:"
-    sourceSets.test.resources.each { println '  [' + it +']' }
+    sourceSets.test.resources.each { println '  [' + it + ']' }
     from sourceSets.test.resources
     into 'build/classes/java/main'
 }
 
 task installTestIDE (type: Copy) {
     println "TestIDE Resources:"
-    sourceSets.test.resources.each { println '  [' + it +']' }
+    sourceSets.test.resources.each { println '  [' + it + ']' }
     from (sourceSets.test.resources) {
         include '**/x509-certs/cacerts.keystore'
         include '**/x509-certs/valid/**'
@@ -266,7 +255,7 @@ test {
     allJvmArgs += '--add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED"'
     println 'JVM args: '
     allJvmArgs.each { println '  [' + it +']' }
-    if (cardTerminalPresent() == false) {
+    if (!cardTerminalPresent()) {
         version = getVersion()
         List<String> argumentList = test.getAllJvmArgs()
         println 'Args:'
