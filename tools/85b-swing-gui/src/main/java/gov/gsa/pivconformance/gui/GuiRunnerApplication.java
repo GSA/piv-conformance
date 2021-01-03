@@ -5,7 +5,6 @@ import ch.qos.logback.classic.LoggerContext;
 import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import gov.gsa.pivconformance.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController;
-import gov.gsa.pivconformance.conformancelib.utilities.Validator;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
@@ -17,6 +16,8 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+
+import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 
 public class GuiRunnerApplication {
 
@@ -31,20 +32,6 @@ public class GuiRunnerApplication {
 	private DebugWindow m_debugFrame;
 	private GuiRunnerToolbar m_toolBar;
 	private MainWindowContentPane m_mainContent;
-
-	public static String pathFixup(String inPath) {
-		String outPath = inPath;
-		if (System.getProperty("os.name").toLowerCase().contains("windows") == true) {
-			if (inPath.contains("/")) {
-				outPath = inPath.replace("/", "\\");
-			}
-		} else if (inPath.contains("\\")) {
-			outPath = inPath.replace("\\", "/");
-		}
-
-		return outPath;
-	}
-
 
 	/**
 	 * Create the application.
