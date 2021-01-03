@@ -93,27 +93,7 @@ public class Validator {
             throw new ConformanceTestException(e.getMessage());
         }
     }
-    /**
-     * Corrects the path separators for a path.
-     *
-     * @param inPath
-     *            the path as read from a configuration file, etc.
-     * @return a path with the correct path separators for the local OS
-     */
 
-    public static String pathFixup(String inPath) {
-        boolean windowsOs = (System.getProperty("os.name").toLowerCase().contains("windows"));
-        String outPath = inPath;
-        if (windowsOs == true) {
-            if (inPath.contains("/")) {
-                outPath = inPath.replace("/", "\\");
-            }
-        } else if (inPath.contains("\\")) {
-            outPath = inPath.replace("\\", "/");
-        }
-
-        return outPath;
-    }
 
     /**
      * Sets the validator's KeyStore to keyStoreName
@@ -126,7 +106,7 @@ public class Validator {
         String currentDirectory = "?";
         System.out.println("java.class.path:" + javaClassPath);
         // When running out of a jar file, args[0] is the jar?
-        String path = pathFixup(
+        String path = ValidatorHelper.pathFixup(
                 this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
         try {
             if (path.endsWith(".jar")) {
@@ -148,7 +128,7 @@ public class Validator {
             return;
         }
         InputStream is = null;
-        is = ValidatorHelper.getFileFromResourceAsStream(this.getClass(), keyStoreName);
+        is = ValidatorHelper.getStreamFromResourceFile(keyStoreName);
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("JKS");

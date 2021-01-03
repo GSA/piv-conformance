@@ -246,10 +246,20 @@ compileTestJava {
 }
 
 task installTest (type: Copy) {
-    println "Resources:"
+    println "Test Resources:"
     sourceSets.test.resources.each { println '  [' + it +']' }
     from sourceSets.test.resources
     into 'build/classes/java/main'
+}
+
+task installTestIDE (type: Copy) {
+    println "TestIDE Resources:"
+    sourceSets.test.resources.each { println '  [' + it +']' }
+    from (sourceSets.test.resources) {
+        include '**/x509-certs/cacerts.keystore'
+        include '**/x509-certs/valid/**'
+    }
+    into './'
 }
 
 test {

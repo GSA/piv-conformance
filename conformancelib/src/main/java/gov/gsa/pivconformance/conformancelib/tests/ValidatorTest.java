@@ -9,6 +9,8 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getTrustAnchorForGivenCertificate;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.slf4j.Logger;
@@ -27,8 +29,6 @@ import java.util.stream.Stream;
 
 public class ValidatorTest {
     static Logger s_logger = LoggerFactory.getLogger(ValidatorTest.class);
-
-    final Path certsDir = Path.of("", "x509-certs/valid");
     private static Validator m_validator;
 
     static {
@@ -44,7 +44,9 @@ public class ValidatorTest {
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
     @MethodSource("positiveCaseCertProvider")
     void testControl(String oid, String endEntityCertFile, TestReporter reporter) {
-        System.out.println("3a " + System.getProperty("user.dir") + File.separator + "**");
+        s_logger.debug("oid: " + oid);
+        s_logger.debug("endEntityCertFile: " + endEntityCertFile);
+        s_logger.debug("reporter: " + reporter.toString());
     }
 
     @Tag("PD_VAL")
@@ -52,13 +54,15 @@ public class ValidatorTest {
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
     @MethodSource("positiveCaseCertProvider")
     void testIsValid_Sun(String oid, String endEntityCertFile, TestReporter reporter) {
-        s_logger.debug("3b " + System.getProperty("user.dir") + File.separator + "**");
+        s_logger.debug("oid: " + oid);
+        s_logger.debug("endEntityCertFile: " + endEntityCertFile);
+        s_logger.debug("reporter: " + reporter.toString());
         try {
             m_validator = new Validator("Sun");
             CertificateFactory fac = CertificateFactory.getInstance("X509");
-            BufferedInputStream fis = (BufferedInputStream) ValidatorHelper.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
+            BufferedInputStream fis = (BufferedInputStream) ValidatorHelper.getStreamFromResourceFile(System.getProperty("user.dir") + File.separator + "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
-            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(certsDir, eeCert);
+            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(m_validator.getKeyStore(), eeCert);
             System.out.print("Validating " + eeCert.getSubjectDN().getName());
             boolean result = m_validator.isValid(eeCert, oid, trustAnchorCert); //(eeCert, oid, trustAnchorCert;
             
@@ -76,13 +80,14 @@ public class ValidatorTest {
     @MethodSource("positiveCaseCertProvider")
     void testIsValid_BouncyCastle(String oid, String endEntityCertFile, TestReporter reporter) {
         final Path certsDir = Path.of("", "x509-certs/valid");
-        s_logger.debug("3c " + System.getProperty("user.dir") + File.separator + "**");
-        try {
+        s_logger.debug("oid: " + oid);
+        s_logger.debug("endEntityCertFile: " + endEntityCertFile);
+        s_logger.debug("reporter: " + reporter.toString());        try {
             m_validator = new Validator("BC");
             CertificateFactory fac = CertificateFactory.getInstance("X509");
-            BufferedInputStream fis = (BufferedInputStream) ValidatorHelper.getFileFromResourceAsStream(ValidatorTest.class, "x509-certs/valid" + File.separator + endEntityCertFile);
+            BufferedInputStream fis = (BufferedInputStream) ValidatorHelper.getStreamFromResourceFile(System.getProperty("user.dir") + File.separator + "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
-            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(certsDir, eeCert);
+            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(m_validator.getKeyStore(), eeCert);
             System.out.print("Validating " + eeCert.getSubjectDN().getName());
             boolean result = m_validator.isValid(eeCert, oid, trustAnchorCert); //(eeCert, oid, trustAnchorCert;
             s_logger.debug("validator.isValid(): " + result);
@@ -96,33 +101,24 @@ public class ValidatorTest {
 
     private static Stream<Arguments> positiveCaseCertProvider() throws ConformanceTestException {
         final String policyFileName = "x509-certs/valid/policy.xml";
-        String estr = null;
-        s_logger.debug("user.dir: " + System.getProperty("user.dir") + File.separator + policyFileName);
+        String estr = ValidatorHelper.pathFixup(System.getProperty("user.dir") + File.separator + policyFileName);
+        s_logger.debug(estr);
         try {
-            String userDirFile = new URL(System.getProperty("user.dir") + File.separator + policyFileName).getFile();
-            s_logger.debug("userDirFile: " + userDirFile);
-            String userDirPath = new URL(System.getProperty("user.dir") + File.separator + policyFileName).getPath();
-            s_logger.debug("userDirPath: " + userDirPath);
-            Module module  = ValidatorTest.class.getModule();
-            if (module != null) {
-                s_logger.debug("4. " + String.valueOf(module));
-                s_logger.debug("5. " + module.getName());
-                s_logger.debug("6. " + String.valueOf(module.isNamed()));
-                s_logger.debug("7. " + String.valueOf(module.getDescriptor()));
+//            String userDirFile = new URL(System.getProperty("user.dir") + File.separator + policyFileName).getFile();
+//            s_logger.debug("userDirFile: " + userDirFile);
+//            String userDirPath = new URL(System.getProperty("user.dir") + File.separator + policyFileName).getPath();
+//            s_logger.debug("userDirPath: " + userDirPath);
 
-                InputStream inputStream = ValidatorHelper.getFileFromResourceAsStream(new ValidatorTest().getClass(), policyFileName);
-                Properties properties = new Properties();
-                properties.loadFromXML(inputStream);
-                List<Arguments> argumentsList = new ArrayList<>();
-                properties.forEach((Object filename, Object oid) -> {
-                    String filenameStr = String.valueOf(filename).trim();
-                    String oidStr = String.valueOf(oid).trim();
-                    argumentsList.add(Arguments.of(oidStr, filenameStr));
-                });
-                return argumentsList.stream();
-            } else {
-                estr = "Module for '" + ValidatorTest.class.getClass() + "' not found reading the policy.xml file.";
-            }
+            InputStream inputStream = ValidatorHelper.getStreamFromResourceFile(estr);
+            Properties properties = new Properties();
+            properties.loadFromXML(inputStream);
+            List<Arguments> argumentsList = new ArrayList<>();
+            properties.forEach((Object filename, Object oid) -> {
+                String filenameStr = String.valueOf(filename).trim();
+                String oidStr = String.valueOf(oid).trim();
+                argumentsList.add(Arguments.of(oidStr, filenameStr));
+            });
+            return argumentsList.stream();
         } catch (Exception e) {
             estr = e.getMessage();
             s_logger.error("Exception '" + estr + "' while reading the policy.xml file.");
@@ -130,31 +126,4 @@ public class ValidatorTest {
         throw new ConformanceTestException(estr);
     }
 
-    public static X509Certificate getCertFromKeyStore(KeyStore ks, String alias) {
-        try {
-            if (ks.containsAlias(alias)) {
-                return (X509Certificate) ks.getCertificate(alias);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
-    private static X509Certificate getTrustAnchorForGivenCertificate(Path certsDir, X509Certificate eeCert)  {
-        String trustCA = null;
-        X509Certificate trustAnchorCert = null;
-        try {
-            if (eeCert.getSubjectDN().getName().contains("ICAM")) {
-                trustCA = "icam test card root ca";
-            } else {
-                trustCA = "federal common policy ca";
-            }
-        } catch (Exception e) {
-            fail("Exception reading the certificate.");
-        }
-        trustAnchorCert = getCertFromKeyStore(m_validator.getKeyStore(), trustCA);
-        s_logger.debug("Trust anchor: " + trustAnchorCert.getSubjectDN().getName());
-        return trustAnchorCert;
-    }
 }

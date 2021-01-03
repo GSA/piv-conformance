@@ -159,10 +159,10 @@ public class ConformanceTestRunner {
                 }
                 Class<?> testClass = null;
                 try {
-                    testClass = Class.forName("gov.gsa.conformancelib.tests." + groupName);
-                    /*for(Method m : testClass.getMethods()) {
+                    testClass = Class.forName("gov.gsa.pivconformance.conformanclib.tests." + groupName);
+                    or(Method m : testClass.getMethods()) {
                         s_logger.debug("method: {}", m.getName());
-                    }*/
+                    }
                 } catch (ClassNotFoundException e) {
                     s_logger.error("{} was configured in the database but could not be found.", groupName);
                     break;
@@ -170,8 +170,9 @@ public class ConformanceTestRunner {
                 String testNameFromConfig = rs.getString("TestName");
                 if(testNameFromConfig != null && !testNameFromConfig.isEmpty()) {
                     String testName = testNameFromConfig;
-                    if (!testNameFromConfig.startsWith("test")) testName = "test" + testNameFromConfig;
-                    discoverySelectors.add(selectMethod("gov.gsa.conformancelib.tests." + groupName + "#" + testName + "(org.junit.jupiter.api.TestReporter)"));
+                    if (!testNameFromConfig.startsWith("test"))
+                        testName = "test" + testNameFromConfig;
+                    discoverySelectors.add(selectMethod("gov.gsa.pivconformance.conformancelib.tests." + groupName + "#" + testName + "(org.junit.jupiter.api.TestReporter)"));
                     s_logger.debug("Adding {}.{} from config", groupName, testName);
                 } else {
                     discoverySelectors.add(selectClass(testClass));
@@ -192,10 +193,10 @@ public class ConformanceTestRunner {
         System.out.println("--------------------------------------------------------------");
         TestExecutionSummary summary = summaryListener.getSummary();
         List<TestExecutionSummary.Failure> failures = summary.getFailures();
-        /*for(TestExecutionSummary.Failure f : failures) {
+        for(TestExecutionSummary.Failure f : failures) {
             TestIdentifier ti = f.getTestIdentifier();
             System.out.println(String.format("Test failure: %s", ti.getDisplayName()));
-        }*/
+        }
         summary.printTo(new PrintWriter(System.out));
 
     }
