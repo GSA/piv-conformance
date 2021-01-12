@@ -14,15 +14,18 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Stream;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgumentsProvider;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.X9ECParameters;
 //import org.bouncycastle.jce.interfaces.ECPublicKey;
 //import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +93,8 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 	// Expect to see paramsString contain an containerOid:keyAlgorithmOid
     @DisplayName("SP800-78.1 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_78_x509TestProvider")
-    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    //@MethodSource("sp800_78_x509TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_1(String oid, TestReporter reporter) {
     	
 		PIVDataObject o = AtomHelper.getDataObject(oid);
@@ -212,16 +215,19 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			// TODO: Make special block to handle content signing cert and SMCS (CVC)
 		}
     }
-    
-    /*
+
     //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
     // TODO: Refactor using Algorithm class
+	//Curve P-256: ansip256r1 1.2.840.10045.3.1.7
+	//ansip256r1 ::= { iso(1) member-body(2) us(840) ansi-X9-62(10045) curves(3) prime(1) 7 }
+	//Curve P-384: ansip384r1 1.3.132.0.34
+	//ansip384r1 ::= { iso(1) identified-organization(3) certicom(132) curve(0) 34 }
     @DisplayName("SP800-78.2 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_78_x509TestProvider")
-    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    //@MethodSource("sp800_78_x509TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_2(String oid, TestReporter reporter) {
-		
+		fail("sp800_78_Test_2 not implemented");
 		PIVDataObject o = AtomHelper.getDataObject(oid);		
 		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
 		
@@ -248,20 +254,21 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			
 			ECPublicKey pk = (ECPublicKey) pubKey;
 	        ECParameterSpec ecParameterSpec = pk.getParams();
-	        
-	        
+
 	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
 	        	
 		        String name = (String)names.nextElement();
 	
 		        X9ECParameters params = ECNamedCurveTable.getByName(name);
 	
-//		        if (params.getN().equals(ecParameterSpec.getN())
-//		            && params.getH().equals(ecParameterSpec.getH())
-//		            && params.getCurve().equals(ecParameterSpec.getCurve())
-//		            && params.getG().equals(ecParameterSpec.getG())){
-//		        	curveFromCert = name;
-//		        }
+				/* Disabled until getN(), getH() and getG() are found
+				if (params.getN().equals(ecParameterSpec.getN())
+		            && params.getH().equals(ecParameterSpec.getH())
+		            && params.getCurve().equals(ecParameterSpec.getCurve())
+		            && params.getG().equals(ecParameterSpec.getG())){
+		        	curveFromCert = name;
+		        }
+		        */
 	        }
 		}
 		
@@ -298,7 +305,6 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			assertTrue(false);
 		}
     }
-    */
     
     /*
      * If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters 
@@ -314,7 +320,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @MethodSource("sp800_78_x509TestProvider")
-    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_78_Test_3(String oid, TestReporter reporter) {
 
     	PIVDataObject o = AtomHelper.getDataObject(oid);		
