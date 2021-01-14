@@ -319,7 +319,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     // TODO: Refactor using Algorithm class
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @MethodSource("sp800_78_x509TestProvider")
+    //@MethodSource("sp800_78_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_78_Test_3(String oid, TestReporter reporter) {
 
