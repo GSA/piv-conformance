@@ -36,7 +36,7 @@ public class DODataObjectTests {
 
     @DisplayName("Test discovery object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-    @MethodSource("dataObjectTestProvider")
+    //@MethodSource("dataObjectTestProvider")
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);

@@ -70,7 +70,7 @@ public class X509DataObjectTests {
 
 	@DisplayName("Test X.509 Data Object parsing")
 	@ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-	@MethodSource("dataObjectTestProvider")
+	//@MethodSource("dataObjectTestProvider")
 
 	void dataObjectTest(String oid, String file, TestReporter reporter) {
 		assertNotNull(oid);

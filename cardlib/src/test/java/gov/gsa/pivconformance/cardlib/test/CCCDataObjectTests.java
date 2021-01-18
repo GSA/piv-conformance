@@ -40,7 +40,7 @@ public class CCCDataObjectTests {
 
     @DisplayName("Test CCC object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-    @MethodSource("dataObjectTestProvider")
+    //@MethodSource("dataObjectTestProvider")
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);       

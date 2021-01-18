@@ -620,7 +620,7 @@ INSERT INTO "TestCases" VALUES(348, NULL,'11.1.1.2','The PIV authentication key 
 INSERT INTO "TestCases" VALUES(349, NULL,'11.1.1.3','The key size and types used are in accordance with Table 3-1 of SP 800-78-4.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(350, NULL,'11.1.2','Data Integrity Checks','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(351, NULL,'11.1.2.1','Key Usage','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(352, NULL,'11.1.2.1.1','Key Usage extension is present','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(352, NULL,'11.1.2.1.1','Key Usage extension is present','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(353, NULL,'11.1.2.1.2','digitalSignature bit has been set','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(354, NULL,'11.1.2.1.3','Confirm no other keyUsage bits are set.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(355, NULL,'11.1.2.2','A certificate policies extension is present.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
@@ -652,7 +652,7 @@ INSERT INTO "TestCases" VALUES(380, NULL,'11.2.2','Data Integrity Checks','',NUL
 INSERT INTO "TestCases" VALUES(381, NULL,'11.2.2.1','Key Usage','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(382, NULL,'11.2.2.1.1','Key Usage extension is present','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(383, NULL,'11.2.2.1.2','digitalSignature and nonRepudiation bits have been set.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(384, NULL,'11.2.2.1.3','No other Key Usage bits are set.','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(384, NULL,'11.2.2.1.3','No other Key Usage bits are set.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(385, NULL,'11.2.2.2','Private key corresponds to the public key contained in the certificate as the signature verification succeeds.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(386, NULL,'11.2.2.3','Expiration date of the digital signature certificate is not beyond the expiration date of the CHUID i.e. the PIV card.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(387, NULL,'11.2.2.4','Exponent of the RSA asymmetric key for digital signature is equal to 65,537.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
@@ -673,7 +673,7 @@ INSERT INTO "TestCases" VALUES(401, NULL,'11.3.1.2','The key management key is g
 INSERT INTO "TestCases" VALUES(402, NULL,'11.3.1.3','The key sizes used are in accordance with Table 3-1 of SP80078.','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(403, NULL,'11.3.2','Data Integrity Checks','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(404, NULL,'11.3.2.1','Key Usage','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(405, NULL,'11.3.2.1.1','Key Usage extension is present','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(405, NULL,'11.3.2.1.1','Key Usage extension is present','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(406, NULL,'11.3.2.1.1.1','If the public key algorithm is RSA, then the keyUsage extension asserts the keyEncipherment bit.','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(407, NULL,'11.3.2.1.1.2','If the algorithm is Elliptic Curve key, then the keyUsage extension asserts the keyAgreement bit.','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(408, NULL,'11.3.2.1.1.3','No other Key Usage bits are set.','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
@@ -733,7 +733,7 @@ INSERT INTO "TestCases" VALUES(461, NULL,'11.7.1.2','The card authentication key
 INSERT INTO "TestCases" VALUES(462, NULL,'11.7.1.3','The key sizes used are in accordance with Table 3-1 of SP80078.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(463, NULL,'11.7.2','Data Integrity Checks','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(464, NULL,'11.7.2.1','Key Usage','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(465, NULL,'11.7.2.1.1','Key Usage extension is present','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(465, NULL,'11.7.2.1.1','Key Usage extension is present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(466, NULL,'11.7.2.1.2','digitalSignature and nonRepudiation bits have been set','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(467, NULL,'11.7.2.1.3','No other bits have been set.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(468, NULL,'11.7.2.2','X.509 Certificate for Content Signing is not expired.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
