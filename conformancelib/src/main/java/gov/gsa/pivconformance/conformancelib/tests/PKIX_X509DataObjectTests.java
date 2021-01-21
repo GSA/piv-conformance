@@ -308,12 +308,12 @@ public class PKIX_X509DataObjectTests {
 				try {
 					X509Certificate trustAnchorCert = null;
 					try {
-						//TODO: Needs to configurable
-						Validator validator = new Validator("Sun", "x509-certs/cacerts.keystore", "changeit");
+						//TODO: Needs to be configurable
+						Validator validator = new Validator("BC", "x509-certs/cacerts.keystore", "changeit");
 						KeyStore ks = validator.getKeyStore();
 						String subjectName = eeCert.getSubjectX500Principal().getName();
 						String trustAnchorAlias = null;
-						//TODO: Needs to configurable
+						//TODO: Needs to be configurable
 						if (subjectName.contains("ICAM")) {
 							if (subjectName.contains("PIV-I")) {
 								trustAnchorAlias = "icam test card piv-i root ca";
