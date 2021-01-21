@@ -1,5 +1,6 @@
 package gov.gsa.pivconformance.conformancelib.utilities;
 
+import checkers.units.quals.C;
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.apache.commons.cli.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -26,11 +27,13 @@ import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.ge
 public class Validator {
     private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
     private static final Options s_options = new Options();
-    private static final String m_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
-    private static final String m_monitorFileName = "all.p7b";
+    private static final String s_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
+    private static final String s_monitorFileName = "all.p7b";
+
     private CertPathBuilder m_cpb = null;
-    private boolean m_useCABundle = false;
+    private boolean m_useMonitor = false;
     private URL m_monitorUrl = null;
+    private String m_monitorFileName = null;
     private KeyStore m_keystore = null;
 
     static {
@@ -40,6 +43,8 @@ public class Validator {
         Option jvmOption = Option.builder("D").hasArgs().valueSeparator('=').build();
         Option resourceOption = Option.builder("resourceDir").hasArg(true).argName("resourceDir").desc("base directory for resources and files").build();
         Option providerOption = Option.builder("provider").hasArg(true).argName("provider").desc("provider string (BC or Sun)").build();
+        Option monitorUrlOption = Option.builder("monitorUrl").hasArg(true).argName("monitorUrl").desc("URL pointing to monitor data").build();
+        Option monitorFileOption = Option.builder("monitorFile").hasArg(true).argName("monitorFile").desc("local file containing monitor data").build();
 
         s_options.addOption(eeCertFileOption);
         s_options.addOption(taCertFileOption);
@@ -47,6 +52,8 @@ public class Validator {
         s_options.addOption(jvmOption);
         s_options.addOption(resourceOption);
         s_options.addOption(providerOption);
+        s_options.addOption(monitorUrlOption);
+        s_options.addOption(monitorFileOption);
     }
 
     /**
@@ -56,6 +63,7 @@ public class Validator {
     public Validator() throws ConformanceTestException {
         reset("Sun");
         setKeyStore("x509-certs/cacerts.keystore", "changeit");
+        setMonitorFileName(s_monitorFileName);
     }
 
     /**
@@ -79,51 +87,11 @@ public class Validator {
     }
 
     /**
-     * Resets the object to the desired provider
-     * @param provider Crypto and path builder provider
-     * @throws ConformanceTestException
-     */
-    private void reset(String provider) throws ConformanceTestException {
-        try {
-            setCpb(provider);
-        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
-            s_logger.error(e.getMessage());
-            throw new ConformanceTestException(e.getMessage());
-        }
-    }
-
-    /**
      * Sets the validator's KeyStore to keyStoreName
      *
      * @param keyStoreName the path to the KeyStore file
      */
-
     public void setKeyStore(String keyStoreName, String password) throws ConformanceTestException {
-        String javaClassPath = System.getProperty("java.class.path");
-        String currentDirectory = "?";
-        //System.out.println("java.class.path:" + javaClassPath);
-        // When running out of a jar file, args[0] is the jar?
-        String path = pathFixup(
-                this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
-        try {
-            if (path.endsWith(".jar")) {
-                path += File.separator;
-                String message = "Running from jar file";
-                System.out.println(message);
-            } else {
-                String message = "Running from IDE/Gradle";
-                System.out.println(message);
-            }
-            currentDirectory = URLDecoder.decode(path, "UTF-8");
-            String message = "Current directory is " + currentDirectory;
-            System.out.println(message);
-        } catch (UnsupportedEncodingException e1) {
-            currentDirectory = path + File.separator + ".." + File.separator;
-        } catch (Exception e) {
-            String message = e.getMessage();
-            System.out.println(message);
-            return;
-        }
         InputStream is = null;
         is = getStreamFromResourceFile(System.getProperty("user.dir") + File.separator + keyStoreName);
         KeyStore ks = null;
@@ -144,22 +112,24 @@ public class Validator {
     public KeyStore getKeyStore() {
         return m_keystore;
     }
+
     /**
-     * Sets the provider for path validation
+     * Sets the provider for crypto and path validation.
      * @param providerString provider string
      * @throws NoSuchAlgorithmException
      */
     public void setCpb(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException {
         try {
             if (providerString.toLowerCase().compareTo("bc") == 0) {
-                if (Security.getProvider("BC") == null) {
+                if (Security.getProvider("BC") == null)
                     Security.addProvider(new BouncyCastleProvider());
-                    m_cpb = CertPathBuilder.getInstance("PKIX", providerString);
-                    s_logger.debug("Changing to" + providerString + " provider");
-                }
-            } else if (providerString.toLowerCase().startsWith("sun")) {
+                s_logger.debug("Changing to " + providerString + " provider");
+                m_cpb = CertPathBuilder.getInstance("PKIX", "BC");
+             } else if (providerString.toLowerCase().compareTo("sunrsasign") == 0) {
+                s_logger.debug("Changing to SunRsaSign default provider");
+                if (Security.getProvider(providerString) == null)
+                    s_logger.error("SunRsaSign crypto provider is not registered");
                 m_cpb = CertPathBuilder.getInstance("PKIX");
-                s_logger.debug("Changing to Oracle default provider");
             } else {
                 s_logger.error("This application doesn't support the " + providerString + " provider");
                 throw new NoSuchProviderException();
@@ -174,12 +144,43 @@ public class Validator {
         return m_cpb;
     }
 
-    public boolean getUseCABundle() {
-        return m_useCABundle;
+    public boolean getUseMonitor() {
+        return m_useMonitor;
     }
 
-    public void setUseCABundle(boolean flag) {
-        m_useCABundle = flag;
+    public void setUseMonitor(boolean flag) {
+        m_useMonitor = flag;
+    }
+
+    /**
+     * Sets the monitor URL
+     * @param url URL referring to the monitor data
+     */
+    public void setMonitorUrl(URL url) {
+        m_monitorUrl = url;
+    }
+    /**
+     * Gets the monitor URL
+     * @return the monitor URL
+     */
+    public URL getMonitorUrl() {
+        return m_monitorUrl;
+    }
+
+    /**
+     * Sets the monitor file name
+     * @param fileName name of local file containing monitor data
+     */
+    public void setMonitorFileName(String fileName) {
+        m_monitorFileName = fileName;
+    }
+
+    /**
+     * Gets the monitor file name
+     * @return the name of the local file containing monitor data
+     */
+    public String getMonitorFileName() {
+        return m_monitorFileName;
     }
 
     private static void PrintHelpAndExit(int exitCode) {
@@ -240,15 +241,17 @@ public class Validator {
                     trustAnchorCertFile = new File(resourceDir + File.separator + cmd.getOptionValue("ta"));
             }
         }
-        Validator v = new Validator();
+        Validator v =  new Validator("SunRsaSign", "x509-certs/cacerts.keystore", "changeit");
         if(cmd.hasOption("provider")) {
             provider = cmd.getOptionValue("provider");
             try {
                 v.setCpb(provider);
+                v.setUseMonitor(true);
             } catch (Exception e) {
                 s_logger.error(e.getMessage());
             }
         }
+
         v.isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
 
@@ -301,19 +304,87 @@ public class Validator {
         return rv;
     }
 
+
+    /**
+     * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
+     * @param eeCert end entity cert
+     * @param policyOids comma-separated string of policy OIDs
+     * @param trustAnchorCert
+     * @return true if the certificate path was built, false if a path cannot be built
+     */
+    public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) {
+        // CertiPath monitor creates a CA bundle file which we can use for trust anchors
+        try {
+            List<X509Certificate> certList = new ArrayList<>();
+            certList.add(eeCert);
+            X509CertSelector eeCertSelector = new X509CertSelector();
+            eeCertSelector.setCertificate(eeCert);
+            TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
+
+            if (m_useMonitor ==  true) {
+                if (loadMonitor(s_monitorUrlString)) {
+                    FileInputStream fis = new FileInputStream(m_monitorFileName);
+                    if (fis != null) {
+                        // Instantiate a CertificateFactory for X.509
+                        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                        // Extract the certification path from the PKCS7 SignedData structure
+                        CertPath cp = cf.generateCertPath(fis, "PKCS7");
+                        List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
+                        int count = 0;
+                        for (X509Certificate c : certs) {
+                            s_logger.debug(++count + ". " + c.getSubjectDN().getName());
+                        }
+                        certList.addAll(certs);
+                    } else {
+                        s_logger.warn(s_monitorUrlString + " was not found");
+                    }
+                }
+            }
+
+            CertStore certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
+            Set<TrustAnchor> trustAnchors = new HashSet<>();
+            trustAnchors.add(trustAnchor);
+            // Defining required Policy OID
+            HashSet<String> policies = new HashSet<>();
+            String[] allowedPolicies = policyOids.split("\\|");
+            policies = new HashSet<>(Arrays.asList(allowedPolicies));
+            PKIXBuilderParameters params = new PKIXBuilderParameters(trustAnchors, eeCertSelector);
+            params.addCertStore(certStore);
+            params.setRevocationEnabled(true);
+            params.setMaxPathLength(10);
+            params.setSigProvider(m_cpb.getProvider().getName());
+            params.setInitialPolicies(policies);
+            params.setExplicitPolicyRequired(true);
+            params.setPolicyMappingInhibited(false);
+
+            System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(true));
+            System.setProperty("com.sun.security.crl.timeout", String.valueOf(120));
+            System.setProperty("ocsp.enable", String.valueOf(true));
+            CertPathBuilderResult cpbResult = m_cpb.build(params);
+            s_logger.debug("cpb.build() returned " + cpbResult.toString());
+            CertPath certPath = cpbResult.getCertPath();
+            s_logger.info("Build passed, path contents: " + certPath);
+            return certPath != null;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (CertPathBuilderException e) {
+            e.printStackTrace();
+        } catch (Exception ex) {
+            s_logger.error("Path build failed: " + ex.getMessage());
+        }
+        return false;
+    }
     /**
      * Loads a CMS-signed bundle of CA certs
-     * @param fileUrl
      * @return
      */
-    private boolean loadCABundle(String fileUrl) {
-        if (getMonitorUrl() != null)
-            return true; // Cached
-
+    private boolean loadMonitor(String monitorUrlString) throws ConformanceTestException {
         boolean success = false;
         InputStream in = null;
         try {
-            setMonitorUrl(new URL(m_monitorUrlString));
+            setMonitorUrl(new URL(monitorUrlString));
             TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
                 // Stubs to accept all offered certs
                 public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -343,103 +414,32 @@ public class Validator {
             outStream.flush();
             outStream.close();
             success = true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            String msg = "Crypto failure connecting to " + getMonitorUrl() + ": " + e.getMessage();
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
         } catch (Exception e) {
-            s_logger.warn(("Can't fetch " + getMonitorUrl() + ": " + e.getMessage()));
+            String msg = "IO problem connecting to " + getMonitorUrl() + ": " + e.getMessage();
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
         }
         return success;
     }
-
     /**
-     * Sets the
-     * @param url
+     * Resets the object to the desired provider
+     * @param provider Crypto and path builder provider
+     * @throws ConformanceTestException
      */
-    public void setMonitorUrl(URL url) {
-        m_monitorUrl = url;
-    }
-
-    /**
-     * Gets the monitor URL
-     * @return the monitor URL
-     */
-    public URL getMonitorUrl() {
-        return m_monitorUrl;
-    }
-
-    /**
-     * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
-     * @param eeCert end entity cert
-     * @param policyOids comma-separated string of policy OIDs
-     * @param trustAnchorCert
-     * @return true if the certificate path was built, false if a path cannot be built
-     */
-    public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) {
-        // CertiPath monitor creates a CA bundle file which we can use for trust anchors
+    private void reset(String provider) throws ConformanceTestException {
+        m_monitorFileName = s_monitorFileName;
+        m_monitorUrl = null;
+        m_keystore = null;
+        m_useMonitor = false;
         try {
-            List<X509Certificate> certList = new ArrayList<>();
-            certList.add(eeCert);
-            X509CertSelector eeCertSelector = new X509CertSelector();
-            eeCertSelector.setCertificate(eeCert);
-            TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
-
-            if (m_useCABundle ==  true) {
-                if (loadCABundle(m_monitorUrlString)) {
-                    FileInputStream fis = new FileInputStream(m_monitorFileName);
-                    if (fis != null) {
-                        // Instantiate a CertificateFactory for X.509
-                        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                        // Extract the certification path from the PKCS7 SignedData structure
-                        CertPath cp = cf.generateCertPath(fis, "PKCS7");
-                        List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
-                        certList.addAll(certs);
-                    } else {
-                        s_logger.warn(m_monitorUrlString + " was not found");
-                    }
-                }
-            }
-
-            CertStore certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
-            Set<TrustAnchor> trustAnchors = new HashSet<>();
-            trustAnchors.add(trustAnchor);
-            // Defining required Policy OID
-            HashSet<String> policies = new HashSet<>();
-            String[] allowedPolicies = policyOids.split("|");
-            policies = new HashSet<>(Arrays.asList(allowedPolicies));
-            PKIXBuilderParameters params = new PKIXBuilderParameters(trustAnchors, eeCertSelector);
-            params.addCertStore(certStore);
-            params.setRevocationEnabled(true);
-            params.setMaxPathLength(10);
-            params.setSigProvider(m_cpb.getProvider().getName());
-            params.setInitialPolicies(policies);
-            params.setExplicitPolicyRequired(true);
-            params.setPolicyMappingInhibited(false);
-
-            System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(true));
-            System.setProperty("com.sun.security.crl.timeout", String.valueOf(120));
-            System.setProperty("ocsp.enable", String.valueOf(true));
-            CertPathBuilderResult cpbResult = m_cpb.build(params);
-            s_logger.debug("cpb.build() returned " + cpbResult.toString());
-            CertPath certPath = cpbResult.getCertPath();
-            s_logger.info("Build passed, path contents: " + certPath);
-            return certPath != null;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (CertPathBuilderException e) {
-            e.printStackTrace();
-        } catch (Exception ex) {
-            s_logger.error("Path build failed: " + ex.getMessage());
+            setCpb(provider);
+        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
+            s_logger.error(e.getMessage());
+            throw new ConformanceTestException(e.getMessage());
         }
-        return false;
     }
 }
