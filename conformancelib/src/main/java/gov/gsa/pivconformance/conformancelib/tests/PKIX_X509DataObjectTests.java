@@ -309,7 +309,7 @@ public class PKIX_X509DataObjectTests {
 					X509Certificate trustAnchorCert = null;
 					try {
 						//TODO: Needs to be configurable
-						Validator validator = new Validator("BC", "x509-certs/cacerts.keystore", "changeit");
+						Validator validator = new Validator("SunRsaSign", "x509-certs/cacerts.keystore", "changeit");
 						KeyStore ks = validator.getKeyStore();
 						String subjectName = eeCert.getSubjectX500Principal().getName();
 						String trustAnchorAlias = null;

@@ -1,6 +1,5 @@
 package gov.gsa.pivconformance.conformancelib.utilities;
 
-import checkers.units.quals.C;
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.apache.commons.cli.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -30,6 +29,7 @@ public class Validator {
     private static final String s_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
     private static final String s_monitorFileName = "all.p7b";
 
+    private String m_provider = "SunRsaSign";
     private CertPathBuilder m_cpb = null;
     private boolean m_useMonitor = false;
     private URL m_monitorUrl = null;
@@ -61,7 +61,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator() throws ConformanceTestException {
-        reset("Sun");
+        reset("SunRsaSign");
         setKeyStore("x509-certs/cacerts.keystore", "changeit");
         setMonitorFileName(s_monitorFileName);
     }
@@ -119,16 +119,19 @@ public class Validator {
      * @throws NoSuchAlgorithmException
      */
     public void setCpb(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException {
+        setProvider(providerString);
         try {
             if (providerString.toLowerCase().compareTo("bc") == 0) {
                 if (Security.getProvider("BC") == null)
                     Security.addProvider(new BouncyCastleProvider());
                 s_logger.debug("Changing to " + providerString + " provider");
                 m_cpb = CertPathBuilder.getInstance("PKIX", "BC");
-             } else if (providerString.toLowerCase().compareTo("sunrsasign") == 0) {
-                s_logger.debug("Changing to SunRsaSign default provider");
-                if (Security.getProvider(providerString) == null)
-                    s_logger.error("SunRsaSign crypto provider is not registered");
+             } else if (providerString.toLowerCase().startsWith("sun")) {
+                s_logger.debug("Changing to " + providerString + " provider");
+                if (Security.getProvider(providerString) == null) {
+                    s_logger.error(providerString + " crypto provider is not registered");
+                    throw new NoSuchProviderException();
+                }
                 m_cpb = CertPathBuilder.getInstance("PKIX");
             } else {
                 s_logger.error("This application doesn't support the " + providerString + " provider");
@@ -140,6 +143,17 @@ public class Validator {
         }
     }
 
+    /**
+     * Sets the provider
+     * @param provider provider string
+     */
+    public void setProvider(String provider) {
+        m_provider = provider;
+    }
+
+    public String getProvider() {
+        return m_provider;
+    }
     public CertPathBuilder getCpb() {
         return m_cpb;
     }
@@ -319,42 +333,29 @@ public class Validator {
             certList.add(eeCert);
             X509CertSelector eeCertSelector = new X509CertSelector();
             eeCertSelector.setCertificate(eeCert);
+            eeCertSelector.setIssuer(eeCert.getIssuerX500Principal());
+            eeCertSelector.setSubject(eeCert.getSubjectX500Principal());
+            eeCertSelector.setSerialNumber(eeCert.getSerialNumber());
+            eeCertSelector.setBasicConstraints(3);
             TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
-
+            CertStore certStore = null;
             if (m_useMonitor ==  true) {
-                if (loadMonitor(s_monitorUrlString)) {
-                    FileInputStream fis = new FileInputStream(m_monitorFileName);
-                    if (fis != null) {
-                        // Instantiate a CertificateFactory for X.509
-                        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                        // Extract the certification path from the PKCS7 SignedData structure
-                        CertPath cp = cf.generateCertPath(fis, "PKCS7");
-                        List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
-                        int count = 0;
-                        for (X509Certificate c : certs) {
-                            s_logger.debug(++count + ". " + c.getSubjectDN().getName());
-                        }
-                        certList.addAll(certs);
-                    } else {
-                        s_logger.warn(s_monitorUrlString + " was not found");
-                    }
-                }
+                certStore = loadMonitor(s_monitorUrlString);
+            } else {
+                certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             }
-
-            CertStore certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             Set<TrustAnchor> trustAnchors = new HashSet<>();
             trustAnchors.add(trustAnchor);
             // Defining required Policy OID
-            HashSet<String> policies = new HashSet<>();
             String[] allowedPolicies = policyOids.split("\\|");
-            policies = new HashSet<>(Arrays.asList(allowedPolicies));
-            PKIXBuilderParameters params = new PKIXBuilderParameters(trustAnchors, eeCertSelector);
+            HashSet<String> policies = new HashSet<String>(Arrays.asList(allowedPolicies));
+
+            PKIXBuilderParameters params = new PKIXBuilderParameters(getKeyStore(), eeCertSelector);
             params.addCertStore(certStore);
             params.setRevocationEnabled(true);
-            params.setMaxPathLength(10);
-            params.setSigProvider(m_cpb.getProvider().getName());
+            params.setSigProvider(getProvider()); //m_cpb.getProvider().getName());
             params.setInitialPolicies(policies);
-            params.setExplicitPolicyRequired(true);
+            params.setExplicitPolicyRequired(false);
             params.setPolicyMappingInhibited(false);
 
             System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(true));
@@ -380,9 +381,8 @@ public class Validator {
      * Loads a CMS-signed bundle of CA certs
      * @return
      */
-    private boolean loadMonitor(String monitorUrlString) throws ConformanceTestException {
-        boolean success = false;
-        InputStream in = null;
+    private CertStore loadMonitor(String monitorUrlString) throws ConformanceTestException {
+        CertStore certStore = null;
         try {
             setMonitorUrl(new URL(monitorUrlString));
             TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
@@ -413,7 +413,23 @@ public class Validator {
             outStream.write(buf, 0, buf.length);
             outStream.flush();
             outStream.close();
-            success = true;
+            FileInputStream fis = new FileInputStream(m_monitorFileName);
+            if (fis != null) {
+                // Instantiate a CertificateFactory for X.509
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                // Extract the certification path from the PKCS7 SignedData structure
+                CertPath cp = cf.generateCertPath(fis, "PKCS7");
+                List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
+                int count = 0;
+                for (X509Certificate c : certs) {
+                    s_logger.debug(++count + ". " + c.getSubjectDN().getName());
+                }
+                List<X509Certificate> certList = new ArrayList<>();
+                certList.addAll(certs);
+                certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
+            } else {
+                s_logger.warn(s_monitorUrlString + " was not found");
+            }
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             String msg = "Crypto failure connecting to " + getMonitorUrl() + ": " + e.getMessage();
             s_logger.error(msg);
@@ -423,7 +439,7 @@ public class Validator {
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         }
-        return success;
+        return certStore;
     }
     /**
      * Resets the object to the desired provider
