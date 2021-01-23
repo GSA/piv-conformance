@@ -8,15 +8,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLDecoder;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
 
-import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getStreamFromResourceFile;
 
 /**
@@ -26,34 +23,30 @@ import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.ge
 public class Validator {
     private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
     private static final Options s_options = new Options();
-    private static final String s_monitorUrlString = "https://monitor.certipath.com/fpki/download/all/p7b";
-    private static final String s_monitorFileName = "all.p7b";
+    private static final String s_caFileName = "all.p7b";
 
     private String m_provider = "SunRsaSign";
     private CertPathBuilder m_cpb = null;
-    private boolean m_useMonitor = false;
-    private URL m_monitorUrl = null;
-    private String m_monitorFileName = null;
+    private String m_caPathString = null;
+    private String m_caFileName = null;
     private KeyStore m_keystore = null;
 
     static {
         Option eeCertFileOption = Option.builder("ee").hasArg(true).argName("ee").desc("end-entity certificate").build();
         Option taCertFileOption = Option.builder("ta").hasArg(true).argName("ta").desc("trust anchor certificate").build();
         Option oidsOption = Option.builder("oids").hasArg(true).argName("oids").desc("list of certificate policy oids").build();
-        Option jvmOption = Option.builder("D").hasArgs().valueSeparator('=').build();
         Option resourceOption = Option.builder("resourceDir").hasArg(true).argName("resourceDir").desc("base directory for resources and files").build();
         Option providerOption = Option.builder("provider").hasArg(true).argName("provider").desc("provider string (BC or Sun)").build();
-        Option monitorUrlOption = Option.builder("monitorUrl").hasArg(true).argName("monitorUrl").desc("URL pointing to monitor data").build();
-        Option monitorFileOption = Option.builder("monitorFile").hasArg(true).argName("monitorFile").desc("local file containing monitor data").build();
+        Option caPathOption = Option.builder("caPath").hasArg(true).argName("caPath").desc("CA directory or path").build();
+        Option caFileOption = Option.builder("caFile").hasArg(true).argName("caFile").desc("File containing intermediate CA data").build();
 
         s_options.addOption(eeCertFileOption);
         s_options.addOption(taCertFileOption);
         s_options.addOption(oidsOption);
-        s_options.addOption(jvmOption);
         s_options.addOption(resourceOption);
         s_options.addOption(providerOption);
-        s_options.addOption(monitorUrlOption);
-        s_options.addOption(monitorFileOption);
+        s_options.addOption(caPathOption);
+        s_options.addOption(caFileOption);
     }
 
     /**
@@ -61,9 +54,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator() throws ConformanceTestException {
-        reset("SunRsaSign");
-        setKeyStore("x509-certs/cacerts.keystore", "changeit");
-        setMonitorFileName(s_monitorFileName);
+        reset("SunRsaSign", "x509-certs/cacerts.keystore", "changeit", s_caFileName);
     }
 
     /**
@@ -72,8 +63,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator (String provider) throws ConformanceTestException {
-        reset(provider);
-        setKeyStore("x509-certs/cacerts.keystore", "changeit");
+        reset(provider, "x509-certs/cacerts.keystore", "changeit", null);
     }
 
     /**
@@ -82,8 +72,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator (String provider, String keyStoreName, String password) throws ConformanceTestException {
-        reset(provider);
-        setKeyStore(keyStoreName, password);
+        reset(provider, keyStoreName, password, null);
     }
 
     /**
@@ -158,43 +147,38 @@ public class Validator {
         return m_cpb;
     }
 
-    public boolean getUseMonitor() {
-        return m_useMonitor;
-    }
-
-    public void setUseMonitor(boolean flag) {
-        m_useMonitor = flag;
-    }
-
     /**
-     * Sets the monitor URL
-     * @param url URL referring to the monitor data
+     * Sets the monitor path
+     * @param path path or directory containing the monitor data file
      */
-    public void setMonitorUrl(URL url) {
-        m_monitorUrl = url;
+
+    public void setCaPathString(String path) {
+        m_caPathString = path;
     }
+
     /**
      * Gets the monitor URL
      * @return the monitor URL
      */
-    public URL getMonitorUrl() {
-        return m_monitorUrl;
+
+    public String getCaPathString() {
+        return m_caPathString;
     }
 
     /**
      * Sets the monitor file name
      * @param fileName name of local file containing monitor data
      */
-    public void setMonitorFileName(String fileName) {
-        m_monitorFileName = fileName;
+    public void setCaFileName(String fileName) {
+        m_caFileName = fileName;
     }
 
     /**
-     * Gets the monitor file name
+     * Gets the intermediate CA file name
      * @return the name of the local file containing monitor data
      */
-    public String getMonitorFileName() {
-        return m_monitorFileName;
+    public String getCaFileName() {
+        return m_caFileName;
     }
 
     private static void PrintHelpAndExit(int exitCode) {
@@ -210,7 +194,6 @@ public class Validator {
         String policyOids = null;
         Properties props = null;
         String provider = null;
-        HashMap<String,String> jvmProps = new HashMap<String,String>();
         try {
             cmd = p.parse(s_options, args);
             s_logger.debug("Command line: " + args.toString());
@@ -218,15 +201,8 @@ public class Validator {
             s_logger.error("Failed to parse command line arguments", e);
             PrintHelpAndExit(1);
         }
-
         if(cmd.hasOption("help")) {
             PrintHelpAndExit(0);
-        }
-        if(cmd.hasOption("D")) {
-            props = cmd.getOptionProperties("D");
-            for(String key : props.stringPropertyNames()) {
-                jvmProps.put(key, props.getProperty(key));
-            }
         }
         if(cmd.hasOption("ee")) {
             endEntityCertFile = new File(cmd.getOptionValue("ee"));
@@ -260,12 +236,26 @@ public class Validator {
             provider = cmd.getOptionValue("provider");
             try {
                 v.setCpb(provider);
-                v.setUseMonitor(true);
             } catch (Exception e) {
                 s_logger.error(e.getMessage());
             }
         }
-
+        if (cmd.hasOption("caPath")) {
+            String caPath = cmd.getOptionValue("caPath");
+            try {
+                v.setCaPathString(caPath);
+            } catch (Exception e) {
+                s_logger.error(e.getMessage());
+            }
+        }
+        if (cmd.hasOption("caFile")) {
+            String caFile = cmd.getOptionValue("caFile");
+            try {
+                v.setCaFileName(caFile);
+            } catch (Exception e) {
+                s_logger.error(e.getMessage());
+            }
+        }
         v.isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
 
@@ -276,7 +266,7 @@ public class Validator {
      * @param trustAnchorFile name of file containing X.509 certificate of the trust anchor
      * @return true if the certificate can be validated for the given policy, false if any error occurs
      */
-    public boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) {
+    public boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) throws ConformanceTestException {
         File eeFile = new File(endEndityCertFile);
         File taFile = new File(trustAnchorFile);
         return isValid(eeFile, policyOids, taFile);
@@ -289,7 +279,7 @@ public class Validator {
      * @param trustAnchorFile file object containing X.509 certificate of the trust anchor
      * @return true if the certificate can be validated for the given policy, false if any error occurs
      */
-    public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) {
+    public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) throws ConformanceTestException {
         CertificateFactory fac;
         boolean rv = false;
         X509Certificate eeCert = null;
@@ -311,8 +301,8 @@ public class Validator {
             rv = isValid(eeCert, policyOids, trustAnchorCert);
         } catch (CertificateException | IOException e) {
             String msg = trustAnchorFile.getName() + ": " + e.getMessage();
-            System.out.println(msg);
-            s_logger.error(msg);;
+            s_logger.error(msg);
+            throw new ConformanceTestException();
         }
 
         return rv;
@@ -339,26 +329,24 @@ public class Validator {
             eeCertSelector.setBasicConstraints(3);
             TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
             CertStore certStore = null;
-            if (m_useMonitor ==  true) {
-                certStore = loadMonitor(s_monitorUrlString);
+            if (m_caFileName != null) {
+                certStore = getCertStore(m_caPathString, m_caFileName);
             } else {
                 certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             }
-            Set<TrustAnchor> trustAnchors = new HashSet<>();
-            trustAnchors.add(trustAnchor);
-            // Defining required Policy OID
+
             String[] allowedPolicies = policyOids.split("\\|");
             HashSet<String> policies = new HashSet<String>(Arrays.asList(allowedPolicies));
 
             PKIXBuilderParameters params = new PKIXBuilderParameters(getKeyStore(), eeCertSelector);
             params.addCertStore(certStore);
             params.setRevocationEnabled(true);
-            params.setSigProvider(getProvider()); //m_cpb.getProvider().getName());
+            params.setSigProvider(getProvider());
             params.setInitialPolicies(policies);
             params.setExplicitPolicyRequired(false);
             params.setPolicyMappingInhibited(false);
 
-            System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(true));
+            System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(false));
             System.setProperty("com.sun.security.crl.timeout", String.valueOf(120));
             System.setProperty("ocsp.enable", String.valueOf(true));
             CertPathBuilderResult cpbResult = m_cpb.build(params);
@@ -366,6 +354,9 @@ public class Validator {
             CertPath certPath = cpbResult.getCertPath();
             s_logger.info("Build passed, path contents: " + certPath);
             return certPath != null;
+        } catch (ConformanceTestException e) {
+            s_logger.error("Check test artifacts");
+            e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
@@ -381,39 +372,63 @@ public class Validator {
      * Loads a CMS-signed bundle of CA certs
      * @return
      */
-    private CertStore loadMonitor(String monitorUrlString) throws ConformanceTestException {
+    private CertStore getCertStore(String caPathString, String caFileName) throws ConformanceTestException {
         CertStore certStore = null;
+        // Use the scheme to switch between HTTPS and FILE protocol
+        if (caPathString != null && caPathString.toLowerCase().startsWith("https:")) {
+            try {
+                //setMonitorUrl(new URL(caPathString));
+                TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                    // Stubs to accept all offered certs
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+                }};
+                // Install the all-trusting trust manager
+                final SSLContext sc = SSLContext.getInstance("SSL");
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+                // Create all-trusting host name verifier
+                HostnameVerifier allHostsValid = new HostnameVerifier() {
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                    }
+                };
+
+                HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+                URLConnection con = new URL(caPathString).openConnection();
+                byte[] buf = con.getInputStream().readAllBytes();
+                OutputStream outStream = new FileOutputStream(m_caFileName);
+                outStream.write(buf, 0, buf.length);
+                outStream.flush();
+                outStream.close();
+            } catch (NoSuchAlgorithmException | KeyManagementException e) {
+                String msg = "Crypto failure connecting to " + caPathString + ": " + e.getMessage();
+                s_logger.error(msg);
+                throw new ConformanceTestException(msg);
+            } catch (Exception e) {
+                String msg = "IO problem connecting to " + caPathString + ": " + e.getMessage();
+                s_logger.error(msg);
+                throw new ConformanceTestException(msg);
+            }
+        } else if (caPathString != null && caPathString.toLowerCase().startsWith("file:///")) {
+            m_caFileName = TestRunLogController.pathFixup((m_caPathString.replaceFirst("file:///", "") + "/") + m_caFileName);
+        } else if (caPathString == null ) {
+            s_logger.warn("m_caPathStringtring not initialized");
+        } else {
+            s_logger.warn("unsupported URL scheme");
+        }
+
+        s_logger.debug("Opening " + m_caFileName);
+
         try {
-            setMonitorUrl(new URL(monitorUrlString));
-            TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-                // Stubs to accept all offered certs
-                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-
-                public void checkClientTrusted(X509Certificate[] certs, String authType) { }
-
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
-            }};
-            // Install the all-trusting trust manager
-            final SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            // Create all-trusting host name verifier
-            HostnameVerifier allHostsValid = new HostnameVerifier() {
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            };
-
-            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-            URLConnection con = getMonitorUrl().openConnection();
-            byte[] buf = con.getInputStream().readAllBytes();
-            OutputStream outStream = new FileOutputStream(m_monitorFileName);
-            outStream.write(buf, 0, buf.length);
-            outStream.flush();
-            outStream.close();
-            FileInputStream fis = new FileInputStream(m_monitorFileName);
+            FileInputStream fis = new FileInputStream(m_caFileName);
             if (fis != null) {
                 // Instantiate a CertificateFactory for X.509
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -428,14 +443,14 @@ public class Validator {
                 certList.addAll(certs);
                 certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             } else {
-                s_logger.warn(s_monitorUrlString + " was not found");
+                s_logger.warn(s_caFileName + " was not found");
             }
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            String msg = "Crypto failure connecting to " + getMonitorUrl() + ": " + e.getMessage();
+        } catch (NoSuchAlgorithmException e) {
+            String msg = "Crypto failure loading certs from " + m_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         } catch (Exception e) {
-            String msg = "IO problem connecting to " + getMonitorUrl() + ": " + e.getMessage();
+            String msg = "IO problem reading " + m_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         }
@@ -446,13 +461,15 @@ public class Validator {
      * @param provider Crypto and path builder provider
      * @throws ConformanceTestException
      */
-    private void reset(String provider) throws ConformanceTestException {
-        m_monitorFileName = s_monitorFileName;
-        m_monitorUrl = null;
+    private void reset(String provider, String keyStoreName, String password, String certStoreName) throws ConformanceTestException {
+        m_caFileName = s_caFileName;
+        m_caPathString = null;
+        m_cpb = null;
         m_keystore = null;
-        m_useMonitor = false;
         try {
             setCpb(provider);
+            setKeyStore(keyStoreName, password);
+            setCaFileName(certStoreName);
         } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
             s_logger.error(e.getMessage());
             throw new ConformanceTestException(e.getMessage());
