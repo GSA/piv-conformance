@@ -4,16 +4,25 @@ import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 
 import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ValidatorHelper {
-    private static Logger s_logger = LoggerFactory.getLogger(ValidatorHelper.class);
+    private static final Logger s_logger = LoggerFactory.getLogger(ValidatorHelper.class);
     public enum PolicyOID {
         ID_FPKI_CERTPCY_PIVI_HARDWARE("2.16.840.1.101.3.2.1.3.18"),
         ID_FPKI_COMMON_HARDWARE("2.16.840.1.101.3.2.1.3.7"),
@@ -35,6 +44,22 @@ public class ValidatorHelper {
         }
     }
 
+    public static X509Certificate getX509CertificateFromPath(String fullPathName) {
+        X509Certificate rv = null;
+        try {
+            final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            try {
+                final Collection<? extends Certificate> certs =
+                        certFactory.generateCertificates(new ByteArrayInputStream(Files.readAllBytes(Paths.get(fullPathName))));
+                rv = (X509Certificate) certs.toArray()[0];
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        }
+        return rv;
+    }
     /**
      * Gets a file from the specified resource for the specified class.
      *
@@ -65,6 +90,7 @@ public class ValidatorHelper {
      * @param keyStore keyStore object previously opened
      * @param eeCert end-entity certificate
      * @return X509Certificate of the trust anchor
+     * @throws ConformanceTestException
      */
 
     public static X509Certificate getTrustAnchorForGivenCertificate(KeyStore keyStore, X509Certificate eeCert) throws ConformanceTestException {

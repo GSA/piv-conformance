@@ -14,22 +14,42 @@ import java.security.*;
 import java.security.cert.*;
 import java.util.*;
 
-import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getStreamFromResourceFile;
+import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.*;
 
 /**
  * Provides the API to validating a given end entity certificate for
- * a given certificate policy.
+ * a given certificate policy.In
+ * October 2020 the Federal Government created a new FPKI Root CA
+ * The new root is named the Federal Common Policy CA G2 (FCPCAG 2)
+ * This new CA has issued new certificates to all CAs signed by the current
+ * FCPCA This enables all current certificates issued by them to build a path to the new root
+ * What will be impacted?
+ * This change will affect all Federal agencies and will have an impact on the following services
+ * o Personal Identity Verification ( credential authentication to the government networks
+ * o Agency web applications implementing client authentication (e g PIV authentication)
+ * o User digital signatures that leverage PIV or similar credentials
+ * o Other applications leveraging the FCPCA as a root including Physical Access Control System (PACS) implementations
+ * When will this change take place?
+ * o Between now and May 2021 agencies will need to transition from using the old FCPCA as the root to the new FCPCG 2
+ * o Last week of January 2021 the new intermediate CA certificates must be published in CA repositories
+ * o February 2 2021 the FPKIMA team will migrate the FBCAG 4 to the FCPCAG 2 by publishing the cross certificate from the FCPCAG 2 to the FBCAG 4 and removing the cross certificates between the FBCAG 4 and the old FCPCA
+ * o May 2021 the FPKIMA team will decommission the old FCPCA
+ *
  */
 public class Validator {
     private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
     private static final Options s_options = new Options();
     private static final String s_caFileName = "all.p7b";
 
+    private String m_resourceDir = ".";
+    private String m_eeFullCertPath = "";
+    private String m_taFullCertPath = "";
     private String m_provider = "SunRsaSign";
     private CertPathBuilder m_cpb = null;
     private String m_caPathString = null;
     private String m_caFileName = null;
     private KeyStore m_keystore = null;
+    private boolean m_downloadAia = true;
 
     static {
         Option eeCertFileOption = Option.builder("ee").hasArg(true).argName("ee").desc("end-entity certificate").build();
@@ -38,7 +58,8 @@ public class Validator {
         Option resourceOption = Option.builder("resourceDir").hasArg(true).argName("resourceDir").desc("base directory for resources and files").build();
         Option providerOption = Option.builder("provider").hasArg(true).argName("provider").desc("provider string (BC or Sun)").build();
         Option caPathOption = Option.builder("caPath").hasArg(true).argName("caPath").desc("CA directory or path").build();
-        Option caFileOption = Option.builder("caFile").hasArg(true).argName("caFile").desc("File containing intermediate CA data").build();
+        Option caFileOption = Option.builder("caFile").hasArg(true).argName("caFile").desc("file containing intermediate CA data").build();
+        Option downloadAiaOption = Option.builder("downloadAia").hasArg(true).argName("downloadAia").desc("download AIA as needed (Sun only)").build();
 
         s_options.addOption(eeCertFileOption);
         s_options.addOption(taCertFileOption);
@@ -47,6 +68,7 @@ public class Validator {
         s_options.addOption(providerOption);
         s_options.addOption(caPathOption);
         s_options.addOption(caFileOption);
+        s_options.addOption(downloadAiaOption);
     }
 
     /**
@@ -76,7 +98,10 @@ public class Validator {
     }
 
     /**
-     * Sets the validator's KeyStore to keyStoreName
+     * Sets the validator's key store to keyStoreName
+     *
+     * The key store contains trust anchors and intermediate CA certs that are
+     * unlikely to change in the short term.
      *
      * @param keyStoreName the path to the KeyStore file
      */
@@ -96,6 +121,10 @@ public class Validator {
 
     /**
      * Gets the validator's KeyStore
+     *
+     * The key store contains trust anchors and intermediate CA certs that are
+     * unlikely to change in the short term.
+     *
      * @return the KeyStore used by the validator
      */
     public KeyStore getKeyStore() {
@@ -103,9 +132,14 @@ public class Validator {
     }
 
     /**
-     * Sets the provider for crypto and path validation.
+     * Sets the provider for crypto and certificate path validation.
+     * If providerString is "SunRsaSign" AIA downloading and timeouts is
+     * available. If providerString is "BC" then the BouncyCastle
+     * crypto libraries are used. If providerString is any other value
+     * NoSuchProviderException is thrown.
+     *
      * @param providerString provider string
-     * @throws NoSuchAlgorithmException
+     * @throws NoSuchProviderException NoSuchAlgorithmException
      */
     public void setCpb(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException {
         setProvider(providerString);
@@ -133,11 +167,22 @@ public class Validator {
     }
 
     /**
-     * Sets the provider
-     * @param provider provider string
+     * Sets the provider string which is used *later* as follows:
+     *
+     * If providerString is "SunRsaSign" AIA downloading and timeouts is
+     * available. If providerString is "BC" then the BouncyCastle
+     * crypto libraries will be used. If providerString is any other value
+     * NoSuchProviderException is thrown.
+     *
+     * @param providerString provider string
+     * @throws NoSuchProviderException
      */
-    public void setProvider(String provider) {
-        m_provider = provider;
+    public void setProvider(String providerString) throws NoSuchProviderException {
+        if ((!providerString.equalsIgnoreCase("sunrsasign")) && (!providerString.equalsIgnoreCase("bc"))) {
+            s_logger.error("Unsuppored provider: " + providerString);
+            throw new NoSuchProviderException();
+        }
+        m_provider = providerString;
     }
 
     public String getProvider() {
@@ -148,34 +193,53 @@ public class Validator {
     }
 
     /**
-     * Sets the monitor path
-     * @param path path or directory containing the monitor data file
+     * Sets the URL/directory name where intermediate certificate
+     * bundles are found and used to augment the trust anchor
+     * keystore.
+     *
+     * If caPath starts with "https://", the string is used as
+     * a URL to download a file and caFile is used as the local
+     * file's destination for downloading.
+     *
+     * If caPath starts with "file://", it is treated as a local directory
+     * name to which caFile is appended to create a full path.
+     *
+     * @param path the URL/directory name
      */
-
     public void setCaPathString(String path) {
         m_caPathString = path;
     }
 
-    /**
-     * Gets the monitor URL
-     * @return the monitor URL
-     */
 
+    /**
+     * Gets the URL/directory name where intermediate certificate
+     * bundles are found and used to augment the trust anchor
+     * keystore.
+     *
+     * If caPath starts with "https://", the string is used as
+     * a URL to download a file and caFile is used as the local
+     * file's destination for downloading.
+     *
+     * If caPath starts with "file://", it is treated as a local directory
+     * name to which caFile is appended to create a full path.
+     *
+     * @return the URL/directory name
+     */
     public String getCaPathString() {
         return m_caPathString;
     }
 
     /**
-     * Sets the monitor file name
-     * @param fileName name of local file containing monitor data
+     * Sets the local file name containing intermediate certificates
+     * @param fileName name of local file containing intermediate certificates
      */
     public void setCaFileName(String fileName) {
         m_caFileName = fileName;
     }
 
     /**
-     * Gets the intermediate CA file name
-     * @return the name of the local file containing monitor data
+     * Sets the local file name containing intermediate certificates
+     * @return name of local file containing intermediate certificates
      */
     public String getCaFileName() {
         return m_caFileName;
@@ -186,17 +250,94 @@ public class Validator {
         System.exit(exitCode);
     }
 
+    /**
+     * Indicates whether AIA in certs will be downloaded
+     * @return true if CertPath engine will download certs (Sun only) false if not
+     */
+    public boolean getDownloadAia() {
+        return m_downloadAia;
+    }
+
+    /**
+     * Configure validator to download AIA
+     * @param downloadAia flag true or false
+     */
+    public void setDownloadAia(boolean downloadAia) {
+        if (m_provider.startsWith("BC")) {
+            s_logger.warn("BouncyCastle provider doesn't support downloading AIA");
+            return;
+        }
+        m_downloadAia = downloadAia;
+    }
+
+    /**
+     * Gets the URL/directory name where resources are found. If
+     * resourceDir starts with "https://" it will be fetched
+     * using the HTTPS scheme. If resourceDir starts with "file://",
+     * it is treated as a local directory name.
+     * @return URL/directory where resources are found
+     */
+    public String getResourceDir() {
+        return m_resourceDir;
+    }
+
+    /**
+     * Sets the URL/directory name where AIA are found. If
+     * caPath starts with "https://", the string is used as
+     * a URL to AIA. If caPath starts with "file://", it is
+     * treated as a local directory name.
+     *
+     * @param resourceDir the URL/directory name
+     */
+    public void setResourceDir(String resourceDir) {
+        m_resourceDir = resourceDir;
+    }
+
+    /**
+     * Gets the full path to the end-entity certificate to be validated
+     * @return the path to the end-entity certificate
+     */
+    public String getEeFullCertPath() {
+        return m_eeFullCertPath;
+    }
+    /**
+     * Sets the full path to the end-entity certificate to be validated
+     * @param eeFullCertPath path to the end-entity certificate
+     */
+    public void setEeFullCertPath(String eeFullCertPath) {
+        m_eeFullCertPath = eeFullCertPath;
+    }
+
+    /**
+     * Gets the full path to the trust anchor certificate
+     * @return the path to the trust anchor certificate
+     */
+    public String getTaFullCertPath() {
+        return m_taFullCertPath;
+    }
+    /**
+     * Sets the full path to the trust anchor certificate to be validated
+     * @param taFullCertPath path to the trust anchor certificate
+     */
+    public void setTaFullCertPath(String taFullCertPath) {
+        m_taFullCertPath = taFullCertPath;
+    }
+
     public static void main(String[] args) throws ConformanceTestException {
         CommandLineParser p = new DefaultParser();
         CommandLine cmd = null;
         File endEntityCertFile = null;
         File trustAnchorCertFile = null;
         String policyOids = null;
-        Properties props = null;
+        StringBuilder cmdLine = new StringBuilder();
         String provider = null;
         try {
+            for (String a : args) {
+                if (cmdLine.length() > 0) cmdLine.append(" ");
+                cmdLine.append(a);
+            }
+            s_logger.debug("Command line: " + cmdLine.toString());
             cmd = p.parse(s_options, args);
-            s_logger.debug("Command line: " + args.toString());
         } catch (ParseException e) {
             s_logger.error("Failed to parse command line arguments", e);
             PrintHelpAndExit(1);
@@ -204,17 +345,22 @@ public class Validator {
         if(cmd.hasOption("help")) {
             PrintHelpAndExit(0);
         }
+
+        Validator v =  new Validator();
+
         if(cmd.hasOption("ee")) {
-            endEntityCertFile = new File(cmd.getOptionValue("ee"));
-            s_logger.info("endEntityCertFile: {}",  endEntityCertFile.getAbsolutePath());
+            v.setEeFullCertPath(cmd.getOptionValue("ee"));
+            s_logger.info("endEntityCertFile: {}", v.getEeFullCertPath());
         }
+
         if(cmd.hasOption("ta")) {
-            trustAnchorCertFile = new File(cmd.getOptionValue("ta"));
-            s_logger.info("trustAnchorEntityCertFile: {}",  trustAnchorCertFile.getAbsolutePath());
+            v.setTaFullCertPath(cmd.getOptionValue("ee"));
+            s_logger.info("trustAnchorEntityCertFile: {}",  v.getTaFullCertPath());
         }
+
         if(cmd.hasOption("oids")) {
             String oids = cmd.getOptionValue("oids");
-            String oidArray[] = oids.split("[\\s]");
+            String[] oidArray = oids.split("[\\s]");
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < oidArray.length; i++) {
                 if (sb.length() != 0) sb.append("|");
@@ -222,16 +368,12 @@ public class Validator {
             }
             policyOids = sb.toString();
         }
+
         if(cmd.hasOption("resourceDir")) {
-            String resourceDir = cmd.getOptionValue("resourceDir");
-            if (resourceDir != null) {
-                if (endEntityCertFile != null)
-                    endEntityCertFile = new File(resourceDir + File.separator + cmd.getOptionValue("ee"));
-                if (trustAnchorCertFile != null)
-                    trustAnchorCertFile = new File(resourceDir + File.separator + cmd.getOptionValue("ta"));
-            }
+            v.setResourceDir(cmd.getOptionValue("resourceDir"));
+            s_logger.info("resourceDir: {}",  v.getResourceDir());
         }
-        Validator v =  new Validator("SunRsaSign", "x509-certs/cacerts.keystore", "changeit");
+
         if(cmd.hasOption("provider")) {
             provider = cmd.getOptionValue("provider");
             try {
@@ -239,7 +381,9 @@ public class Validator {
             } catch (Exception e) {
                 s_logger.error(e.getMessage());
             }
+            s_logger.info("provider: {}",  v.getProvider());
         }
+
         if (cmd.hasOption("caPath")) {
             String caPath = cmd.getOptionValue("caPath");
             try {
@@ -247,7 +391,9 @@ public class Validator {
             } catch (Exception e) {
                 s_logger.error(e.getMessage());
             }
+            s_logger.info("caPath: {}",  v.getCaPathString());
         }
+
         if (cmd.hasOption("caFile")) {
             String caFile = cmd.getOptionValue("caFile");
             try {
@@ -255,16 +401,57 @@ public class Validator {
             } catch (Exception e) {
                 s_logger.error(e.getMessage());
             }
+            s_logger.info("caFile: {}",  v.getCaFileName());
         }
+
+        if (cmd.hasOption("downloadAia")) {
+            String downloadAia = cmd.getOptionValue("downloadAia");
+            v.setDownloadAia(downloadAia.toLowerCase().matches("1|true"));
+        }
+        /*
+         * 1. if trust anchor is supplied by caller then it becomes the params trust anchor.
+         * 2. if trust anchor is not supplied by caller then the params trust anchor is selected
+         *    from the key store based on name containing ICAM and PIV/PIV-I defaulting to common
+         * 3. TODO: the new G2 common policy needs to be implemented
+         * ------- end of trust anchor processing
+         */
+        String resourceDir = (v.getResourceDir() != null) ? v.getResourceDir() : ".";
+        endEntityCertFile = new File(resourceDir + File.separator + v.getEeFullCertPath());
+        if (trustAnchorCertFile == null) {
+            KeyStore keyStore = v.getKeyStore();
+            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(v.getEeFullCertPath()));
+            String tempName = null;
+            try {
+                File temp;
+                temp = File.createTempFile("tmp",".cer", new File(System.getProperty("java.io.tmpdir")));
+                tempName = temp.getCanonicalPath();
+                OutputStream outStream = new FileOutputStream(temp);
+                outStream.write(trustAnchor.getEncoded(), 0, trustAnchor.getEncoded().length);
+                outStream.flush();
+                outStream.close();
+            } catch (IOException | CertificateEncodingException e) {
+                e.printStackTrace();
+            }
+            trustAnchorCertFile = new File(tempName);
+        }
+        else
+            trustAnchorCertFile = new File(resourceDir + File.separator + v.getTaFullCertPath());
+
         v.isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
 
+
     /**
-     * Determines whether the certificate in the given end entity certificate is valid for the specified policy OID(s).
-     * @param endEndityCertFile name of file containing X.509 certificate of the end entity
-     * @param policyOids comma-separated string of certificate policy OIDs
-     * @param trustAnchorFile name of file containing X.509 certificate of the trust anchor
-     * @return true if the certificate can be validated for the given policy, false if any error occurs
+     * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
+     * @param endEndityCertFile string with file name of end entity cert
+     * @param policyOids comma-separated string of policy OIDs
+     * @param trustAnchorFile string with file name of trust anchor cert
+     * @return true if the certificate path was built, false if a path cannot be built
+     * @throws NoSuchAlgorithmException
+     * @throws CertStoreException
+     * @throws CertPathBuilderException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchProviderException
      */
     public boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) throws ConformanceTestException {
         File eeFile = new File(endEndityCertFile);
@@ -273,11 +460,16 @@ public class Validator {
     }
 
     /**
-     * Determines whether the certificate in the given end entity certificate is valid for the specified policy OID(s).
-     * @param endEntityCertFile file object containing X.509 certificate of the end entity
-     * @param policyOids comma-separated string of certificate policy OIDs
-     * @param trustAnchorFile file object containing X.509 certificate of the trust anchor
-     * @return true if the certificate can be validated for the given policy, false if any error occurs
+     * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
+     * @param endEntityCertFile file containing end entity cert
+     * @param policyOids comma-separated string of policy OIDs
+     * @param trustAnchorFile file containing trust anchor cert
+     * @return true if the certificate path was built, false if a path cannot be built
+     * @throws NoSuchAlgorithmException
+     * @throws CertStoreException
+     * @throws CertPathBuilderException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchProviderException
      */
     public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) throws ConformanceTestException {
         CertificateFactory fac;
@@ -296,10 +488,10 @@ public class Validator {
         }
 
         try {
-            fac = CertificateFactory.getInstance("X509");
+            fac = CertificateFactory.getInstance("X.509");
             trustAnchorCert = (X509Certificate) fac.generateCertificate(new FileInputStream(trustAnchorFile));
             rv = isValid(eeCert, policyOids, trustAnchorCert);
-        } catch (CertificateException | IOException e) {
+        } catch (CertificateException | IOException | NoSuchAlgorithmException | CertStoreException | CertPathBuilderException | InvalidAlgorithmParameterException | NoSuchProviderException e) {
             String msg = trustAnchorFile.getName() + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException();
@@ -311,12 +503,17 @@ public class Validator {
 
     /**
      * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
-     * @param eeCert end entity cert
+     * @param eeCert X509Certificate end entity cert
      * @param policyOids comma-separated string of policy OIDs
-     * @param trustAnchorCert
+     * @param trustAnchorCert X509Certificate trust anchor cert
      * @return true if the certificate path was built, false if a path cannot be built
+     * @throws NoSuchAlgorithmException
+     * @throws CertStoreException
+     * @throws CertPathBuilderException
+     * @throws InvalidAlgorithmParameterException
+     * @throws NoSuchProviderException
      */
-    public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) {
+    public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) throws NoSuchAlgorithmException, CertStoreException, CertPathBuilderException, InvalidAlgorithmParameterException, NoSuchProviderException {
         // CertiPath monitor creates a CA bundle file which we can use for trust anchors
         try {
             List<X509Certificate> certList = new ArrayList<>();
@@ -328,6 +525,8 @@ public class Validator {
             eeCertSelector.setSerialNumber(eeCert.getSerialNumber());
             eeCertSelector.setBasicConstraints(3);
             TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
+            Set<TrustAnchor> trustAnchors = new HashSet<TrustAnchor>();
+            trustAnchors.add(trustAnchor);
             CertStore certStore = null;
             if (m_caFileName != null) {
                 certStore = getCertStore(m_caPathString, m_caFileName);
@@ -335,45 +534,96 @@ public class Validator {
                 certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             }
 
+            Set<X509Certificate> certSet = (Set<X509Certificate>) certStore.getCertificates(null);
+            certSet.add(eeCert);
+            certSet.add(trustAnchorCert);
+
+            System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(getDownloadAia()));
+            System.setProperty("com.sun.security.crl.timeout", String.valueOf(10));
+            System.setProperty("ocsp.enable", String.valueOf(getDownloadAia()));
+
             String[] allowedPolicies = policyOids.split("\\|");
             HashSet<String> policies = new HashSet<String>(Arrays.asList(allowedPolicies));
 
-            PKIXBuilderParameters params = new PKIXBuilderParameters(getKeyStore(), eeCertSelector);
-            params.addCertStore(certStore);
-            params.setRevocationEnabled(true);
-            params.setSigProvider(getProvider());
-            params.setInitialPolicies(policies);
-            params.setExplicitPolicyRequired(false);
-            params.setPolicyMappingInhibited(false);
+            CertPath certPath = validateCertificate(eeCert, certSet, policies);
+            if (certPath != null) {
+                s_logger.debug("Build passed, path contents: " + certPath);
+            }
 
-            System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(false));
-            System.setProperty("com.sun.security.crl.timeout", String.valueOf(120));
-            System.setProperty("ocsp.enable", String.valueOf(true));
-            CertPathBuilderResult cpbResult = m_cpb.build(params);
-            s_logger.debug("cpb.build() returned " + cpbResult.toString());
-            CertPath certPath = cpbResult.getCertPath();
-            s_logger.info("Build passed, path contents: " + certPath);
             return certPath != null;
         } catch (ConformanceTestException e) {
             s_logger.error("Check test artifacts");
             e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (CertPathBuilderException | NoSuchAlgorithmException | NoSuchProviderException | CertStoreException | InvalidAlgorithmParameterException e) {
             e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (CertPathBuilderException e) {
-            e.printStackTrace();
-        } catch (Exception ex) {
-            s_logger.error("Path build failed: " + ex.getMessage());
+            throw e;
         }
         return false;
     }
+
+    /**
+     * Validates a certificate for a collection of CA certs and policy OIDs
+     * @param certificate to be validated
+     * @param additionalCerts certs to build a path with
+     * @param policies policy OIDs, one of which must be valid in each certificate in the path
+     * @return CertPath containing the certificates in the path if the certificate is valid for the path, false if any other condition occurs
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchProviderException
+     * @throws InvalidAlgorithmParameterException
+     * @throws CertPathBuilderException
+     */
+    private CertPath validateCertificate(X509Certificate certificate, Set<X509Certificate> additionalCerts, HashSet<String> policies) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, CertPathBuilderException{
+
+        Set<X509Certificate> trustedRoots = new HashSet<X509Certificate>();
+        Set<X509Certificate> intermediateCerts = new HashSet<X509Certificate>();
+
+        // Random collection of CA and self-signed CA certs
+        for (X509Certificate cert : additionalCerts) {
+            String subject = cert.getSubjectDN().getName();
+            String issuer = cert.getIssuerDN().getName();
+
+            if(subject.equals(issuer)){
+                trustedRoots.add(cert);
+            }
+            else{
+                intermediateCerts.add(cert);
+            }
+        }
+
+        // Configure trust anchor
+        Set<TrustAnchor> trustAnchors = new HashSet<TrustAnchor>();
+        for (X509Certificate root : trustedRoots) {
+            trustAnchors.add(new TrustAnchor(root, null));
+        }
+
+        // Target is our EE cert
+        X509CertSelector selector = new X509CertSelector();
+        selector.setCertificate(certificate);
+
+        // Set up parameters
+        PKIXParameters parameters = new PKIXBuilderParameters(trustAnchors, selector);
+        parameters.setRevocationEnabled(false);
+        CollectionCertStoreParameters csp = new CollectionCertStoreParameters(intermediateCerts);
+        CertStore intermediateCertStore = CertStore.getInstance("Collection", csp, this.getProvider().equals("BC") ? "BC" : "SUN");
+        parameters.addCertStore(intermediateCertStore);
+        parameters.setRevocationEnabled(false);
+        parameters.setSigProvider(getProvider());
+        parameters.setInitialPolicies(policies);
+        parameters.setExplicitPolicyRequired(false);
+        parameters.setPolicyMappingInhibited(false);
+        CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX", this.getProvider().equals("BC") ? "BC" : "SUN");
+        CertPathBuilderResult cpbResult = cpb.build(parameters);
+        CertPath certPath = cpbResult.getCertPath();
+        return certPath;
+    }
+
     /**
      * Loads a CMS-signed bundle of CA certs
      * @return
      */
     private CertStore getCertStore(String caPathString, String caFileName) throws ConformanceTestException {
         CertStore certStore = null;
+        String v_caFileName = caFileName;
         // Use the scheme to switch between HTTPS and FILE protocol
         if (caPathString != null && caPathString.toLowerCase().startsWith("https:")) {
             try {
@@ -404,7 +654,7 @@ public class Validator {
                 HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
                 URLConnection con = new URL(caPathString).openConnection();
                 byte[] buf = con.getInputStream().readAllBytes();
-                OutputStream outStream = new FileOutputStream(m_caFileName);
+                OutputStream outStream = new FileOutputStream(v_caFileName);
                 outStream.write(buf, 0, buf.length);
                 outStream.flush();
                 outStream.close();
@@ -418,17 +668,17 @@ public class Validator {
                 throw new ConformanceTestException(msg);
             }
         } else if (caPathString != null && caPathString.toLowerCase().startsWith("file:///")) {
-            m_caFileName = TestRunLogController.pathFixup((m_caPathString.replaceFirst("file:///", "") + "/") + m_caFileName);
+            v_caFileName = TestRunLogController.pathFixup((caPathString.replaceFirst("file:///", "") + "/") + caFileName);
         } else if (caPathString == null ) {
-            s_logger.warn("m_caPathStringtring not initialized");
+            s_logger.warn("m_caPathString not initialized");
         } else {
             s_logger.warn("unsupported URL scheme");
         }
 
-        s_logger.debug("Opening " + m_caFileName);
+        s_logger.debug("Opening " + v_caFileName);
 
         try {
-            FileInputStream fis = new FileInputStream(m_caFileName);
+            FileInputStream fis = new FileInputStream(v_caFileName);
             if (fis != null) {
                 // Instantiate a CertificateFactory for X.509
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -443,14 +693,14 @@ public class Validator {
                 certList.addAll(certs);
                 certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             } else {
-                s_logger.warn(s_caFileName + " was not found");
+                s_logger.warn(v_caFileName + " was not found");
             }
         } catch (NoSuchAlgorithmException e) {
-            String msg = "Crypto failure loading certs from " + m_caFileName + ": " + e.getMessage();
+            String msg = "Crypto failure loading certs from " + v_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         } catch (Exception e) {
-            String msg = "IO problem reading " + m_caFileName + ": " + e.getMessage();
+            String msg = "IO problem reading " + v_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         }
@@ -462,10 +712,13 @@ public class Validator {
      * @throws ConformanceTestException
      */
     private void reset(String provider, String keyStoreName, String password, String certStoreName) throws ConformanceTestException {
+        m_resourceDir = ".";
         m_caFileName = s_caFileName;
         m_caPathString = null;
         m_cpb = null;
         m_keystore = null;
+        m_downloadAia = false;
+        m_resourceDir = ".";
         try {
             setCpb(provider);
             setKeyStore(keyStoreName, password);
