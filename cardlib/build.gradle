@@ -55,20 +55,20 @@ def getVersion = { ->
     String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
-def String killJavaPid() {
+String killJavaPid() {
     try {
-        RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean();
-        String name = runtimeBean.getName();
-        int k = name.indexOf('@');
+        RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean()
+        String name = runtimeBean.getName()
+        int k = name.indexOf('@')
         if (k > 0) {
-            Runtime rt = Runtime.getRuntime();
-            rt.exec("taskkill /F /IM java.exe");
+            Runtime rt = Runtime.getRuntime()
+            rt.exec("taskkill /F /IM java.exe")
         }
-        return name.substring(0, k);
+        return name.substring(0, k)
     } catch (Exception ex) {
        System.out.println 'Couldn\'t kill java.exe'
     }
-    return null;
+    return null
 }
 
 def deleteCardsDir = { String directory ->
@@ -79,11 +79,11 @@ def deleteCardsDir = { String directory ->
             System.out.println 'Attempting to delete ' + cardsDir.getAbsolutePath()
             delete cardsDir
             System.out.println 'Deleted ' + cardsDir.getAbsolutePath()
-            Thread.sleep(1000);
+            Thread.sleep(1000)
             count++
         } catch (Exception e) {
             System.out.println e.getMessage()
-            Thread.sleep(1000);
+            Thread.sleep(1000)
             count++ 
         }
     }
