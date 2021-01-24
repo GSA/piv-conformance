@@ -131,8 +131,8 @@ public class CardUtils {
 							done = true;
 						}
 					}
-					scanInput.close();            ;
-				} else {
+					scanInput.close();
+                } else {
 					s_logger.debug("authenticateSingleton() not called by JUnit");
 				}
 				if (css.getApplicationPin() == null || css.getApplicationPin().length() == 0) {
@@ -212,7 +212,7 @@ public class CardUtils {
 			clazzStr = st.getClassName();
 		}
 		s_logger.debug("Last getClassName() returned " + clazzStr);
-		rv = clazzStr.startsWith("org.eclipse.jdt.internal.junit") ? true : false;
+		rv = clazzStr.startsWith("org.eclipse.jdt.internal.junit");
 		return rv;
 	}
 }

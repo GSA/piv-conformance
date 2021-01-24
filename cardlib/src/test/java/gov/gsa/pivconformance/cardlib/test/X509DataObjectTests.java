@@ -81,7 +81,7 @@ public class X509DataObjectTests {
 
 			lines = Files.readAllLines(filePath);
 			// Convert to DER
-			StringBuffer sb = new StringBuffer("");
+			StringBuffer sb = new StringBuffer();
 			for (String l : lines) {
 				sb.append(l + "\r\n");
 			}

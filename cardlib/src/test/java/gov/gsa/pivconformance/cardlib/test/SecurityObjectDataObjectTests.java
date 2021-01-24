@@ -68,7 +68,7 @@ public class SecurityObjectDataObjectTests {
         assertNotNull(((SecurityObject) o).getContainerIDList());
 
         assertNotNull(((SignedPIVDataObject) o).getAsymmetricSignature());
-        assertTrue(((SecurityObject) o).getErrorDetectionCode());
+        assertTrue(o.getErrorDetectionCode());
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {

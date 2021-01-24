@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class PIVAuthenticators {
     private static final Logger s_logger = LoggerFactory.getLogger(PIVAuthenticators.class);
 
-    private ArrayList<PIVAuthenticator> m_authenticators = new ArrayList<PIVAuthenticator>();
+    private final ArrayList<PIVAuthenticator> m_authenticators = new ArrayList<PIVAuthenticator>();
 
     /**
      *

@@ -17,7 +17,7 @@ import gov.gsa.pivconformance.cardlib.card.client.ResponseAPDUWrapper;
 
 public class PCSCWrapper implements ITransmitCounter{
     private static final Logger s_logger = LoggerFactory.getLogger(PCSCWrapper.class);
-    private static PCSCWrapper INSTANCE = new PCSCWrapper();
+    private static final PCSCWrapper INSTANCE = new PCSCWrapper();
     
     private int m_connectCount = 0;
     private int m_transmitCount = 0;

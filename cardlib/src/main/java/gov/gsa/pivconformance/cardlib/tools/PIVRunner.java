@@ -160,7 +160,7 @@ public class PIVRunner {
                             s_logger.info("Security Object Buffer: {}", Hex.encodeHexString(((CardCapabilityContainer) dataObject).getSecurityObjectBuffer()));
 
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardCapabilityContainer) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", dataObject.getErrorDetectionCode());
 
                         soDataElements.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, ((CardCapabilityContainer) dataObject).getSignedContent());
                     }
@@ -208,7 +208,7 @@ public class PIVRunner {
                         s_logger.info("Signature valid: {}", ((CardHolderUniqueIdentifier) dataObject).verifySignature());
                         signingCertificate = ((CardHolderUniqueIdentifier) dataObject).getSignerCert();
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderUniqueIdentifier) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", dataObject.getErrorDetectionCode());
 
                         soDataElements.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, ((CardHolderUniqueIdentifier) dataObject).getChuidContainer());
                     }
@@ -257,7 +257,7 @@ public class PIVRunner {
                             s_logger.info("Missing signing certificate to verify signature.");
 
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", dataObject.getErrorDetectionCode());
 
                         soDataElements.put(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
                     }
@@ -335,7 +335,7 @@ public class PIVRunner {
                         else
                             s_logger.info("Missing signing certificate to verify signature.");
 
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) dataObject).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", dataObject.getErrorDetectionCode());
 
                         soDataElements.put(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
                     }
@@ -384,7 +384,7 @@ public class PIVRunner {
                             s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation1());
                         if (((PrintedInformation) printedInformation).getOrganizationAffiliation2() != "")
                             s_logger.info("Name: {}", ((PrintedInformation) printedInformation).getOrganizationAffiliation2());
-                        s_logger.info("Error Detection Code Tag Present: {}", ((PrintedInformation) printedInformation).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", printedInformation.getErrorDetectionCode());
 
                     }
 
@@ -448,7 +448,7 @@ public class PIVRunner {
                             else
                                 s_logger.info("Missing signing certificate to verify signature.");
                         }
-                        s_logger.info("Error Detection Code Tag Present: {}", ((CardHolderBiometricData) cardholderIrisImages).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", cardholderIrisImages.getErrorDetectionCode());
 
                     }
                 }
@@ -515,7 +515,7 @@ public class PIVRunner {
 
                     if (decoded) {
                         s_logger.info("Name: {}", ((PairingCodeReferenceDataContainer) pairingCodeReferenceDataContainer).getName());
-                        s_logger.info("Error Detection Code Tag Present: {}", ((PairingCodeReferenceDataContainer) pairingCodeReferenceDataContainer).getErrorDetectionCode());
+                        s_logger.info("Error Detection Code Tag Present: {}", pairingCodeReferenceDataContainer.getErrorDetectionCode());
 
                     }
                 }

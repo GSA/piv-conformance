@@ -23,7 +23,7 @@ public class TestCaseTreeCellRenderer extends DefaultTreeCellRenderer implements
 	private static final long serialVersionUID = -7279235468508117069L;
     private static final Logger s_logger = LoggerFactory.getLogger(TestCaseTreeCellRenderer.class);
     
-    private static Map<TestStatus, ImageIcon> s_statusIcons;
+    private static final Map<TestStatus, ImageIcon> s_statusIcons;
     
     static {
     	s_statusIcons = new HashMap<TestStatus, ImageIcon>();

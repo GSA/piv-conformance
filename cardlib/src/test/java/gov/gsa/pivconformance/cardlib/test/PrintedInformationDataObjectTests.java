@@ -74,7 +74,7 @@ public class PrintedInformationDataObjectTests {
         assertNotSame(((PrintedInformation) o).getExpirationDate(), "");
         assertNotSame(((PrintedInformation) o).getAgencyCardSerialNumber(), "");
         assertNotSame(((PrintedInformation) o).getIssuerIdentification(), "");
-        assertTrue(((PrintedInformation) o).getErrorDetectionCode());
+        assertTrue(o.getErrorDetectionCode());
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {

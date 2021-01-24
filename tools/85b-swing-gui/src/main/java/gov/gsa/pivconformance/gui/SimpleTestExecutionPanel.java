@@ -49,12 +49,12 @@ public class SimpleTestExecutionPanel extends JPanel {
 
 	private static final Logger s_logger = LoggerFactory.getLogger(SimpleTestExecutionPanel.class);
 	
-	private JComboBox<String> m_readerComboBox;
-	private JPasswordField m_appPinField;
-	private JTextField m_databaseNameField;
-	private JTextField m_readerStatusField;
-	private JProgressBar m_testProgressBar;
-	private JButton m_runButton;
+	private final JComboBox<String> m_readerComboBox;
+	private final JPasswordField m_appPinField;
+	private final JTextField m_databaseNameField;
+	private final JTextField m_readerStatusField;
+	private final JProgressBar m_testProgressBar;
+	private final JButton m_runButton;
 	public SimpleTestExecutionPanel() {
 		setBackground(Color.WHITE);
 		

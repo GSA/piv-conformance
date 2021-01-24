@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TestCaseModel {
-	private static Logger s_logger = LoggerFactory.getLogger(TestCaseModel.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(TestCaseModel.class);
 	
 	private List<TestStepModel> m_steps;
 	private ConformanceTestDatabase m_db;

@@ -210,7 +210,7 @@ public class BerTlvParser {
         return length;
     }
 
-    public static int getLengthBytesCount(byte aBuf[], int aOffset) {
+    public static int getLengthBytesCount(byte[] aBuf, int aOffset) {
 
         int len = aBuf[aOffset] & 0xff;
         if( (len & 0x80) == 0x80) {

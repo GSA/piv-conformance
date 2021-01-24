@@ -40,7 +40,7 @@ public class GuiTestCaseTreeNode extends DefaultMutableTreeNode {
 			return m_testCase.getIdentifier() + " - " + m_testCase.getDescription();
 		}
 
-		return new String("(null)");
+		return "(null)";
 	}
 	
 

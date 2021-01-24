@@ -157,7 +157,7 @@ public class GuiRunnerApplication {
 	static File locateFile(File current, String pattern, String excludePattern) {
 		File file = null;
 		if (current.isDirectory()) {
-			File fileList[] = current.listFiles();
+			File[] fileList = current.listFiles();
 			for (File f : fileList) {
 				file = locateFile(f, pattern, excludePattern);
 				if (file != null)
@@ -208,12 +208,9 @@ public class GuiRunnerApplication {
 				String message = "Running from IDE";
 				s_logger.debug(message);
 			}
-			currentDirectory = URLDecoder.decode(path, "UTF-8");
+			currentDirectory = URLDecoder.decode(path, StandardCharsets.UTF_8);
 			String message = "Current directory is " + currentDirectory;
 			s_logger.debug(message);
-		} catch (UnsupportedEncodingException e1) {
-			currentDirectory = path + File.separator + ".." + File.separator;
-			String message = "Current directory is " + currentDirectory;
 		} catch (Exception e) {
 			String message = e.getMessage();
 			s_logger.error(message);

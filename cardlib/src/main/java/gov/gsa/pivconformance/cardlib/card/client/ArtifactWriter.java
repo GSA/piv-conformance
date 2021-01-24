@@ -105,7 +105,7 @@ public class ArtifactWriter {
 				String baseName = p.substring(index);
 				String newBaseName = timeStamp + "-" + baseName;
 				File f = new File(p);
-				File g = new File(m_artifactDir + File.separator + (String) mapElement.getKey() + File.separator + newBaseName);
+				File g = new File(m_artifactDir + File.separator + mapElement.getKey() + File.separator + newBaseName);
 				try {
 					result = f.renameTo(g);
 				} catch (Exception e) {

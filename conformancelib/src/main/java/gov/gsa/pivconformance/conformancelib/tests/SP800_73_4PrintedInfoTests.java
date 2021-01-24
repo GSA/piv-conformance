@@ -56,7 +56,7 @@ public class SP800_73_4PrintedInfoTests {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
 		//Get tag list
-		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
 		BerTag berEmployeeAffiliationTag = new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG);
@@ -81,7 +81,7 @@ public class SP800_73_4PrintedInfoTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
 		BerTag berIssuerIdTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
@@ -116,7 +116,7 @@ public class SP800_73_4PrintedInfoTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 		
@@ -133,7 +133,7 @@ public class SP800_73_4PrintedInfoTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 				
-		List<BerTag> tagList = ((PrintedInformation) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		List<byte[]> allPrintedInfoTags = TagConstants.AllPrintedInfoTags();
 		for(BerTag tag : tagList) {
@@ -162,7 +162,7 @@ public class SP800_73_4PrintedInfoTests {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 			
 			//Get tag list
-			List<BerTag> tagList = ((PrintedInformation) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 			
 			BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
 			BerTag berEmployeeAffiliationTag = new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG);
@@ -218,7 +218,7 @@ public class SP800_73_4PrintedInfoTests {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 			
-			List<BerTag> tagList = ((PrintedInformation) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 			
 			BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
 			BerTag berIssuerIdentificationTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);

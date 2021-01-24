@@ -54,7 +54,7 @@ public class SP800_73_4FingerprintsTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardHolderBiometricData) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berFingerprintTag = new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG);
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
@@ -80,7 +80,7 @@ public class SP800_73_4FingerprintsTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardHolderBiometricData) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berFingerprintTag = new BerTag(TagConstants.FINGERPRINT_I_AND_II_TAG);
 		BerTag berECTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);

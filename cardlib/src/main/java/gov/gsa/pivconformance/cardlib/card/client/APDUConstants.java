@@ -773,7 +773,7 @@ public class APDUConstants {
 	public static final String getKeyManagmentCertOID(int number) {
 
 		String firstPart = "2.16.840.1.101.3.7.2.16.";
-		String oid = firstPart + Integer.toString(number);
+		String oid = firstPart + number;
 
 		return oid;
 	}
@@ -802,7 +802,7 @@ public class APDUConstants {
 	public static final String getKeyManagmentCertName(int number) {
 
 		String firstPart = "Retired X.509 Certificate for Key Management ";
-		String name = firstPart + Integer.toString(number);
+		String name = firstPart + number;
 
 		return name;
 	}

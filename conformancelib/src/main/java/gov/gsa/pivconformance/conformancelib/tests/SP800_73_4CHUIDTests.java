@@ -58,7 +58,7 @@ public class SP800_73_4CHUIDTests {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 
 		BerTag berBufferLenTagTag = new BerTag(TagConstants.BUFFER_LENGTH_TAG);
 		if (tagList.contains(berBufferLenTagTag)) {
@@ -73,7 +73,7 @@ public class SP800_73_4CHUIDTests {
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_10(String oid, TestReporter reporter) {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG);
 		assertTrue(tagList.contains(berFASCTag));
 	}
@@ -87,7 +87,7 @@ public class SP800_73_4CHUIDTests {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 
 		BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG);
 		BerTag berDUNSTag = new BerTag(TagConstants.DUNS_TAG);
@@ -135,7 +135,7 @@ public class SP800_73_4CHUIDTests {
 		String bitstr = "";
 		// Convert each hex digit to 8 0's and 1's and concatenate to into a string
 		for (byte b : raw) {
-			bitstr += String.format("%8s", Integer.toBinaryString((int) b & 0xff)).replace(' ', '0');;
+			bitstr += String.format("%8s", Integer.toBinaryString((int) b & 0xff)).replace(' ', '0');
 		}
 		// Create a bit array to read 5 bits at a time.
 		byte[] bits = bitstr.getBytes();
@@ -216,7 +216,7 @@ public class SP800_73_4CHUIDTests {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 
 		BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG);
 		BerTag berDUNSTag = new BerTag(TagConstants.DUNS_TAG);
@@ -297,7 +297,7 @@ public class SP800_73_4CHUIDTests {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 
 		BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG);
 		BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
@@ -365,7 +365,7 @@ public class SP800_73_4CHUIDTests {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 
-		List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 
 		List<byte[]> allCHUIDTags = TagConstants.AllCHUIDTags();
 		for (BerTag tag : tagList) {
@@ -392,7 +392,7 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_43(String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 			BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG);
 			if (tagList.contains(berFASCTag) == false) {
 				Exception e = new Exception("0x30 tag is missing");
@@ -413,7 +413,7 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_44(String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 			BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG);
 			assertTrue(tagList.contains(berGUIDTag));
 		} catch (Exception e) {
@@ -430,7 +430,7 @@ public class SP800_73_4CHUIDTests {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 
 			BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG); // 0x32
 			BerTag berDUNSTag = new BerTag(TagConstants.DUNS_TAG); // 0x33
@@ -534,7 +534,7 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_46(String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 			BerTag berExpirationDateTag = new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG);
 			assertTrue(tagList.contains(berExpirationDateTag));
 		} catch (Exception e) {
@@ -551,7 +551,7 @@ public class SP800_73_4CHUIDTests {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 
 			BerTag berGUIDTag = new BerTag(TagConstants.GUID_TAG);
 			BerTag berExpirationDateTag = new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG);
@@ -590,7 +590,7 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_48(String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 			BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG);
 			assertTrue(tagList.contains(berIssuerAssymSigTag));
 		} catch (Exception e) {
@@ -607,7 +607,7 @@ public class SP800_73_4CHUIDTests {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 
 			BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG); // 0x3E
 			if (tagList.contains(berIssuerAssymSigTag) == false) {
@@ -641,7 +641,7 @@ public class SP800_73_4CHUIDTests {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 
 			BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 
@@ -660,7 +660,7 @@ public class SP800_73_4CHUIDTests {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 
-			List<BerTag> tagList = ((CardHolderUniqueIdentifier) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 
 			BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG);
 			BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);

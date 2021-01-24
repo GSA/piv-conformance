@@ -7,7 +7,7 @@ public class OSUtils {
 		OSX(20),
 		LINUX(30);
 		   
-        private OSTYPE (int ostypeValue) {
+        OSTYPE(int ostypeValue) {
         }
 	}
 

@@ -15,11 +15,11 @@ import gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender;
 
 public class GuiDebugAppender extends TimeStampedFileAppender<ILoggingEvent> {
 	
-	private PatternLayout m_pattern;
-	private static SimpleAttributeSet s_errorAttributes;
-	private static SimpleAttributeSet s_warningAttributes;
-	private static SimpleAttributeSet s_infoAttributes;
-	private static SimpleAttributeSet s_otherAttributes;
+	private final PatternLayout m_pattern;
+	private static final SimpleAttributeSet s_errorAttributes;
+	private static final SimpleAttributeSet s_warningAttributes;
+	private static final SimpleAttributeSet s_infoAttributes;
+	private static final SimpleAttributeSet s_otherAttributes;
 	
 	static {
 		s_errorAttributes = new SimpleAttributeSet();

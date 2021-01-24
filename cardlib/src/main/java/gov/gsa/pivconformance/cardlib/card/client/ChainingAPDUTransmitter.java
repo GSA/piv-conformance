@@ -23,7 +23,7 @@ public class ChainingAPDUTransmitter {
 	private CardChannel m_channel = null;
     private static final Logger s_logger = LoggerFactory.getLogger(ChainingAPDUTransmitter.class);
     private static final Logger s_apduLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.cardlib.apdu");
-	private ITransmitCounter m_counter;
+	private final ITransmitCounter m_counter;
 	
 	public ChainingAPDUTransmitter(CardChannel c) {
 		m_channel = c;

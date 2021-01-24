@@ -3,6 +3,7 @@ package gov.gsa.pivconformance.cardlib.tlv;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -11,7 +12,7 @@ import java.util.Date;
  */
 public class BerTlvBuilder {
 
-    private static final Charset ASCII = Charset.forName("US-ASCII");
+    private static final Charset ASCII = StandardCharsets.US_ASCII;
     private static final BigDecimal HUNDRED = new BigDecimal(100);
     private static final int DEFAULT_SIZE = 24 * 1024;
 

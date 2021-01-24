@@ -71,7 +71,7 @@ public class CHUIDDataObjectTests {
         ((SignedPIVDataObject) o).verifySignature();
         assertNotNull(((SignedPIVDataObject) o).getSignerCert());
 
-        assertTrue(((CardHolderUniqueIdentifier) o).getErrorDetectionCode());
+        assertTrue(o.getErrorDetectionCode());
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {

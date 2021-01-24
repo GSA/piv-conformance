@@ -13,7 +13,7 @@ import java.awt.event.ActionEvent;
 public class GuiRawLogPanel extends JPanel {
 
 	private static final long serialVersionUID = -91080473504561866L;
-	private JTextPane m_debugTextPane;
+	private final JTextPane m_debugTextPane;
 	
 	public GuiRawLogPanel() {
 		super();

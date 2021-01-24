@@ -58,7 +58,7 @@ public class GuiTestExecutionController {
 		m_testExecutionPanel = null;
 		m_running = false;
 		m_toolBar = null;
-		m_trlc = TestRunLogController.getInstance();;
+		m_trlc = TestRunLogController.getInstance();
 		m_trlc.initialize();
 	}
 

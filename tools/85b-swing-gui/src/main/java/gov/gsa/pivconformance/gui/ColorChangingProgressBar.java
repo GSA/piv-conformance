@@ -10,7 +10,7 @@ public class ColorChangingProgressBar extends JProgressBar {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ColorChangingProgressBarUi m_ui;
+	private final ColorChangingProgressBarUi m_ui;
 	public ColorChangingProgressBar() {
 		m_ui = new ColorChangingProgressBarUi();
 		setCurrentUiColor(Color.GREEN);

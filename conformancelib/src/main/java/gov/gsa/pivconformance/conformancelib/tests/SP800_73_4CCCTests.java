@@ -67,7 +67,7 @@ public class SP800_73_4CCCTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardCapabilityContainer) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		assertTrue(tagList.size() >= 12);
 		
@@ -95,7 +95,7 @@ public class SP800_73_4CCCTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardCapabilityContainer) o).getTagList();	
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berextendedAppCarlUrlTag = new BerTag(TagConstants.EXTENDED_APPLICATION_CARDURL_TAG);
 		BerTag berSecurityObjectBufferTag = new BerTag(TagConstants.SECURITY_OBJECT_BUFFER_TAG);
@@ -147,9 +147,9 @@ public class SP800_73_4CCCTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardCapabilityContainer) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
-		boolean edc = ((CardCapabilityContainer) o).getErrorDetectionCode();
+		boolean edc = o.getErrorDetectionCode();
 
 		assertTrue(edc);
 		
@@ -188,7 +188,7 @@ public class SP800_73_4CCCTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((CardCapabilityContainer) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		List<byte[]> allCCCTags = TagConstants.AllCCCTags();
 		for(BerTag tag : tagList) {

@@ -45,7 +45,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 	private byte[] m_cardholderUUID;
 	private boolean m_errorDetectionCode;
 	private byte[] m_chuidContainer;
-	private ArtifactWriter m_x509ArtifactCache;
+	private final ArtifactWriter m_x509ArtifactCache;
 
 	// TODO: Cache this
 	// HashMap<BerTag, byte[]> m_content;

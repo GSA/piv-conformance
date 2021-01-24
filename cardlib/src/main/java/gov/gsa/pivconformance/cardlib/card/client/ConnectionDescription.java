@@ -29,11 +29,11 @@ public class ConnectionDescription {
     private CardTerminal m_reader;
 
     //Tag for Connection Description template
-    private static byte[] m_tag = new byte[]{(byte) 0x7F, (byte) 0x21};
+    private static final byte[] m_tag = new byte[]{(byte) 0x7F, (byte) 0x21};
     //Tag for PC/SC device reader name
-    private static byte[] m_tagCRN = new byte[]{(byte) 0x81};
+    private static final byte[] m_tagCRN = new byte[]{(byte) 0x81};
     //Tag for Local Network node
-    private static byte[] m_tagLocal = new byte[]{(byte) 0x90, (byte) 0x00};
+    private static final byte[] m_tagLocal = new byte[]{(byte) 0x90, (byte) 0x00};
 
     /**
      * Default c'tor is private - initialize using static factory methods.
@@ -115,7 +115,7 @@ public class ConnectionDescription {
     public static ConnectionDescription createFromBuffer(byte[] data) {
         ConnectionDescription rv = new ConnectionDescription();
 
-        byte readerNameBytes[] = null;
+        byte[] readerNameBytes = null;
 
         BerTag berTagCRN = new BerTag(m_tagCRN);
         BerTag berTag = new BerTag(m_tag);

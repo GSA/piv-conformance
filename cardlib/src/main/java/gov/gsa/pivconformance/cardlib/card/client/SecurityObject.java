@@ -363,7 +363,7 @@ public class SecurityObject extends SignedPIVDataObject {
 							s_logger.error("Missing object to hash for id {}: ", entry.getKey());
 						}
 					}
-					rv_result = (dgIdx == m_dghList.entrySet().size()) ? true : false;
+					rv_result = dgIdx == m_dghList.entrySet().size();
 				} else {
 					s_logger.error("Data Group object was null");
 				}

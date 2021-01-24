@@ -321,7 +321,7 @@ public class APDUUtils {
         Provider.Service service = provider.getService(serviceName, name);
         if (service != null) {
             String string = service.toString();
-            String array[] = string.split("\n");
+            String[] array = string.split("\n");
             if (array.length > 1) {
                 string = array[array.length - 1];
                 array = string.split("[\\[\\]]");

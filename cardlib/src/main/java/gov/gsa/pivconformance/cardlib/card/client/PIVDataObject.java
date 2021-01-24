@@ -33,12 +33,12 @@ public class PIVDataObject {
 	protected List<BerTag> m_tagList;
 	private boolean m_error_Detection_Code;
 	private boolean m_error_Detection_Code_Has_Data;
-	private TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
+	private final TagBoundaryManager m_tagLengthRules = DataModelSingleton.getInstance().getLengthRules();
 	private boolean m_lengthOk;
 	// TODO: Cache these tags
 	protected HashMap<BerTag, byte[]> m_content;
 	private String m_name;
-	private static List<String> m_oidList = new ArrayList<String>();
+	private static final List<String> m_oidList = new ArrayList<String>();
 	private String m_containerName;
 	private ArtifactWriter m_artifactCache;
 
@@ -221,7 +221,7 @@ public class PIVDataObject {
 		while (it.hasNext()) {
 			Entry<BerTag, byte[]> pair = it.next();
 			BerTag tag = pair.getKey();
-			byte value[] = pair.getValue();
+			byte[] value = pair.getValue();
 			// Check length
 			if (!(this.m_lengthOk = this.inBounds(name, tag, value.length))) {
 				return false;

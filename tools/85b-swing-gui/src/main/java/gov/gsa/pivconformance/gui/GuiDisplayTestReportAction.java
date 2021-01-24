@@ -42,7 +42,7 @@ public class GuiDisplayTestReportAction extends AbstractAction {
 			TimeStampedFileAppender<?> csvAppender = lg.getAppender("CONFORMANCELOG");
 			String htmlPathName = null;
 			if (csvAppender != null) {
-				String lp = ((TimeStampedFileAppender<?>) csvAppender).getTimeStampedLogPath();
+				String lp = csvAppender.getTimeStampedLogPath();
 				if (!Files.isReadable(Paths.get(lp))) {
 					String fn = fetchFromLastLog(".lastlog" + "-" + csvAppender.getName().toLowerCase());
 					if (fn == null) {

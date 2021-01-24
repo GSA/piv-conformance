@@ -57,7 +57,7 @@ public class SP800_73_4DiscoveryObjectTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((DiscoveryObject) o).getTagList();		
+		List<BerTag> tagList = o.getTagList();
 		BerTag cardAppAIDTag = new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG);
 
 		//Confirm Tag 0x4F is present
@@ -73,7 +73,7 @@ public class SP800_73_4DiscoveryObjectTests {
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((DiscoveryObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag pinUsagePolicyTag = new BerTag(TagConstants.PIN_USAGE_POLICY_TAG);
 
@@ -121,7 +121,7 @@ public class SP800_73_4DiscoveryObjectTests {
 				
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 		
-		List<BerTag> tagList = ((DiscoveryObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag cardAppAIDTag = new BerTag(TagConstants.PIV_CARD_APPLICATION_AID_TAG);
 		

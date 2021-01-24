@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestStepModel {
-	private static Logger s_logger = LoggerFactory.getLogger(TestStepModel.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(TestStepModel.class);
 	
 	
 	public TestStepModel(ConformanceTestDatabase db) {

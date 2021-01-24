@@ -73,7 +73,7 @@ public class BiometricDataObjectTests {
 
         assertNotNull(((SignedPIVDataObject) o).getAsymmetricSignature());
 
-        assertTrue(((CardHolderBiometricData) o).getErrorDetectionCode());
+        assertTrue(o.getErrorDetectionCode());
 
     }
 

@@ -190,7 +190,7 @@ public class SP800_76_Tests {
 			wrapped = ByteBuffer.wrap(signatureDataBlockLengthBytes);
 			int signatureDataBlockLength = wrapped.getShort();
 			
-			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength),  "Signature data block length does not matche actual length");;
+			assertTrue(biometricData.length == (88 + biometricDataBlockLength + signatureDataBlockLength),  "Signature data block length does not matche actual length");
 
 		 }
 	}
@@ -442,7 +442,7 @@ public class SP800_76_Tests {
 		byte [] zeroBlock = { 0x00, 0x00 };
 		
 		assertTrue(!Arrays.equals(cBEFFProductIdentifierOwner, zeroBlock), "Fingerprint product identifier owner and product identifier type are zero");
-		assertTrue(!Arrays.equals(cBEFFProductIdentifierBype, zeroBlock), "Fingerprint product identifier owner and product identifier type are zero");;
+		assertTrue(!Arrays.equals(cBEFFProductIdentifierBype, zeroBlock), "Fingerprint product identifier owner and product identifier type are zero");
 	}
 	
 	//Confirm that capture equipment compliance has a value of 1000b

@@ -53,7 +53,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	// The effective signing cert.
 	private X509Certificate m_signerCert;
 	// This will be zero or one, and reflects the number of certs in this object
-	private int m_signerCertCount;
+	private final int m_signerCertCount;
 	// This will be true *only* when this object has its own cert
 	private boolean m_hasOwnSignerCert;
 	// Prefetch

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 
 public class ParameterizedArgumentsProvider implements ArgumentsProvider {
-	private static Logger s_logger = LoggerFactory.getLogger(ParameterUtils.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(ParameterUtils.class);
 	
 	public ParameterizedArgumentsProvider() {
 	}
@@ -72,7 +72,7 @@ public class ParameterizedArgumentsProvider implements ArgumentsProvider {
 		String containerObj = (containerOid != null) ? containerOid : container;
 		
 		if(parameters != null) {
-			StringBuffer sb = new StringBuffer("");
+			StringBuffer sb = new StringBuffer();
 			for(String p : parameters) {
 				if (sb.length() > 0) sb.append(",");
 				sb.append(p.replaceAll("[\n\r\b\t]", ""));

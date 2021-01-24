@@ -63,8 +63,8 @@ public class TestRunLogController {
  			put("CARDHOLDERIRISIMAGES",                       "CardholderIrisImages");
  			put("KEYHISTORYOBJECT",                           "KeyHistoryObject");
  			put("PAIRINGCODEREFERENCEDATACONTAINER",          "PairingCodeReferenceDataContainer");
- 			put("PRINTEDINFORMATION",                         "PrintedInformation");;
- 			put("SECUREMESSAGINGCERTIFICATESIGNER",           "SecureMessagingCertificateSigner");
+ 			put("PRINTEDINFORMATION",                         "PrintedInformation");
+			put("SECUREMESSAGINGCERTIFICATESIGNER",           "SecureMessagingCertificateSigner");
  			put("SECURITYOBJECT",                             "SecurityObject");
  			put("X509CERTIFICATEFORPIVAUTHENTICATION",        "X509CertificateForPIVAuthentication");
  			put("X509CERTIFICATEFORCARDAUTHENTICATION",       "X509CertificateForCardAuthentication");
@@ -78,7 +78,7 @@ public class TestRunLogController {
 	private HashMap<String, String> m_filenames = null;
 	private LoggerContext m_ctx = null;
 	private boolean m_initialized = false;
-	private String m_timeStampedLogPath = null;
+	private final String m_timeStampedLogPath = null;
 	private String m_timeStamp;
 	
 	public static TestRunLogController getInstance() {
@@ -316,7 +316,7 @@ public class TestRunLogController {
 		Iterator<?> i = m_appenders.entrySet().iterator();
 		while (i.hasNext()) {
 			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
-			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
+			TimeStampedFileAppender<ILoggingEvent> appender = me.getValue();
 			appender.setStartTime(startTime);
 		}	
 	}
@@ -340,7 +340,7 @@ public class TestRunLogController {
 			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
 			String logName = me.getKey();
 			Logger logger = (Logger) LoggerFactory.getLogger(m_loggers.get(me.getKey()));
-			TimeStampedFileAppender<ILoggingEvent> appender = (TimeStampedFileAppender<ILoggingEvent>) me.getValue();
+			TimeStampedFileAppender<ILoggingEvent> appender = me.getValue();
 			setTimeStamp(logger, appender, logName, stopTime);
 		}
 	}
@@ -500,8 +500,8 @@ public class TestRunLogController {
 			p = cls.getProtectionDomain();
 			String tmp = pathFixup(p.getCodeSource().getLocation().getPath());
 			String[] dirs = tmp.split("/");
-			List<String> dirList = Arrays.asList(dirs);
-			StringBuilder sb = new StringBuilder("");
+			String[] dirList = dirs;
+			StringBuilder sb = new StringBuilder();
 			if (tmp.matches("/bin/main")) {
 				for (String d : dirList) {
 					if (d.compareTo("bin") != 0) {

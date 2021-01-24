@@ -79,7 +79,7 @@ public class CCCDataObjectTests {
         assertTrue(((CardCapabilityContainer) o).getStatusTuples());
         assertTrue(((CardCapabilityContainer) o).getNextCCC());
 
-        assertTrue(((CardCapabilityContainer) o).getErrorDetectionCode());
+        assertTrue(o.getErrorDetectionCode());
     }
 
     private static Stream<Arguments> dataObjectTestProvider() {

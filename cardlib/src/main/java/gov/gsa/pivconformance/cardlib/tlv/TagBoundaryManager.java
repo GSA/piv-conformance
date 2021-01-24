@@ -227,8 +227,8 @@ public class TagBoundaryManager {
 				} else if (bytesLength < lo) {
 					rv = lo - bytesLength;			
 				} else {
-					rv = bytesLength - hi;;
-				}
+					rv = bytesLength - hi;
+                }
 				break;
 				
 			case OR:

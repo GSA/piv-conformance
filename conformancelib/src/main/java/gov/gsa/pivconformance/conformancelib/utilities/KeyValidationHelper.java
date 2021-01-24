@@ -50,7 +50,7 @@ public class KeyValidationHelper {
 		Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 	}
 
-	private HashMap<String, ECNamedCurveParameterSpec> validCurves = new HashMap<>();
+	private final HashMap<String, ECNamedCurveParameterSpec> validCurves = new HashMap<>();
 
 	public void validateKey(X509Certificate containerCert, String containerOid) throws ConformanceTestException {
 		ResponseAPDU resp = null;

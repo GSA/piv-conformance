@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.cardlib.tlv;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public class BerTlv {
 
-    private final static Charset ASCII = Charset.forName("US-ASCII");
+    private final static Charset ASCII = StandardCharsets.US_ASCII;
 
     private final BerTag theTag;
     private final byte[] theValue;

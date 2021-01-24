@@ -68,7 +68,7 @@ public class SP800_73_4SecurityObjectTests {
 		assertTrue(decoded);
 		
 		// Get tag list
-		List<BerTag> tagList = ((SecurityObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berMappingTag = new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG);
 		BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);
@@ -92,7 +92,7 @@ public class SP800_73_4SecurityObjectTests {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 
 		// Get tag list
-		List<BerTag> tagList = ((SecurityObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berMappingTag = new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG);
 		BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);
@@ -140,7 +140,7 @@ public class SP800_73_4SecurityObjectTests {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
 
             PIVDataObject tmpObj = AtomHelper.getDataObject(entry.getValue());
-            assertNotNull(tmpObj);;
+            assertNotNull(tmpObj);
 		}
     }
 	
@@ -176,8 +176,8 @@ public class SP800_73_4SecurityObjectTests {
 		
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
             System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
-            s_logger.debug("[Security object: 0x{} about to read {} from card", Integer.toHexString(entry.getKey()), APDUConstants.containerOidToNameMap.get(entry.getValue()));;
-            PIVDataObject dataObject = AtomHelper.getDataObject(entry.getValue());
+            s_logger.debug("[Security object: 0x{} about to read {} from card", Integer.toHexString(entry.getKey()), APDUConstants.containerOidToNameMap.get(entry.getValue()));
+			PIVDataObject dataObject = AtomHelper.getDataObject(entry.getValue());
             
             decoded = dataObject.decode();
     		assertTrue(decoded);
@@ -274,7 +274,7 @@ public class SP800_73_4SecurityObjectTests {
 			assertTrue(decoded);
 			
 			// Get tag list
-			List<BerTag> tagList = ((SecurityObject) o).getTagList();
+			List<BerTag> tagList = o.getTagList();
 			
 			BerTag berMappingTag = new BerTag(TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG);
 			BerTag berSecurityObjectTag = new BerTag(TagConstants.SECURITY_OBJECT_TAG);

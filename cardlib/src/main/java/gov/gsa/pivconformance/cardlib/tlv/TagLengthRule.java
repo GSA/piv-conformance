@@ -9,10 +9,10 @@ package gov.gsa.pivconformance.cardlib.tlv;
  * biometrics. 
  */
 public class TagLengthRule {
-	private CONSTRAINT m_rule;
-	private int m_lowVal;
-	private int m_highVal;
-	private boolean m_softUpperBound;
+	private final CONSTRAINT m_rule;
+	private final int m_lowVal;
+	private final int m_highVal;
+	private final boolean m_softUpperBound;
 	
 	// Private constructor
 	public TagLengthRule(CONSTRAINT rule, int lowVal, int highVal, boolean softUpperBound) {
@@ -33,11 +33,11 @@ public class TagLengthRule {
 	 * Eunumeration used to compute lengths of TLV values
 	 *
 	 */
-	public static enum CONSTRAINT {
+	public enum CONSTRAINT {
 		FIXED, OR, VARIABLE
-	};
-	
-	/*
+	}
+
+    /*
 	 * Provides the RULE (for lack of a better word at the time) of the rule
 	 * 
 	 * @return the RULE

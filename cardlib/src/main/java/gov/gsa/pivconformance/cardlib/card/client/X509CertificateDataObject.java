@@ -30,7 +30,7 @@ public class X509CertificateDataObject extends PIVDataObject {
 	private X509Certificate m_cert;
 	private byte[] m_rawCertBuf = null;
 	private boolean m_compressed = false;
-	private ArtifactWriter m_x509ArtifactCache;
+	private final ArtifactWriter m_x509ArtifactCache;
 
 
 	/**

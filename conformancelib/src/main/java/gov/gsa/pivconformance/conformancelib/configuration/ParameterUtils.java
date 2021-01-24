@@ -12,7 +12,7 @@ import gov.gsa.pivconformance.cardlib.card.client.CardClientException;
 
 public class ParameterUtils {
 	
-	private static Logger s_logger = LoggerFactory.getLogger(ParameterUtils.class);
+	private static final Logger s_logger = LoggerFactory.getLogger(ParameterUtils.class);
 
 	public static String CreateFromList(List<String> parameters)
 	{

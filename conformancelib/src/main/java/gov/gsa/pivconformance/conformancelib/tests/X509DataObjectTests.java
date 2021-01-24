@@ -49,7 +49,7 @@ public class X509DataObjectTests {
 		}		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
           
-		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berCertTag = new BerTag(TagConstants.CERTIFICATE_TAG);
 		BerTag berCertInfoTag = new BerTag(TagConstants.CERTINFO_TAG);
@@ -73,7 +73,7 @@ public class X509DataObjectTests {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
         
         
-		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berCertTag = new BerTag(TagConstants.CERTIFICATE_TAG);
 		BerTag berMSCUIDTag = new BerTag(TagConstants.MSCUID_TAG);
@@ -99,7 +99,7 @@ public class X509DataObjectTests {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
         
         
-		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		BerTag berCertTag = new BerTag(TagConstants.CERTIFICATE_TAG);
 		BerTag berMSCUIDTag = new BerTag(TagConstants.MSCUID_TAG);
@@ -135,7 +135,7 @@ public class X509DataObjectTests {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
         
         
-		List<BerTag> tagList = ((X509CertificateDataObject) o).getTagList();
+		List<BerTag> tagList = o.getTagList();
 		
 		List<byte[]> allx509Tags = TagConstants.Allx509Tags();
 		for(BerTag tag : tagList) {
