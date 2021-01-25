@@ -46,8 +46,8 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
     cp -p gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
 #    touch directly-asserted.flag
     rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
-    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >console.log 2>&1\r" >run.bat
-    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >console.log 2>&1" >run.sh
+    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >>console.log 2>&1\r" >run.bat
+    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >>console.log 2>&1" >run.sh
     chmod 755 run.sh
 popd
 
