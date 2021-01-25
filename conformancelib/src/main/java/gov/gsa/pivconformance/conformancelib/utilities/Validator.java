@@ -636,8 +636,8 @@ public class Validator {
             if (certPath != null) {
                 s_logger.debug("Build passed, path contents: ");
                 int count = 0;
-                for (X509Certificate x509cert : (Set<X509Certificate>) certPath.getCertificates()) {
-                    s_logger.debug(String.format("%3d. %s", ++count, x509cert.getSubjectDN().getName()));
+                for (Certificate cert : certPath.getCertificates()) {
+                    s_logger.debug(String.format("%3d. %s", ++count, ((X509Certificate) cert).getSubjectDN().getName()));
                 }
                 s_logger.debug(String.format("%3d. %s", ++count, v_trustAnchorCert.getSubjectDN().getName()));
             }
