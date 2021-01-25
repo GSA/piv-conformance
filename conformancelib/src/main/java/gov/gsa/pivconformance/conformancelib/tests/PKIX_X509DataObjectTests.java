@@ -298,7 +298,7 @@ public class PKIX_X509DataObjectTests {
 					//TODO: Needs to be configurable
 					Validator validator = new Validator();
 					validator.setResourceDir("x509-certs");
-					validator.setKeyStore("cacerts.keystore", "changeit");
+					validator.setKeyStore("cacerts.jks", "changeit");
 					validator.setProvider("SunRsaSign");
 					validator.setDownloadAia(true);
 					validator.setCertPathBuilder("SUN"); // SunRsaSign does not work

@@ -45,9 +45,9 @@ public class Validator {
     private static final String s_caPathString = "x509-certs" + File.separator;
     private static final String s_caFileName = "all.p7b";
 
-    private String m_resourceDir = ".";
-    private String m_eeFullCertPath = "";
-    private String m_taFullCertPath = "";
+    private String m_resourceDir = "";
+    private String m_eeFullCertPath = null;
+    private String m_taFullCertPath = null;
     private String m_provider = "SunRsaSign";
     private CertPathBuilder m_cpb = null;
     private String m_caPathString = null;
@@ -96,7 +96,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator() throws ConformanceTestException {
-        reset("SunRsaSign", "x509-certs/cacerts.keystore", "changeit", s_caFileName);
+        reset("SunRsaSign", "x509-certs/cacerts.jks", "changeit", s_caFileName);
     }
 
     /**
@@ -105,7 +105,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator (String provider) throws ConformanceTestException {
-        reset(provider, "x509-certs/cacerts.keystore", "changeit", null);
+        reset(provider, "x509-certs/cacerts.jks", "changeit", null);
     }
 
     /**
@@ -512,7 +512,7 @@ public class Validator {
 
     /**
      * Determines if a valid certificate path can be built to the specified trust anchor using
-     * the given policy OIDs. If trustAnchorCertFile is null, resourceDir + /x509-certs/cacerts.keystore
+     * the given policy OIDs. If trustAnchorCertFile is null, resourceDir + /x509-certs/cacerts.jks
      * is consulted for the appropriate trust anchor.
      *
      * @param endEntityCertFile file containing end entity cert
@@ -805,13 +805,12 @@ public class Validator {
      * @throws ConformanceTestException
      */
     private void reset(String provider, String keyStoreName, String password, String certStoreName) throws ConformanceTestException {
-        m_resourceDir = ".";
+        m_resourceDir = null;
         m_caFileName = s_caFileName;
         m_caPathString = s_caPathString;
         m_cpb = null;
         m_keystore = null;
         m_downloadAia = false;
-        m_resourceDir = ".";
         try {
             setProvider(provider);
             setCertPathBuilder(s_certPathBuilderProviders.get(provider));

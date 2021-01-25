@@ -243,7 +243,7 @@ task installTestIDE (type: Copy) {
     println "TestIDE Resources:"
     sourceSets.test.resources.each { println '  [' + it + ']' }
     from (sourceSets.test.resources) {
-        include '**/x509-certs/cacerts.keystore'
+        include '**/x509-certs/cacerts.jks'
         include '**/x509-certs/valid/**'
     }
     into './'

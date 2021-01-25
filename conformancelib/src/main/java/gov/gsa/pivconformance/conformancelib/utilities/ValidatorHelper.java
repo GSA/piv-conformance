@@ -83,6 +83,7 @@ public class ValidatorHelper {
 
         try {
             String path = pathFixup(fileName);
+            s_logger.debug("Current directory [" + System.getProperty("user.dir") + "]");
             s_logger.debug("Opening [" + path + "]");
             inputStream = new FileInputStream(path);
         } catch (Exception e) {
