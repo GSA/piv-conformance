@@ -10,6 +10,8 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
@@ -614,10 +616,13 @@ public class Validator {
 
             CertStore certStore = null;
             if (getCaFileName() != null) {
-                certStore = getCertStore(getCaPathString(), getCaFileName());
-            } else {
-                certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
+                if (Files.exists(Paths.get(getCaFileName()))) {
+                    certStore = getCertStore(getCaPathString(), getCaFileName());
+                }
             }
+
+            if (certStore == null)
+                certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
 
             Set<X509Certificate> certSet = (Set<X509Certificate>) certStore.getCertificates(null);
             certSet.add(v_eeCert);
@@ -634,7 +639,7 @@ public class Validator {
             // Validate the cert for appropriate policy OID
             CertPath certPath = validateCertificate(v_eeCert, certSet, v_trustAnchorCert, policies);
             if (certPath != null) {
-                s_logger.debug("Build passed, path contents: ");
+                s_logger.debug("Build passed: ");
                 int count = 0;
                 for (Certificate cert : certPath.getCertificates()) {
                     s_logger.debug(String.format("%3d. %s", ++count, ((X509Certificate) cert).getSubjectDN().getName()));
@@ -643,13 +648,14 @@ public class Validator {
             }
             return certPath != null;
         } catch (ConformanceTestException e) {
-            s_logger.error("Check test artifacts");
+            s_logger.error("Build failed: Check test config");
             e.printStackTrace();
+            return false;
         } catch (CertPathBuilderException | NoSuchAlgorithmException | NoSuchProviderException | CertStoreException | InvalidAlgorithmParameterException e) {
-            s_logger.info("Build failed: " + e.getMessage());
-            throw e;
+            s_logger.error("Build failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /**
@@ -669,11 +675,9 @@ public class Validator {
 
         // Random collection of CA and self-signed CA certs
         for (X509Certificate cert : additionalCerts) {
-            if (cert != null) {// TODO: why would one of these be null?
+            if (cert != null) {
                 String subject = cert.getSubjectDN().getName();
                 String issuer = cert.getIssuerDN().getName();
-                s_logger.debug("Subject: " + subject);
-                s_logger.debug("Issuer: " + issuer);
                 if (subject.equals(issuer)) {
                     trustedRoots.add(cert);
                 } else {
@@ -684,9 +688,6 @@ public class Validator {
 
         // Configure trust anchor
         Set<TrustAnchor> trustAnchors = new HashSet<TrustAnchor>();
-//        for (X509Certificate root : trustedRoots) {
-//            trustAnchors.add(new TrustAnchor(root, null));
-//        }
         trustAnchors.add(new TrustAnchor(trustAnchorCert, null));
         // Target is our EE cert
         X509CertSelector selector = new X509CertSelector();
@@ -792,11 +793,9 @@ public class Validator {
         } catch (NoSuchAlgorithmException e) {
             String msg = "Crypto failure loading certs from " + getResourceDir() + File.separator + v_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
-            throw new ConformanceTestException(msg);
         } catch (Exception e) {
             String msg = "IO problem reading " + getResourceDir() + File.separator + v_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
-            throw new ConformanceTestException(msg);
         }
         return certStore;
     }

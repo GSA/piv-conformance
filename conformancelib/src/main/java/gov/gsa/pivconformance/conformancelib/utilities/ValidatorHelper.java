@@ -52,10 +52,15 @@ public class ValidatorHelper {
     }
 
     public static X509Certificate getX509CertificateFromPath(String fullPathName) throws ConformanceTestException {
+        String v_fullPathName = TestRunLogController.pathFixup(fullPathName);
+        s_logger.debug("getX509CertificateFromPath(" + v_fullPathName + ")");
         X509Certificate rv = null;
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            final Collection<? extends Certificate> certs = certFactory.generateCertificates(new ByteArrayInputStream(Files.readAllBytes(Paths.get(fullPathName))));
+            Path path = Paths.get(v_fullPathName);
+            byte[] certBytes = Files.readAllBytes(path);
+            ByteArrayInputStream bis = new ByteArrayInputStream(certBytes);
+            final Collection<? extends Certificate> certs = certFactory.generateCertificates(bis);
             rv = (X509Certificate) certs.toArray()[0];
         } catch (IOException e) {
                 e.printStackTrace();
