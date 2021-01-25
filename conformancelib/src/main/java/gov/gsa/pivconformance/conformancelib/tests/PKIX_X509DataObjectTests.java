@@ -302,43 +302,16 @@ public class PKIX_X509DataObjectTests {
 			String[] allowedPolicies = p.split(":");
 			String policyOidName = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
 			if (policyOidName.equals(oid)) {	
-				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));	
 				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
-				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
+				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, allowedPolicies[1]);
 				try {
-					X509Certificate trustAnchorCert = null;
-					try {
-						//TODO: Needs to be configurable
-						Validator validator = new Validator("SunRsaSign", "x509-certs/cacerts.keystore", "changeit");
-						KeyStore ks = validator.getKeyStore();
-						String subjectName = eeCert.getSubjectX500Principal().getName();
-						String trustAnchorAlias = null;
-						//TODO: Needs to be configurable
-						if (subjectName.contains("ICAM")) {
-							if (subjectName.contains("PIV-I")) {
-								trustAnchorAlias = "icam test card piv-i root ca";
-							} else {
-								trustAnchorAlias = "icam test card piv root ca";
-							}
-						} else {
-							trustAnchorAlias = "federal common policy ca";
-						}
-						s_logger.debug("Looking for trust anchor " + trustAnchorAlias);
-						trustAnchorCert = gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getTrustAnchorForGivenCertificate(ks, eeCert);
-						if (trustAnchorCert != null) {
-							s_logger.debug("Validating to trust anchor " + trustAnchorCert.getSubjectDN().getName());
-							boolean valid = validator.isValid(eeCert, paramList3.toString(), trustAnchorCert);
-							assertTrue(valid, "Cert not valid");
-						} else {
-							fail("Can't load trust anchor " + trustAnchorAlias);
-						}
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}		
-				} catch (Exception e1) {
+					//TODO: Needs to be configurable
+					Validator validator = new Validator("SunRsaSign", "x509-certs/cacerts.keystore", "changeit");
+					boolean valid = validator.isValid(eeCert, String.join(" ", allowedPolicies[1]), null);
+					assertTrue(valid, "Cert not valid");
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					e.printStackTrace();
 				}
 				assertTrue(false, "Cert failed");
 			}

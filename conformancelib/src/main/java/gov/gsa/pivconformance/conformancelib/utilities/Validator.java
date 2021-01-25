@@ -103,15 +103,28 @@ public class Validator {
      * The key store contains trust anchors and intermediate CA certs that are
      * unlikely to change in the short term.
      *
-     * @param keyStoreName the path to the KeyStore file
+     * @param keyStorePath the path to the KeyStore file
      */
-    public void setKeyStore(String keyStoreName, String password) throws ConformanceTestException {
+    public void setKeyStore(String keyStorePath, String password) throws ConformanceTestException {
         InputStream is = null;
-        is = getStreamFromResourceFile(System.getProperty("user.dir") + File.separator + keyStoreName);
+        String targetPath = null;
+        if (keyStorePath == null) {
+            String msg = "No keystore file specified";
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
+        }
+        if (keyStorePath.startsWith(File.separator))
+            targetPath = keyStorePath;
+        else
+            targetPath = getResourceDir() != null ? getResourceDir() + File.separator + keyStorePath : keyStorePath;
+
+        is = getStreamFromResourceFile(targetPath);
+
         KeyStore ks = null;
         try {
             ks = KeyStore.getInstance("JKS");
             ks.load(is, password.toCharArray());
+            is.close();
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
             s_logger.error(e.getMessage());
             throw new ConformanceTestException(e.getMessage());
@@ -443,7 +456,7 @@ public class Validator {
 
     /**
      * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
-     * @param endEndityCertFile string with file name of end entity cert
+     * @param endEntityCertFile string with file name of end entity cert
      * @param policyOids comma-separated string of policy OIDs
      * @param trustAnchorFile string with file name of trust anchor cert
      * @return true if the certificate path was built, false if a path cannot be built
@@ -453,17 +466,22 @@ public class Validator {
      * @throws InvalidAlgorithmParameterException
      * @throws NoSuchProviderException
      */
-    public boolean isValid(String endEndityCertFile, String policyOids, String trustAnchorFile) throws ConformanceTestException {
-        File eeFile = new File(endEndityCertFile);
+    public boolean isValid(String endEntityCertFile, String policyOids, String trustAnchorFile) throws ConformanceTestException {
+        setEeFullCertPath(endEntityCertFile);
+        setTaFullCertPath(endEntityCertFile);
+        File eeFile = new File(endEntityCertFile);
         File taFile = new File(trustAnchorFile);
         return isValid(eeFile, policyOids, taFile);
     }
 
     /**
-     * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
+     * Determines if a valid certificate path can be built to the specified trust anchor using
+     * the given policy OIDs. If trustAnchorCertFile is null, resourceDir + /x509-certs/cacerts.keystore
+     * is consulted for the appropriate trust anchor.
+     *
      * @param endEntityCertFile file containing end entity cert
      * @param policyOids comma-separated string of policy OIDs
-     * @param trustAnchorFile file containing trust anchor cert
+     * @param trustAnchorCertFile file containing trust anchor cert
      * @return true if the certificate path was built, false if a path cannot be built
      * @throws NoSuchAlgorithmException
      * @throws CertStoreException
@@ -471,7 +489,27 @@ public class Validator {
      * @throws InvalidAlgorithmParameterException
      * @throws NoSuchProviderException
      */
-    public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorFile) throws ConformanceTestException {
+    public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorCertFile) throws ConformanceTestException {
+        setEeFullCertPath(endEntityCertFile.getAbsolutePath());
+        setTaFullCertPath(endEntityCertFile.getAbsolutePath());
+        if (trustAnchorCertFile == null) {
+            KeyStore keyStore = getKeyStore();
+            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(getEeFullCertPath()));
+            String tempName = null;
+            try {
+                File temp;
+                temp = File.createTempFile("tmp",".cer", new File(System.getProperty("java.io.tmpdir")));
+                tempName = temp.getCanonicalPath();
+                OutputStream outStream = new FileOutputStream(temp);
+                outStream.write(trustAnchor.getEncoded(), 0, trustAnchor.getEncoded().length);
+                outStream.flush();
+                outStream.close();
+            } catch (IOException | CertificateEncodingException e) {
+                e.printStackTrace();
+            }
+            trustAnchorCertFile = new File(tempName);
+        }
+
         CertificateFactory fac;
         boolean rv = false;
         X509Certificate eeCert = null;
@@ -489,10 +527,10 @@ public class Validator {
 
         try {
             fac = CertificateFactory.getInstance("X.509");
-            trustAnchorCert = (X509Certificate) fac.generateCertificate(new FileInputStream(trustAnchorFile));
+            trustAnchorCert = (X509Certificate) fac.generateCertificate(new FileInputStream(trustAnchorCertFile));
             rv = isValid(eeCert, policyOids, trustAnchorCert);
         } catch (CertificateException | IOException | NoSuchAlgorithmException | CertStoreException | CertPathBuilderException | InvalidAlgorithmParameterException | NoSuchProviderException e) {
-            String msg = trustAnchorFile.getName() + ": " + e.getMessage();
+            String msg = trustAnchorCertFile.getName() + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException();
         }
@@ -513,30 +551,43 @@ public class Validator {
      * @throws InvalidAlgorithmParameterException
      * @throws NoSuchProviderException
      */
-    public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) throws NoSuchAlgorithmException, CertStoreException, CertPathBuilderException, InvalidAlgorithmParameterException, NoSuchProviderException {
-        // CertiPath monitor creates a CA bundle file which we can use for trust anchors
+    public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) throws NoSuchAlgorithmException, CertStoreException, CertPathBuilderException, InvalidAlgorithmParameterException, NoSuchProviderException, ConformanceTestException {
+        if (eeCert == null) {
+            String msg = "End-entity cert must not be null";
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
+        }
+
+        X509Certificate v_eeCert = eeCert;
+        X509Certificate v_trustAnchorCert = trustAnchorCert;
+        if (v_trustAnchorCert == null) {
+            KeyStore keyStore = getKeyStore();
+            try {
+                v_trustAnchorCert = getTrustAnchorForGivenCertificate(keyStore, v_eeCert);
+            } catch (ConformanceTestException e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
             List<X509Certificate> certList = new ArrayList<>();
-            certList.add(eeCert);
-            X509CertSelector eeCertSelector = new X509CertSelector();
-            eeCertSelector.setCertificate(eeCert);
-            eeCertSelector.setIssuer(eeCert.getIssuerX500Principal());
-            eeCertSelector.setSubject(eeCert.getSubjectX500Principal());
-            eeCertSelector.setSerialNumber(eeCert.getSerialNumber());
-            eeCertSelector.setBasicConstraints(3);
-            TrustAnchor trustAnchor = new TrustAnchor(trustAnchorCert, null);
+            certList.add(v_eeCert);
+
+            TrustAnchor trustAnchor = new TrustAnchor(v_trustAnchorCert, null);
             Set<TrustAnchor> trustAnchors = new HashSet<TrustAnchor>();
             trustAnchors.add(trustAnchor);
+
             CertStore certStore = null;
-            if (m_caFileName != null) {
-                certStore = getCertStore(m_caPathString, m_caFileName);
+            if (getCaFileName() != null) {
+                certStore = getCertStore(getCaPathString(), getCaFileName());
             } else {
                 certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             }
 
             Set<X509Certificate> certSet = (Set<X509Certificate>) certStore.getCertificates(null);
-            certSet.add(eeCert);
-            certSet.add(trustAnchorCert);
+            certSet.add(v_eeCert);
+            if (v_trustAnchorCert != null)
+                certSet.add(v_trustAnchorCert);
 
             System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(getDownloadAia()));
             System.setProperty("com.sun.security.crl.timeout", String.valueOf(10));
@@ -545,11 +596,11 @@ public class Validator {
             String[] allowedPolicies = policyOids.split("\\|");
             HashSet<String> policies = new HashSet<String>(Arrays.asList(allowedPolicies));
 
-            CertPath certPath = validateCertificate(eeCert, certSet, policies);
+            // Validate the cert for appropriate policy OID
+            CertPath certPath = validateCertificate(v_eeCert, certSet, policies);
             if (certPath != null) {
                 s_logger.debug("Build passed, path contents: " + certPath);
             }
-
             return certPath != null;
         } catch (ConformanceTestException e) {
             s_logger.error("Check test artifacts");
@@ -579,14 +630,15 @@ public class Validator {
 
         // Random collection of CA and self-signed CA certs
         for (X509Certificate cert : additionalCerts) {
-            String subject = cert.getSubjectDN().getName();
-            String issuer = cert.getIssuerDN().getName();
+            if (cert != null) {// TODO: why would one of these be null?
+                String subject = cert.getSubjectDN().getName();
+                String issuer = cert.getIssuerDN().getName();
 
-            if(subject.equals(issuer)){
-                trustedRoots.add(cert);
-            }
-            else{
-                intermediateCerts.add(cert);
+                if (subject.equals(issuer)) {
+                    trustedRoots.add(cert);
+                } else {
+                    intermediateCerts.add(cert);
+                }
             }
         }
 

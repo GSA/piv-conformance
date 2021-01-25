@@ -44,19 +44,16 @@ public class ValidatorHelper {
         }
     }
 
-    public static X509Certificate getX509CertificateFromPath(String fullPathName) {
+    public static X509Certificate getX509CertificateFromPath(String fullPathName) throws ConformanceTestException {
         X509Certificate rv = null;
         try {
             final CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            try {
-                final Collection<? extends Certificate> certs =
-                        certFactory.generateCertificates(new ByteArrayInputStream(Files.readAllBytes(Paths.get(fullPathName))));
-                rv = (X509Certificate) certs.toArray()[0];
-            } catch (IOException e) {
+            final Collection<? extends Certificate> certs = certFactory.generateCertificates(new ByteArrayInputStream(Files.readAllBytes(Paths.get(fullPathName))));
+            rv = (X509Certificate) certs.toArray()[0];
+        } catch (IOException e) {
                 e.printStackTrace();
-            }
         } catch (CertificateException e) {
-            e.printStackTrace();
+            throw new ConformanceTestException(e.getMessage());
         }
         return rv;
     }
