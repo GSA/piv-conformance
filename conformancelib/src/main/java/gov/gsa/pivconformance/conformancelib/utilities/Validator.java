@@ -51,6 +51,22 @@ public class Validator {
     private KeyStore m_keystore = null;
     private boolean m_downloadAia = true;
 
+    public static final List<String> s_validCryptoProviders = new ArrayList<String>() {
+        private static final long serialVersionUID = 1L;
+        {
+            add("SunRsaSign");
+            add("BC");
+        }
+    };
+
+    private static final HashMap<String, String> s_certPathBuilderProviders = new HashMap<String, String>() {
+        private static final long serialVersionUID = 1L;
+        {
+            put("SunRsaSign", "SUN");
+            put("BC", "BC");
+        }
+    };
+
     static {
         Option eeCertFileOption = Option.builder("ee").hasArg(true).argName("ee").desc("end-entity certificate").build();
         Option taCertFileOption = Option.builder("ta").hasArg(true).argName("ta").desc("trust anchor certificate").build();
@@ -154,8 +170,7 @@ public class Validator {
      * @param providerString provider string
      * @throws NoSuchProviderException NoSuchAlgorithmException
      */
-    public void setCpb(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException {
-        setProvider(providerString);
+    public void setCertPathBuilder(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException, ConformanceTestException {
         try {
             if (providerString.toLowerCase().compareTo("bc") == 0) {
                 if (Security.getProvider("BC") == null)
@@ -170,12 +185,14 @@ public class Validator {
                 }
                 m_cpb = CertPathBuilder.getInstance("PKIX");
             } else {
-                s_logger.error("This application doesn't support the " + providerString + " provider");
-                throw new NoSuchProviderException();
+                String msg = ("This application doesn't support the " + providerString + " provider");
+                s_logger.error(msg);
+                throw new ConformanceTestException(msg);
             }
-        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
-            s_logger.error("setCpb(" + providerString + "): " + e.getMessage());
-            throw e;
+        } catch (NoSuchProviderException | NoSuchAlgorithmException | ConformanceTestException e) {
+            String msg = "setCpb(" + providerString + "): " + e.getMessage();
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
         }
     }
 
@@ -190,12 +207,20 @@ public class Validator {
      * @param providerString provider string
      * @throws NoSuchProviderException
      */
-    public void setProvider(String providerString) throws NoSuchProviderException {
-        if ((!providerString.equalsIgnoreCase("sunrsasign")) && (!providerString.equalsIgnoreCase("bc"))) {
-            s_logger.error("Unsuppored provider: " + providerString);
+    public void setProvider(String providerString) throws ConformanceTestException, NoSuchProviderException {
+        if (!s_validCryptoProviders.contains(providerString)) {
+            s_logger.error("Unsupported provider: " + providerString);
             throw new NoSuchProviderException();
         }
         m_provider = providerString;
+
+        try {
+            setCertPathBuilder(s_certPathBuilderProviders.get(providerString));
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            String msg = e.getMessage();
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
+        }
     }
 
     public String getProvider() {
@@ -390,7 +415,7 @@ public class Validator {
         if(cmd.hasOption("provider")) {
             provider = cmd.getOptionValue("provider");
             try {
-                v.setCpb(provider);
+                v.setCertPathBuilder(provider);
             } catch (Exception e) {
                 s_logger.error(e.getMessage());
             }
@@ -633,11 +658,12 @@ public class Validator {
             if (cert != null) {// TODO: why would one of these be null?
                 String subject = cert.getSubjectDN().getName();
                 String issuer = cert.getIssuerDN().getName();
-
+                s_logger.debug("Subject: " + subject);
+                s_logger.debug("Issuer: " + issuer);
                 if (subject.equals(issuer)) {
                     trustedRoots.add(cert);
                 } else {
-                    intermediateCerts.add(cert);
+                    //intermediateCerts.add(cert);
                 }
             }
         }
@@ -719,7 +745,7 @@ public class Validator {
                 s_logger.error(msg);
                 throw new ConformanceTestException(msg);
             }
-        } else if (caPathString != null && caPathString.toLowerCase().startsWith("file:///")) {
+        } else if (caPathString != null && (caPathString.toLowerCase().startsWith("file:///") || caPathString.toLowerCase().startsWith("/") || caPathString.toLowerCase().startsWith("\\"))) {
             v_caFileName = TestRunLogController.pathFixup((caPathString.replaceFirst("file:///", "") + "/") + caFileName);
         } else if (caPathString == null ) {
             s_logger.warn("m_caPathString not initialized");
@@ -772,7 +798,8 @@ public class Validator {
         m_downloadAia = false;
         m_resourceDir = ".";
         try {
-            setCpb(provider);
+            setProvider(provider);
+            setCertPathBuilder(s_certPathBuilderProviders.get(provider));
             setKeyStore(keyStoreName, password);
             setCaFileName(certStoreName);
         } catch (NoSuchProviderException | NoSuchAlgorithmException e) {

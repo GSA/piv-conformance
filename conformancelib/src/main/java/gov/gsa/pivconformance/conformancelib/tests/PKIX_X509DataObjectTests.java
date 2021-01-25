@@ -5,10 +5,7 @@ import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
 import gov.gsa.pivconformance.conformancelib.configuration.ParameterUtils;
 import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgumentsProvider;
-import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
-import gov.gsa.pivconformance.conformancelib.utilities.CardUtils;
-import gov.gsa.pivconformance.conformancelib.utilities.KeyValidationHelper;
-import gov.gsa.pivconformance.conformancelib.utilities.Validator;
+import gov.gsa.pivconformance.conformancelib.utilities.*;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.cms.ContentInfo;
@@ -30,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.URL;
-import java.security.KeyStore;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -210,21 +206,15 @@ public class PKIX_X509DataObjectTests {
 
     // Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
 	// is asserted in certificate policies (parameters required)
-	@DisplayName("PKIX.6 test")
+	@DisplayName("PKIX.6 Directly-asserted test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("pKIX_PIVAuthx509TestProvider2")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
+	void PKIX_Test_6_Directly_Asserted(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		File test = new File("directly-asserted.flag");
 		if (test != null) {
 			s_logger.debug("Directly asserted flag: " + test.getAbsolutePath());
 		}
-		if (!test.exists()) {
-			s_logger.debug("Peforming PD-VAL with " + containersAndPolicyOids.toString());
-			PKIX_Test_6_PD_VAL(oid, containersAndPolicyOids, reporter);
-			return;
-		}
-		s_logger.debug("Directly-asserted test");
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
@@ -280,11 +270,11 @@ public class PKIX_X509DataObjectTests {
 
 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
 	// is asserted in certificate policies (parameters required)
-	@DisplayName("PKIX.6.PD-VAL test")
+	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_6_PD_VAL(String oid, String containersAndPolicyOids, TestReporter reporter) {
+    void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;		
 		X509Certificate eeCert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
@@ -306,14 +296,18 @@ public class PKIX_X509DataObjectTests {
 				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, allowedPolicies[1]);
 				try {
 					//TODO: Needs to be configurable
-					Validator validator = new Validator("SunRsaSign", "x509-certs/cacerts.keystore", "changeit");
-					boolean valid = validator.isValid(eeCert, String.join(" ", allowedPolicies[1]), null);
+					Validator validator = new Validator();
+					validator.setResourceDir(".");
+					validator.setProvider("SunRsaSign");
+					validator.setDownloadAia(true);
+					validator.setKeyStore("x509-certs/cacerts.keystore", "changeit");
+					validator.setCertPathBuilder("SUN"); // SunRsaSign does not work
+					boolean valid = validator.isValid(eeCert, allowedPolicies[1], null);
 					assertTrue(valid, "Cert not valid");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				assertTrue(false, "Cert failed");
 			}
 		}
     }
