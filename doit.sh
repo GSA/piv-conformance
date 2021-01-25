@@ -42,7 +42,7 @@ pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
     cp -p ../cardlib/build/resources/main/user_log_config.xml .
     cp -p ../tools/85b-swing-gui/build/resources/main/build.version .
     tar xvf ../tools/85b-swing-gui/build/distributions/gov.gsa.pivconformance.gui-shadow-$VERSION.tar
-    cp -pr ../x509-certs .
+    cp -pr ../conformancelib/src/main/resources/x509-certs .
     cp -p gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
 #    touch directly-asserted.flag
     rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
