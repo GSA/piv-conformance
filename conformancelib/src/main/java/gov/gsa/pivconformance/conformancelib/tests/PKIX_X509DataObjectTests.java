@@ -297,10 +297,10 @@ public class PKIX_X509DataObjectTests {
 				try {
 					//TODO: Needs to be configurable
 					Validator validator = new Validator();
-					validator.setResourceDir(".");
+					validator.setResourceDir("x509-certs");
+					validator.setKeyStore("cacerts.keystore", "changeit");
 					validator.setProvider("SunRsaSign");
 					validator.setDownloadAia(true);
-					validator.setKeyStore("x509-certs/cacerts.keystore", "changeit");
 					validator.setCertPathBuilder("SUN"); // SunRsaSign does not work
 					boolean valid = validator.isValid(eeCert, allowedPolicies[1], null);
 					assertTrue(valid, "Cert not valid");

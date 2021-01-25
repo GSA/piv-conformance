@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.*;
 import java.security.cert.*;
+import java.security.cert.Certificate;
 import java.util.*;
 
 import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.*;
@@ -39,6 +40,7 @@ import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.*;
 public class Validator {
     private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
     private static final Options s_options = new Options();
+    private static final String s_caPathString = "x509-certs" + File.separator;
     private static final String s_caFileName = "all.p7b";
 
     private String m_resourceDir = ".";
@@ -226,7 +228,7 @@ public class Validator {
     public String getProvider() {
         return m_provider;
     }
-    public CertPathBuilder getCpb() {
+    public CertPathBuilder getCertPathBuilder() {
         return m_cpb;
     }
 
@@ -335,14 +337,14 @@ public class Validator {
      * Gets the full path to the end-entity certificate to be validated
      * @return the path to the end-entity certificate
      */
-    public String getEeFullCertPath() {
+    public String getEndEntityCertPath() {
         return m_eeFullCertPath;
     }
     /**
      * Sets the full path to the end-entity certificate to be validated
      * @param eeFullCertPath path to the end-entity certificate
      */
-    public void setEeFullCertPath(String eeFullCertPath) {
+    public void setEndEntityCertPath(String eeFullCertPath) {
         m_eeFullCertPath = eeFullCertPath;
     }
 
@@ -350,14 +352,14 @@ public class Validator {
      * Gets the full path to the trust anchor certificate
      * @return the path to the trust anchor certificate
      */
-    public String getTaFullCertPath() {
+    public String getTrustAnchorCertPath() {
         return m_taFullCertPath;
     }
     /**
      * Sets the full path to the trust anchor certificate to be validated
      * @param taFullCertPath path to the trust anchor certificate
      */
-    public void setTaFullCertPath(String taFullCertPath) {
+    public void setTrustAnchorFullCertPath(String taFullCertPath) {
         m_taFullCertPath = taFullCertPath;
     }
 
@@ -387,13 +389,13 @@ public class Validator {
         Validator v =  new Validator();
 
         if(cmd.hasOption("ee")) {
-            v.setEeFullCertPath(cmd.getOptionValue("ee"));
-            s_logger.info("endEntityCertFile: {}", v.getEeFullCertPath());
+            v.setEndEntityCertPath(cmd.getOptionValue("ee"));
+            s_logger.info("endEntityCertFile: {}", v.getEndEntityCertPath());
         }
 
         if(cmd.hasOption("ta")) {
-            v.setTaFullCertPath(cmd.getOptionValue("ee"));
-            s_logger.info("trustAnchorEntityCertFile: {}",  v.getTaFullCertPath());
+            v.setTrustAnchorFullCertPath(cmd.getOptionValue("ee"));
+            s_logger.info("trustAnchorEntityCertFile: {}",  v.getTrustAnchorCertPath());
         }
 
         if(cmd.hasOption("oids")) {
@@ -454,10 +456,14 @@ public class Validator {
          * ------- end of trust anchor processing
          */
         String resourceDir = (v.getResourceDir() != null) ? v.getResourceDir() : ".";
-        endEntityCertFile = new File(resourceDir + File.separator + v.getEeFullCertPath());
+        if (!v.getEndEntityCertPath().startsWith(File.separator))
+            endEntityCertFile = new File(resourceDir + File.separator + v.getEndEntityCertPath());
+        else
+            endEntityCertFile = new File(v.getEndEntityCertPath());
+
         if (trustAnchorCertFile == null) {
             KeyStore keyStore = v.getKeyStore();
-            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(v.getEeFullCertPath()));
+            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(v.getEndEntityCertPath()));
             String tempName = null;
             try {
                 File temp;
@@ -472,12 +478,15 @@ public class Validator {
             }
             trustAnchorCertFile = new File(tempName);
         }
-        else
-            trustAnchorCertFile = new File(resourceDir + File.separator + v.getTaFullCertPath());
+        else {
+            if (!v.getTrustAnchorCertPath().startsWith(File.separator))
+                trustAnchorCertFile = new File(resourceDir + File.separator + v.getTrustAnchorCertPath());
+            else
+                trustAnchorCertFile = new File(v.getTrustAnchorCertPath());
+        }
 
         v.isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
     }
-
 
     /**
      * Determines if a valid certificate path can be built to the specified trust anchor using the given policy OIDs
@@ -492,8 +501,8 @@ public class Validator {
      * @throws NoSuchProviderException
      */
     public boolean isValid(String endEntityCertFile, String policyOids, String trustAnchorFile) throws ConformanceTestException {
-        setEeFullCertPath(endEntityCertFile);
-        setTaFullCertPath(endEntityCertFile);
+        setEndEntityCertPath(endEntityCertFile);
+        setTrustAnchorFullCertPath(endEntityCertFile);
         File eeFile = new File(endEntityCertFile);
         File taFile = new File(trustAnchorFile);
         return isValid(eeFile, policyOids, taFile);
@@ -515,11 +524,11 @@ public class Validator {
      * @throws NoSuchProviderException
      */
     public boolean isValid(File endEntityCertFile, String policyOids, File trustAnchorCertFile) throws ConformanceTestException {
-        setEeFullCertPath(endEntityCertFile.getAbsolutePath());
-        setTaFullCertPath(endEntityCertFile.getAbsolutePath());
+        setEndEntityCertPath(endEntityCertFile.getAbsolutePath());
+        setTrustAnchorFullCertPath(endEntityCertFile.getAbsolutePath());
         if (trustAnchorCertFile == null) {
             KeyStore keyStore = getKeyStore();
-            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(getEeFullCertPath()));
+            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(getEndEntityCertPath()));
             String tempName = null;
             try {
                 File temp;
@@ -591,6 +600,7 @@ public class Validator {
                 v_trustAnchorCert = getTrustAnchorForGivenCertificate(keyStore, v_eeCert);
             } catch (ConformanceTestException e) {
                 e.printStackTrace();
+                throw e;
             }
         }
 
@@ -622,16 +632,21 @@ public class Validator {
             HashSet<String> policies = new HashSet<String>(Arrays.asList(allowedPolicies));
 
             // Validate the cert for appropriate policy OID
-            CertPath certPath = validateCertificate(v_eeCert, certSet, policies);
+            CertPath certPath = validateCertificate(v_eeCert, certSet, v_trustAnchorCert, policies);
             if (certPath != null) {
-                s_logger.debug("Build passed, path contents: " + certPath);
+                s_logger.debug("Build passed, path contents: ");
+                int count = 0;
+                for (X509Certificate x509cert : (Set<X509Certificate>) certPath.getCertificates()) {
+                    s_logger.debug(String.format("%3d. %s", ++count, x509cert.getSubjectDN().getName()));
+                }
+                s_logger.debug(String.format("%3d. %s", ++count, v_trustAnchorCert.getSubjectDN().getName()));
             }
             return certPath != null;
         } catch (ConformanceTestException e) {
             s_logger.error("Check test artifacts");
             e.printStackTrace();
         } catch (CertPathBuilderException | NoSuchAlgorithmException | NoSuchProviderException | CertStoreException | InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
+            s_logger.info("Build failed: " + e.getMessage());
             throw e;
         }
         return false;
@@ -648,8 +663,7 @@ public class Validator {
      * @throws InvalidAlgorithmParameterException
      * @throws CertPathBuilderException
      */
-    private CertPath validateCertificate(X509Certificate certificate, Set<X509Certificate> additionalCerts, HashSet<String> policies) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, CertPathBuilderException{
-
+    private CertPath validateCertificate(X509Certificate certificate, Set<X509Certificate> additionalCerts, X509Certificate trustAnchorCert, HashSet<String> policies) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, CertPathBuilderException{
         Set<X509Certificate> trustedRoots = new HashSet<X509Certificate>();
         Set<X509Certificate> intermediateCerts = new HashSet<X509Certificate>();
 
@@ -663,17 +677,17 @@ public class Validator {
                 if (subject.equals(issuer)) {
                     trustedRoots.add(cert);
                 } else {
-                    //intermediateCerts.add(cert);
+                    intermediateCerts.add(cert);
                 }
             }
         }
 
         // Configure trust anchor
         Set<TrustAnchor> trustAnchors = new HashSet<TrustAnchor>();
-        for (X509Certificate root : trustedRoots) {
-            trustAnchors.add(new TrustAnchor(root, null));
-        }
-
+//        for (X509Certificate root : trustedRoots) {
+//            trustAnchors.add(new TrustAnchor(root, null));
+//        }
+        trustAnchors.add(new TrustAnchor(trustAnchorCert, null));
         // Target is our EE cert
         X509CertSelector selector = new X509CertSelector();
         selector.setCertificate(certificate);
@@ -745,12 +759,14 @@ public class Validator {
                 s_logger.error(msg);
                 throw new ConformanceTestException(msg);
             }
-        } else if (caPathString != null && (caPathString.toLowerCase().startsWith("file:///") || caPathString.toLowerCase().startsWith("/") || caPathString.toLowerCase().startsWith("\\"))) {
-            v_caFileName = TestRunLogController.pathFixup((caPathString.replaceFirst("file:///", "") + "/") + caFileName);
-        } else if (caPathString == null ) {
-            s_logger.warn("m_caPathString not initialized");
+        } else if (caPathString != null) {
+            if (caPathString.toLowerCase().startsWith("file:///") || caPathString.toLowerCase().startsWith("/") || caPathString.toLowerCase().startsWith("\\")) {
+                v_caFileName = TestRunLogController.pathFixup((caPathString.replaceFirst("file:///", "") + "/") + caFileName);
+            } else {
+                v_caFileName = TestRunLogController.pathFixup(caPathString + File.separator + v_caFileName);
+            }
         } else {
-            s_logger.warn("unsupported URL scheme");
+            s_logger.warn("m_caPathString not initialized");
         }
 
         s_logger.debug("Opening " + v_caFileName);
@@ -771,14 +787,14 @@ public class Validator {
                 certList.addAll(certs);
                 certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
             } else {
-                s_logger.warn(v_caFileName + " was not found");
+                s_logger.warn(getResourceDir() + File.separator + v_caFileName + " was not found");
             }
         } catch (NoSuchAlgorithmException e) {
-            String msg = "Crypto failure loading certs from " + v_caFileName + ": " + e.getMessage();
+            String msg = "Crypto failure loading certs from " + getResourceDir() + File.separator + v_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         } catch (Exception e) {
-            String msg = "IO problem reading " + v_caFileName + ": " + e.getMessage();
+            String msg = "IO problem reading " + getResourceDir() + File.separator + v_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         }
@@ -792,7 +808,7 @@ public class Validator {
     private void reset(String provider, String keyStoreName, String password, String certStoreName) throws ConformanceTestException {
         m_resourceDir = ".";
         m_caFileName = s_caFileName;
-        m_caPathString = null;
+        m_caPathString = s_caPathString;
         m_cpb = null;
         m_keystore = null;
         m_downloadAia = false;

@@ -16,7 +16,14 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -103,6 +110,9 @@ public class ValidatorHelper {
         String alias = null;
         X509Certificate trustAnchorCert = null;
         String subjectName = eeCert.getSubjectDN().getName();
+        String notBefore = eeCert.getNotBefore().toString();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd h:m");
+
         if (subjectName.contains("ICAM")) {
             if (subjectName.contains("PIV-I")) {
                 alias = "icam test card piv-i root ca";
