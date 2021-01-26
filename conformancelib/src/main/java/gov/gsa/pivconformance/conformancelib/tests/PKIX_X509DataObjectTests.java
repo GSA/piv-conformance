@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PKIX_X509DataObjectTests {
 	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
-	public static final HashMap<String, String> x509ObjectIdentifiers = new HashMap<String, String>() {
+	public static final HashMap<String, String> PKIX_X509DataObjectIdentifiers = new HashMap<String, String>() {
 		private static final long serialVersionUID = 1L;
 		{
 			put ("X509_id",  "1.3.6.1.5.5");
@@ -219,78 +219,13 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get certificate policies extension
-		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
+		byte[] cpex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
 		
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
-		
     }
 
-    // Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
-	// is asserted in certificate policies (parameters required)
-	@DisplayName("PKIX.6 Directly-asserted test")
-	@ParameterizedTest(name = "{index} => oid = {0}")
-	//@MethodSource("pKIX_PIVAuthx509TestProvider2")
-	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void PKIX_Test_6_Directly_Asserted(String oid, String containersAndPolicyOids, TestReporter reporter) {
-		File test = new File("directly-asserted.flag");
-		if (test != null) {
-			s_logger.debug("Directly asserted flag: " + test.getAbsolutePath());
-		}
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + oid);
-
-		if (containersAndPolicyOids == null) {
-			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
-			fail(e);
-		}
-		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
-
-		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
-
-		for(String p : containerOidList) {
-			String[] allowedPolicies = p.split(":");
-			String policyOidName = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
-			if (policyOidName.equals(oid)) {
-				List<String> paramList3 = Arrays.asList(allowedPolicies[1].split("\\|"));
-				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
-				rv.put(containerOid, paramList3);
-				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, paramList3.toString());
-			}
-		}
-
-		//Get certificate policies extension
-		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
-
-		//Confirm certificate policies extension is present
-		assertTrue(cpex != null, "Certificate policies extension is absent");
-
-		CertificatePolicies policies = null;
-		try {
-			policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(cpex));
-		} catch (IOException e) {
-			fail(e);
-		}
-		assertNotNull(policies);
-		boolean containsOOID = false;
-
-		PolicyInformation[] policyInformation = policies.getPolicyInformation();
-		for (PolicyInformation pInfo : policyInformation) {
-			ASN1ObjectIdentifier curroid = pInfo.getPolicyIdentifier();
-			s_logger.debug("Testing whether {} in {} cert is allowed", curroid.getId(), APDUConstants.oidNameMap.get(oid));
-			if(rv.get(oid).contains(curroid.getId())) {
-				containsOOID = true;
-				break;
-			}
-		}
-
-		//Confirm that oid matches is asserted in certificate policies
-		assertTrue(containsOOID, "Certificate policies for container " + oid + " differ from expected values.");
-	}
-
-	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
+ 	// Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or PIV-I or ICAM Test equivalent)
 	// is asserted in certificate policies (parameters required)
 	@DisplayName("PKIX.6 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
@@ -483,7 +418,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get authorityInformationAccess extension
-		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 		
 		//Confirm authorityInformationAccess extension is present
 		assertTrue(aiaex != null, "AIA extension is not present");
@@ -500,7 +435,7 @@ public class PKIX_X509DataObjectTests {
 		boolean rv = false;
 
 		//Get authorityInformationAccess extension
-		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 		
 		if (aiaex != null) {
 			AuthorityInformationAccess aia = null;
@@ -529,7 +464,7 @@ public class PKIX_X509DataObjectTests {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		boolean rv = false;
-		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 		if (aiaex != null) {
 			try {
 				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
@@ -559,7 +494,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		boolean rv = false;
 
-		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 
 		if (aiaex != null) {
 			try {
@@ -758,7 +693,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
-		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
+		byte[] cpex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
 		
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
@@ -797,7 +732,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get eku extension
-		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
+		byte[] cpex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 		
 		//Confirm eku extension is present
 		assertTrue(cpex != null, "EKU extension is absent");
@@ -819,7 +754,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
-		byte[] ekuex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
+		byte[] ekuex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 		
 		//Confirm EKU extension is present
 		assertTrue(ekuex != null, "Extended key usage extension is absent");
@@ -848,7 +783,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get certificate policies extension
-		byte[] ekuex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
+		byte[] ekuex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 		
 		//Confirm certificate policies extension is present
 		assertTrue(ekuex != null, "Certificate policies extension is absent");
@@ -884,7 +819,7 @@ public class PKIX_X509DataObjectTests {
 		boolean rv = false;
 
 		//Get authorityInformationAccess extension
-		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 
 		if (aiaex != null) {
 			AuthorityInformationAccess aia = null;
@@ -942,7 +877,7 @@ public class PKIX_X509DataObjectTests {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 				      
-        byte[] extVal = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+        byte[] extVal = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
         assertNotNull(extVal);
         
     	try {
@@ -1166,7 +1101,7 @@ public class PKIX_X509DataObjectTests {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		boolean rv = false;
-		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 		if (aiaex != null) {
 			try {
 				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
@@ -1196,7 +1131,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		boolean rv = false;
 
-		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 
 		if (aiaex != null) {
 			try {
@@ -1285,7 +1220,7 @@ public class PKIX_X509DataObjectTests {
 		
 		Map<String, X509Certificate> certificates = getCertificatesForOids(certContainersToTest);
 		
-		String aiaOid = x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess");
+		String aiaOid = PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess");
 		String crldpOid = "2.5.29.31";
 		
 		Stream.Builder<Arguments> generator = Stream.builder();
