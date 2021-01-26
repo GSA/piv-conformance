@@ -38,13 +38,35 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-;
-
 public class PKIX_X509DataObjectTests {
-
 	private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
+	public static final HashMap<String, String> x509ObjectIdentifiers = new HashMap<String, String>() {
+		private static final long serialVersionUID = 1L;
+		{
+			put ("X509_id",  "1.3.6.1.5.5");
+			put ("X509_id_pkix",  "1.3.6.1.5.5.7");
+			put ("X509_id_pe",  "1.3.6.1.5.5.7.1");
+			put ("X509_id_pe_authorityInfoAccess",  "1.3.6.1.5.5.7.1.1");
+			put ("X509_id_ad",  "1.3.6.1.5.5.7.48");
+			put ("X509_id_ad_ocsp",  "1.3.6.1.5.5.7.48.1");
+			put ("X509_id_ad_caIssuers",  "1.3.6.1.5.5.7.48.2");
+			put ("X509_id_ce",  "2.5.29");
+			put ("X509_id_ce_subjectKeyIdentifier",  "2.5.29.14");
+			put ("X509_id_ce_keyUsage",  "2.5.29.15");
+			put ("X509_id_ce_subjectAltName",  "2.5.29.17");
+			put ("X509_id_ce_issuerAltName",  "2.5.29.18");
+			put ("X509_id_ce_cRLDistributionPoints",  "2.5.29.31");
+			put ("X509_id_ce_certificatePolicies",  "2.5.29.32");
+			put ("X509_id_ce_policyMappings",  "2.5.29.33");
+			put ("X509_id_ce_authorityKeyIdentifier",  "2.5.29.35");
+			put ("X509_id_ce_extKeyUsage",  "2.5.29.37");
+			put ("X509_id_ce_anyExtendedKeyUsage",  "2.5.29.37.0");
+			put ("X509_id_ce_basicConstraints",  "2.5.29.19");
+			put ("X509_id_ce_nameConstraints",  "2.5.29.30");
+			put ("X509_id_ce_policyConstraints",  "2.5.29.36");
+			put ("X509_id_ce_inhibitAnyPolicy",  "2.5.29.54");
+		}
+	};
 
 	/**
 	 * Converts a boolean array to a byte array representing the bitmap in high-order first
@@ -197,7 +219,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get certificate policies extension
-		byte[] cpex = cert.getExtensionValue("2.5.29.32");
+		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
 		
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
@@ -240,7 +262,7 @@ public class PKIX_X509DataObjectTests {
 		}
 
 		//Get certificate policies extension
-		byte[] cpex = cert.getExtensionValue("2.5.29.32");
+		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
 
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
@@ -313,7 +335,144 @@ public class PKIX_X509DataObjectTests {
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
-	
+
+	/**
+	 * Determines whether the AIA in cert contains the prescribed AccessMethod (id-ad-ocsp or id-ad-caIssuers)
+	 * @param aia AIA extension of certificate to be tested
+	 * @param accessMethod the AccessDescription corresponding the the AccessMethod
+	 * @return true if the AIA in cert contains the prescribed AccessMethod, false otherwise
+	 */
+
+	private boolean aiaContainsAccessMethod(AuthorityInformationAccess aia, ASN1ObjectIdentifier accessMethod) {
+		try {
+			AccessDescription[] descriptions = aia.getAccessDescriptions();
+			for (AccessDescription ad : descriptions) {
+				if (ad.getAccessMethod().equals(accessMethod)) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			s_logger.error(e.getMessage());
+		}
+
+		s_logger.error("Access method " + accessMethod.toString() + " not present");
+		return false;
+	}
+
+	/**
+	 * Determines whether an access location for the specified AIA access method in cert contains
+	 * a uniformResourceIdentifier GeneralName (The accessLocation for the id-ad-ocsp AccessMethod
+	 * is of type uniformResourceIdentifier)
+	 *
+	 * @param aia AIA extension from the certificate to be tested
+	 * @param accessMethod the AccessDescription corresponding the the AccessMethod
+	 * @return true if the URI accessMethod is present, false otherwise
+	 */
+	private boolean accessMethodContainsURI(AuthorityInformationAccess aia, ASN1ObjectIdentifier accessMethod) {
+		try {
+			AccessDescription[] descriptions = aia.getAccessDescriptions();
+			for (AccessDescription ad : descriptions) {
+				if (ad.getAccessMethod().equals(accessMethod)) {
+					GeneralName gn = ad.getAccessLocation();
+					if (gn.getTagNo() == GeneralName.uniformResourceIdentifier)
+						return true;
+				}
+			}
+		} catch (Exception e) {
+			s_logger.error(e.getMessage());
+		}
+		s_logger.error("URI accessMethod " + accessMethod.toString() + " not present");
+		return false;
+	}
+
+	/**
+	 * Confirms the URI scheme in the specified accessLocation for the specified access method is http
+	 *
+	 * @param aia certificate to be tested
+	 * @param accessMethod the AccessDescription corresponding the the AccessMethod
+	 * @return true if the URI scheme is "http", false otherwise
+	 */
+	private boolean aIAUriContainsHttp(AuthorityInformationAccess aia, ASN1ObjectIdentifier accessMethod) {
+		try {
+			AccessDescription[] descriptions = aia.getAccessDescriptions();
+			for (AccessDescription ad : descriptions) {
+				if (ad.getAccessMethod().equals(accessMethod)) {
+					GeneralName gn = ad.getAccessLocation();
+					if (gn.getTagNo() == GeneralName.uniformResourceIdentifier) {
+						String url = ((DERIA5String) gn.getName()).getString();
+						if (url.startsWith("http:")) {
+							return true;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			s_logger.error(e.getMessage());
+		}
+		s_logger.error("URI scheme in " + accessMethod.toString() + " is not http");
+		return false;
+	}
+
+	/**
+	 * Determines whether the URI in the CRL Distribution Point contains an URL starting with http:
+	 * @param crldp CRL distribution point object
+	 * @return true if the URI starts with https:, false otherwise
+	 */
+	private boolean crldpStartsWithHTTP(CRLDistPoint crldp) {
+		try {
+			DistributionPoint[] descriptions = crldp.getDistributionPoints();
+			for (DistributionPoint dp : descriptions) {
+				DistributionPointName dpn = dp.getDistributionPoint();
+				if (dpn.getType() == DistributionPointName.FULL_NAME) {
+					GeneralName[] generalNames = GeneralNames.getInstance(dpn.getName()).getNames();
+					for (GeneralName gn : generalNames) {
+						if (gn.getTagNo() == GeneralName.uniformResourceIdentifier) {
+							String url = ((DERIA5String) gn.getName()).getString().toLowerCase();
+							if (url.startsWith("http:")) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			s_logger.error(e.getMessage());
+		}
+
+		s_logger.error("CRL DP URI does not end in .crl");
+		return false;
+	}
+
+	/**
+	 * Determines whether the URI in the CRL Distribution Point contains an URL ending in .crl
+	 * @param crldp distribution point object
+	 * @return true if the URI ends in .crl, false otherwise
+	 */
+	private boolean crldpEndWithCRL(CRLDistPoint crldp) {
+		try {
+			DistributionPoint[] descriptions = crldp.getDistributionPoints();
+			for (DistributionPoint dp : descriptions) {
+				DistributionPointName dpn = dp.getDistributionPoint();
+				if (dpn.getType() == DistributionPointName.FULL_NAME) {
+					GeneralName[] generalNames = GeneralNames.getInstance(dpn.getName()).getNames();
+					for (GeneralName gn : generalNames) {
+						if (gn.getTagNo() == GeneralName.uniformResourceIdentifier) {
+							String url = ((DERIA5String) gn.getName()).getString().toLowerCase();
+							if (url.endsWith(".crl")) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			s_logger.error(e.getMessage());
+		}
+
+		s_logger.error("CRL DP URI does not end in .crl");
+		return false;
+	}
+
 	//Confirm that authorityInformationAccess extension is present
 	@DisplayName("PKIX.7 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
@@ -324,13 +483,13 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get authorityInformationAccess extension
-		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 		
 		//Confirm authorityInformationAccess extension is present
 		assertTrue(aiaex != null, "AIA extension is not present");
 	}
-	
-	//Confirm that an access method containing id-ad-ocsp is present (only PIV auth requires this)
+
+	//An accessMethod containing id-ad-ocsp is present (only PIV auth requires this)
 	@DisplayName("PKIX.8 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_x509TestProvider")
@@ -338,87 +497,88 @@ public class PKIX_X509DataObjectTests {
     void PKIX_Test_8(String oid, TestReporter reporter) {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
+		boolean rv = false;
 
 		//Get authorityInformationAccess extension
-		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 		
 		if (aiaex != null) {
 			AuthorityInformationAccess aia = null;
 			try {
 				aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
-				
-				if (aia != null) {
-					boolean ocsppresent = false;
-					AccessDescription[] ads = aia.getAccessDescriptions();
-			        for (int i = 0; i < ads.length; i++)
-			        {
-			            if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
-			            {
-			            	ocsppresent = true;
-			            }
-			        }
-			        
-			        //Confirm access method containing id-ad-ocsp is present
-			        assertTrue(ocsppresent, "id-ad-ocsp is not present");
+				if (aiaContainsAccessMethod(aia, X509ObjectIdentifiers.ocspAccessMethod)) {
+					rv = true;
 				}
-			} catch (IOException e) {
-				fail(e);
+			} catch (Exception e) {
+				s_logger.error("AIA decoding failed: " + e.getMessage());
 			}
-
 	    } else {
 	    	ConformanceTestException e  = new ConformanceTestException("No AIA is present.");
-			fail(e);
 	    }
+		assertTrue (rv, "An accessMethod containing " +  X509ObjectIdentifiers.ocspAccessMethod.toString() + " is not present");
 	}
-	
-	//Confirm that the AIA uniformResourceIdentifier protocol is http
+
+	//The accessLocation for the id-ad-ocsp AccessMethod is of type uniformResourceIdentifier.
 	@DisplayName("PKIX.9 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("pKIX_x509TestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_9(String oid, TestReporter reporter) {
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("pKIX_x509TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void PKIX_Test_9(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-
-		boolean uriOk = false;
-		
-		//Get authorityInformationAccess extension
-		byte[] aiaex = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
-		
+		boolean rv = false;
+		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 		if (aiaex != null) {
-			AuthorityInformationAccess aia = null;
-			
 			try {
-				aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
-				if (aia != null) {
-					AccessDescription[] ads = aia.getAccessDescriptions();
-			        for (int i = 0; i < ads.length; i++)
-			        {
-			            if (ads[i].getAccessMethod().equals(AccessDescription.id_ad_ocsp))
-			            {
-			            	GeneralName gn = ads[i].getAccessLocation();
-			            	
-			            	if (gn.getTagNo() == GeneralName.uniformResourceIdentifier) {
-				                String url = ((DERIA5String) gn.getName()).getString();
-				
-				                assertTrue(url.startsWith("http:"), "OCSP url does not start with http " + url);
-				            	uriOk = true;
-			            	}
-			            }
-			        }
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
+				if (aiaContainsAccessMethod(aia, X509ObjectIdentifiers.ocspAccessMethod)) {
+					if (accessMethodContainsURI(aia, X509ObjectIdentifiers.ocspAccessMethod)) {
+						rv = true;
+					}
+				}
+			} catch (Exception e) {
+				s_logger.error("Exception decoding AIA", e.getMessage());
+			}
+		} else {
+			s_logger.error("No AIA is present");
+		}
+		assertTrue (rv, "The accessLocation for this AccessMethod is not of type uniformResourceIdentifier.");
+	}
+
+	//Confirm that the access location for OCSP is http protocol
+	@DisplayName("PKIX.23 test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    //@MethodSource("pKIX_x509TestProvider")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void PKIX_Test_23(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+		boolean rv = false;
+
+		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+
+		if (aiaex != null) {
+			try {
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
+				if (aiaContainsAccessMethod(aia, X509ObjectIdentifiers.ocspAccessMethod)) {
+					if (accessMethodContainsURI(aia, X509ObjectIdentifiers.ocspAccessMethod)) {
+						if (aIAUriContainsHttp(aia, X509ObjectIdentifiers.ocspAccessMethod)) {
+							rv = true;
+						}
+					}
 				}
 			} catch (IOException e) {
 				fail(e);
 			}
 		} else {
-	    	ConformanceTestException e  = new ConformanceTestException("No AIA is present.");
-			fail(e);			
+			ConformanceTestException e  = new ConformanceTestException("No AIA extension present.");
+			fail(e);
 		}
-
-        //Confirm URI is http
-        assertTrue(uriOk);
+		assertTrue (rv, "OCSP URL does not start with http:");
     }
 	
 	//Confirm that piv interim "2.16.840.1.101.3.6.9.1" extension is present
@@ -469,7 +629,6 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.12 test")
     @ParameterizedTest(/*name = "{index} => oid = {0}"*/)
     //@MethodSource("pKIX_x509TestProvider2")
-    //@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_12(String oid, String requiredOid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
@@ -599,7 +758,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
-		byte[] cpex = cert.getExtensionValue("2.5.29.32");
+		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
 		
 		//Confirm certificate policies extension is present
 		assertTrue(cpex != null, "Certificate policies extension is absent");
@@ -638,7 +797,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get eku extension
-		byte[] cpex = cert.getExtensionValue("2.5.29.37");
+		byte[] cpex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 		
 		//Confirm eku extension is present
 		assertTrue(cpex != null, "EKU extension is absent");
@@ -660,7 +819,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		
 		//Get certificate policies extension
-		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
+		byte[] ekuex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 		
 		//Confirm EKU extension is present
 		assertTrue(ekuex != null, "Extended key usage extension is absent");
@@ -689,7 +848,7 @@ public class PKIX_X509DataObjectTests {
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get certificate policies extension
-		byte[] ekuex = cert.getExtensionValue("2.5.29.37");
+		byte[] ekuex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 		
 		//Confirm certificate policies extension is present
 		assertTrue(ekuex != null, "Certificate policies extension is absent");
@@ -714,190 +873,63 @@ public class PKIX_X509DataObjectTests {
 	    assertTrue(containsOOID, "EKU does not contain " + ekuOid);
 	}
 
-	void PKIX_Test_22x(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + oid);
-       
-        byte[] extVal = cert.getExtensionValue("2.5.29.31");
-        
-        if (extVal != null) {		
-	    	try {		
-	    		CRLDistPoint crlDP = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
-	    		assertNotNull(crlDP);
-	    		
-	    		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
-				for (DistributionPoint dp : descriptions) {
-					DistributionPointName dp_name = dp.getDistributionPoint();
-					if (dp_name.getType() == DistributionPointName.FULL_NAME) {
-		                GeneralName[] generalNames = GeneralNames.getInstance(dp_name.getName()).getNames();
-		                for (int j = 0; j < generalNames.length; j++)
-		                {
-		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
-		                    {
-		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
-		                        assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl");
-		                    }
-		                }
-		            }
-				}
-			} catch (IOException e) {
-				fail(e);
-			}
-        } else {
-        	ConformanceTestException e  = new ConformanceTestException("No CRL distribution point present.");
-        	fail(e);
-        }
-	}
-	
-	//The authorityInfoAccess field contains an id-ad-caIssuers (1.3.6.1.5.5.7.48.2) accessMethod
+	//An accessMethod containing id-ad-caIssuers is present
 	@DisplayName("PKIX.22 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("pKIX_x509TestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_22(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
-		assertNotNull(cert, "Certificate could not be read for " + oid);				
-       
-        byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
-	    if (extVal != null) {
-	    	try {
-				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
-		        assertNotNull(aia);
-				
-		        boolean caIssuersPresent = false;
-				AccessDescription[] descriptions = aia.getAccessDescriptions();
-				for (AccessDescription ad : descriptions) {
-				    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
-				    	caIssuersPresent = true;
-				    }
-				}
-				
-				assertTrue(caIssuersPresent, "id-ad-caIssuers is missing from AIA");
-			} catch (IOException e) {
-				fail(e);
-			}
-        } else {
-        	ConformanceTestException e  = new ConformanceTestException("No AIA present.");
-        	fail(e);
-        }
-	}
-	
-	//URI scheme is http:
-	@DisplayName("PKIX.23 test")
-    @ParameterizedTest(name = "{index} => oid = {0}")
-    //@MethodSource("pKIX_x509TestProvider")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_23(String oid, TestReporter reporter) {
-		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("pKIX_x509TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void PKIX_Test_22(String oid, TestReporter reporter) {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-				
-       
-        byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
-        
-        if (extVal != null) {  
-	    	try {
-				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
-		        assertNotNull(aia);
-				
-		        boolean uriOK = false;
-				AccessDescription[] descriptions = aia.getAccessDescriptions();
-				for (AccessDescription ad : descriptions) {
-				    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
-				        GeneralName location = ad.getAccessLocation();
-				        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
-				            String url = location.getName().toString();
-				            
-				            if(url.startsWith("http:"))
-				            	uriOK = true;
-				        }
-				    }
+		boolean rv = false;
+
+		//Get authorityInformationAccess extension
+		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+
+		if (aiaex != null) {
+			AuthorityInformationAccess aia = null;
+			try {
+				aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
+				if (aiaContainsAccessMethod(aia, X509ObjectIdentifiers.crlAccessMethod)) {
+					rv = true;
 				}
-				
-				assertTrue(uriOK, "AIA url does not start with http");
-			} catch (IOException e) {
-				fail(e);
+			} catch (Exception e) {
+				s_logger.error("AIA decoding failed: " + e.getMessage());
 			}
-        } else {
-        	ConformanceTestException e  = new ConformanceTestException("No AIA extension present.");
-			fail(e);
-        }
+		} else {
+			ConformanceTestException e  = new ConformanceTestException("No AIA is present.");
+		}
+		assertTrue (rv, "An accessMethod containing " +  X509ObjectIdentifiers.crlAccessMethod.toString() + " is not present");
 	}
-        
-	//Check CRL DP and AIA URI for ".crl" or ".p7c"
+
+	//Check CRL DP for ".crl"
 	@DisplayName("PKIX.24 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
-    @ArgumentsSource(ParameterizedArgumentsProvider.class)
-    void PKIX_Test_24(String oid, String extensionOid, TestReporter reporter) {
+	//@MethodSource("pKIX_x509TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void PKIX_Test_24(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-		assertNotNull(extensionOid, "Null OID passed to atom");
-				 
-        byte[] extVal = cert.getExtensionValue(extensionOid);
-        assertNotNull(extVal);
-        
-        if(extensionOid.compareTo("1.3.6.1.5.5.7.1.1") == 0) {
-        	try {
-				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
-		        assertNotNull(aia);
-				
-				AccessDescription[] descriptions = aia.getAccessDescriptions();
-				for (AccessDescription ad : descriptions) {
-				    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
-				        GeneralName location = ad.getAccessLocation();
-				        if (location.getTagNo() == GeneralName.uniformResourceIdentifier) {
-				            String url = location.getName().toString();
-				            
-				            assertTrue(url.endsWith(".p7c"), "AIA caIssuers url does not end with .p7c " + url);
-				        }
-				    }
+		boolean rv = false;
+
+		byte[] extVal = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
+		if (extVal != null) {
+			try {
+				CRLDistPoint crldp = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
+				if (crldpEndWithCRL(crldp)) {
+					rv = true;
 				}
-			} catch (IOException e) {
-				fail(e);
+			} catch (Exception e) {
+				s_logger.error("CRLDP decoding failed: " + e.getMessage());
 			}
-        }
-        
-        if(extensionOid.compareTo("2.5.29.31") == 0) {
-        	try {
-        		
-        		CRLDistPoint crlDP = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
-        		assertNotNull(crlDP);
-        		
-        		DistributionPoint[] descriptions = crlDP.getDistributionPoints();
-        		boolean gotHttp = true;
-				for (DistributionPoint dp : descriptions) {
-					DistributionPointName dp_name = dp.getDistributionPoint();
-					if (dp_name.getType() == DistributionPointName.FULL_NAME) {
-		                GeneralName[] generalNames = GeneralNames.getInstance(dp_name.getName()).getNames();
-		                for (int j = 0; j < generalNames.length; j++)
-		                {
-		                    if (generalNames[j].getTagNo() == GeneralName.uniformResourceIdentifier)
-		                    {
-		                        String url = ((DERIA5String) generalNames[j].getName()).getString();
-		                        if(url.startsWith("http")) {
-		                        	gotHttp = true;
-									assertTrue(url.endsWith(".crl"), "CRL DP url does not end with .crl " + url);
-		                        }
-		                    }
-		                }
-		            }
-				}
-				if(!gotHttp) {
-					s_logger.warn("PKIX.24 only passed because there was no http CRLDP. PKIX.23 will fail on this DP.");
-				}
-			} catch (IOException e) {
-				fail(e);
-			}
-        }
-    }
-	
+		} else {
+			s_logger.error("No CRL distribution point present");
+		}
+		assertTrue(rv, "CRL DP does not end with .crl");
+	}
+
 	//The authorityInfoAccess field points to a file that has an extension of ".p7c" containing a
 	//certs-only CMS message
 	@DisplayName("PKIX.25 test")
@@ -910,7 +942,7 @@ public class PKIX_X509DataObjectTests {
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 				      
-        byte[] extVal = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+        byte[] extVal = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
         assertNotNull(extVal);
         
     	try {
@@ -1122,7 +1154,97 @@ public class PKIX_X509DataObjectTests {
 		}
 		return rv;
 	}
-	
+
+	//The accessLocation for the id-ad-caIssuers AccessMethod is of type uniformResourceIdentifier.
+	@DisplayName("PKIX.29 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("pKIX_x509TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void PKIX_Test_29(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+		boolean rv = false;
+		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+		if (aiaex != null) {
+			try {
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
+				if (aiaContainsAccessMethod(aia, X509ObjectIdentifiers.crlAccessMethod)) {
+					if (accessMethodContainsURI(aia, X509ObjectIdentifiers.crlAccessMethod)) {
+						rv = true;
+					}
+				}
+			} catch (Exception e) {
+				s_logger.error("Exception decoding AIA", e.getMessage());
+			}
+		} else {
+			s_logger.error("No AIA is present");
+		}
+		assertTrue (rv, "The accessLocation for this AccessMethod is not of type uniformResourceIdentifier.");
+	}
+
+	//Confirm that the access location for caIssuers is http protocol
+	@DisplayName("PKIX.30 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("pKIX_x509TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void PKIX_Test_30(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+		boolean rv = false;
+
+		byte[] aiaex = cert.getExtensionValue(x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
+
+		if (aiaex != null) {
+			try {
+				AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(aiaex));
+				if (aiaContainsAccessMethod(aia, X509ObjectIdentifiers.crlAccessMethod)) {
+					if (accessMethodContainsURI(aia, X509ObjectIdentifiers.crlAccessMethod)) {
+						if (aIAUriContainsHttp(aia, X509ObjectIdentifiers.crlAccessMethod)) {
+							rv = true;
+						}
+					}
+				}
+			} catch (Exception e) {
+				s_logger.error("AIA decoding failed: " + e.getMessage());
+			}
+		} else {
+			s_logger.error("No AIA extension present.");
+		}
+		assertTrue (rv, "URI for id-ad-caIssuers is not http:");
+	}
+
+	//The URI scheme for id-ce-cRLDistributionPoints is "http" (not "https")
+	@DisplayName("PKIX.31 test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	//@MethodSource("pKIX_x509TestProvider")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void PKIX_Test_31(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		assertNotNull(cert, "Certificate could not be read for " + oid);
+		boolean rv = false;
+
+		byte[] extVal = cert.getExtensionValue(Extension.cRLDistributionPoints.getId());
+		if (extVal != null) {
+			try {
+				CRLDistPoint crldp = CRLDistPoint.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
+				if (crldpStartsWithHTTP(crldp)) {
+					rv = true;
+				}
+			} catch (Exception e) {
+				s_logger.error("CRLDP decoding failed: " + e.getMessage());
+			}
+		} else {
+			s_logger.error("No CRL distribution point present");
+		}
+		assertTrue(rv, "URI scheme for id-ce-cRLDistributionPoints is not http:");
+	}
+
 	// The local provider methods are now only used to test the atoms... they are no longer operative in the conformance tool
 	@SuppressWarnings("unused")
 	private static Stream<Arguments> pKIX_x509TestProvider() {
@@ -1163,7 +1285,7 @@ public class PKIX_X509DataObjectTests {
 		
 		Map<String, X509Certificate> certificates = getCertificatesForOids(certContainersToTest);
 		
-		String aiaOid = "1.3.6.1.5.5.7.1.1";
+		String aiaOid = x509ObjectIdentifiers.get("X509_id_pe_authorityInfoAccess");
 		String crldpOid = "2.5.29.31";
 		
 		Stream.Builder<Arguments> generator = Stream.builder();
