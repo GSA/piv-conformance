@@ -32,14 +32,10 @@ pip install xlsxwriter
 source ./venv-xlrd/bin/activate
 
 for F in \
-  PIV_ICAM_Test_Cards.xlsx \
-  PIV-I_ICAM_Test_Cards.xlsx \
+  PIV_ICAM_Test_Cards.xlsx  \
   PIV_Production_Cards.xlsx \
-  PIV-I_Production_Cards.xlsx \
-  PIV-I_Carillon_Cards.xlsx \
-  PIV-I_XTec_First_Data_Cards.xlsx \
-  PIV-I-GSA_MSO_Cards.xlsx \
-  PIV-I_IdenTrust_Cards.xlsx
+  PIV-I_ICAM_Test_Cards.xlsx \
+  PIV-I_Production_Cards.xlsx
 do
 	BASE=$(basename $F .xlsx)
 	echo "Processing $F..."
