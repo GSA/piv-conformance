@@ -91,7 +91,7 @@ public final class CardSettingsSingleton {
     
     // clear all saved status. should only be called when a card is changed
     public void reset() {
-    	m_readerIndex = -1;
+		m_readerIndex = -1;
     	m_applicationPin = null;
     	m_globalPin = null;
     	m_terminal = null;
