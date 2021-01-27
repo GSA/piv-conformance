@@ -225,10 +225,12 @@ public class GuiRunnerApplication {
 			e.printStackTrace();
 		}
 
-		// Smart card essentials1 due to Java bug
+		// Smart card essentials1 due to Java bug(s)
 		System.setProperty("sun.security.smartcardio.t0GetResponse", "false");
 		System.setProperty("sun.security.smartcardio.t1GetResponse", "false");
-
+		if(System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) {
+			System.setProperty("sun.security.smartcardio.library", "/System/Library/Frameworks/PCSC.framework/Versions/Current/PCSC");
+		}
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			public void run() {
 				trlc.cleanup();
