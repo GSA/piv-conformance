@@ -98,7 +98,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     void sp800_78_Test_1(String oid, TestReporter reporter) {
     	
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		if(cert == null) {
 			Exception e = new Exception("getCertificate returned a null");
 			fail(e);
@@ -228,8 +228,8 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_2(String oid, TestReporter reporter) {
 		fail("sp800_78_Test_2 not implemented");
-		PIVDataObject o = AtomHelper.getDataObject(oid);		
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		
 		if(cert == null) {
 			Exception e = new Exception("getCertificate returned a null");
@@ -323,8 +323,8 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_78_Test_3(String oid, TestReporter reporter) {
 
-    	PIVDataObject o = AtomHelper.getDataObject(oid);		
-		X509Certificate cert = ((X509CertificateDataObject) o).getCertificate();
+    	PIVDataObject o = AtomHelper.getDataObject(oid);
+		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		if(cert == null) {
 			Exception e = new Exception("getCertificate returned a null");
 			fail(e);
