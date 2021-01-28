@@ -252,18 +252,14 @@ public class PKIX_X509DataObjectTests {
 				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
 				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, allowedPolicies[1]);
 				try {
-					//TODO: Needs to be configurable
-					Validator validator = new Validator();
-					validator.setResourceDir("x509-certs");
-					validator.setKeyStore("cacerts.jks", "changeit");
-					validator.setProvider("SunRsaSign");
-					validator.setDownloadAia(true);
-					validator.setCertPathBuilder("SUN"); // SunRsaSign does not work
-					boolean valid = validator.isValid(eeCert, allowedPolicies[1], null);
+					Validator validator = new Validator("SunRsaSign", "cacerts.jks", "changeit");
+					s_logger.debug(validator.toString());
+					boolean valid;
+					if ((valid = validator.isValid(eeCert, allowedPolicies[1], null)) == true)
+						validator.dumpCertPath();
 					assertTrue(valid, "Cert not valid");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					fail(e);
 				}
 			}
 		}
