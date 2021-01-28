@@ -939,32 +939,33 @@ public class Validator {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        String lf = System.getProperty("line.separator");
         String printString;
-        sb.append("Validator { ");
-        sb.append("resourceDir: " + m_resourceDir + ", ");
+        sb.append(lf + "Validator { " + lf);
+        sb.append("resourceDir: " + m_resourceDir + ", " + lf);
         if (m_eeCert != null)
-            sb.append("eeCert: " + m_eeCert.toString());
+            sb.append("eeCert: " + m_eeCert.toString() + lf);
         if (m_eeFullCertPath != null)
-            sb.append("eeFullCertPath: " + m_eeFullCertPath + ", ");
+            sb.append("eeFullCertPath: " + m_eeFullCertPath + ", " + lf);
         if (m_taCert != null)
-            sb.append("taCert: " + m_taCert);
+            sb.append("taCert: " + m_taCert + lf);
         if (m_taFullCertPath != null)
-            sb.append("taFullCertPath: " + m_taFullCertPath + ", ");
-        sb.append("provider: " +  m_provider + ", ");
-        sb.append("certPathBuilder: "  + m_cpb.getProvider().getName() + ", ");
-        sb.append("caPath: " + m_caPathString + ", ");
-        sb.append("caFileName: " + m_caFileName + ", ");
-        sb.append("keyStore: " + m_keystore.toString()  + ", ");
-        sb.append("storePass: " + m_storePass + ", ");
-        sb.append("downloadAia: " + m_downloadAia);
-        sb.append(" }");
+            sb.append("taFullCertPath: " + m_taFullCertPath + ", " + lf);
+        sb.append("provider: " +  m_provider + ", " + lf);
+        sb.append("certPathBuilder: "  + m_cpb.getProvider().getName() + ", " + lf);
+        sb.append("caPath: " + m_caPathString + ", " + lf);
+        sb.append("caFileName: " + m_caFileName + ", " + lf);
+        sb.append("keyStore: " + m_keystore.toString()  + ", " + lf);
+        sb.append("storePass: " + m_storePass + ", " + lf);
+        sb.append("downloadAia: " + m_downloadAia + lf);
+        sb.append(" }" + lf);
         if (m_certPath != null) {
             int count = 0;
-            sb.append("\n----- Certificate Path -----\n");
+            sb.append(lf + "----- Certificate Path -----" + lf);
             for (Certificate cert : m_certPath.getCertificates()) {
-                sb.append(String.format("%3d. %s\n", ++count, ((X509Certificate) cert).getSubjectDN().getName()));
+                sb.append(String.format("%3d. %s%s", ++count, ((X509Certificate) cert).getSubjectDN().getName(), lf));
             }
-            sb.append(String.format("%3d. %s\n", ++count, m_taCert.getSubjectDN().getName()));
+            sb.append(String.format("%3d. %s%s", ++count, m_taCert.getSubjectDN().getName(), lf));
         }
         printString = sb.toString();
         return printString;
