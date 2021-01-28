@@ -41,15 +41,16 @@ TS=$(date +%Y%m%d%H%M%S)
 rm -rf fips201-card-conformance-tool-$VERSION
 mkdir -p fips201-card-conformance-tool-$VERSION
 pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
-    cp -p ../conformancelib/testdata/*.db .
     cp -p ../cardlib/build/resources/main/user_log_config.xml .
+    cp -p ../conformancelib/testdata/*.db .
+    cp -p ../conformancelib/src/main/resources/pdval.properties .
+    cp -pr ../conformancelib/src/main/resources/x509-certs .
     cp -p ../tools/85b-swing-gui/build/resources/main/build.version .
     tar xvf ../tools/85b-swing-gui/build/distributions/gov.gsa.pivconformance.gui-shadow-$VERSION.tar
-    cp -pr ../conformancelib/src/main/resources/x509-certs .
     cp -p gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
     rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
-    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >>console.log 2>&1\r" >run.bat
-    echo "java -Djava.security.debug=certpath,provider -jar $(ls *-shadow.jar) >>console.log 2>&1" >run.sh
+    echo "java -Djava.security.debug=certpath -jar $(ls *-shadow.jar) >>console.log 2>&1\r" >run.bat
+    echo "java -Djava.security.debug=certpath -jar $(ls *-shadow.jar) >>console.log 2>&1" >run.sh
     chmod 755 run.sh
 popd
 
