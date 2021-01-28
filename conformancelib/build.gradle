@@ -112,7 +112,7 @@ dependencies {
     runtime 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
     runtime 'org.junit.jupiter:junit-jupiter:5.7.0'
     runtime 'info.picocli:picocli:3.6.0'
-    runtime 'org.xerial:sqlite-jdbc:3.32.3.2'
+    runtime 'org.xerial:sqlite-jdbc:3.34.0'
 
     junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
 }
@@ -154,13 +154,10 @@ extraJavaModuleInfo {
     automaticModule("commons-codec-1.15.jar","org.apache.commons.codec")
     automaticModule("commons-csv-1.8.jar","org.apache.commons.csv")
     automaticModule("ibatis-core-3.0.jar","org.apache.ibatis")
-
     automaticModule("logback-classic-1.3.0-alpha5.jar", "ch.qos.logback")
     automaticModule("logback-core-1.3.0-alpha5.jar", "ch.qos.logback")
     automaticModule("junit-4.13.jar", "junit")
-    module("sqlite-jdbc-3.32.3.2.jar", "org.xerial", "3.32.3.2") {
-        exports("sqlite.jdbc")
-    }
+    automaticModule("sqlite-jdbc-3.34.0.jar", "org.xerial") 
     automaticModule("activation-1.1.jar","javax.activation")
     automaticModule("checker-framework-1.7.0.jar","edu.washington.cs.types.checker")
 }
