@@ -957,8 +957,15 @@ public class Validator {
         sb.append("keyStore: " + m_keystore.toString()  + ", ");
         sb.append("storePass: " + m_storePass + ", ");
         sb.append("downloadAia: " + m_downloadAia);
-
         sb.append(" }");
+        if (m_certPath != null) {
+            int count = 0;
+            sb.append("\n----- Certificate Path -----\n");
+            for (Certificate cert : m_certPath.getCertificates()) {
+                sb.append(String.format("%3d. %s\n", ++count, ((X509Certificate) cert).getSubjectDN().getName()));
+            }
+            sb.append(String.format("%3d. %s\n", ++count, m_taCert.getSubjectDN().getName()));
+        }
         printString = sb.toString();
         return printString;
     }

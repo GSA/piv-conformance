@@ -255,8 +255,8 @@ public class PKIX_X509DataObjectTests {
 					Validator validator = new Validator("SunRsaSign", "cacerts.jks", "changeit");
 					s_logger.debug(validator.toString());
 					boolean valid;
-					if ((valid = validator.isValid(eeCert, allowedPolicies[1], null)) == true)
-						validator.dumpCertPath();
+					valid = validator.isValid(eeCert, allowedPolicies[1], null);
+					s_logger.debug(validator.toString());
 					assertTrue(valid, "Cert not valid");
 				} catch (Exception e) {
 					fail(e);
