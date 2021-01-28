@@ -1,0 +1,85 @@
+From: Geoff Beier <geoff@redhoundsoftware.com> 
+Sent: Thursday, April 11, 2019 5:36 PM
+To: Bob Fontana <bob.fontana@certipath.com>
+Cc: Carl Wallace <carl@redhoundsoftware.com>; Armen Galustyan <armen@redhoundsoftware.com>; Steve Newbold <steve.newbold@certipath.com>
+Subject: Re: Update from last night's prototype
+ 
+Also, just for information, here are the steps I needed to run the python script here:
+ 
+python3 -mvenv venv-xlrd
+source venv-xlrd/bin/activate
+pip install --upgrade pip
+pip install xlrd
+pip install xlwt
+pip install xlsxwriter
+ 
+Geoff
+ 
+On Thu, Apr 11, 2019 at 5:32 PM Geoff Beier <geoff@redhoundsoftware.com> wrote:
+Here are db and sql files from the sheet.
+ 
+Note that I had to move the 85A tab to the end of the workbook in order for things to work. Modified sheet attached.
+ 
+Bob, can you check that into your branch? I didn't want to create an unmergeable conflict for you by doing that myself.
+ 
+I'll set about running these.
+ 
+On Thu, Apr 11, 2019 at 4:44 PM Bob Fontana <bob.fontana@certipath.com> wrote:
+Hah, not at all, but am about to learn!  My Mac awaits me next to my wife.  An actual normal dinner?
+ 
+-Bob
+ 
+From: Geoff Beier <geoff@redhoundsoftware.com> 
+Sent: Thursday, April 11, 2019 8:56 AM
+To: Carl Wallace <carl@redhoundsoftware.com>
+Cc: Bob Fontana <bob.fontana@certipath.com>; Armen Galustyan <armen@redhoundsoftware.com>; Steve Newbold <steve.newbold@certipath.com>
+Subject: Re: Update from last night's prototype
+ 
+Just to underscore for anyone not accustomed to the python venv module... this command:
+ 
+(venvcct) MacBook-Pro-RH-4:Downloads cwallace$ pip install xlrd 
+ 
+must be run from the same command prompt where the venv was activated using its activate script... otherwise pip will attempt to install xlrd system-wide.
+ 
+ 
+Geoff
+ 
+On Thu, Apr 11, 2019 at 8:49 AM Carl Wallace <carl@redhoundsoftware.com> wrote:
+The "final" Python script is attached. I finally tested on a smaller virtual environment. The steps to produce the virtual environment (on my Mac) were these:
+ 
+cwallace $ python3.6 -m venv ~/venvcct
+cwallace $ source ~/venvcct/bin/activate
+(venvcct) cwallace$ pip install --upgrade pip
+ 
+When I added the virtual environment to PyCharm it installed setuptools. The script itself needs just one other component to run: xlrd. Documentation for the xlrd library is here: https://pypi.org/project/xlrd/. It was installed as follows:
+ 
+(venvcct) MacBook-Pro-RH-4:Downloads cwallace$ pip install xlrd 
+ 
+The resulting virtual environment looks lie this:
+ 
+(venvcct) cwallace$ pip freeze
+xlrd==1.2.0
+(venvcct) cwallace$ pip list installed
+Package    Version
+---------- -------
+pip        19.0.3 
+setuptools 28.8.0 
+xlrd       1.2.0 
+ 
+The script can be executed from an activated prompt:
+ 
+(venvcct) cwallace$ python CctDatabasePopulator.py -i ~/Downloads/exploded-cbeff.xlsx -o exploded-cbeff.sql
+ 
+The script emits a file with SQL commands. The following can be executed to generate a sqlite database.
+ 
+cwallace$ sqlite3 exploded-cbeff.db < exploded-cbeff.sql 
+ 
+To interact with the database just load with sqlite3.
+ 
+cwallace$ sqlite3 exploded-cbeff.db
+SQLite version 3.9.2 2015-11-02 18:31:45
+Enter ".help" for usage hints.
+sqlite> .tables 
+GroupsToTestCases   TestCases           TestStepParameters  TestsToSteps      
+SystemSettings      TestGroups          TestSteps 
+
