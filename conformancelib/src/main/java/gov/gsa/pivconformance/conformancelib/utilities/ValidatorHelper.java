@@ -65,7 +65,7 @@ public class ValidatorHelper {
     }
 
     /**
-     * Get a pro
+     * Read properties from a file
      * @param fileName Property file name
      * @return Properties object
      * @throws Exception
