@@ -39,7 +39,7 @@ public class SP800_76_Tests {
 	//BDB length field is non-zero
 	@DisplayName("SP800-76.1 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_1(String oid, TestReporter reporter) {
 		
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
@@ -77,7 +77,7 @@ public class SP800_76_Tests {
 	//Recorded length matches actual length
 	@DisplayName("SP800-76.2 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_2(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -118,7 +118,7 @@ public class SP800_76_Tests {
 	//SB length field is non-zero
 	@DisplayName("SP800-76.3 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_3(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -154,7 +154,7 @@ public class SP800_76_Tests {
 	//Card Holder Fingerprint object length equals sum of CBEFF header length + BDB length + SB length
 	@DisplayName("SP800-76.4 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_4(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -198,7 +198,7 @@ public class SP800_76_Tests {
 	//Patron Header Version is 0x03
 	@DisplayName("SP800-76.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_5(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -224,7 +224,7 @@ public class SP800_76_Tests {
 	//SBH security options field has value b00001101 (0x0D)
 	@DisplayName("SP800-76.6 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_6(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -250,7 +250,7 @@ public class SP800_76_Tests {
 	//BDB Format Owner field has a value of 0x001B
 	@DisplayName("SP800-76.7 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_7(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -277,7 +277,7 @@ public class SP800_76_Tests {
 	//Card Holder Facial Image object length equals sum of CBEFF header length + BDB length + SB length
 	@DisplayName("SP800-76.8 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_8(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -323,7 +323,7 @@ public class SP800_76_Tests {
 	//Extract contents of format identifier, confirm value 0x464D5200
 	@DisplayName("SP800-76.9 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_9(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -353,7 +353,7 @@ public class SP800_76_Tests {
 	//Extract contents of version identifier, confirm value 0x20323030
 	@DisplayName("SP800-76.10 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_10(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -382,7 +382,7 @@ public class SP800_76_Tests {
 	//Extract record length, verify 26 <= L <= 1574
 	@DisplayName("SP800-76.11 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_11(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -416,7 +416,7 @@ public class SP800_76_Tests {
 	//Confirm that product identifier owner and product identifier type are non-zero and that MSBs identify vendor, LSBs identify minutia detection algorithm version
 	@DisplayName("SP800-76.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_12(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -457,7 +457,7 @@ public class SP800_76_Tests {
 	 */
 	@DisplayName("SP800-76.13 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_13(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -490,7 +490,7 @@ public class SP800_76_Tests {
 	 */
 	@DisplayName("SP800-76.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_14(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -521,7 +521,7 @@ public class SP800_76_Tests {
 	//Confirm that scanned image in X are non-zero (and obtained from enrollment records??)
 	@DisplayName("SP800-76.15a test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15a(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -556,7 +556,7 @@ public class SP800_76_Tests {
 	//Confirm that scanned image in Y are non-zero (and obtained from enrollment records??)
 	@DisplayName("SP800-76.15b test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_15b(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -595,7 +595,7 @@ public class SP800_76_Tests {
 	//Confirm that X and Y resolution is 197
 	@DisplayName("SP800-76.16 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_16(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -628,7 +628,7 @@ public class SP800_76_Tests {
 	//Confirm that number of finger views is 2
 	@DisplayName("SP800-76.17 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_17(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -661,7 +661,7 @@ public class SP800_76_Tests {
 	//Confirm that reserved byte is set to 0
 	@DisplayName("SP800-76.18 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_18(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -687,7 +687,7 @@ public class SP800_76_Tests {
 	//Confirm that Finger View Header has value 'A'
 	@DisplayName("SP800-76.19 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_19(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -710,7 +710,7 @@ public class SP800_76_Tests {
 	//Confirm that Finger View Position (0,14)
 	@DisplayName("SP800-76.20 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_20(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -758,7 +758,7 @@ public class SP800_76_Tests {
 	//If only 1 minutiae present for a finger, view number must be 0
 	@DisplayName("SP800-76.21 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_21(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -807,7 +807,7 @@ public class SP800_76_Tests {
 	//Impression type must be 0 or 2
 	@DisplayName("SP800-76.22 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_22(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -855,7 +855,7 @@ public class SP800_76_Tests {
 	//Number of minutia (0, 128)
 	@DisplayName("SP800-76.23 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_23(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -902,7 +902,7 @@ public class SP800_76_Tests {
 	//Minutiae Type value shall be 01b, 10b, or 00b.
 	@DisplayName("SP800-76.24 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_24(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -954,7 +954,7 @@ public class SP800_76_Tests {
 	//Verify that position is one of the valid x,y coordinate types in the original image 
 	@DisplayName("SP800-76.25 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_25(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1006,7 +1006,7 @@ public class SP800_76_Tests {
 	//Verify that angle (0,179)
 	@DisplayName("SP800-76.26 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_26(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1057,7 +1057,7 @@ public class SP800_76_Tests {
 	//Verify that quality (0,100)
 	@DisplayName("SP800-76.27 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_27(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1108,7 +1108,7 @@ public class SP800_76_Tests {
 	//Verify that extended data block length is 0
 	@DisplayName("SP800-76.28 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_28(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1157,7 +1157,7 @@ public class SP800_76_Tests {
 	//Verify that format identifier is 0x46414300
 	@DisplayName("SP800-76.29 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_29(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1187,7 +1187,7 @@ public class SP800_76_Tests {
 	//Verify that version number is 0x30313000
 	@DisplayName("SP800-76.30 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_30(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1217,7 +1217,7 @@ public class SP800_76_Tests {
 	//Verify that record length < container size limit
 	@DisplayName("SP800-76.31 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_31(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1251,7 +1251,7 @@ public class SP800_76_Tests {
 	//Verify that number of facial images is 1
 	@DisplayName("SP800-76.32 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_32(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1283,7 +1283,7 @@ public class SP800_76_Tests {
 	//Verify number of feature points is > 0
 	@DisplayName("SP800-76.33 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_33(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1314,7 +1314,7 @@ public class SP800_76_Tests {
 	//Verify that facial image type is 1
 	@DisplayName("SP800-76.34 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_34(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1349,7 +1349,7 @@ public class SP800_76_Tests {
 	//Verify that image data type is 0 or 1
 	@DisplayName("SP800-76.35 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_35(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1384,7 +1384,7 @@ public class SP800_76_Tests {
 	//Verify that image color space is 1
 	@DisplayName("SP800-76.36 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_36(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1419,7 +1419,7 @@ public class SP800_76_Tests {
 	//Verify that source type is 2 or 6
 	@DisplayName("SP800-76.37 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FacialImageTestProvider")
+    //@MethodSource("sp800_76_FacialImageTestProvider")
 	void sp800_76Test_37(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1513,7 +1513,7 @@ public class SP800_76_Tests {
 	//Validate that that the creation date in the PIV Patron Format is encoded in 8 bytes using a binary representation of YYYYMMDDhhmmssZ
 	@DisplayName("SP800-76.39 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_39(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1562,7 +1562,7 @@ public class SP800_76_Tests {
 	//Validate date encoding on Validity Period in PIV Patron Format
 	@DisplayName("SP800-76.40 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_40(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1756,7 +1756,7 @@ public class SP800_76_Tests {
 	//Validate that the biometric quality field carries valid values
 	@DisplayName("SP800-76.43 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricParamTestProvider4")
+    //@MethodSource("sp800_76_BiometricParamTestProvider4")
 	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
@@ -1791,7 +1791,7 @@ public class SP800_76_Tests {
 	//Validate that that the Creator field in the PIV Patron Format contains 18 bytes of which the first K <= 17 bytes shall be ASCII characters, and the first of the remaining 18-K shall be a null terminator (zero)
 	@DisplayName("SP800-76.44 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_44(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1824,7 +1824,7 @@ public class SP800_76_Tests {
 	//Validate that FASC-N field in the PIV Patron Format contains the same 25 bytes as the FASC-N component of the CHUID identifier
 	@DisplayName("SP800-76.45 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_45(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1857,7 +1857,7 @@ public class SP800_76_Tests {
 	//Validate that the 'Reserved for Future Use' field is equal to 0x00000000
 	@DisplayName("SP800-76.46 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_46(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1888,7 +1888,7 @@ public class SP800_76_Tests {
 	//Confirm that Finger Quality value shall be 20, 40, 60, 80, 100, 254, or 255.
 	@DisplayName("SP800-76.47 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_FingerprintsTestProvider")
+    //@MethodSource("sp800_76_FingerprintsTestProvider")
 	void sp800_76Test_47(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1941,7 +1941,7 @@ public class SP800_76_Tests {
 	//Recorded SB length matches actual SB length
 	@DisplayName("SP800-76.48 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("sp800_76_BiometricTestProvider")
+    //@MethodSource("sp800_76_BiometricTestProvider")
 	void sp800_76Test_48(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
