@@ -40,7 +40,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.1 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_1(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_1(String oid, TestReporter reporter) {
 		
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -78,7 +79,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.2 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_2(String oid, TestReporter reporter) {
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_2(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -119,7 +121,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.3 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_3(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_3(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -155,7 +158,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.4 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_4(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_4(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -199,7 +203,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.5 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_5(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_5(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -225,7 +230,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.6 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_6(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_6(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -251,7 +257,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.7 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_7(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_7(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -278,7 +285,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.8 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_8(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_8(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -324,7 +332,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.9 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_9(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_9(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -354,7 +363,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.10 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_10(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_10(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -383,7 +393,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.11 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_11(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_11(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -417,7 +428,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.12 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_12(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_12(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -458,7 +470,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.13 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_13(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_13(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -491,7 +504,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_14(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_14(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -522,7 +536,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.15a test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_15a(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_15a(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -557,7 +572,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.15b test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_15b(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_15b(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -596,7 +612,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.16 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_16(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_16(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -629,7 +646,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.17 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_17(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_17(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -662,7 +680,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.18 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_18(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_18(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -688,7 +707,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.19 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_19(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_19(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -711,7 +731,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.20 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_20(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_20(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -759,7 +780,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.21 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_21(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_21(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -808,7 +830,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.22 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_22(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_22(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -856,7 +879,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.23 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_23(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_23(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -903,7 +927,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.24 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_24(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_24(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -955,7 +980,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.25 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_25(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_25(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1007,7 +1033,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.26 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_26(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_26(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1058,7 +1085,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.27 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_27(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_27(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1109,7 +1137,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.28 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_28(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_28(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1158,7 +1187,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.29 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_29(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_29(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1188,7 +1218,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.30 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_30(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_30(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1218,7 +1249,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.31 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_31(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_31(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1252,7 +1284,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.32 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_32(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_32(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1284,7 +1317,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.33 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_33(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_33(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1315,7 +1349,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.34 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_34(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_34(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1350,7 +1385,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.35 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_35(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_35(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1385,7 +1421,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.36 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_36(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_36(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1420,7 +1457,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.37 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
-	void sp800_76Test_37(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_37(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1457,7 +1495,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	//@MethodSource("sp800_76_BiometricParamTestProvider1")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_76Test_38(String oid, String paramsString, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_38(String oid, String paramsString, TestReporter reporter) {
 		@SuppressWarnings("unchecked")
 		HashMap<String, List<String>> mp = (HashMap) ParameterUtils.MapFromString(paramsString);
 		assertNotNull(mp);
@@ -1514,7 +1553,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.39 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_39(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_39(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1563,7 +1603,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.40 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_40(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_40(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1758,7 +1799,8 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricParamTestProvider4")
 	//@ArgumentsSource(ParameterizedArgumentsProvider.class)
-	void sp800_76Test_43(String oid, String param, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_43(String oid, String param, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1792,7 +1834,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.44 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_44(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_44(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1825,7 +1868,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.45 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_45(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_45(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1858,7 +1902,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.46 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_46(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_46(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1889,7 +1934,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.47 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FingerprintsTestProvider")
-	void sp800_76Test_47(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_47(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
@@ -1942,7 +1988,8 @@ public class SP800_76_Tests {
 	@DisplayName("SP800-76.48 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_BiometricTestProvider")
-	void sp800_76Test_48(String oid, TestReporter reporter) {
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_76Test_48(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
 		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
