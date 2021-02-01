@@ -921,9 +921,11 @@ public class Validator {
     }
 
     /**
-     * Dumps the CertPath found by the validator to the logger
+     * Dumps the CertPath found by the validator to the logger and to a file
+     * if saveToDisk is true
+     * @param saveToDisk
      */
-    public void dumpCertPath() {
+    public void dumpCertPath(boolean saveToDisk) {
         int count = 0;
 
         if (m_certPath == null) {
@@ -932,10 +934,43 @@ public class Validator {
 
         for (Certificate cert : m_certPath.getCertificates()) {
             s_logger.debug(String.format("%3d. %s", ++count, ((X509Certificate) cert).getSubjectDN().getName()));
+            if (saveToDisk) {
+                String subject = ValidatorHelper.scrubName(((X509Certificate) cert).getSubjectDN().getName());
+                String issuer = ValidatorHelper.scrubName(((X509Certificate) cert).getIssuerDN().getName());
+                try {
+                    FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + subject + " (" + issuer + ")");
+                    fos.write(cert.getEncoded());
+                    fos.flush();
+                    fos.close();
+                } catch (IOException | CertificateEncodingException e) {
+                    s_logger.warn("dumpCertPath exception: " + e.getMessage());
+                }
+            }
         }
         s_logger.debug(String.format("%3d. %s", ++count, m_taCert.getSubjectDN().getName()));
+        if (saveToDisk) {
+            String certFileName =
+                m_taCert.getSubjectDN().getName()
+                .replace("CN=", "").replace("OU=", "")
+                .replaceFirst(", .*$", "")
+                .replace(" ", "_")
+                .replaceAll("[^A-Za-z0-9.-]", "_")
+                .toLowerCase();
+            try {
+                FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + certFileName);
+                fos.write(m_taCert.getEncoded());
+                fos.flush();
+                fos.close();
+            } catch (IOException | CertificateEncodingException e) {
+                s_logger.warn("dumpCertPath exception: " + e.getMessage());
+            }
+        }
     }
 
+    /**
+     * Prints out Validator fields
+     * @return string with any non-null fields populated
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

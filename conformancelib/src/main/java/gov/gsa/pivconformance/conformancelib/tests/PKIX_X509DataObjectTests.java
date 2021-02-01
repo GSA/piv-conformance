@@ -257,6 +257,7 @@ public class PKIX_X509DataObjectTests {
 					boolean valid;
 					valid = validator.isValid(eeCert, allowedPolicies[1], null);
 					s_logger.debug(validator.toString());
+					validator.dumpCertPath(true);
 					assertTrue(valid, "Cert not valid");
 				} catch (Exception e) {
 					fail(e);

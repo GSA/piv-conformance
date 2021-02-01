@@ -195,4 +195,23 @@ public class ValidatorHelper {
             throw new ConformanceTestException(msg);
         }
     }
+
+    /**
+     * Scrubs a common name of special characters that would otherwise be illegal
+     * or ambiguous in a file name.
+     * @param name the name to be scrubbed
+     * @return a clean name
+     */
+
+    public static String scrubName(String name) {
+        return name
+                .replace("CN=", "")
+                .replace("OU=", "")
+                .replace("O=", "")
+                .replace("C=", "")
+                .replaceFirst(", .*$", "")
+                .replace(" ", "_")
+                .replaceAll("[^A-Za-z0-9.-]", "_")
+                .toLowerCase();
+    }
 }
