@@ -64,7 +64,8 @@ public class GuiTestListener implements TestExecutionListener {
 			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");		
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
-		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription,
+
+		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription.replaceAll("\"", "'"),
 				m_testCaseExpectedResult ? "Pass" : "Fail",
 				(m_atomAborted || m_atomFailed) ? "Fail" : "Pass"); 
 		GuiTestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
