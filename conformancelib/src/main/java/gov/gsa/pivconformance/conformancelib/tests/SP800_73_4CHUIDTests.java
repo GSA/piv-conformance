@@ -122,59 +122,6 @@ public class SP800_73_4CHUIDTests {
 
 	}
 
-	/**
-	 * Converts a 200-bit raw FASC-N byte array to a string of digits
-	 * 
-	 * @param raw bytes of the FASC-N from the card
-	 * @return a string of 32 FASC-N digits or null if an encoding error is
-	 *         encountered
-	 */
-
-	String cook(byte[] raw) {
-
-		String bitstr = "";
-		// Convert each hex digit to 8 0's and 1's and concatenate to into a string
-		for (byte b : raw) {
-			bitstr += String.format("%8s", Integer.toBinaryString((int) b & 0xff)).replace(' ', '0');
-		}
-		// Create a bit array to read 5 bits at a time.
-		byte[] bits = bitstr.getBytes();
-		int length, value, bctr, pctr;
-		String digits = "";
-		for (length = bits.length, value = 0, bctr = 0, pctr = 0; bctr < length - 5; bctr++) {
-			// If this bit is a parity bit, process the value and reset the next digit value
-			if ((bctr + 1) % 5 == 0) {
-				// Check parity
-				if (((pctr % 2) == 0) && bits[bctr] != (byte) '1') {
-					s_logger.error("Parity OFF error at b[{}]", bctr);
-					return null;
-				} else if (((pctr % 2) == 1) && bits[bctr] != (byte) '0') {
-					s_logger.error("Parity ON error at b[{}]", bctr);
-					return null;
-				}
-
-				// Digit or whitespace? Sentinels, field separators, LRC, are > 9
-				if (value < 10) {
-					digits += Integer.toString(value);
-				} else {
-					s_logger.trace("Whitespace char {} ended at bit[{}]",
-							Integer.toBinaryString(value & 0xff).replace(' ', '0'), bctr);
-				}
-				// Ready for next digit
-				value = 0;
-				pctr = 0;
-			} else {
-				if ((bits[bctr] & 1) == 1) {
-					pctr++; // Increment parity count
-					// The bits of each digit are encoded in reverse order
-					value |= (1 << (bctr % 5));
-				}
-			}
-		}
-
-		return digits.length() == 32 ? digits : null;
-	}
-
 	// The Agency Code, System Code, and Credential Number of the FASC-N are
 	// present.
 	// The credential series, individual credential issue, person identifier,
@@ -194,7 +141,7 @@ public class SP800_73_4CHUIDTests {
 		byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
 		// Extract agency code, system code, credential number and ensure they
 		// are numeric.
-		String cookedFascn = cook(fascn);
+		String cookedFascn = ((CardHolderUniqueIdentifier) o).cook(fascn);
 		if (cookedFascn == null) {
 			ConformanceTestException e = new ConformanceTestException(
 					String.format("Couldn't decode FASC-N bytes", oid));

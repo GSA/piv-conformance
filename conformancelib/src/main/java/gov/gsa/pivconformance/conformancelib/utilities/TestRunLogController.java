@@ -12,6 +12,8 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.ArtifactWriter;
+import gov.gsa.pivconformance.cardlib.card.client.CardHolderUniqueIdentifier;
+import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -37,7 +39,7 @@ import java.util.Map.Entry;
  *
  */
 public class TestRunLogController {
-	
+
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(TestRunLogController.class);
 	private static final TestRunLogController INSTANCE = new TestRunLogController();
 
@@ -48,29 +50,30 @@ public class TestRunLogController {
 	 */
 	static final HashMap<String, String> m_loggers = new HashMap<String, String>() {
 		static final long serialVersionUID = 1L;
+
 		{
 			put("DEBUG", "gov.gsa");
 			put("CONFORMANCELOG", "gov.gsa.pivconformance.conformancelib.testResult");
 			put("TESTLOG", "gov.gsa.pivconformance.conformancelib.testProgress");
 			put("APDULOG", "gov.gsa.pivconformance.cardlib");
-			
+
 			/* Container logs */
- 			put("BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE", "BiometricInformationTemplatesGroupTemplate");
- 			put("CARDCAPABILITYCONTAINER",                    "CardCapabilityContainer");
- 			put("CARDHOLDERUNIQUEIDENTIFIER",                 "CardHolderUniqueIdentifier");
- 			put("CARDHOLDERFINGERPRINTS",                     "CardholderFingerprints");
- 			put("CARDHOLDERFACIALIMAGE",                      "CardholderFacialImage");
- 			put("CARDHOLDERIRISIMAGES",                       "CardholderIrisImages");
- 			put("KEYHISTORYOBJECT",                           "KeyHistoryObject");
- 			put("PAIRINGCODEREFERENCEDATACONTAINER",          "PairingCodeReferenceDataContainer");
- 			put("PRINTEDINFORMATION",                         "PrintedInformation");
-			put("SECUREMESSAGINGCERTIFICATESIGNER",           "SecureMessagingCertificateSigner");
- 			put("SECURITYOBJECT",                             "SecurityObject");
- 			put("X509CERTIFICATEFORPIVAUTHENTICATION",        "X509CertificateForPIVAuthentication");
- 			put("X509CERTIFICATEFORCARDAUTHENTICATION",       "X509CertificateForCardAuthentication");
- 			put("X509CERTIFICATEFORDIGITALSIGNATURE",         "X509CertificateForDigitalSignature");
- 			put("X509CERTIFICATEFORKEYMANAGEMENT",            "X509CertificateForKeyManagement");
- 			put("SECUREMESSAGINGCERTIFICATESIGNER",           "SecureMessagingCertificateSigner");
+			put("BIOMETRICINFORMATIONTEMPLATESGROUPTEMPLATE", "BiometricInformationTemplatesGroupTemplate");
+			put("CARDCAPABILITYCONTAINER", "CardCapabilityContainer");
+			put("CARDHOLDERUNIQUEIDENTIFIER", "CardHolderUniqueIdentifier");
+			put("CARDHOLDERFINGERPRINTS", "CardholderFingerprints");
+			put("CARDHOLDERFACIALIMAGE", "CardholderFacialImage");
+			put("CARDHOLDERIRISIMAGES", "CardholderIrisImages");
+			put("KEYHISTORYOBJECT", "KeyHistoryObject");
+			put("PAIRINGCODEREFERENCEDATACONTAINER", "PairingCodeReferenceDataContainer");
+			put("PRINTEDINFORMATION", "PrintedInformation");
+			put("SECUREMESSAGINGCERTIFICATESIGNER", "SecureMessagingCertificateSigner");
+			put("SECURITYOBJECT", "SecurityObject");
+			put("X509CERTIFICATEFORPIVAUTHENTICATION", "X509CertificateForPIVAuthentication");
+			put("X509CERTIFICATEFORCARDAUTHENTICATION", "X509CertificateForCardAuthentication");
+			put("X509CERTIFICATEFORDIGITALSIGNATURE", "X509CertificateForDigitalSignature");
+			put("X509CERTIFICATEFORKEYMANAGEMENT", "X509CertificateForKeyManagement");
+			put("SECUREMESSAGINGCERTIFICATESIGNER", "SecureMessagingCertificateSigner");
 		}
 	};
 
@@ -79,20 +82,22 @@ public class TestRunLogController {
 	private LoggerContext m_ctx = null;
 	private boolean m_initialized = false;
 	private final String m_timeStampedLogPath = null;
-	private String m_timeStamp;
-	
+	private String m_timeStamp = null;
+	private String m_fascn = null;
+	private String m_guid = null;
+
 	public static TestRunLogController getInstance() {
 		return INSTANCE;
 	}
-	
+
 	public void initialize() {
 		if (m_ctx != null)
 			initialize(m_ctx);
 	}
-	
+
 	/**
 	 * Initializes a new TestRunLogController. One must be created per instance of CCT. ]
-	 * 
+	 *
 	 * @param ctx the logger context - one per application.
 	 */
 	@SuppressWarnings("unchecked")
@@ -100,6 +105,8 @@ public class TestRunLogController {
 		if (m_appenders == null) {
 			m_appenders = new HashMap<String, TimeStampedFileAppender<?>>();
 			m_filenames = new HashMap<String, String>();
+			m_guid = null;
+			m_fascn = null;
 			Map.Entry<String, String> me = null;
 			Iterator<?> i = m_loggers.entrySet().iterator();
 
@@ -149,36 +156,36 @@ public class TestRunLogController {
 			s_logger.debug("Logging has been initialized");
 		}
 	}
-	
+
 	/**
 	 * Bootstraps the logging system with sane values
 	 */
 	public void bootStrapLogging(File logConfigFile) {
 		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
-			if(logConfigFile.exists() && logConfigFile.canRead()) {
+			if (logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
 				// overriding the log directory property programmatically
 				m_ctx.putProperty("LOG_DIR", "logs");
 				configurator.setContext(m_ctx);
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
 			}
-		} catch(JoranException e) {
+		} catch (JoranException e) {
 			// handled by status printer
 		} catch (IOException e) {
 			System.err.println("Unable to resolve logging config to a readable file");
 			e.printStackTrace();
 		} catch (Exception e) {
 			System.err.println("Exception opening user log config file: " + e.getMessage());
- 		}
- 		StatusPrinter.printIfErrorsOccured(m_ctx);
+		}
+		StatusPrinter.printIfErrorsOccured(m_ctx);
 		TestRunLogController trlc = getInstance();
 		trlc.initialize(m_ctx);
 	}
 
 	/**
 	 * Gets LoggerContext of the logging subsystem
-	 * 
+	 *
 	 * @return LoggerContext of the logging subsystem
 	 */
 
@@ -188,10 +195,10 @@ public class TestRunLogController {
 		}
 		return m_ctx;
 	}
-	
+
 	/**
 	 * Gets the time-stamp
-	 * 
+	 *
 	 * @return string containing the time stamp
 	 */
 
@@ -200,16 +207,16 @@ public class TestRunLogController {
 			s_logger.error("*** getTimeStamp(): Not initialized ***");
 		}
 		return m_timeStamp;
-	}	
-	
+	}
+
 	/**
 	 * Gets the appender object associated with a friendly name
 	 * @param appenderName
 	 * @return appender object
-	 */	
+	 */
 	/**
 	 * Gets the time-stamped log path created by the stop() method.
-	 * 
+	 *
 	 * @return string containing the full path to the requested time-stamped file
 	 */
 
@@ -219,10 +226,11 @@ public class TestRunLogController {
 		}
 		return m_timeStampedLogPath;
 	}
-	
-	
+
+
 	/**
 	 * Gets the appender object associated with a friendly name
+	 *
 	 * @param appenderName
 	 * @return appender object
 	 */
@@ -233,22 +241,23 @@ public class TestRunLogController {
 
 	/**
 	 * Sets an appender for the specified logger
-	 * 
+	 *
 	 * @param name     the name of the logger
 	 * @param appender a TimeStampedFileAppender
 	 */
 	public void setAppender(String name, TimeStampedFileAppender<?> appender) {
 		m_appenders.put(name, appender);
 	}
-	
+
 	/**
 	 * Creates an appender's log path consisting of a start and stop timestamp
+	 *
 	 * @param appender the appender
 	 * @returns the log path for the appender
 	 */
 
 	private String makeTimeStampedLogPath(TimeStampedFileAppender<ILoggingEvent> appender, Date stopTime) {
-		
+
 		String startTs = null;
 		String stopTs = null;
 
@@ -259,16 +268,27 @@ public class TestRunLogController {
 		GregorianCalendar endCal = (GregorianCalendar) Calendar.getInstance();
 		endCal.setTime(appender.getStopTime());
 
-		startTs =
-			String.format("%04d%02d%02d_%02d%02d%02d", startCal.get(Calendar.YEAR),
-			startCal.get(Calendar.MONTH) + 1, startCal.get(Calendar.DAY_OF_MONTH),
-			startCal.get(Calendar.HOUR_OF_DAY), startCal.get(Calendar.MINUTE), startCal.get(Calendar.SECOND));
-		stopTs = 
-			String.format("%04d%02d%02d_%02d%02d%02d", endCal.get(Calendar.YEAR),
-			endCal.get(Calendar.MONTH) + 1, endCal.get(Calendar.DAY_OF_MONTH),
-			endCal.get(Calendar.HOUR_OF_DAY), endCal.get(Calendar.MINUTE), endCal.get(Calendar.SECOND));
+		String identifier = null;
 
-			
+		// It is only a guess as to whether this is a PIV-I or not. We just need one of the two
+		// for our file name.
+		if (getGuid() != null && getFascn() != null && getFascn().startsWith("99999999999999")) {
+			// Use the GUID
+			identifier = getGuid();
+		} else if (getFascn() != null) {
+			// Use the FASC-N
+			identifier = getFascn();
+		}
+
+		startTs =
+				String.format("%s_%04d%02d%02d_%02d%02d%02d", identifier, startCal.get(Calendar.YEAR),
+						startCal.get(Calendar.MONTH) + 1, startCal.get(Calendar.DAY_OF_MONTH),
+						startCal.get(Calendar.HOUR_OF_DAY), startCal.get(Calendar.MINUTE), startCal.get(Calendar.SECOND));
+		stopTs =
+				String.format("%04d%02d%02d_%02d%02d%02d", endCal.get(Calendar.YEAR),
+						endCal.get(Calendar.MONTH) + 1, endCal.get(Calendar.DAY_OF_MONTH),
+						endCal.get(Calendar.HOUR_OF_DAY), endCal.get(Calendar.MINUTE), endCal.get(Calendar.SECOND));
+
 		// Get separators straight
 		s_logger.debug("{} file path: {}", appender.getName(), appender.getFile());
 		File testFile = new File(appender.getFile()); // Normalize by instantiating a File (do we need to do this?)
@@ -290,18 +310,49 @@ public class TestRunLogController {
 			dirName = currPath;
 
 		String logFileName = null;
-		
+
 		if (currPath.lastIndexOf("/") > -1)
 			logFileName = currPath.substring(currPath.lastIndexOf("/") + 1);
 		else
 			logFileName = currPath;
-		
+
 		m_timeStamp = startTs + "-" + stopTs;
 		String baseName = (m_timeStamp + "-" + logFileName);
 		String timeStampedLogPath = dirName + "/" + baseName;
 
 		return timeStampedLogPath;
 	}
+
+	/**
+	 * Captures the identifiers from the currently executing test case.
+	 * This is a convenience method used to create identifying timestamps.
+	 */
+	public void captureIdentifiers() {
+		PIVDataObject o = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		if (o.decode()) {
+			byte[] fascn = ((CardHolderUniqueIdentifier)o).getfASCN();
+			if (fascn != null) {
+				String cookedFascn = ((CardHolderUniqueIdentifier) o).cook(fascn);
+				setFascn(cookedFascn);
+			}
+			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
+			if (guid != null) {
+				String cookedGuid = ((CardHolderUniqueIdentifier) o).guid2str(guid);
+				setGuid(cookedGuid);
+			}
+		} else {
+			s_logger.error("Couldn't decode CHUID");
+		}
+	}
+
+	public void setFascn(String fascn) {
+		m_fascn = fascn;
+	}
+	public String getFascn() { return m_fascn; }
+	public void setGuid(String guid) {
+		m_guid = guid;
+	}
+	public String getGuid() { return m_guid; }
 	
 	@SuppressWarnings("unchecked")
 	public void setStartTimes() {
