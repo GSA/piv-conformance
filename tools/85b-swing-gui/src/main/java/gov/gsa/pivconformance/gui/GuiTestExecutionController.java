@@ -6,13 +6,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
+import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
+import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -30,8 +33,6 @@ import gov.gsa.pivconformance.conformancelib.configuration.TestCaseModel;
 import gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController;
 import gov.gsa.pivconformance.conformancelib.configuration.TestStepModel;
 import gov.gsa.pivconformance.cardlib.utils.PCSCWrapper;
-import gov.gsa.pivconformance.cardlib.card.client.CachingDefaultPIVApplication;
-import gov.gsa.pivconformance.cardlib.card.client.DataModelSingleton;
 
 public class GuiTestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestExecutionController.class);
@@ -167,6 +168,7 @@ public class GuiTestExecutionController {
 				if (passes % 2 == 1) { // TODO: Fixme
 					runTest = true;
 				} else if (id.compareTo(GuiTestExecutionController.tag30TestId) == 0) {
+					m_trlc.captureIdentifiers();
 					runTest = true;
 				}
 				if (testCase.getTestStatus().equals(TestStatus.TESTCATEGORY)) {
