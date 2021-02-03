@@ -980,22 +980,22 @@ public class Validator {
         String lf = System.getProperty("line.separator");
         String printString;
         sb.append(lf + "Validator { " + lf);
-        sb.append("resourceDir: " + m_resourceDir + ", " + lf);
+        sb.append("    resourceDir: " + m_resourceDir + ", " + lf);
         if (m_eeCert != null)
-            sb.append("eeCert: " + m_eeCert.toString() + lf);
+            sb.append("    eeCert: " + m_eeCert.toString() + lf);
         if (m_eeFullCertPath != null)
-            sb.append("eeFullCertPath: " + m_eeFullCertPath + ", " + lf);
+            sb.append("    eeFullCertPath: " + m_eeFullCertPath + ", " + lf);
         if (m_taCert != null)
-            sb.append("taCert: " + m_taCert + lf);
+            sb.append("    taCert: " + m_taCert + lf);
         if (m_taFullCertPath != null)
-            sb.append("taFullCertPath: " + m_taFullCertPath + ", " + lf);
-        sb.append("provider: " +  m_provider + ", " + lf);
-        sb.append("certPathBuilder: "  + m_cpb.getProvider().getName() + ", " + lf);
-        sb.append("caPath: " + m_caPathString + ", " + lf);
-        sb.append("caFileName: " + m_caFileName + ", " + lf);
-        sb.append("keyStore: " + m_keystore.toString()  + ", " + lf);
-        sb.append("storePass: " + m_storePass + ", " + lf);
-        sb.append("downloadAia: " + m_downloadAia + lf);
+            sb.append("    taFullCertPath: " + m_taFullCertPath + ", " + lf);
+        sb.append("    provider: " +  m_provider + ", " + lf);
+        sb.append("    certPathBuilder: "  + m_cpb.getProvider().getName() + ", " + lf);
+        sb.append("    caPath: " + m_caPathString + ", " + lf);
+        sb.append("    caFileName: " + m_caFileName + ", " + lf);
+        sb.append("    keyStore: " + m_keystore.toString()  + ", " + lf);
+        sb.append("    storePass: " + m_storePass + ", " + lf);
+        sb.append("    downloadAia: " + m_downloadAia + lf);
         sb.append(" }" + lf);
         if (m_certPath != null) {
             int count = 0;
