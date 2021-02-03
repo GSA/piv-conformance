@@ -61,11 +61,18 @@ public class TimeStampedFileAppender<E> extends FileAppender<E> {
 	public void setStopTime(Date stopTime) {
 		m_stopTime = stopTime;
 	}
-	
+
+	/**
+	 * Gets the full path of the log
+	 */
 	public String getTimeStampedLogPath() {
 		return m_timeStampedLogPath;
 	}
-	
+
+	/**
+	 * Sets the full path of the log
+	 * @param logPath path to set
+	 */
 	public void setTimeStampedLogPath(String logPath) {
 		m_timeStampedLogPath = logPath;
 	}

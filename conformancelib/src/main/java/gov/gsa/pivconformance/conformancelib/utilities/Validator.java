@@ -78,6 +78,7 @@ public class Validator {
     static {
         Option eeCertFileOption = Option.builder("ee").hasArg(true).argName("ee").desc("end-entity certificate").build();
         Option taCertFileOption = Option.builder("ta").hasArg(true).argName("ta").desc("trust anchor certificate").build();
+        Option jvmOption = Option.builder("D").hasArgs().valueSeparator('=').build();
         Option oidsOption = Option.builder("oids").hasArg(true).argName("oids").desc("list of certificate policy oids").build();
         Option resourceOption = Option.builder("resourceDir").hasArg(true).argName("resourceDir").desc("base directory for resources and files").build();
         Option providerOption = Option.builder("provider").hasArg(true).argName("provider").desc("provider string (BC or Sun)").build();
@@ -87,6 +88,7 @@ public class Validator {
 
         s_options.addOption(eeCertFileOption);
         s_options.addOption(taCertFileOption);
+        s_options.addOption(jvmOption);
         s_options.addOption(oidsOption);
         s_options.addOption(resourceOption);
         s_options.addOption(providerOption);
@@ -454,6 +456,7 @@ public class Validator {
         String policyOids = null;
         StringBuilder cmdLine = new StringBuilder();
         String provider = null;
+        Properties jvmProps = new Properties();
         try {
             for (String a : args) {
                 if (cmdLine.length() > 0) cmdLine.append(" ");
@@ -471,13 +474,19 @@ public class Validator {
 
         Validator v =  new Validator();
 
+        if(cmd.hasOption("D")) {
+            Properties props = cmd.getOptionProperties("D");
+            for(String key : props.stringPropertyNames()) {
+                jvmProps.put(key, props.getProperty(key));
+            }
+        }
         if(cmd.hasOption("ee")) {
             v.setEndEntityCertPath(cmd.getOptionValue("ee"));
             s_logger.info("endEntityCertFile: {}", v.getEndEntityCertPath());
         }
 
         if(cmd.hasOption("ta")) {
-            v.setTrustAnchorFullCertPath(cmd.getOptionValue("ee"));
+            v.setTrustAnchorFullCertPath(cmd.getOptionValue("ta"));
             s_logger.info("trustAnchorEntityCertFile: {}",  v.getTrustAnchorCertPath());
         }
 
@@ -938,7 +947,7 @@ public class Validator {
                 String subject = ValidatorHelper.scrubName(((X509Certificate) cert).getSubjectDN().getName());
                 String issuer = ValidatorHelper.scrubName(((X509Certificate) cert).getIssuerDN().getName());
                 try {
-                    FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + subject + " (" + issuer + ")");
+                    FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + subject + " (" + issuer + ")" + ".cer");
                     fos.write(cert.getEncoded());
                     fos.flush();
                     fos.close();
@@ -949,15 +958,9 @@ public class Validator {
         }
         s_logger.debug(String.format("%3d. %s", ++count, m_taCert.getSubjectDN().getName()));
         if (saveToDisk) {
-            String certFileName =
-                m_taCert.getSubjectDN().getName()
-                .replace("CN=", "").replace("OU=", "")
-                .replaceFirst(", .*$", "")
-                .replace(" ", "_")
-                .replaceAll("[^A-Za-z0-9.-]", "_")
-                .toLowerCase();
             try {
-                FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + certFileName);
+                String certFileName = scrubName(m_taCert.getSubjectDN().getName());
+                FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + certFileName + ".cer");
                 fos.write(m_taCert.getEncoded());
                 fos.flush();
                 fos.close();

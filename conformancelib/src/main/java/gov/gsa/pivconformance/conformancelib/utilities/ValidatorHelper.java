@@ -212,6 +212,7 @@ public class ValidatorHelper {
                 .replaceFirst(", .*$", "")
                 .replace(" ", "_")
                 .replaceAll("[^A-Za-z0-9.-]", "_")
+                .replaceAll("_-_", "-")
                 .toLowerCase();
     }
 }
