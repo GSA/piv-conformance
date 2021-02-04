@@ -260,7 +260,9 @@ public class PKIX_X509DataObjectTests {
 					validator.dumpCertPath(true);
 					assertTrue(valid, "Cert not valid");
 				} catch (Exception e) {
-					fail(e);
+					String msg = e.getMessage();
+					s_logger.error(msg);
+					fail(msg);
 				}
 			}
 		}
