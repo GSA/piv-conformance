@@ -204,15 +204,61 @@ public class ValidatorHelper {
      */
 
     public static String scrubName(String name) {
-        return name
-                .replace("CN=", "")
-                .replace("OU=", "")
-                .replace("O=", "")
-                .replace("C=", "")
-                .replaceFirst(", .*$", "")
-                .replace(" ", "_")
-                .replaceAll("[^A-Za-z0-9.-]", "_")
-                .replaceAll("_-_", "-")
-                .toLowerCase();
+        String[] names = name.split(",");
+        String rv = name.replaceAll(",.*", ""); // failsafe
+        for (String n : names) {
+            if (n.replaceFirst("[ ]+", "").startsWith("CN=")) {
+                rv = n.replaceAll("CN=", "")
+                    .replaceAll(" ", "_")
+                    .replaceAll("[^A-Za-z0-9\\.\\-]", "_")
+                    .replaceAll("_-_", "-")
+                    .replaceAll("__", "_")
+                    .toLowerCase();
+            }
+        }
+        return rv;
+    }
+
+    /**
+     * Generates a certificate's full file name given a resourceDir, subject, and issuer
+     * @param resourceDir string representing the resource directory
+     * @param subject X.509 certificate Subject
+     * @param issuer X.509 certificate issuer
+     * @return the full file name to the certificate file
+     * @throws FileNotFoundException
+     */
+
+    public static String genCertFileName(String resourceDir, String subject, String issuer) throws FileNotFoundException {
+        TestRunLogController trlc = TestRunLogController.getInstance();
+        String identifier = "unknown";
+        // It is only a guess as to whether this is a PIV-I or not. We just need one of the two
+        // for our file name.
+        if (trlc.getGuid() != null && trlc.getFascn() != null && trlc.getFascn().startsWith("99999999999999")) {
+            // Use the GUID
+            identifier = trlc.getGuid();
+        } else if (trlc.getFascn() != null) {
+            // Use the FASC-N
+            identifier = trlc.getFascn();
+        }
+        Path dirPath = Path.of(resourceDir + File.separator + identifier);
+        if (!Files.exists(dirPath)) {
+            try {
+                Files.createDirectory(dirPath);
+            } catch (IOException e) {
+                s_logger.error(e.getMessage());
+            }
+            if (!Files.exists(dirPath)) {
+                s_logger.warn("Can't create " + dirPath);
+                dirPath = Paths.get("."); // Failsafe is to dump the file in resourceDir
+            }
+        }
+        String fullName = dirPath + File.separator + subject;
+        if (issuer != null)
+            fullName += "_issued_by_" + issuer;
+
+        int len = fullName.length();
+        String rv = fullName.substring(0, (len >= 252) ? 252 : len) + ".cer";
+        s_logger.debug("genCertFileName: " + rv);
+        return rv;
     }
 }

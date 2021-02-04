@@ -2,6 +2,7 @@ package gov.gsa.pivconformance.conformancelib.utilities;
 
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.apache.commons.cli.*;
+import org.apache.ibatis.jdbc.Null;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
@@ -796,7 +798,6 @@ public class Validator {
         return getCertPath();
     }
 
-
     /**
      * Loads a CMS-signed bundle of CA certs
      * @return
@@ -941,32 +942,33 @@ public class Validator {
             s_logger.debug("Certificate path is null");
         }
 
+        // EE and intermediate certs
         for (Certificate cert : m_certPath.getCertificates()) {
-            s_logger.debug(String.format("%3d. %s", ++count, ((X509Certificate) cert).getSubjectDN().getName()));
             if (saveToDisk) {
+                s_logger.debug(String.format("%3d. %s", ++count, ((X509Certificate) cert).getSubjectDN().getName()));
                 String subject = ValidatorHelper.scrubName(((X509Certificate) cert).getSubjectDN().getName());
                 String issuer = ValidatorHelper.scrubName(((X509Certificate) cert).getIssuerDN().getName());
                 try {
-                    FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + subject + " (" + issuer + ")" + ".cer");
+                    String name = ValidatorHelper.genCertFileName(getResourceDir(), subject, issuer);
+                    FileOutputStream fos = new FileOutputStream(name);
                     fos.write(cert.getEncoded());
                     fos.flush();
                     fos.close();
-                } catch (IOException | CertificateEncodingException e) {
+                } catch (IOException | CertificateEncodingException | NullPointerException e) {
                     s_logger.warn("dumpCertPath exception: " + e.getMessage());
                 }
             }
         }
-        s_logger.debug(String.format("%3d. %s", ++count, m_taCert.getSubjectDN().getName()));
-        if (saveToDisk) {
-            try {
-                String certFileName = scrubName(m_taCert.getSubjectDN().getName());
-                FileOutputStream fos = new FileOutputStream(getResourceDir() + File.separator + certFileName + ".cer");
-                fos.write(m_taCert.getEncoded());
-                fos.flush();
-                fos.close();
-            } catch (IOException | CertificateEncodingException e) {
-                s_logger.warn("dumpCertPath exception: " + e.getMessage());
-            }
+
+        // Trust anchor
+        try {
+            String subject = scrubName(m_taCert.getSubjectDN().getName());
+            FileOutputStream fos = new FileOutputStream(ValidatorHelper.genCertFileName(getResourceDir(), subject, null));
+            fos.write(m_taCert.getEncoded());
+            fos.flush();
+            fos.close();
+        } catch (IOException | CertificateEncodingException e) {
+            s_logger.warn("dumpCertPath exception: " + e.getMessage());
         }
     }
 
