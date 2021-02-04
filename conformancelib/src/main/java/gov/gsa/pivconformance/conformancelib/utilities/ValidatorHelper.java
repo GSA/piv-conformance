@@ -188,11 +188,10 @@ public class ValidatorHelper {
         String[] names = name.split(",");
         String rv = name.replaceAll(",.*", ""); // failsafe
         for (String n : names) {
-            String n1 = n.replaceFirst("[ ]+", "");
+            String n1 = n.replaceAll("[ ]+", "_");
             if (n1.startsWith("CN=") || n1.startsWith("SERIALNUMBER=")) {
                 rv = n1.replaceAll("CN=", "")
                     .replaceAll("SERIALNUMBER=", "")
-                    .replaceAll(" ", "_")
                     .replaceAll("[^A-Za-z0-9\\.\\-]", "_")
                     .replaceAll("_-_", "-")
                     .replaceAll("__", "_")
