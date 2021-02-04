@@ -489,7 +489,7 @@ public class Validator {
 
         if(cmd.hasOption("ta")) {
             v.setTrustAnchorFullCertPath(cmd.getOptionValue("ta"));
-            s_logger.info("trustAnchorEntityCertFile: {}",  v.getTrustAnchorCertPath());
+            s_logger.info("trustAnchorCertFile: {}",  v.getTrustAnchorCertPath());
         }
 
         if(cmd.hasOption("oids")) {
@@ -550,10 +550,13 @@ public class Validator {
          * ------- end of trust anchor processing
          */
         String resourceDir = (v.getResourceDir() != null) ? v.getResourceDir() : ".";
-        if (!v.getEndEntityCertPath().startsWith(File.separator))
+        if (!v.getEndEntityCertPath().startsWith(File.separator) && !v.getEndEntityCertPath().startsWith(v.getResourceDir())) {
             endEntityCertFile = new File(resourceDir + File.separator + v.getEndEntityCertPath());
+            v.setEndEntityCertPath(resourceDir + File.separator + v.getEndEntityCertPath());
+        }
         else
             endEntityCertFile = new File(v.getEndEntityCertPath());
+
 
         if (trustAnchorCertFile == null) {
             KeyStore keyStore = v.getKeyStore();
@@ -579,8 +582,10 @@ public class Validator {
             else
                 trustAnchorCertFile = new File(v.getTrustAnchorCertPath());
         }
-
-        v.isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
+        boolean valid;
+        valid = v.isValid(endEntityCertFile, policyOids, trustAnchorCertFile);
+        s_logger.debug(v.toString());
+        v.dumpCertPath(true);
     }
 
     /**
@@ -683,6 +688,7 @@ public class Validator {
      */
     public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) throws NoSuchAlgorithmException, CertStoreException, CertPathBuilderException, InvalidAlgorithmParameterException, NoSuchProviderException, ConformanceTestException {
         boolean rv = false;
+        HashSet<String> policies = null;
         if (eeCert == null) {
             String msg = "End-entity cert must not be null";
             s_logger.error(msg);
@@ -729,10 +735,10 @@ public class Validator {
             System.setProperty("com.sun.security.enableAIAcaIssuers", String.valueOf(getDownloadAia()));
             System.setProperty("com.sun.security.crl.timeout", String.valueOf(10));
             System.setProperty("ocsp.enable", String.valueOf(getDownloadAia()));
-
-            String[] allowedPolicies = policyOids.split("\\|");
-            HashSet<String> policies = new HashSet<String>(Arrays.asList(allowedPolicies));
-
+            if (policyOids != null) {
+                String[] allowedPolicies = policyOids.split("\\|");
+                policies = new HashSet<String>(Arrays.asList(allowedPolicies));
+            }
             // Validate the cert for appropriate policy OID
             CertPath certPath = validateCertificate(v_eeCert, certSet, v_trustAnchorCert, policies);
             if (certPath != null) {
