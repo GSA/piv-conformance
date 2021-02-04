@@ -161,13 +161,14 @@ public class ConformanceTestDatabase {
 		
 	public void addTestCase(String[] testCaseDescription ) throws ConfigurationException {
 		if(m_conn == null) {
-			s_logger.error("Attempting to populate conformance test database without a JDBC connection");
-			throw new ConfigurationException("ConformanceTestDatabase cannot be populated without a JDBC connection.");
+			String msg = "Conformance test database cannot be populated without a JDBC connection";
+			s_logger.error(msg);
+			throw new ConfigurationException(msg);
 		}
 		
 		try {
 			m_conn.setAutoCommit(false);
-			String query = " insert into TestCases (TestCaseIdentifier, TestCaseDescription) values (?, ?)";
+			String query = "INSERT INTO TestCases (TestCaseIdentifier, TestCaseDescription) values (?, ?)";
 			
 			PreparedStatement preparedStmt = m_conn.prepareStatement(query);
 			preparedStmt.setString (1, testCaseDescription[0]);
