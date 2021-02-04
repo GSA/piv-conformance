@@ -65,11 +65,11 @@ public class SP800_73_4PrintedInfoTests {
 		BerTag berIssuerIDTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
 		
 		//Confirm tags 0x01, 0x02, 0x05, 0x06 are present
-		assertTrue(tagList.contains(berNameTag));
-		assertTrue(tagList.contains(berEmployeeAffiliationTag));
-		assertTrue(tagList.contains(berPrintedInformationExpirationDateTag));
-		assertTrue(tagList.contains(berAgencyCardSerialTag));
-		assertTrue(tagList.contains(berIssuerIDTag));
+		assertTrue(tagList.contains(berNameTag), "Container does not include Name");
+		assertTrue(tagList.contains(berEmployeeAffiliationTag), "Container does not include Employee Affiliation");
+		assertTrue(tagList.contains(berPrintedInformationExpirationDateTag), "Container does not include Expiration Date");
+		assertTrue(tagList.contains(berAgencyCardSerialTag), "Container does not include Agency Card Serial Number");
+		assertTrue(tagList.contains(berIssuerIDTag), "Container does not include Issuer Identifier");
     }
 	
 	//Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28
@@ -83,14 +83,10 @@ public class SP800_73_4PrintedInfoTests {
 		
 		List<BerTag> tagList = o.getTagList();
 		
-		BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
 		BerTag berIssuerIdTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
 		BerTag berOrgAffiliationTag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG);
 		BerTag berOrgAffiliationL2Tag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG);
-		
-		//Make sure Name tage is present
-		assertTrue(tagList.contains(berNameTag));
-		
+
 		//If organizational affiliation tag is present check the order
 		
 		if(tagList.contains(berOrgAffiliationTag)) {
@@ -169,29 +165,6 @@ public class SP800_73_4PrintedInfoTests {
 			BerTag berPrintedInformationExpirationDateTag = new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG);
 			BerTag berAgencyCardSerialTag = new BerTag(TagConstants.AGENCY_CARD_SERIAL_NUMBER_TAG);
 			BerTag berIssuerIDTag = new BerTag(TagConstants.ISSUER_IDENTIFICATION_TAG);
-			
-			//Confirm tags 0x01, 0x02, 0x05, 0x06 are present
-			if (tagList.contains(berNameTag) == false){
-				Exception e = new Exception("NAME_TAG is missing in tagList");
-				throw e;
-			}
-			if (tagList.contains(berEmployeeAffiliationTag) == false) {
-				Exception e = new Exception("EMPLOYEE_AFFILIATION_TAG is missing in tagList");
-				throw e;
-			}
-			if (tagList.contains(berPrintedInformationExpirationDateTag) == false) {
-				Exception e = new Exception("PRINTED_INFORMATION_EXPIRATION_DATE_TAG is missing in tagList");
-				throw e;
-			}
-			if (tagList.contains(berAgencyCardSerialTag) == false) {
-				Exception e = new Exception("AGENCY_CARD_SERIAL_NUMBER_TAG is missing in tagList");
-				throw e;
-			}
-			if (tagList.contains(berIssuerIDTag) == false) {
-				Exception e = new Exception("ISSUER_IDENTIFICATION_TAG is missing in tagList");
-				throw e;
-			}
-			
 			// Moving to make assertions about the indexes so that this test does exactly what it says
 			// in the description. I think based on my read of 73-4 appendix A what this was doing should be correct
 			// but we should re-litigate that later if needed; the description as written makes no assertions about
