@@ -244,15 +244,15 @@ public class PKIX_X509DataObjectTests {
 		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
 		
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
-		
+
 		for(String p : containerOidList) {
 			String[] allowedPolicies = p.split(":");
-			String policyOidName = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
-			if (policyOidName.equals(oid)) {	
-				String containerOid = APDUConstants.getStringForFieldNamed(allowedPolicies[0]);
+			String policyOidValue = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
+			if (policyOidValue.equals(oid)) {
+				String containerOid = APDUConstants.getStringForFieldNamed(policyOidValue);
 				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, allowedPolicies[1]);
 				try {
-					Validator validator = new Validator("SunRsaSign", "cacerts.jks", "changeit");
+					Validator validator = new Validator("SUN", "cacerts.jks", "changeit");
 					s_logger.debug(validator.toString());
 					boolean valid;
 					valid = validator.isValid(eeCert, allowedPolicies[1], null);

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -322,13 +323,13 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     //@MethodSource("sp800_78_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_78_Test_3(String oid, TestReporter reporter) {
-
     	PIVDataObject o = AtomHelper.getDataObject(oid);
 		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		if(cert == null) {
 			Exception e = new Exception("getCertificate returned a null");
 			fail(e);
 		}
+
 		String signatureAlgOID = cert.getSigAlgOID();
 
 		String sha256Oid = "2.16.840.1.101.3.4.2.1";
@@ -336,23 +337,28 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		String rSASSA_PSS =  "1.2.840.113549.1.1.10";
 		String ecdsaWithSHA256 = "1.2.840.10045.4.3.2";
 		String ecdsaWithSHA384 = "1.2.840.10045.4.3.3";
-		
-		List<String> databaseSigAlgParams = new ArrayList<String>();
-		if(signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0) {
-			byte[] params = cert.getSigAlgParams(); 
-			assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());			
-		} else if(signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
-			databaseSigAlgParams.add(sha256Oid);	
-		} else if(signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
-			byte[] params = cert.getSigAlgParams();
-			assertTrue(params == null, "Non-conformant signature algorithm OID");
-		} else if(signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
-			byte[] params = cert.getSigAlgParams(); 
-			assertTrue(params == null, "Non-conformant signature algorithm OID");
-		} else {
-			assertTrue(false, "Signature algorithm (" + signatureAlgOID + ") is not an allowable algorithm");
-		}
 
+		try {
+			List<String> databaseSigAlgParams = new ArrayList<String>();
+			if (signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0) {
+				byte[] params = cert.getSigAlgParams();
+				assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
+			} else if (signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
+				databaseSigAlgParams.add(sha256Oid);
+			} else if (signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
+				byte[] params = cert.getSigAlgParams();
+				assertTrue(params == null, "Non-conformant signature algorithm OID");
+			} else if (signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
+				byte[] params = cert.getSigAlgParams();
+				assertTrue(params == null, "Non-conformant signature algorithm OID");
+			} else {
+				assertTrue(false, "Signature algorithm (" + signatureAlgOID + ") is not an allowable algorithm");
+			}
+		} catch (Exception e) {
+			String msg = e.getMessage();
+			s_logger.error(msg);
+			fail(msg);
+		}
 	}
 
 	// methods below are no longer used in conformance test tool and are only retained because they are sometimes useful for
