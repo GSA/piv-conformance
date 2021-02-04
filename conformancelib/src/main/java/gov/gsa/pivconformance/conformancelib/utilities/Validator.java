@@ -482,6 +482,7 @@ public class Validator {
                 jvmProps.put(key, props.getProperty(key));
             }
         }
+
         if(cmd.hasOption("ee")) {
             v.setEndEntityCertPath(cmd.getOptionValue("ee"));
             s_logger.info("endEntityCertFile: {}", v.getEndEntityCertPath());
