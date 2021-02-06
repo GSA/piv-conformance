@@ -2,7 +2,7 @@ package gov.gsa.pivconformance.conformancelib.utilities;
 
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.apache.commons.cli.*;
-import org.apache.ibatis.jdbc.Null;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
@@ -61,6 +60,7 @@ public class Validator {
     private boolean m_downloadAia = true;
     private String m_tempTaPath = null;
     private CertPath m_certPath = null;
+
     public static final List<String> s_validCryptoProviders = new ArrayList<String>() {
         private static final long serialVersionUID = 1L;
         {
@@ -185,19 +185,23 @@ public class Validator {
     public void setCertPathBuilder(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException, ConformanceTestException {
         try {
             if (providerString.toLowerCase().compareTo("bc") == 0) {
-                if (Security.getProvider("BC") == null)
+                if (Security.getProvider("BC") == null) {
                     Security.addProvider(new BouncyCastleProvider());
-                s_logger.debug("Changing to " + providerString + " provider");
+                    Security.getProvider("BC");
+                    s_logger.debug("Added " + providerString + " crypto provider");
+                } else {
+                    s_logger.debug("Using " + providerString + " crypto provider");
+                }
                 m_cpb = CertPathBuilder.getInstance("PKIX", "BC");
              } else if (providerString.toLowerCase().startsWith("sun")) {
-                s_logger.debug("Changing to " + providerString + " provider");
+                s_logger.debug("Using " + providerString + " provider");
                 if (Security.getProvider(providerString) == null) {
                     s_logger.error(providerString + " crypto provider is not registered");
                     throw new NoSuchProviderException();
                 }
                 m_cpb = CertPathBuilder.getInstance("PKIX");
             } else {
-                String msg = ("This application doesn't support the " + providerString + " provider");
+                String msg = ("This application doesn't support the " + providerString + " crypto provider");
                 s_logger.error(msg);
                 throw new ConformanceTestException(msg);
             }
@@ -419,7 +423,7 @@ public class Validator {
      * Gets the validator's CertPath
      * @return CertPath built by the validator
      */
-    private CertPath getCertPath() {
+    public CertPath getCertPath() {
         return m_certPath;
     }
     /**
