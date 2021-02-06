@@ -3,12 +3,16 @@ package gov.gsa.pivconformance.conformancelib.tests;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.security.AlgorithmParameters;
 import java.security.PublicKey;
 import java.security.Security;
+import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECParameterSpec;
+import java.security.spec.PSSParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -16,12 +20,15 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgumentsProvider;
+import gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper;
+import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.X9ECParameters;
 //import org.bouncycastle.jce.interfaces.ECPublicKey;
 //import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.asn1.x9.X9ECParameters;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.KeyPairGeneratorSpi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -229,95 +236,16 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_78_Test_2(String oid, TestReporter reporter) {
 		fail("sp800_78_Test_2 not implemented");
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
-		
-		if(cert == null) {
-			Exception e = new Exception("getCertificate returned a null");
-			fail(e);
-		}
-		
-		String signatureAlgOID = cert.getSigAlgOID();
-		PublicKey pubKey = cert.getPublicKey();
-		if(pubKey == null) {
-			Exception e = new Exception("getPublicKey returned a null");
-			fail(e);
-		}
-		String certAlgorithm = pubKey.getAlgorithm();
-
-		if(certAlgorithm == null) {
-			Exception e = new Exception("getAlgorithm returned a null");
-			fail(e);
-		}
-		
-		String curveFromCert = "";
-		if(pubKey instanceof ECPublicKey) {
-			
-			ECPublicKey pk = (ECPublicKey) pubKey;
-	        ECParameterSpec ecParameterSpec = pk.getParams();
-
-	        for (Enumeration<?> names = ECNamedCurveTable.getNames(); names.hasMoreElements();) {
-	        	
-		        String name = (String)names.nextElement();
-	
-		        X9ECParameters params = ECNamedCurveTable.getByName(name);
-	
-				/* Disabled until getN(), getH() and getG() are found
-				if (params.getN().equals(ecParameterSpec.getN())
-		            && params.getH().equals(ecParameterSpec.getH())
-		            && params.getCurve().equals(ecParameterSpec.getCurve())
-		            && params.getG().equals(ecParameterSpec.getG())){
-		        	curveFromCert = name;
-		        }
-		        */
-	        }
-		}
-		
-		
-		String prime256v1 = "prime256v1";
-		String secp384r1 = "secp384r1";
-		
-
-		String sha256WithRSAEncryption = "1.2.840.113549.1.1.11";
-		String rSASSA_PSS =  "1.2.840.113549.1.1.10";
-		String ecdsaWithSHA256 = "1.2.840.10045.4.3.2";
-		String ecdsaWithSHA384 = "1.2.840.10045.4.3.3";
-
-		
-		if(certAlgorithm.compareTo("RSA") == 0) {
-			//check signature algorithm
-			assertTrue(signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0 || signatureAlgOID.compareTo(rSASSA_PSS) == 0);
-		}
-		else if(certAlgorithm.compareTo("EC") == 0) {
-
-			if(curveFromCert.compareTo(prime256v1) == 0) {
-				//check signature algorithm
-				assertTrue(signatureAlgOID.compareTo(ecdsaWithSHA256) == 0);
-			} else if(curveFromCert.compareTo(secp384r1) == 0) {
-
-				//check signature algorithm
-				assertTrue(signatureAlgOID.compareTo(ecdsaWithSHA384) == 0);
-			} else {
-				assertTrue(false);
-			}
-			
-		}
-		else {
-			assertTrue(false);
-		}
     }
     
     /*
-     * If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters 
-     * field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA
-     * algorithms, the parameters field is populated with NULL (:NULL). 
-     * 
-     * For ECDSA, the parameters field is absent (:).  
-     * 
-     * This atom might be weirdly abstracted but should work for all
-     * certificate containers
+     * The signatureAlgorithm value is in accordance with Table 3-3 of SP80078.
+     * If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters
+     * field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other
+     * RSA algorithms, the parameters field is populated with NULL. For ECDSA, the
+     * parameters field is absent. This atom might be weirdly abstracted but should
+     * work for all certificate containers
      */
-    // TODO: Refactor using Algorithm class
     @DisplayName("SP800-78.3 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_78_x509TestProvider")
@@ -330,8 +258,6 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			fail(e);
 		}
 
-		String signatureAlgOID = cert.getSigAlgOID();
-
 		String sha256Oid = "2.16.840.1.101.3.4.2.1";
 		String sha256WithRSAEncryption = "1.2.840.113549.1.1.11";
 		String rSASSA_PSS =  "1.2.840.113549.1.1.10";
@@ -339,17 +265,44 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		String ecdsaWithSHA384 = "1.2.840.10045.4.3.3";
 
 		try {
-			List<String> databaseSigAlgParams = new ArrayList<String>();
+			String signatureAlgOID = cert.getSigAlgOID();
+			String name = cert.getSigAlgName();
 			if (signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0) {
 				byte[] params = cert.getSigAlgParams();
+				if (params != null) {
+					// Workaround for when getSigAlgParams() returns a DER NULL primitive
+					if (params[0] != 5 || params[1] != 0) {
+						s_logger.debug("Params length: ", params.length);
+						for (int i = 0; i < params.length; i++) {
+							s_logger.debug("params[" + i + "] = " + String.format("0x%02x", params[i] & 0xff));
+						}
+						s_logger.error("Parameter must NOT be supplied for " + name + ".  Value of params ", Hex.encodeHexString(params));
+					} else {
+						s_logger.debug("Setting params to null");
+						params = null;
+					}
+				}
 				assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
 			} else if (signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
-				databaseSigAlgParams.add(sha256Oid);
+				byte[] params = cert.getSigAlgParams();
+				assertTrue(params != null, "Params for RSASSA-PSS requires SHA256 parameter");
+				// In most cases, the signature algorithm parameters are null; the parameters are usually supplied
+				// with the certificate's public key. If access to individual parameter values is needed then use
+				// AlgorithmParameters and instantiate with the name returned by getSigAlgName.
+				Signature sig = Signature.getInstance("SHA256withRSA/PSS");
+				byte[] certParams = sig.getParameters().getEncoded();
+				s_logger.debug("RSASSA-PSS params:  " + Hex.encodeHexString(params));
+				s_logger.debug("certificate params: ", Hex.encodeHexString(certParams));
+				assertTrue(params.equals(certParams), "Parameter " + sig.getParameters().getAlgorithm() + " is not supported");
 			} else if (signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
 				byte[] params = cert.getSigAlgParams();
+				if (params != null)
+					s_logger.error("Parameter must NOT be supplied for " + signatureAlgOID + ".  Value of params " + Hex.encodeHexString(params));
 				assertTrue(params == null, "Non-conformant signature algorithm OID");
 			} else if (signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
 				byte[] params = cert.getSigAlgParams();
+				if (params != null)
+					s_logger.error("Parameter must NOT be supplied for " + signatureAlgOID + ".  Value of params " + Hex.encodeHexString(params));
 				assertTrue(params == null, "Non-conformant signature algorithm OID");
 			} else {
 				assertTrue(false, "Signature algorithm (" + signatureAlgOID + ") is not an allowable algorithm");
