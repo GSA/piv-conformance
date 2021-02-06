@@ -233,7 +233,7 @@ public class PKIX_X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
-			return;		
+			return;
 		X509Certificate eeCert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(eeCert, "Certificate could not be read for " + oid);
 
@@ -244,28 +244,32 @@ public class PKIX_X509DataObjectTests {
 		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
 		
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
-
+		String failMsg = null;
+		boolean valid = false;
 		for(String p : containerOidList) {
 			String[] allowedPolicies = p.split(":");
 			String policyOidValue = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
 			if (policyOidValue.equals(oid)) {
-				String containerOid = APDUConstants.getStringForFieldNamed(policyOidValue);
+				String containerOid = allowedPolicies[0].trim();
 				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, allowedPolicies[1]);
 				try {
-					Validator validator = new Validator("SUN", "cacerts.jks", "changeit");
+					Validator validator = new Validator("SunRsaSign", "cacerts.jks", "changeit");
 					s_logger.debug(validator.toString());
-					boolean valid;
+					// Validate cert to trust anchor in default keystore
 					valid = validator.isValid(eeCert, allowedPolicies[1], null);
 					s_logger.debug(validator.toString());
-					validator.dumpCertPath(true);
-					assertTrue(valid, "Cert not valid");
+					if (validator.getCertPath() != null) {
+						validator.dumpCertPath(true);
+					}
+					failMsg = "Certificate is invalid";
+					s_logger.error(failMsg);
 				} catch (Exception e) {
-					String msg = e.getMessage();
-					s_logger.error(msg);
-					fail(msg);
+					failMsg = e.getMessage();
+					s_logger.error(failMsg);
 				}
 			}
 		}
+		assertTrue(valid, failMsg);
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
