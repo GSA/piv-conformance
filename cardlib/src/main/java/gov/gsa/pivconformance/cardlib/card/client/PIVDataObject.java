@@ -262,7 +262,7 @@ public class PIVDataObject {
 			s_containerLogger.debug("Raw bytes: {}", Hex.encodeHexString(m_dataBytes));
 
 			List<BerTag> expectedTags = expectedTagList();
-			StringBuffer sb = new StringBuffer("Expected tags: Expected tags per SP 800-73-4 Appendix A: ");
+			StringBuffer sb = new StringBuffer("Expected tags per SP 800-73-4 Appendix A: ");
 			boolean firstTag = true;
 			for (BerTag et : expectedTags) {
 				if (!firstTag) sb.append(", ");
@@ -277,7 +277,7 @@ public class PIVDataObject {
 				firstTag = false;
 			}
 			sb.append(" }");
-			s_logger.debug(sb.toString());
+			s_containerLogger.debug(sb.toString());
 
 			for (int i = 0; i < m_tagList.size(); i++) {
 				BerTag tag = m_tagList.get(i);
