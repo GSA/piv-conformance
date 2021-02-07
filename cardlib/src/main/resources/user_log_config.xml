@@ -75,6 +75,14 @@
 		</encoder>
 	</appender>
 
+	<appender name="DISCOVERYOBJECT"
+		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
+		<file>logs/containers/DiscoveryObject.log</file>
+		<encoder>
+			<pattern>%date %level [%thread] [%file:%L] %msg%n
+			</pattern>
+		</encoder>
+	</appender>
 
 	<appender name="KEYHISTORYOBJECT"
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
@@ -285,6 +293,11 @@
 	<logger level="DEBUG"
 		name="CardholderIrisImages">
 		<appender-ref ref="CARDHOLDERIRISIMAGES" />
+	</logger>
+
+	<logger level="DEBUG"
+		name="DiscoveryObject">
+		<appender-ref ref="DISCOVERYOBJECT" />
 	</logger>
 
 	<logger level="DEBUG"

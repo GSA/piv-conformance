@@ -64,6 +64,7 @@ public class TestRunLogController {
 			put("CARDHOLDERFINGERPRINTS", "CardholderFingerprints");
 			put("CARDHOLDERFACIALIMAGE", "CardholderFacialImage");
 			put("CARDHOLDERIRISIMAGES", "CardholderIrisImages");
+			put("DISCOVERYOBJECT", "DiscoveryObject");
 			put("KEYHISTORYOBJECT", "KeyHistoryObject");
 			put("PAIRINGCODEREFERENCEDATACONTAINER", "PairingCodeReferenceDataContainer");
 			put("PRINTEDINFORMATION", "PrintedInformation");
