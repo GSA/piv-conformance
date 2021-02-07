@@ -2,7 +2,6 @@ package gov.gsa.pivconformance.conformancelib.utilities;
 
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import org.apache.commons.cli.*;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,7 @@ import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.*;
 public class Validator {
     private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
     private static final Options s_options = new Options();
+    private static final String s_resourceDir = "x509-certs";
     private static final String s_caPathString = "x509-certs";
     private static final String s_caFileName = "all.p7b";
 
@@ -136,6 +136,9 @@ public class Validator {
     public void setKeyStore(String keyStorePath, String password) throws ConformanceTestException {
         InputStream is = null;
         String targetPath = null;
+        if (getResourceDir() == null)
+            setResourceDir(s_resourceDir);
+
         if (keyStorePath == null) {
             String msg = "No keystore file specified";
             s_logger.error(msg);
@@ -144,7 +147,7 @@ public class Validator {
         if (keyStorePath.startsWith(File.separator))
             targetPath = keyStorePath;
         else
-            targetPath = getResourceDir() != null ? getResourceDir() + File.separator + keyStorePath : keyStorePath;
+            targetPath = getResourceDir() + File.separator + keyStorePath;
 
         is = getStreamFromResourceFile(targetPath);
 
@@ -179,10 +182,9 @@ public class Validator {
      * crypto libraries are used. If providerString is any other value
      * NoSuchProviderException is thrown.
      *
-     * @param providerString provider string
-     * @throws NoSuchProviderException NoSuchAlgorithmException
+     * @param providerString provider stringn
      */
-    public void setCertPathBuilder(String providerString) throws NoSuchProviderException, NoSuchAlgorithmException, ConformanceTestException {
+    public void setCertPathBuilder(String providerString) {
         try {
             if (providerString.toLowerCase().compareTo("bc") == 0) {
                 if (Security.getProvider("BC") == null) {
@@ -208,7 +210,6 @@ public class Validator {
         } catch (NoSuchProviderException | NoSuchAlgorithmException | ConformanceTestException e) {
             String msg = "setCpb(" + providerString + "): " + e.getMessage();
             s_logger.error(msg);
-            throw new ConformanceTestException(msg);
         }
     }
 
@@ -217,26 +218,15 @@ public class Validator {
      *
      * If providerString is "SunRsaSign" AIA downloading and timeouts is
      * available. If providerString is "BC" then the BouncyCastle
-     * crypto libraries will be used. If providerString is any other value
-     * NoSuchProviderException is thrown.
+     * crypto libraries will be used.
      *
      * @param providerString provider string
-     * @throws NoSuchProviderException
      */
-    public void setProvider(String providerString) throws ConformanceTestException, NoSuchProviderException {
+    public void setProvider(String providerString) {
         if (!s_validCryptoProviders.contains(providerString)) {
-            s_logger.error("Unsupported provider: " + providerString);
-            throw new NoSuchProviderException();
+            s_logger.error("Unsupported provider: " + providerString);;
         }
         m_provider = providerString;
-
-        try {
-            setCertPathBuilder(s_certPathBuilderProviders.get(providerString));
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            String msg = e.getMessage();
-            s_logger.error(msg);
-            throw new ConformanceTestException(msg);
-        }
     }
 
     public String getProvider() {
@@ -912,6 +902,7 @@ public class Validator {
         m_downloadAia = false;
         try {
             Properties props = readPropertiesFile("pdval.properties");
+            setProvider(provider);
             if (props != null) {
                 s_logger.debug("Loading properties");
                 if (props.get("provider") != null)
@@ -929,15 +920,18 @@ public class Validator {
                     setCertPathBuilder(s_certPathBuilderProviders.get(provider));
                 if (props.get("downloadAia") != null)
                     setDownloadAia(Boolean.parseBoolean((String) props.get("downloadAia")));
-            } else {
-                // No properties file, this is generally sufficient to build a path
-                setProvider(provider);
-                setKeyStore(keyStoreName, password);
-                setCaFileName(certStoreName);
             }
-        } catch (NoSuchProviderException | NoSuchAlgorithmException e) {
+        } catch (ConformanceTestException e) {
             s_logger.error(e.getMessage());
-            throw new ConformanceTestException(e.getMessage());
+            s_logger.warn("Using default values");
+            setProvider(provider);
+            setResourceDir("x509-certs");
+            setKeyStore(keyStoreName, password);
+            setCertPathBuilder("SUN");
+            setDownloadAia(true);
+        } finally {
+            setKeyStore(keyStoreName, password);
+            setCaFileName(certStoreName);
         }
     }
 
