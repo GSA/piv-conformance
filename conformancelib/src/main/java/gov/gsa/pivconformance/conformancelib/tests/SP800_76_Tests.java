@@ -759,15 +759,13 @@ public class SP800_76_Tests {
         int offset = 26;
         for (int view = 0; view < numberOfFingers; view++) {			
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			int fingerPosition = b1.intValue();
 			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
-			
-			
 
 	        assertTrue(fingerPosition >= 0, "Finger porition less than 0");
 	        assertTrue(fingerPosition <= 14, "Finger porition greater than 14");
@@ -809,10 +807,10 @@ public class SP800_76_Tests {
         int offset = 26;
         for (int view = 0; view < numberOfFingers; view++) {			
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			int viewNumber = ((biometricDataBlock[offset+1] & 0xF0) >> 4);
 			b3.intValue();
@@ -858,10 +856,10 @@ public class SP800_76_Tests {
         int offset = 26;
         for (int view = 0; view < numberOfFingers; view++) {			
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			int impressionType = ((biometricDataBlock[offset+1] & 0x0F) << 8);
 			b3.intValue();
@@ -907,10 +905,10 @@ public class SP800_76_Tests {
         int offset = 26;
         for (int view = 0; view < numberOfFingers; view++) {			
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
@@ -955,10 +953,10 @@ public class SP800_76_Tests {
         int offset = 26;
         for (int view = 0; view < numberOfFingers; view++) {			
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
@@ -1008,19 +1006,17 @@ public class SP800_76_Tests {
         int offset = 26;
         for (int view = 0; view < numberOfFingers; view++) {			
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
 	        
 			for (int minutiae = 0; minutiae < numberOfMinutiae; minutiae++) {
-				
-				
-				
-				//XXX Not sure how to check position
+
+				//TODO: Not sure how to check position, need NIST guidance.
 				
 				offset = offset+6;
 			}
@@ -1059,12 +1055,12 @@ public class SP800_76_Tests {
         int numberOfFingers = numberOfFingersBI.intValue();
 
         int offset = 26;
-        for (int view = 0; view < numberOfFingers; view++) {			
+        for (int view = 0; view < numberOfFingers; view++) {
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
@@ -1113,10 +1109,10 @@ public class SP800_76_Tests {
         int offset = 26;
         for (int view = 0; view < numberOfFingers; view++) {			
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
@@ -1163,12 +1159,12 @@ public class SP800_76_Tests {
         int numberOfFingers = numberOfFingersBI.intValue();
 
         int offset = 26;
-        for (int view = 0; view < numberOfFingers; view++) {			
+        for (int view = 0; view < numberOfFingers; view++) {
 
-			Byte b1 = new Byte(biometricDataBlock[offset]);
-			new Byte(biometricDataBlock[offset+1]);
-			Byte b3 = new Byte(biometricDataBlock[offset+2]);
-			Byte b4 = new Byte(biometricDataBlock[offset+3]);
+			Byte b1 = biometricDataBlock[offset];
+			Byte b2 = biometricDataBlock[offset + 1];
+			Byte b3 = biometricDataBlock[offset + 2];
+			Byte b4 = biometricDataBlock[offset + 3];
 			b1.intValue();
 			b3.intValue();
 			int numberOfMinutiae = b4.intValue();
