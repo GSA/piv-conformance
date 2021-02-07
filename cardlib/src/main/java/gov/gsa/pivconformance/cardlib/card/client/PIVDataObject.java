@@ -1,21 +1,12 @@
 package gov.gsa.pivconformance.cardlib.card.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
+import gov.gsa.pivconformance.cardlib.tlv.*;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gov.gsa.pivconformance.cardlib.tlv.BerTag;
-import gov.gsa.pivconformance.cardlib.tlv.HexUtil;
-import gov.gsa.pivconformance.cardlib.tlv.TagBoundaryManager;
-import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
 
 /**
  * Represents a PIV data object as read to or written from the card. Subclasses
@@ -184,9 +175,9 @@ public class PIVDataObject {
 	 * @throws Exception
 	 */
 
-	private boolean inBounds(String name, BerTag tag, int valueLen) throws Exception {
+	private boolean inBounds(String oid, BerTag tag, int valueLen) throws Exception {
 		try {
-			int diff = m_tagLengthRules.lengthDelta(name, tag, valueLen);
+			int diff = m_tagLengthRules.lengthDelta(oid, tag, valueLen);
 			if (diff != 0) {
 				String tagString = HexUtil.toHexString(tag.bytes);
 				String errStr = (String.format("Tag %s length was %d bytes, differs from 800-73 spec by %d", tagString,
@@ -201,21 +192,7 @@ public class PIVDataObject {
 		return true;
 	}
 
-	/**
-	 * Indicates whether the given length is within boundaries of the rule
-	 * 
-	 * @param oid the container OID
-	 * @return true if all tags in the container meet the length requirements for
-	 *         that tag and false if the length is greater than the high bound. For
-	 *         rules that require either of two values, the value returned indicates
-	 *         which of the two values matched with a 0x10 or 0x01 (low or high).
-	 * @throws Exception
-	 */
 	public boolean inBounds(String oid) throws Exception {
-		String name = APDUConstants.oidNameMap.get(oid);
-		if (name == null) {
-			return false;
-		}
 		// Iterate over each tag and corresponding value
 		Iterator<Map.Entry<BerTag, byte[]>> it = m_content.entrySet().iterator();
 		while (it.hasNext()) {
@@ -223,13 +200,50 @@ public class PIVDataObject {
 			BerTag tag = pair.getKey();
 			byte[] value = pair.getValue();
 			// Check length
-			if (!(this.m_lengthOk = this.inBounds(name, tag, value.length))) {
+			if (!(this.m_lengthOk = this.inBounds(oid, tag, value.length))) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	/**
+	 * Returns a list of all of the expected mandatory and optional tags for this object
+	 * 
+	 * @return a list of BerTags per SP 800-73-4 Appendix A for this object.
+	 */
+	public List<BerTag> expectedTagList() {
+		List<BerTag> expectedTagList = new ArrayList<BerTag>();
+		ContainerRuleset ruleSet = m_tagLengthRules.getMaxLenMap(m_OID);
+		HashMap<BerTag, TagLengthRule> ruleMap = ruleSet.getTagRuleset();
+		Set expectedTagSet =  ruleMap.keySet();
+		expectedTagList.addAll(expectedTagSet);
+		return expectedTagList;
+	}
+
+	/**
+	 * Compares the order of the tags received with the order specified in SP 800-73-4 Appendix A.
+	 * @return true if the order is correct and false otherwise.
+	 */
+
+	public boolean isOrderCorrect() {
+		boolean rv = true;
+		//If organizational affiliation tag is present check the order
+		ArrayList<BerTag> expectTagList = new ArrayList<BerTag>();
+		expectTagList.addAll(expectedTagList());
+		ArrayList<BerTag> gotTagList = new ArrayList<BerTag>();
+		gotTagList.addAll(getTagList());
+		int lastIndex = -1;
+		for (BerTag outer : gotTagList) {
+			int thisIndex = expectTagList.indexOf(outer);
+			if(thisIndex < lastIndex) {
+				s_logger.error("Tag is out of order: " + outer.toString());
+				rv = false;
+			}
+			lastIndex = thisIndex;
+		}
+		return rv;
+	}
 	/**
 	 * Dumps the raw container into a file and logs the ascii hex representation of the tags to a file
 	 * @param clazz the name of the class dumping the container
@@ -246,6 +260,24 @@ public class PIVDataObject {
 			Logger s_containerLogger = LoggerFactory.getLogger(fqContainerName);
 			s_containerLogger.debug("Container: {}", fqContainerName);
 			s_containerLogger.debug("Raw bytes: {}", Hex.encodeHexString(m_dataBytes));
+
+			List<BerTag> expectedTags = expectedTagList();
+			StringBuffer sb = new StringBuffer("Expected tags: Expected tags per SP 800-73-4 Appendix A: ");
+			boolean firstTag = true;
+			for (BerTag et : expectedTags) {
+				if (!firstTag) sb.append(", ");
+				boolean firstByte = true;
+				for (byte b : et.bytes) {
+					if (firstTag) sb.append ("{ ");
+					if (firstByte) sb.append("{ "); else sb.append(", ");
+					sb.append(String.format("%02X", b & 0xff));
+					firstByte = false;
+				}
+				sb.append(" }");
+				firstTag = false;
+			}
+			sb.append(" }");
+			s_logger.debug(sb.toString());
 
 			for (int i = 0; i < m_tagList.size(); i++) {
 				BerTag tag = m_tagList.get(i);

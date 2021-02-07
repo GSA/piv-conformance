@@ -86,7 +86,6 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_11(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-
 		List<BerTag> tagList = o.getTagList();
 
 		BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG);
@@ -119,7 +118,6 @@ public class SP800_73_4CHUIDTests {
 
 			}
 		}
-
 	}
 
 	// The Agency Code, System Code, and Credential Number of the FASC-N are
@@ -376,7 +374,6 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_45(String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
-
 			List<BerTag> tagList = o.getTagList();
 
 			BerTag berOrgIDTag = new BerTag(TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG); // 0x32

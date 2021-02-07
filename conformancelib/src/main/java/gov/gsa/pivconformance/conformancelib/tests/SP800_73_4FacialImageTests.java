@@ -1,5 +1,6 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.stream.Stream;

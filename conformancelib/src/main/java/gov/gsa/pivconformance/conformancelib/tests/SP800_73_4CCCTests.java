@@ -83,7 +83,6 @@ public class SP800_73_4CCCTests {
 		assertTrue(Arrays.equals(tagList.get(9).bytes,TagConstants.CAPABILITY_TUPLES_TAG));
 		assertTrue(Arrays.equals(tagList.get(10).bytes,TagConstants.STATUS_TUPLES_TAG));
 		assertTrue(Arrays.equals(tagList.get(11).bytes,TagConstants.NEXT_CCC_TAG));
-				 
 	}
 	
 	//CCC Optional Tags 0xE3 and 0xB4 may be present or absent; if present are after tags listed in 73-4.3and are in that order

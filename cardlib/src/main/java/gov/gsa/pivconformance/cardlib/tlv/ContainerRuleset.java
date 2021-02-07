@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.cardlib.tlv;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import gov.gsa.pivconformance.cardlib.tlv.TagLengthRule;
 
@@ -10,11 +11,11 @@ import gov.gsa.pivconformance.cardlib.tlv.TagLengthRule;
  */
 public class ContainerRuleset {
 	private String m_containerName = null;
-	private HashMap<BerTag, TagLengthRule> m_tagRuleset = new HashMap<BerTag, TagLengthRule>();
+	private LinkedHashMap<BerTag, TagLengthRule> m_tagRuleset = new LinkedHashMap<BerTag, TagLengthRule>();
 	
 	public ContainerRuleset(String containerName) {
 		this.m_containerName = containerName;
-		this.m_tagRuleset = new HashMap<BerTag, TagLengthRule>();
+		this.m_tagRuleset = new LinkedHashMap<BerTag, TagLengthRule>();
 	}
 
 	/**

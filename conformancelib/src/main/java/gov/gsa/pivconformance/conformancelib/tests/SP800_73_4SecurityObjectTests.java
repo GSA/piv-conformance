@@ -45,7 +45,7 @@ public class SP800_73_4SecurityObjectTests {
 			if (!o.inBounds(oid)) {
 				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
 				Exception e = new Exception(errStr);
-				throw(e);
+				fail(e);
 			}
 		} catch (Exception e) {
 			s_logger.info(e.getMessage());

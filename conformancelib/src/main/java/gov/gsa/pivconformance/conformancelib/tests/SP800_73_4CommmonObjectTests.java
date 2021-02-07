@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -64,12 +65,9 @@ public class SP800_73_4CommmonObjectTests {
     void sp800_73_4_Test_56(String oid, TestReporter reporter) {
     	// TODO: Since this could be caught, longer-term, consider Throwable
 		try {
-			PIVDataObject o = AtomHelper.getDataObject(oid);	
-			if (!o.inBounds(oid)) {
-				String errStr = (String.format("Tag in " + o.getFriendlyName() + " failed length check"));
-				Exception e = new Exception(errStr);
-				throw(e);
-			}
+			PIVDataObject o = AtomHelper.getDataObject(oid);
+			Assertions.assertTrue(o.inBounds(oid), "Tag in " + o.getFriendlyName() + " failed length check");
+			Assertions.assertTrue(o.isOrderCorrect(), "Order is incorrect");
 		} catch (Exception e) {
 			s_logger.info(e.getMessage());
 			fail(e);

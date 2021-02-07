@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -87,8 +88,6 @@ public class SP800_73_4PrintedInfoTests {
 		BerTag berOrgAffiliationTag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L1_TAG);
 		BerTag berOrgAffiliationL2Tag = new BerTag(TagConstants.ORGANIZATIONAL_AFFILIATION_L2_TAG);
 
-		//If organizational affiliation tag is present check the order
-		
 		if(tagList.contains(berOrgAffiliationTag)) {
 			int issuerIdTagIndex = tagList.indexOf(berIssuerIdTag);	
 			assertFalse(issuerIdTagIndex == -1, "Issuer Identification tag must be present");
@@ -130,7 +129,6 @@ public class SP800_73_4PrintedInfoTests {
 		PIVDataObject o = AtomHelper.getDataObject(oid);
 				
 		List<BerTag> tagList = o.getTagList();
-		
 		List<byte[]> allPrintedInfoTags = TagConstants.AllPrintedInfoTags();
 		for(BerTag tag : tagList) {
 
@@ -156,10 +154,8 @@ public class SP800_73_4PrintedInfoTests {
 	void sp800_73_4_Test_52 (String oid, TestReporter reporter) {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
-			
-			//Get tag list
 			List<BerTag> tagList = o.getTagList();
-			
+
 			BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
 			BerTag berEmployeeAffiliationTag = new BerTag(TagConstants.EMPLOYEE_AFFILIATION_TAG);
 			BerTag berPrintedInformationExpirationDateTag = new BerTag(TagConstants.PRINTED_INFORMATION_EXPIRATION_DATE_TAG);
