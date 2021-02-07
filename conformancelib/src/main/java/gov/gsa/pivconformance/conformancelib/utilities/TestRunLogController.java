@@ -333,12 +333,12 @@ public class TestRunLogController {
 		if (o.decode()) {
 			byte[] fascn = ((CardHolderUniqueIdentifier)o).getfASCN();
 			if (fascn != null) {
-				String cookedFascn = ((CardHolderUniqueIdentifier) o).cook(fascn);
+				String cookedFascn = CardHolderUniqueIdentifier.cook(fascn);
 				setFascn(cookedFascn);
 			}
 			byte[] guid = ((CardHolderUniqueIdentifier) o).getgUID();
 			if (guid != null) {
-				String cookedGuid = ((CardHolderUniqueIdentifier) o).guid2str(guid);
+				String cookedGuid = CardHolderUniqueIdentifier.guid2str(guid);
 				setGuid(cookedGuid);
 			}
 		} else {

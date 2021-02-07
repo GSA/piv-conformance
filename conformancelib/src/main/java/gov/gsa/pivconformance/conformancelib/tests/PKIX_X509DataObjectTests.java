@@ -241,7 +241,7 @@ public class PKIX_X509DataObjectTests {
 			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
 			fail(e);
 		}
-		List<String> containerOidList = Arrays.asList(containersAndPolicyOids.replaceAll("\\s+", "").split(","));
+		String[] containerOidList = containersAndPolicyOids.replaceAll("\\s+", "").split(",");
 		
 		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
 		String failMsg = null;
@@ -900,7 +900,7 @@ public class PKIX_X509DataObjectTests {
 			            
 			            try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
 			            		ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-		            		    byte dataBuffer[] = new byte[1024];
+		            		    byte[] dataBuffer = new byte[1024];
 		            		    int bytesRead;
 		            		    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
 		            		    	baos.write(dataBuffer, 0, bytesRead);

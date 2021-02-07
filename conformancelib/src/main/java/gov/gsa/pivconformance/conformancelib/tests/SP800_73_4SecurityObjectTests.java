@@ -193,13 +193,10 @@ public class SP800_73_4SecurityObjectTests {
             } else if(entry.getValue().equals(APDUConstants.PRINTED_INFORMATION_OID)) {
         		soDataElements.put(APDUConstants.PRINTED_INFORMATION_OID, ((PrintedInformation) dataObject).getSignedContent());       	
             } else if(entry.getValue().equals(APDUConstants.DISCOVERY_OBJECT_OID)) {
-        		soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, ((DiscoveryObject) dataObject).getSignedContent());       	
-            } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-        		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());        	
+        		soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, (dataObject).getBytes());
             } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
         		soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
             } else if(entry.getValue().equals(APDUConstants.KEY_HISTORY_OBJECT_OID)) {
-            	s_logger.debug("Adding key history to soDataElements");
             	soDataElements.put(APDUConstants.KEY_HISTORY_OBJECT_OID, ((KeyHistoryObject) dataObject).getTlvBuf());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID)) {
                 soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID, dataObject.getBytes());
@@ -241,8 +238,6 @@ public class SP800_73_4SecurityObjectTests {
                 soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID)) {
                 soDataElements.put(APDUConstants.RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID, dataObject.getBytes());
-            } else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
-                soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID)) {
                 soDataElements.put(APDUConstants.BIOMETRIC_INFORMATION_TEMPLATES_GROUP_TEMPLATE_OID, dataObject.getBytes());
             } else if(entry.getValue().equals(APDUConstants.SECURE_MESSAGING_CERTIFICATE_SIGNER_OID)) {

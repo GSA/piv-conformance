@@ -139,7 +139,7 @@ public class SP800_73_4CHUIDTests {
 		byte[] fascn = ((CardHolderUniqueIdentifier) o).getfASCN();
 		// Extract agency code, system code, credential number and ensure they
 		// are numeric.
-		String cookedFascn = ((CardHolderUniqueIdentifier) o).cook(fascn);
+		String cookedFascn = CardHolderUniqueIdentifier.cook(fascn);
 		if (cookedFascn == null) {
 			ConformanceTestException e = new ConformanceTestException(
 					String.format("Couldn't decode FASC-N bytes", oid));

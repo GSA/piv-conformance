@@ -58,7 +58,6 @@ public class Validator {
     private KeyStore m_keystore = null;
     private String m_storePass = null;
     private boolean m_downloadAia = true;
-    private String m_tempTaPath = null;
     private CertPath m_certPath = null;
 
     public static final List<String> s_validCryptoProviders = new ArrayList<String>() {
@@ -224,7 +223,7 @@ public class Validator {
      */
     public void setProvider(String providerString) {
         if (!s_validCryptoProviders.contains(providerString)) {
-            s_logger.error("Unsupported provider: " + providerString);;
+            s_logger.error("Unsupported provider: " + providerString);
         }
         m_provider = providerString;
     }
@@ -438,7 +437,6 @@ public class Validator {
      * @param tempPath temp file path
      */
     public void setTempTaPath(String tempPath) {
-        this.m_tempTaPath = tempPath;
     }
 
     /**
