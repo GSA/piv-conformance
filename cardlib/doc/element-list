@@ -1,0 +1,5 @@
+module:gov.gsa.pivconformance.cardlib
+gov.gsa.pivconformance.cardlib.card.client
+gov.gsa.pivconformance.cardlib.tlv
+gov.gsa.pivconformance.cardlib.tools
+gov.gsa.pivconformance.cardlib.utils
