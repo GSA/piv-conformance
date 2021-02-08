@@ -257,12 +257,16 @@ public class PKIX_X509DataObjectTests {
 					s_logger.debug(validator.toString());
 					// Validate cert to trust anchor in default keystore
 					valid = validator.isValid(eeCert, allowedPolicies[1], null);
-					s_logger.debug(validator.toString());
-					if (validator.getCertPath() != null) {
-						validator.dumpCertPath(true);
+					if (valid == true)  {
+						s_logger.debug("Certificate is valid");
+						s_logger.debug(validator.toString());
+						if (validator.getCertPath() != null) {
+							validator.dumpCertPath(true);
+						} else {
+							failMsg = "Certificate is invalid";
+							s_logger.error(failMsg);
+						}
 					}
-					failMsg = "Certificate is invalid";
-					s_logger.error(failMsg);
 				} catch (Exception e) {
 					failMsg = e.getMessage();
 					s_logger.error(failMsg);
