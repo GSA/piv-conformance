@@ -160,6 +160,7 @@ public class TestRunLogController {
 
 	/**
 	 * Bootstraps the logging system with sane values
+	 * @param logConfigFile log config File
 	 */
 	public void bootStrapLogging(File logConfigFile) {
 		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -232,8 +233,8 @@ public class TestRunLogController {
 	/**
 	 * Gets the appender object associated with a friendly name
 	 *
-	 * @param appenderName
-	 * @return appender object
+	 * @param appenderName appender name
+	 * @return appender object appender for name
 	 */
 
 	public TimeStampedFileAppender<?> getAppender(String appenderName) {
@@ -402,6 +403,7 @@ public class TestRunLogController {
 	 * @param logger the logger
 	 * @param appender the appender
 	 * @param logName the logger's friendly name
+	 * @param stopTime stop time
 	 * 
 	 */
 	public void setTimeStamp(Logger logger, TimeStampedFileAppender<ILoggingEvent> appender, String logName, Date stopTime) {
@@ -540,6 +542,7 @@ public class TestRunLogController {
 
 	/**
 	 * Gets the currently running directory based on input
+	 * @param caller class to obtain directory for
 	 * @return the currently running directory w.r.t input class
 	 */
 	

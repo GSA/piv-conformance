@@ -21,11 +21,13 @@ import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.*;
 
 /**
  * Provides the API to validating a given end entity certificate for
- * a given certificate policy.In
- * October 2020 the Federal Government created a new FPKI Root CA
- * The new root is named the Federal Common Policy CA G2 (FCPCAG 2)
+ * given certificate policy.
+ * <pre>
+ *
+ * In  October 2020 the Federal Government created a new
+ * FPKI Root CA. he new root is named the Federal Common Policy CA G2 (FCPCAG 2)
  * This new CA has issued new certificates to all CAs signed by the current
- * FCPCA This enables all current certificates issued by them to build a path to the new root
+ * FCPCA. This enables all current certificates issued by them to build a path to the new root
  * What will be impacted?
  * This change will affect all Federal agencies and will have an impact on the following services
  * o Personal Identity Verification ( credential authentication to the government networks
@@ -38,6 +40,13 @@ import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.*;
  * o February 2 2021 the FPKIMA team will migrate the FBCAG 4 to the FCPCAG 2 by publishing the cross certificate from the FCPCAG 2 to the FBCAG 4 and removing the cross certificates between the FBCAG 4 and the old FCPCA
  * o May 2021 the FPKIMA team will decommission the old FCPCA
  *
+ * </pre>
+ * Validator can be used to build a certificate path to an end-entity (EE) certificate.
+ * By default, the trust anchor is extracted from the keystore file cacerts.jks, based
+ * on the EE distinguished name. ICAM test card common names include the string "ICAM."
+ * All other certs are validated to FDCPCA G2.
+ *
+ * If a trust anchor is supplied, the keystore is not used.
  */
 public class Validator {
     private static final Logger s_logger = LoggerFactory.getLogger(Validator.class);
@@ -99,7 +108,7 @@ public class Validator {
     }
 
     /**
-     *
+     * Default constructor for Validator class.
      * @throws ConformanceTestException
      */
     public Validator() throws ConformanceTestException {
@@ -107,8 +116,8 @@ public class Validator {
     }
 
     /**
-     *
-     * @param provider
+     * Constructor for Validator class
+     * @param provider provider to use for cryptographic operations
      * @throws ConformanceTestException
      */
     public Validator (String provider) throws ConformanceTestException {
@@ -116,6 +125,7 @@ public class Validator {
     }
 
     /**
+     * Constructor for Validator class where provider and keystore are given
      * @param provider
      * @param keyStoreName
      * @throws ConformanceTestException
@@ -415,7 +425,7 @@ public class Validator {
     public CertPath getCertPath() {
         return m_certPath;
     }
-    /**
+
     /**
      * Gets the keystore password
      * @return the keystore password

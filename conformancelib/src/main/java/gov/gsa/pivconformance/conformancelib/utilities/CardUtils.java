@@ -202,6 +202,7 @@ public class CardUtils {
 	 * Bottom of the stack when run from Eclipse Junit plugin is "org.eclipse.jdt.internal.junit.runner.RemoteTestRunner".
 	 * Bottom of the Eclipse debugger stack is "java.awt.EventDispatchThread"
 	 * Bottom of the distribution jar file stack is "java.awt.EventDispatchThread"
+	 * @return true if called by Junit
 	 */
 
 	public static boolean calledByJunit() {
