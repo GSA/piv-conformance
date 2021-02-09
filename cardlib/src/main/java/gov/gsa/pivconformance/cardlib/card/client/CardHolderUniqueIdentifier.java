@@ -483,8 +483,7 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 											// more than one
 											// cert in PKCS7 cert bags then the consumer class should throw an
 											// exception.
-											X509Certificate signerCert = new JcaX509CertificateConverter()
-													.setProvider("BC").getCertificate(certHolder);
+											X509Certificate signerCert = new JcaX509CertificateConverter().getCertificate(certHolder);
 											if (signerCert != null) {
 												setSignerCert(signerCert);
 												setHasOwnSignerCert(true);

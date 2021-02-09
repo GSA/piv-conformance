@@ -519,13 +519,13 @@ public class SignedPIVDataObject extends PIVDataObject {
                 Iterator<X509CertificateHolder> certIt = certCollection.iterator();
                 if (certIt.hasNext()) {
                     X509CertificateHolder certHolder = certIt.next();
-                    signerCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+                    signerCert = new JcaX509CertificateConverter().getCertificate((certHolder));
                     // Housekeeping
                     if (signerCert != null)
                     	setSignerCert(signerCert);
                 }
 
-                rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(signerCert));
+                rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().build(signerCert));
             }
         } catch (CertificateException e) {
             s_logger.error("Error verifying signature on {}: {}", APDUConstants.oidNameMap.get(super.getOID()), e.getMessage());
