@@ -14,6 +14,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -872,25 +873,25 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(rv, "CRL DP does not end with .crl");
 	}
 
-	//The authorityInfoAccess field points to a file that has an extension of ".p7c" containing a
-	//certs-only CMS message
+	// File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)
 	@DisplayName("PKIX.25 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_25(String oid, TestReporter reporter) {
+		CMSSignedData sd = null;
+		CMSTypedData td = null;
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(cert, "Certificate could not be read for " + oid);
-				      
+		Exception cause = null;
         byte[] extVal = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
         assertNotNull(extVal);
-        
+		String errMsg = null;
     	try {
 			AuthorityInformationAccess aia = AuthorityInformationAccess.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
 	        assertNotNull(aia);
-	        
 			AccessDescription[] descriptions = aia.getAccessDescriptions();
 			for (AccessDescription ad : descriptions) {
 			    if (ad.getAccessMethod().equals(X509ObjectIdentifiers.id_ad_caIssuers)) {
@@ -900,60 +901,52 @@ public class PKIX_X509DataObjectTests {
 			            
 			            // Some SSPs will also include other URLs (e.g. LDAP) that should not cause this test to fail.
 			            if(!url.startsWith("http")) continue;
-			            	
-			            
+
+			            // Quick check of .p7c
+			            if (!url.endsWith(".p7c")) {
+							errMsg = "URL " + url.toString() + " does not end with .p7c extension";
+							s_logger.error(errMsg);
+							fail(errMsg);
+						}
+			            // Look for a certs-only message in a CMS
 			            try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-			            		ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-		            		    byte[] dataBuffer = new byte[1024];
-		            		    int bytesRead;
-		            		    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-		            		    	baos.write(dataBuffer, 0, bytesRead);
-		            		    }
-		            		    
-		            		    ByteArrayInputStream bIn = new ByteArrayInputStream(baos.toByteArray());
-		            		    ASN1InputStream aIn = new ASN1InputStream(bIn);
-		                        ContentInfo contentInfo = ContentInfo.getInstance(aIn.readObject());
-		                        aIn.close();
-		                        try {
-									CMSSignedData sd = new CMSSignedData(contentInfo);
-									
-									Store<X509CertificateHolder> certStore = sd.getCertificates();
-									
-									Collection<X509CertificateHolder> certCollection = certStore.getMatches(null);
-									
-									Iterator<X509CertificateHolder> certIt = certCollection.iterator();
-							        	
-									while(certIt.hasNext()) {
-										
-										X509CertificateHolder certificateHolder = certIt.next();
-										byte[] certBuff = certificateHolder.getEncoded();
-										
-										CertificateFactory certFactory;
-										try {
-											certFactory = CertificateFactory.getInstance("X.509");
-										
-											InputStream in2 = new ByteArrayInputStream(certBuff);
-											X509Certificate cert2 = (X509Certificate)certFactory.generateCertificate(in2);
-											
-											assertNotNull(cert2, "Unable to parse certificate contained in the " + url);
-										} catch (CertificateException e) {
-											fail(e);
-										}
-								    }
-									
-								} catch (CMSException e) {
-									fail(e);
-								}
-		                        
-		            		} catch (IOException e) {
-		            		    fail(e);
-		            		}
+							ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+							byte[] dataBuffer = new byte[1024];
+							int bytesRead;
+							while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+								baos.write(dataBuffer, 0, bytesRead);
+							}
+
+							ByteArrayInputStream bIn = new ByteArrayInputStream(baos.toByteArray());
+							ASN1InputStream aIn = new ASN1InputStream(bIn);
+							ContentInfo contentInfo = ContentInfo.getInstance(aIn.readObject());
+							aIn.close();
+							try {
+								sd = new CMSSignedData(contentInfo);
+								td = sd.getSignedContent();
+							} catch (CMSException e) {
+								cause = e;
+							}
+						} catch (IOException e) {
+							cause = e;
+						}
 			        }
 			    }
 			}
-			
 		} catch (IOException e) {
-			fail(e);
+			cause = e;
+		}
+
+    	// Check for IO
+    	if (cause != null) {
+			s_logger.error(cause.getMessage());
+			fail(cause);
+		}
+    	if (sd != null) {
+    		errMsg = "Message is not a CMS message";
+    		assertTrue (sd.isCertificateManagementMessage(), errMsg);
+    		errMsg = "Message is not a certs-only CMS";
+			assertNull(td, errMsg);
 		}
 	}
 
