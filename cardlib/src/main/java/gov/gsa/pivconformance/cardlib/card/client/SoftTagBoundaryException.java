@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class for card-related exceptions
+ * A class for non-fatal tag boundary exceptions
  */
 public class SoftTagBoundaryException extends Exception {
     private static final Logger s_logger = LoggerFactory.getLogger(SoftTagBoundaryException.class);

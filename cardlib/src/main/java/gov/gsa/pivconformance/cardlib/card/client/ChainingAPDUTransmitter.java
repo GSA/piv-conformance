@@ -16,8 +16,10 @@ import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.utils.ITransmitCounter;
 import gov.gsa.pivconformance.cardlib.utils.PCSCWrapper;
 
-// based on logic from the intarsys PCSC wrapper library, adapted to run directly on top of
-// javax.smartcardio.pcsc
+/*
+ * Workaround based on logic from the intarsys PCSC wrapper library, adapted to run
+ * directly on top of javax.smartcardio.pcsc.
+ */
 public class ChainingAPDUTransmitter {
 	
 	private CardChannel m_channel = null;
@@ -29,7 +31,13 @@ public class ChainingAPDUTransmitter {
 		m_channel = c;
 		m_counter = PCSCWrapper.getInstance();
 	}
-	
+
+	/**
+	 * Formats the request with the appropriate LE byte
+	 * @param request the request APDU
+	 * @param correctLE LE byte
+	 * @return the buffer returned from the smart card application
+	 */
 	protected RequestAPDUWrapper fixLengthExpected(RequestAPDUWrapper request, int correctLE) {
 		int cla = request.getCla();
 		int ins = request.getIns();
@@ -42,7 +50,13 @@ public class ChainingAPDUTransmitter {
 			return new RequestAPDUWrapper(cla, ins, p1, p2, data, correctLE);
 		}
 	}
-	
+
+	/**
+	 *
+	 * @param request the APDU request
+	 * @return a response APDU wrapper containing the requested data
+	 * @throws CardException if an error occurs
+	 */
 	ResponseAPDUWrapper nativeTransmit(RequestAPDUWrapper request) throws CardException, CardClientException {
 		CommandAPDU cmd = new CommandAPDU(request.getBytes());
     	ResponseAPDU rsp = null;

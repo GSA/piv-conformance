@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A class for tag-related exceptions
+ * A class for container tag boundary exceptions
  */
 public class TagBoundaryException extends Exception {
     private static final Logger s_logger = LoggerFactory.getLogger(TagBoundaryException.class);
