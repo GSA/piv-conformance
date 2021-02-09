@@ -1,1 +1,5 @@
+gov.gsa.pivconformance.conformancelib.configuration
+gov.gsa.pivconformance.conformancelib.tests
+gov.gsa.pivconformance.conformancelib.tools
+gov.gsa.pivconformance.conformancelib.tools.junitconsole
 gov.gsa.pivconformance.conformancelib.utilities

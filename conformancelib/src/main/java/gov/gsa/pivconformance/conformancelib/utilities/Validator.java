@@ -44,7 +44,7 @@ import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.*;
  * Validator can be used to build a certificate path to an end-entity (EE) certificate.
  * By default, the trust anchor is extracted from the keystore file cacerts.jks, based
  * on the EE distinguished name. ICAM test card common names include the string "ICAM."
- * All other certs are validated to FDCPCA G2.
+ * All other certs are validated to FCPCA G2.
  *
  * If a trust anchor is supplied, the keystore is not used.
  */
