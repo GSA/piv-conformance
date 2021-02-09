@@ -652,7 +652,7 @@ INSERT INTO "TestCases" VALUES(376, NULL,'11.1.2.10.1','authorityInformationAcce
 INSERT INTO "TestCases" VALUES(377, NULL,'11.1.2.10.2','An accessMethod containing id-ad-caIssuers is present','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(378, NULL,'11.1.2.10.3','The accessLocation for the id-ad-caIssuers AccessMethod is of type uniformResourceIdentifier.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(379, NULL,'11.1.2.10.4','The URI scheme for id-ad-caIssuers AccessLocation is "http" (not "https")','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(380, NULL,'11.1.2.10.5','File contains a CMS a certs-only CMS message (see RFC 3851).','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(380, NULL,'11.1.2.10.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(381, NULL,'11.2 Digital Signature Cert','Digital Signature Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(382, NULL,'11.2.1','Algorithm Conformance','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(383, NULL,'11.2.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
@@ -675,7 +675,7 @@ INSERT INTO "TestCases" VALUES(399, NULL,'11.2.2.7.1','authorityInformationAcces
 INSERT INTO "TestCases" VALUES(400, NULL,'11.2.2.7.2','An accessMethod containing id-ad-caIssuers is present','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(401, NULL,'11.2.2.7.3','The accessLocation for the id-ad-caIssuers AccessMethod is of type uniformResourceIdentifier.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(402, NULL,'11.2.2.7.4','The URI scheme for id-ad-caIssuers AccessLocation is "http" (not "https")','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(403, NULL,'11.2.2.7.5','File contains a CMS a certs-only CMS message (see RFC 3851).','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(403, NULL,'11.2.2.7.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(404, NULL,'11.3 Key Management Cert','Key Management Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(405, NULL,'11.3.1','Algorithm Conformance','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(406, NULL,'11.3.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
@@ -698,7 +698,7 @@ INSERT INTO "TestCases" VALUES(422, NULL,'11.3.2.6.1','authorityInformationAcces
 INSERT INTO "TestCases" VALUES(423, NULL,'11.3.2.6.2','An accessMethod containing id-ad-caIssuers is present','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(424, NULL,'11.3.2.6.3','The accessLocation for the id-ad-caIssuers AccessMethod is of type uniformResourceIdentifier.','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(425, NULL,'11.3.2.6.4','The URI scheme for id-ad-caIssuers AccessLocation is "http" (not "https")','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(426, NULL,'11.3.2.6.5','File contains a CMS a certs-only CMS message (see RFC 3851).','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(426, NULL,'11.3.2.6.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(427, NULL,'11.4 Card Auth Cert','Card Authentication Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(428, NULL,'11.4.1','Algorithm Conformance','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(429, NULL,'11.4.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
@@ -730,7 +730,7 @@ INSERT INTO "TestCases" VALUES(454, NULL,'11.4.2.9','CRL Distribution Point','',
 INSERT INTO "TestCases" VALUES(455, NULL,'11.4.2.9.1','The URI scheme for id-ce-cRLDistributionPoint AccessLocation is "http" (not "https")','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(456, NULL,'11.4.2.9.2','URI points only to files with .crl extensions.','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(457, NULL,'11.4.2.10','Authority Information Access (85B-4)','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(458, NULL,'11.4.2.10.5','File contains a CMS a certs-only CMS message (see RFC 3851).','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(458, NULL,'11.4.2.10.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(459, NULL,'11.5 Secure Messaging CVC','Secure Messaging Card Verifiable Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(460, NULL,'11.5.1','Secure Messaging CVC Profile Conformance','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(461, NULL,'11.5.2','Algorithm Conformance','',NULL, 1, 1);
@@ -761,7 +761,7 @@ INSERT INTO "TestCases" VALUES(485, NULL,'11.7.2.6.1','authorityInformationAcces
 INSERT INTO "TestCases" VALUES(486, NULL,'11.7.2.6.2','An accessMethod containing id-ad-caIssuers is present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(487, NULL,'11.7.2.6.3','The accessLocation for the id-ad-caIssuers AccessMethod is of type uniformResourceIdentifier.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(488, NULL,'11.7.2.6.4','The URI scheme for id-ad-caIssuers AccessLocation is "http" (not "https")','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(489, NULL,'11.7.2.6.5','File contains a CMS a certs-only CMS message (see RFC 3851).','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(489, NULL,'11.7.2.6.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestsToSteps" VALUES(1, 1,4,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(2, 2,5,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(3, 3,6,0,NULL);
