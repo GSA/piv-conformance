@@ -53,7 +53,7 @@ public class Validator {
     private static final Options s_options = new Options();
     private static final String s_resourceDir = "x509-certs";
     private static final String s_caPathString = "x509-certs";
-    private static final String s_caFileName = "all.p7b";
+    private static final String s_caFileName = null;
 
     private String m_resourceDir = null;
     private String m_eeFullCertPath = null;
@@ -152,11 +152,15 @@ public class Validator {
             String msg = "No keystore file specified";
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
-        }
+        } else
+            keyStorePath = TestRunLogController.pathFixup(keyStorePath);
+
         if (keyStorePath.startsWith(File.separator))
             targetPath = keyStorePath;
-        else
+        else if (!keyStorePath.startsWith(getResourceDir()))
             targetPath = getResourceDir() + File.separator + keyStorePath;
+        else
+            targetPath = keyStorePath;
 
         is = getStreamFromResourceFile(targetPath);
 
@@ -933,13 +937,19 @@ public class Validator {
             s_logger.error(e.getMessage());
             s_logger.warn("Using default values");
             setProvider(provider);
-            setResourceDir("x509-certs");
-            setKeyStore(keyStoreName, password);
             setCertPathBuilder("SUN");
             setDownloadAia(true);
         } finally {
-            setKeyStore(keyStoreName, password);
-            setCaFileName(certStoreName);
+            // Keystore specified
+            if (keyStoreName != null && password != null) {
+                setKeyStore(keyStoreName, password);
+            }
+            if (certStoreName != null) {
+                // If this is specified, use it for AIA but use default keystore
+                setCaFileName(certStoreName);
+                setCaPathString(getResourceDir());
+                setDownloadAia(false);
+            }
         }
     }
 
