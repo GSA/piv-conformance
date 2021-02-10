@@ -925,13 +925,17 @@ public class Validator {
                     setStorePass((String) props.get("storePass"));
                 if (props.get("keyStore") != null)
                     setKeyStore((String) props.get("keyStore"), getStorePass());
+                if (props.get("caPathString") != null)
+                    setCaPathString((String) props.get("caPathString"));
+                if (props.get("caFileName") != null)
+                    setCaFileName((String) props.get("caFileName"));
+                if (props.get("downloadAia") != null)
+                    setDownloadAia(Boolean.parseBoolean((String) props.get("downloadAia")));
                 // Override the builder that is normally derived from the provider
                 if (props.get("certPathBuilder") != null)
                     setCertPathBuilder((String) props.get("certPathBuilder"));
                 else
                     setCertPathBuilder(s_certPathBuilderProviders.get(provider));
-                if (props.get("downloadAia") != null)
-                    setDownloadAia(Boolean.parseBoolean((String) props.get("downloadAia")));
             }
         } catch (ConformanceTestException e) {
             s_logger.error(e.getMessage());
