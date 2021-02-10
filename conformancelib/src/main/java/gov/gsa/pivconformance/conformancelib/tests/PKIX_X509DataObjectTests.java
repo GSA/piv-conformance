@@ -947,6 +947,9 @@ public class PKIX_X509DataObjectTests {
     		assertTrue (sd.isCertificateManagementMessage(), errMsg);
     		errMsg = "Message is not a certs-only CMS";
 			assertNull(td, errMsg);
+		} else {
+    		errMsg = "Signed data was null";
+    		fail(errMsg);
 		}
 	}
 
