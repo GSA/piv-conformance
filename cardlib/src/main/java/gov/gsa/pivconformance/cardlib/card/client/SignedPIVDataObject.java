@@ -112,7 +112,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 *
 	 * Sets the signed content value
 	 *
-	 * @param signedContent Byte array with signed content buffer
+	 * @param set of AlgorithmIdentifier
 	 */
 	public void setDigestAlgorithms(Set<AlgorithmIdentifier> set) {
 		m_dalgList = set;
@@ -209,7 +209,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	/**
 	 * Sets the extracted message digest in the signed attributes
 	 * 
-	 * @param the bytes of the digest
+	 * @param digest bytes of the digest
 	 * 
 	 */
 	public void setSignedAttrsDigest(byte[] digest) {
@@ -229,7 +229,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	/**
 	 * Sets the computed digest of the object
 	 * 
-	 * @param the bytes of the digest
+	 * @param digest bytes of the digest
 	 * 
 	 * @returns the bytes of the digest
 	 */
@@ -268,8 +268,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 * Sets the message digest algorithm name extracted from the signer information
 	 * of the associated CMS.
 	 *
-	 * @param errorDetectionCode True if error Error Detection Code is present,
-	 *                           false otherwise
+	 * @param name of the digest algorithm
 	 */
 	public void setDigestAlgorithmName(String name) {
 		m_digestAlgorithmName = name;
@@ -323,7 +322,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	/**
 	 * Extracts and sets the message digest in the signed attributes
 	 * 
-	 * @param the SignerInformationStore in the CMS
+	 * @param signers SignerInformationStore in the CMS
 	 * 
 	 */
 	public void setSignedAttrsDigest(SignerInformationStore signers) {
@@ -342,7 +341,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 							byte[] digest = dos.getOctets();
 							if (digest != null) {
 								m_signedAttrsDigest = digest;
-								s_logger.info("Reference digest: " + Hex.encodeHexString(digest));
+								s_logger.trace("Reference digest: " + Hex.encodeHexString(digest));
 							} else {
 								s_logger.error("Failed to extract digest");
 							}
@@ -364,8 +363,8 @@ public class SignedPIVDataObject extends PIVDataObject {
 	/**
 	 * Computes a digest of the received content in this object and stores it
 	 * 
-	 * @param the SignerInfo of the content signer
-	 * @param the content to compute the digest over t
+	 * @param signer SignerInfo of the content signer
+	 * @param content content to compute the digest over t
 	 */
 
 	public void setComputedDigest(SignerInformation signer, byte[] content) {
@@ -378,7 +377,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 						byte[] signedContentBytes = this.getSignedContent();
 
 						if (signedContentBytes != null) {
-							s_logger.info("Signed content bytes: " + Hex.encodeHexString(signedContentBytes));
+							s_logger.trace("Signed content bytes: " + Hex.encodeHexString(signedContentBytes));
 							String aName = MessageDigestUtils
 									.getDigestName(new ASN1ObjectIdentifier(signer.getDigestAlgOID()));
 							MessageDigest md = MessageDigest.getInstance(aName, "BC");
@@ -386,7 +385,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 							byte[] digest = md.digest();
 							if (digest != null) {
 								setComputedDigest(digest);
-								s_logger.info("Computed digest: {} ", Hex.encodeHexString(digest));
+								s_logger.trace("Computed digest: {} ", Hex.encodeHexString(digest));
 							} else {
 								s_logger.error("Failed to digest content");
 							}
