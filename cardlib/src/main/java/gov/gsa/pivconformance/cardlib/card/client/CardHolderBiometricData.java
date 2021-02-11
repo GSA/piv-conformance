@@ -304,7 +304,7 @@ public class CardHolderBiometricData extends SignedPIVDataObject {
 
                     // Break BC tag into Patron CBEFF header + BDB + SB
                     if (m_biometricData != null) {
-                        s_logger.info("m_biometricData: {}", Hex.encodeHexString(m_biometricData));
+                        s_logger.trace("m_biometricData: {}", Hex.encodeHexString(m_biometricData));
                         //Get Biometric data block (BDB) Length
                         byte[] biometricDataBlockLengthBytes = Arrays.copyOfRange(m_biometricData, 2, 6);
                         //Get Signature block (SB) Length
