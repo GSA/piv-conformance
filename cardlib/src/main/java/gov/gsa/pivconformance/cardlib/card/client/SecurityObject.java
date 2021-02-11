@@ -290,11 +290,13 @@ public class SecurityObject extends SignedPIVDataObject {
 
 		String message = APDUConstants.oidNameMap.get(super.getOID()) + (certFound ? " had" : " did not have")
 				+ " an embedded certificate";
-		s_logger.trace(message);
+		s_logger.debug(message);
+
+		dump(this.getClass());
+
 		if (m_mapping == null || m_so == null)
 			return false;
 
-		dump(this.getClass());
 		return true;
 	}
 
@@ -348,10 +350,15 @@ public class SecurityObject extends SignedPIVDataObject {
 									md.update(content);
 									byte[] digest = md.digest();
 									if (!Arrays.equals(entry.getValue(), digest)) {
-										s_logger.error("Content: {}", Hex.encodeHexString(content));
+										s_logger.error("Container:        {}", entry.getKey());
+										s_logger.error("Content:          {}", Hex.encodeHexString(content));
 										s_logger.error("Reference digest: {}", Hex.encodeHexString(entry.getValue()));
 										s_logger.error("Computed digest:  {}", Hex.encodeHexString(digest));
 									} else {
+										s_logger.debug("Container:        {}", entry.getKey());
+										s_logger.debug("Content:          {}", Hex.encodeHexString(content));
+										s_logger.debug("Reference digest: {}", Hex.encodeHexString((byte[])entry.getValue()));
+										s_logger.debug("Computed digest:  {}", Hex.encodeHexString(digest));
 										dgIdx++;
 									}
 								}
