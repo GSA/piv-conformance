@@ -120,27 +120,31 @@ public class AtomHelper {
 		switch (result) {
 		case PIV_DATA_OBJECT_NOT_FOUND:	// Only fail mandatory containers 
 			if (APDUConstants.isContainerMandatory(oid)) {
-				ConformanceTestException e  = new ConformanceTestException("Failed to find " + APDUConstants.oidNameMap.get(oid) + " container");
-				fail(e);
+				String errMsg = "Failed to find " + APDUConstants.oidNameMap.get(oid) + " container";
+				s_logger.error(errMsg);
 			}
-			break;
+			return null;
 		case PIV_OK:
 			break;
 		default:
-			ConformanceTestException e  = new ConformanceTestException("Failed to retrieve data object for OID " + oid + " from the card");
-			fail(e);				
+			String errMsg = "Failed to retrieve data object for OID " + APDUConstants.oidNameMap.get(oid) + " container";
+			s_logger.error(errMsg);
+			return null;
 		}
 
-		if (o.decode() != true) {
+		if (o == null) {
+			ConformanceTestException e  = new ConformanceTestException("Object for OID " + oid + " is null");
+			fail(e);
+		} else if (o.decode() != true) {
 			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
 			fail(e);
 		}
-		
+
 		if ((o instanceof SignedPIVDataObject) && ((SignedPIVDataObject) o).getCertCount() > 1) {
 			ConformanceTestException e  = new ConformanceTestException("More than one cert found in " + APDUConstants.oidNameMap.get(oid) + " container");
-			fail(e);			
+			fail(e);
 		}
-		
+
 		return o;		
 	}
 	
