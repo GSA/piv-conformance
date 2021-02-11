@@ -290,7 +290,7 @@ public class SecurityObject extends SignedPIVDataObject {
 
 		String message = APDUConstants.oidNameMap.get(super.getOID()) + (certFound ? " had" : " did not have")
 				+ " an embedded certificate";
-		s_logger.debug(message);
+		s_logger.trace(message);
 
 		dump(this.getClass());
 
