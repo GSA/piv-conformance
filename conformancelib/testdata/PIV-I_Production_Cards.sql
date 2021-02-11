@@ -347,7 +347,7 @@ INSERT INTO "TestCases" VALUES(71, NULL,'8.5.1.3','Tags 0x01, 0x02, 0x05, 0x06 a
 INSERT INTO "TestCases" VALUES(72, NULL,'8.5.1.4','Tag 0xFE follows Tag 0x06, 0x07, or 0x08','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(73, NULL,'8.5.1.5','Tags 0x07 and 0x08 are optionally present in that order, following the tags from 73-4.28','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(74, NULL,'8.5.1.6','Tag 0xFE is present and follows tags from 73-4.28, 73-4.29','PRINTED_INFORMATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(75, NULL,'8.5.1.7','No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present','PRINTED_INFORMATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(75, NULL,'8.5.1.7','No tags other than (0x01, 0x02, 0x04, 0x05, 0x06, 0x07, 0x08, 0xFE) are present','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(76, NULL,'8.5.1.8','Tag 0xFE has length of 0','PRINTED_INFORMATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(77, NULL,'8.6 Facial Image','Card Holder Facial Image','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(78, NULL,'8.6.0','SP 800-73-4 Data Model','',NULL, 1, 1);
