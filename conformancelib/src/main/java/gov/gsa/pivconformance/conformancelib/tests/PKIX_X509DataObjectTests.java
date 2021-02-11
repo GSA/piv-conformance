@@ -873,7 +873,7 @@ public class PKIX_X509DataObjectTests {
 		assertTrue(rv, "CRL DP does not end with .crl");
 	}
 
-	// File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)
+	// File has an extension of .p7c containing a certs-only CMS message (see RFC 3851)
 	@DisplayName("PKIX.25 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_x509TestProvider")
