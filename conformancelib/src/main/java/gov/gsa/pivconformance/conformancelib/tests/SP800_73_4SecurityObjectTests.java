@@ -130,15 +130,12 @@ public class SP800_73_4SecurityObjectTests {
 
         boolean decoded = o.decode();
 		assertTrue(decoded);
-		
 		HashMap<Integer, String> idList = ((SecurityObject) o).getContainerIDList();
 		
 		assertTrue(idList.size() > 0);
 		
 		for (HashMap.Entry<Integer,String> entry : idList.entrySet())  {
-		
-            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); 
-
+            s_logger.debug("Container ID list: index " + entry.getKey() + " is " + APDUConstants.containerOidToNameMap.get(entry.getValue()));
             PIVDataObject tmpObj = AtomHelper.getDataObject(entry.getValue());
             assertNotNull(tmpObj);
 		}
@@ -152,24 +149,18 @@ public class SP800_73_4SecurityObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_37(String oid, TestReporter reporter) {
 
-		// this was parameterized but only tests the security object
-		// default to that to address Issue #141 until we confirm that nothing expects to pass an oid
-		// in and just change the signature
-		PIVDataObject o = null;
-		
-		if((oid == null) || oid.isEmpty()) {
-			o = AtomHelper.getDataObject(APDUConstants.SECURITY_OBJECT_OID);
-		} else {
-			// a log message to help confirm no other uses of this parameter that were unexpected
-			o = AtomHelper.getDataObject(oid);
-			s_logger.warn("SP800-73-4.37 was called with an OID of {}. Confirm that this is correct on the spreadsheet.", oid);
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		if (o == null) {
+			String errMsg = "Container for " + oid + " could not be extracted";
+			s_logger.error(errMsg);
+			fail(errMsg);
 		}
-        
+
         boolean decoded = o.decode();
 		assertTrue(decoded);
-		
+
+		// Convenience hashes
 		HashMap<String, byte[]> soDataElements = new  HashMap<String, byte[]>();
-		
 		HashMap<Integer, String> idList = ((SecurityObject) o).getContainerIDList();
 		
 		assertTrue(idList.size() > 0);
@@ -255,7 +246,7 @@ public class SP800_73_4SecurityObjectTests {
 		
 		//Confirm that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field) 
 		boolean verified = ((SecurityObject) o).verifyHashes();
-		assertTrue(verified);
+		assertTrue(verified, "Hashes is security object were not equivalent");
     }
 
 	//Tags 0xBA, 0xBB, 0XFE are in that order
