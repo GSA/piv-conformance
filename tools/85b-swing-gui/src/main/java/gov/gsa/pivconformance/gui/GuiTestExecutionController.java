@@ -233,14 +233,14 @@ public class GuiTestExecutionController {
 						}
 
 						if(className != null && !className.isEmpty() && testClass != null) {
-							s_logger.debug("Adding {} from config", fqmn);
+							s_logger.trace("Adding {} from config", fqmn);
 							discoverySelectors.add(selectMethod(fqmn));
 							ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
 							String containerName = testCase.getContainer();
 							if(containerName != null && !containerName.isEmpty()) {
 								ParameterProviderSingleton.getInstance().addContainer(fqmn, containerName);
 							}
-							s_logger.debug("Added {} from config: {}", fqmn, parameters);
+							s_logger.trace("Added {} from config: {}", fqmn, parameters);
 						}
 
 					}
@@ -272,8 +272,8 @@ public class GuiTestExecutionController {
 			s_logger.error("Failed to enable run button", e);
 		}
 		
-		s_logger.debug("atom count: {}", atomCount);
-		s_logger.debug("tree count: {}", root.getChildCount() + root.getLeafCount() );
+		s_logger.debug("Atom count: {}", atomCount);
+		s_logger.debug("Tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
 
