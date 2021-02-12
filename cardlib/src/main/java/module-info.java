@@ -12,4 +12,6 @@ module gov.gsa.pivconformance.cardlib {
 	requires org.bouncycastle.pkix;
 	requires org.bouncycastle.provider;
 	requires org.slf4j;
+	requires org.junit.jupiter.api;
+	requires org.junit.jupiter.params;
 }
