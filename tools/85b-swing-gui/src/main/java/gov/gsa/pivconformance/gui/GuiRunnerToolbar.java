@@ -24,9 +24,6 @@ public class GuiRunnerToolbar extends JToolBar {
 	    
 	    this.addSeparator();
 	    this.add(c.getRunAllTestsAction());
-	    
-	    this.addSeparator();
-	    this.add(c.getShowDebugWindowAction());
 	    this.addSeparator();
 	    this.add(c.getDisplayTestReportAction());
 	    this.addSeparator();

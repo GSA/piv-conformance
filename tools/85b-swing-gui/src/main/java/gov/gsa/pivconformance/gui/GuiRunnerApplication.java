@@ -28,10 +28,9 @@ public class GuiRunnerApplication {
 		cctVersion = getVersion("build.version");
 	}
 
-	private JFrame m_mainFrame;
-	private DebugWindow m_debugFrame;
-	private GuiRunnerToolbar m_toolBar;
-	private MainWindowContentPane m_mainContent;
+	protected JFrame m_mainFrame;
+	protected GuiRunnerToolbar m_toolBar;
+	protected MainWindowContentPane m_mainContent;
 
 	/**
 	 * Create the application.
@@ -102,29 +101,16 @@ public class GuiRunnerApplication {
 		
 		JMenuItem mntmAboutPivCard = new JMenuItem(c.getDisplayAboutDialogAction());
 		mnHelp.add(mntmAboutPivCard);
-		
-		JMenuItem mntmShowDebugWindow = new JMenuItem(c.getShowDebugWindowAction());
-		ImageIcon debugIcon = c.getActionIcon("application_xp_terminal", "Debug");
-		mntmShowDebugWindow.setIcon(debugIcon);
-		mnHelp.add(mntmShowDebugWindow);
-		
+
 		m_toolBar = new GuiRunnerToolbar();
 		m_mainFrame.getContentPane().add(m_toolBar, BorderLayout.NORTH);
 		
 		m_mainContent = new MainWindowContentPane();
 		m_mainFrame.getContentPane().add(m_mainContent.getSplitPane(), BorderLayout.CENTER);
-		
-		m_debugFrame = new DebugWindow("Debugging Tools");
-		m_debugFrame.setTitle("Debugging Tools");
-		m_debugFrame.setBounds(150, 150, 640, 600);
 	}
 
 	public JFrame getMainFrame() {
 		return m_mainFrame;
-	}
-	
-	public DebugWindow getDebugFrame() {
-		return m_debugFrame;
 	}
 
 	public JToolBar getToolBar() {
@@ -247,13 +233,6 @@ public class GuiRunnerApplication {
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
 					c.setCctVersion(cctVersion);
 					c.setApp(window);
-					LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-					GuiDebugAppender a = new GuiDebugAppender("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
-
-					a.setContext(lc);
-					a.start();
-					Logger logger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-					logger.addAppender(a);
 					s_logger.debug("----------------------------------------");
 					s_logger.debug("FIPS 201 CCT " + cctVersion);
 					s_logger.debug("----------------------------------------");
