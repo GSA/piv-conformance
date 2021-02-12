@@ -52,6 +52,7 @@ public class ConformanceTestDatabase {
 	
 	public void openDatabaseInFile(String filename) throws ConfigurationException {
 		Connection conn = null;
+		s_logger.debug("Opening database file ", filename);
 		File f = new File(filename);
         if (!f.exists()) {
             s_logger.error("No such file: {}", filename);
