@@ -78,7 +78,7 @@ public class ChainingAPDUTransmitter {
     		
     		m_counter.incrementTransmitCount();
 			rsp = m_channel.transmit(cmd);
-
+			s_apduLogger.debug(String.format("Received response %s", Hex.encodeHexString((rsp.getBytes())).replaceAll("..(?=.)", "$0 ")));
 		} catch (CardException e) {
 			s_logger.error("Caught CardException {} transmitting APDU.", e.getMessage(), e);
 			throw e;
