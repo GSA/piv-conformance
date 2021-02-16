@@ -4,26 +4,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.IOException;
 import java.net.URL;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.ResponseAPDU;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -53,9 +44,11 @@ public class CardAuthTest {
 	
     static {
         s_options.addOption("h", "help", false, "Print this help and exit");
-        s_options.addOption("", "listOids", false, "list container OIDs and exit");
+		Option jvmOption = Option.builder("D").hasArgs().valueSeparator('=').build();
+		s_options.addOption(jvmOption);
+		s_options.addOption("", "listOids", false, "list container OIDs and exit");
         s_options.addOption("", "listReaders", false, "list connected readers and exit");
-        s_options.addOption("a", "appPin", true, "PIV application PIN");
+        s_options.addOption("p", "appPin", true, "PIV application PIN");
         s_options.addOption("l", "login", false, "Log in to PIV applet using PIV application PIN prior to attempting dump");
         s_options.addOption("", "defaultGetResponse", false, "Use default javax.scardio GET RESPONSE processing");
         s_options.addOption("", "reader", true, "Use the specified reader instead of the first one with a card");
@@ -67,7 +60,6 @@ public class CardAuthTest {
         new HelpFormatter().printHelp("CardAuthTest <options>", s_options);
         System.exit(exitCode);
     }
-    
     
     private static Certificate getBCCertificateFromJCECertificate(X509Certificate cert) {
 		ASN1InputStream bcAis;
@@ -182,7 +174,9 @@ public class CardAuthTest {
 		s_logger.info("current binary directory: {}", location.getFile());
         CommandLineParser p = new DefaultParser();
         CommandLine cmd = null;
-        try {
+		Properties jvmProps = new Properties();
+
+		try {
             cmd = p.parse(s_options, args);
         } catch (ParseException e) {
             s_logger.error("Failed to parse command line arguments", e);
@@ -191,7 +185,15 @@ public class CardAuthTest {
         if(cmd.hasOption("help")) {
             PrintHelpAndExit(0);
         }
-        if(cmd.hasOption("listOids")) {
+
+		if(cmd.hasOption("D")) {
+			Properties props = cmd.getOptionProperties("D");
+			for(String key : props.stringPropertyNames()) {
+				jvmProps.put(key, props.getProperty(key));
+			}
+		}
+
+		if(cmd.hasOption("listOids")) {
         	for(HashMap.Entry<String, Integer> entry: APDUConstants.oidToContainerIdMap.entrySet()) {
         		Map<String, String> names = APDUConstants.oidNameMap;
         		String oid = entry.getKey();
