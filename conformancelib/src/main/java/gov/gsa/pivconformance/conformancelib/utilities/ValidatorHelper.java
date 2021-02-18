@@ -10,15 +10,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Properties;
 
 import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -26,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ValidatorHelper {
 
     private static final Logger s_logger = LoggerFactory.getLogger(ValidatorHelper.class);
-
     public static X509Certificate getX509CertificateFromPath(String fullPathName) throws ConformanceTestException {
         String v_fullPathName = TestRunLogController.pathFixup(fullPathName);
         s_logger.debug("getX509CertificateFromPath(" + v_fullPathName + ")");
@@ -101,44 +98,50 @@ public class ValidatorHelper {
      * @throws ConformanceTestException
      */
 
-    public static X509Certificate getTrustAnchorForGivenCertificate(KeyStore keyStore, X509Certificate eeCert) throws ConformanceTestException {
+    public static X509Certificate getTrustAnchorForGivenCertificate(KeyStore keyStore, X509Certificate eeCert, String defaultAlias) throws ConformanceTestException {
         if (keyStore == null) {
             s_logger.error("keyStore is null");
             return null;
         }
-        if (eeCert == null) {
-            s_logger.error("eeCert is null");
-            return null;
-        }
-        s_logger.debug("Getting trust anchor for EE certificate " + eeCert.getSubjectDN().getName());
         String alias = null;
         X509Certificate trustAnchorCert = null;
-        String subjectName = eeCert.getSubjectDN().getName();
-
-        if (subjectName.contains("ICAM")) {
-            if (subjectName.contains("PIV-I")) {
-                alias = "icam test card piv-i root ca";
-            } else {
-                alias = "icam test card piv root ca";
+        // If no default alias is set, use these hard coded bits
+        if (defaultAlias == null) {
+            if (eeCert == null) {
+                s_logger.error("eeCert is null");
+                return null;
             }
-        } else {
-            // Some logic in here to arbitrarily use old Common Policy CA
-            // for EE certs issued before Feb 1, 2021
-            Date eeNotBefore = eeCert.getNotBefore();
-            if (eeNotBefore != null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    Date earliestNewCaDate = sdf.parse("2021-02-01");
-                    if (eeNotBefore.before(earliestNewCaDate)) {
-                        alias = "federal common policy ca";
-                    } else {
-                        alias = "federal common policy ca g2";
+            s_logger.debug("Getting trust anchor for EE certificate " + eeCert.getSubjectDN().getName());
+
+            String subjectName = eeCert.getSubjectDN().getName();
+
+            if (subjectName.contains("ICAM")) {
+                if (subjectName.contains("PIV-I")) {
+                    alias = "icam test card piv-i root ca";
+                } else {
+                    alias = "icam test card piv root ca";
+                }
+            } else {
+                // Some logic in here to arbitrarily use old Common Policy CA
+                // for EE certs issued before Feb 1, 2021
+                Date eeNotBefore = eeCert.getNotBefore();
+                if (eeNotBefore != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        Date earliestNewCaDate = sdf.parse("2021-02-01");
+                        if (eeNotBefore.before(earliestNewCaDate)) {
+                            alias = "federal common policy ca";
+                        } else {
+                            alias = "federal common policy ca g2";
+                        }
+                    } catch (ParseException e) {
+                        s_logger.error(e.getMessage());
+                        fail(e);
                     }
-                } catch (ParseException e) {
-                    s_logger.error(e.getMessage());
-                    fail(e);
                 }
             }
+        } else {
+            alias = defaultAlias;
         }
 
         try {

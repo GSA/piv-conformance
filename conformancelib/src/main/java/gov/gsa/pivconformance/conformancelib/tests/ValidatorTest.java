@@ -9,24 +9,21 @@ import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
-import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getTrustAnchorForGivenCertificate;
-import static org.junit.jupiter.api.Assertions.fail;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Path;
-import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
+
+import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
+import static gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper.getTrustAnchorForGivenCertificate;
 
 public class ValidatorTest {
     static Logger s_logger = LoggerFactory.getLogger(ValidatorTest.class);
@@ -63,7 +60,7 @@ public class ValidatorTest {
             CertificateFactory fac = CertificateFactory.getInstance("X509");
             InputStream fis = ValidatorHelper.getStreamFromResourceFile(System.getProperty("user.dir") + File.separator + "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
-            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(m_validator.getKeyStore(), eeCert);
+            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(m_validator.getKeyStore(), eeCert, null);
             s_logger.debug("Validating " + eeCert.getSubjectDN().getName());
             boolean result = m_validator.isValid(eeCert, oid, trustAnchorCert); //(eeCert, oid, trustAnchorCert;
             
@@ -90,7 +87,7 @@ public class ValidatorTest {
             CertificateFactory fac = CertificateFactory.getInstance("X509");
             InputStream fis = ValidatorHelper.getStreamFromResourceFile(System.getProperty("user.dir") + File.separator + "x509-certs/valid" + File.separator + endEntityCertFile);
             X509Certificate eeCert = (X509Certificate) fac.generateCertificate(fis);
-            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(m_validator.getKeyStore(), eeCert);
+            X509Certificate trustAnchorCert = getTrustAnchorForGivenCertificate(m_validator.getKeyStore(), eeCert, null);
             s_logger.debug("Validating " + eeCert.getSubjectDN().getName());
             boolean result = m_validator.isValid(eeCert, oid, trustAnchorCert); //(eeCert, oid, trustAnchorCert;
             s_logger.debug("m_validator.isValid(): " + result);

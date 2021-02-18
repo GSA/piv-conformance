@@ -54,6 +54,7 @@ public class Validator {
     private static final String s_resourceDir = "x509-certs";
     private static final String s_caPathString = "x509-certs";
     private static final String s_caFileName = null;
+    private static final String s_defultAlias = "federal common policy ca g2";
 
     private String m_resourceDir = null;
     private String m_eeFullCertPath = null;
@@ -66,6 +67,7 @@ public class Validator {
     private String m_caFileName = null;
     private KeyStore m_keystore = null;
     private String m_storePass = null;
+    private String m_defaultAlias = null;
     private boolean m_downloadAia = true;
     private CertPath m_certPath = null;
 
@@ -91,6 +93,7 @@ public class Validator {
         Option jvmOption = Option.builder("D").hasArgs().valueSeparator('=').build();
         Option oidsOption = Option.builder("oids").hasArg(true).argName("oids").desc("list of certificate policy oids").build();
         Option resourceOption = Option.builder("resourceDir").hasArg(true).argName("resourceDir").desc("base directory for resources and files").build();
+        Option aliasOption = Option.builder("alias").hasArg(true).argName("alias").desc("alias for trust anchor cert").build();
         Option providerOption = Option.builder("provider").hasArg(true).argName("provider").desc("provider string (BC or Sun)").build();
         Option caPathOption = Option.builder("caPath").hasArg(true).argName("caPath").desc("CA directory or path").build();
         Option caFileOption = Option.builder("caFile").hasArg(true).argName("caFile").desc("file containing intermediate CA data").build();
@@ -101,6 +104,7 @@ public class Validator {
         s_options.addOption(jvmOption);
         s_options.addOption(oidsOption);
         s_options.addOption(resourceOption);
+        s_options.addOption(aliasOption);
         s_options.addOption(providerOption);
         s_options.addOption(caPathOption);
         s_options.addOption(caFileOption);
@@ -515,6 +519,11 @@ public class Validator {
             s_logger.info("resourceDir: {}",  v.getResourceDir());
         }
 
+        if(cmd.hasOption("alias")) {
+            v.setDefaultAlias(cmd.getOptionValue("alias"));
+            s_logger.info("alias: {}",  v.getDefaultAlias());
+        }
+
         if(cmd.hasOption("provider")) {
             provider = cmd.getOptionValue("provider");
             try {
@@ -551,10 +560,9 @@ public class Validator {
         }
         /*
          * 1. if trust anchor is supplied by caller then it becomes the params trust anchor.
-         * 2. if trust anchor is not supplied by caller then the params trust anchor is selected
-         *    from the key store based on name containing ICAM and PIV/PIV-I defaulting to common
-         * 3. TODO: the new G2 common policy needs to be implemented
-         * ------- end of trust anchor processing
+         * 2. if trust anchor alias is not supplied by caller then the params trust anchor is selected
+         *    from the key store based on name containing ICAM and PIV/PIV-I defaulting to common G2 if
+         *    after 2/1/2021.
          */
         String resourceDir = (v.getResourceDir() != null) ? v.getResourceDir() : ".";
         if (!v.getEndEntityCertPath().startsWith(File.separator) && !v.getEndEntityCertPath().startsWith(v.getResourceDir())) {
@@ -567,7 +575,7 @@ public class Validator {
 
         if (trustAnchorCertFile == null) {
             KeyStore keyStore = v.getKeyStore();
-            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(v.getEndEntityCertPath()));
+            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(v.getEndEntityCertPath()), v.getDefaultAlias());
             String tempName = null;
             try {
                 File temp;
@@ -640,7 +648,7 @@ public class Validator {
 
         if (trustAnchorCertFile == null) {
             KeyStore keyStore = getKeyStore();
-            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(getEndEntityCertPath()));
+            X509Certificate trustAnchor = getTrustAnchorForGivenCertificate(keyStore, getX509CertificateFromPath(getEndEntityCertPath()), getDefaultAlias());
             String tempName = null;
             try {
                 File temp;
@@ -708,7 +716,7 @@ public class Validator {
         if (v_trustAnchorCert == null) {
             KeyStore keyStore = getKeyStore();
             try {
-                v_trustAnchorCert = getTrustAnchorForGivenCertificate(keyStore, v_eeCert);
+                v_trustAnchorCert = getTrustAnchorForGivenCertificate(keyStore, v_eeCert, getDefaultAlias());
             } catch (ConformanceTestException e) {
                 e.printStackTrace();
                 throw e;
@@ -909,6 +917,7 @@ public class Validator {
         m_resourceDir = null;
         m_caFileName = s_caFileName;
         m_caPathString = s_caPathString;
+        m_defaultAlias = s_defultAlias;
         m_cpb = null;
         m_keystore = null;
         m_downloadAia = false;
@@ -925,6 +934,8 @@ public class Validator {
                     setStorePass((String) props.get("storePass"));
                 if (props.get("keyStore") != null)
                     setKeyStore((String) props.get("keyStore"), getStorePass());
+                if (props.get("defaultAlias") != null)
+                    setDefaultAlias((String) props.get("defaultAlias"));
                 if (props.get("caPathString") != null)
                     setCaPathString((String) props.get("caPathString"));
                 if (props.get("caFileName") != null)
@@ -957,6 +968,22 @@ public class Validator {
         }
     }
 
+    /**
+     * Sets the default alias for the validator to use when fetching
+     * a trust anchor from the keystore.
+     * @param defaultAlias alias to use
+     */
+    public void setDefaultAlias(String defaultAlias) {
+        m_defaultAlias = defaultAlias;
+    }
+
+    /**
+     * Gets the default alias
+     * @return the alias
+     */
+    public String getDefaultAlias() {
+        return m_defaultAlias;
+    }
     /**
      * Dumps the CertPath found by the validator to the logger and to a file
      * if saveToDisk is true
@@ -1011,20 +1038,23 @@ public class Validator {
         sb.append(lf + "Validator { " + lf);
         sb.append("    resourceDir: " + m_resourceDir + ", " + lf);
         if (m_eeCert != null)
-            sb.append("    eeCert: " + m_eeCert.toString() + lf);
+            sb.append("            eeCert: " + m_eeCert.toString() + ", " + lf);
         if (m_eeFullCertPath != null)
             sb.append("    eeFullCertPath: " + m_eeFullCertPath + ", " + lf);
         if (m_taCert != null)
-            sb.append("    taCert: " + m_taCert + lf);
+            sb.append("            taCert: " + m_taCert + lf);
         if (m_taFullCertPath != null)
             sb.append("    taFullCertPath: " + m_taFullCertPath + ", " + lf);
-        sb.append("    provider: " +  m_provider + ", " + lf);
-        sb.append("    certPathBuilder: "  + m_cpb.getProvider().getName() + ", " + lf);
-        sb.append("    caPath: " + m_caPathString + ", " + lf);
-        sb.append("    caFileName: " + m_caFileName + ", " + lf);
-        sb.append("    keyStore: " + m_keystore.toString()  + ", " + lf);
-        sb.append("    storePass: " + m_storePass + ", " + lf);
-        sb.append("    downloadAia: " + m_downloadAia + lf);
+
+        sb.append("    taFullCertPath: " + m_taFullCertPath + ", " + lf);
+        sb.append("          provider: " +  m_provider + ", " + lf);
+        sb.append("   certPathBuilder: "  + m_cpb.getProvider().getName() + ", " + lf);
+        sb.append("            caPath: " + m_caPathString + ", " + lf);
+        sb.append("        caFileName: " + m_caFileName + ", " + lf);
+        sb.append("          keyStore: " + m_keystore.toString()  + ", " + lf);
+        sb.append("         storePass: " + m_storePass + ", " + lf);
+        sb.append("      defaultAlias: " + m_defaultAlias  + ", " + lf);
+        sb.append("       downloadAia: " + m_downloadAia + lf);
         sb.append(" }" + lf);
         if (m_certPath != null) {
             int count = 0;

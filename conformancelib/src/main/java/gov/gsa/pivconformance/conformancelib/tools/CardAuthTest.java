@@ -1,19 +1,11 @@
 package gov.gsa.pivconformance.conformancelib.tools;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Console;
-import java.io.IOException;
-import java.net.URL;
-import java.security.*;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPublicKey;
-import java.util.*;
-
-import javax.smartcardio.CardException;
-import javax.smartcardio.CardTerminal;
-import javax.smartcardio.ResponseAPDU;
-
+import gov.gsa.pivconformance.cardlib.card.client.*;
+import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
+import gov.gsa.pivconformance.conformancelib.configuration.CardInfoController;
+import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton;
+import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
+import gov.gsa.pivconformance.conformancelib.utilities.CardUtils;
 import org.apache.commons.cli.*;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1InputStream;
@@ -24,19 +16,18 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
-import gov.gsa.pivconformance.cardlib.card.client.AbstractPIVApplication;
-import gov.gsa.pivconformance.cardlib.card.client.CardClientException;
-import gov.gsa.pivconformance.cardlib.card.client.GeneralAuthenticateHelper;
-import gov.gsa.pivconformance.cardlib.card.client.MiddlewareStatus;
-import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
-import gov.gsa.pivconformance.cardlib.card.client.PIVDataObjectFactory;
-import gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject;
-import gov.gsa.pivconformance.conformancelib.configuration.CardInfoController;
-import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton;
-import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
-import gov.gsa.pivconformance.conformancelib.utilities.CardUtils;
-import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
+import javax.smartcardio.CardException;
+import javax.smartcardio.CardTerminal;
+import javax.smartcardio.ResponseAPDU;
+import java.io.ByteArrayOutputStream;
+import java.io.Console;
+import java.io.IOException;
+import java.net.URL;
+import java.security.Security;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
+import java.util.*;
 
 public class CardAuthTest {
 	static Logger s_logger = LoggerFactory.getLogger(CardAuthTest.class);
@@ -312,8 +303,8 @@ public class CardAuthTest {
 							containerOid, getSignatureAlgFromCertificate(containerCert));
 				}
 				byte[] challenge = GeneralAuthenticateHelper.generateChallenge(modulusLen);
-				//byte[] challenge = new byte[256];
-				//Arrays.fill(challenge, (byte)0xF3);
+				challenge = new byte[modulusLen];
+				Arrays.fill(challenge, (byte)0xF3);
 				if(challenge == null) {
 					s_logger.error("challenge could not be generated");
 					continue;
