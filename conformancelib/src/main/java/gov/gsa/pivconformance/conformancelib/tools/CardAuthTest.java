@@ -303,8 +303,6 @@ public class CardAuthTest {
 							containerOid, getSignatureAlgFromCertificate(containerCert));
 				}
 				byte[] challenge = GeneralAuthenticateHelper.generateChallenge(modulusLen);
-				challenge = new byte[modulusLen];
-				Arrays.fill(challenge, (byte)0xF3);
 				if(challenge == null) {
 					s_logger.error("challenge could not be generated");
 					continue;
