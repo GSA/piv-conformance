@@ -418,9 +418,9 @@ public class SP800_76_Tests {
 		int biometricDataBlockLength  = (((recordLength[0] & 0xFF) << 8) | (recordLength[1] & 0xFF));
 		
 		//BDB length must be between 26 and 1574
-        assertTrue(biometricDataBlockLength >= 26 && biometricDataBlockLength <= 1574, "Fingerprint recod length is not 26 <= L <= 1574");
-        //Confirm that the record length value is the same at the length of the leftover buffer
-        assertTrue(biometricDataBlockLength == biometricDataBlock.length, "Fingerprint recod length does not match leftover buffer length");
+        assertTrue(biometricDataBlockLength >= 26 && biometricDataBlockLength <= 1574, "Fingerprint record length is not 26 <= L <= 1574");
+        //Confirm that the record length value is the same as the length of the leftover buffer
+        assertTrue(biometricDataBlockLength == biometricDataBlock.length, "Fingerprint record length does not match leftover buffer length");
 	}
 	
 	
