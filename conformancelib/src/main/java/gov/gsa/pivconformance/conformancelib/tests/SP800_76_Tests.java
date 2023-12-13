@@ -1171,7 +1171,9 @@ public class SP800_76_Tests {
 	        
 			byte [] zeroBlock = { 0x00, 0x00 };
 			
-			byte [] extendedDataBlockLength  = Arrays.copyOfRange(biometricDataBlock, offset+numberOfMinutiae*6+3, offset+numberOfMinutiae*6+3+2);
+			// The line below was updated with code from Issue 314 submitted by baud001, ASR(as submitted or requested). 
+			// After testing this fix resolved the issue. 
+			byte [] extendedDataBlockLength  = Arrays.copyOfRange(biometricDataBlock, offset+numberOfMinutiae*6+4, offset+numberOfMinutiae*6+4+2);
 			
 			assertTrue(Arrays.equals(extendedDataBlockLength, zeroBlock), "Extended data block length is not 0");
 			
