@@ -140,7 +140,7 @@ public class TestRunLogController {
 						PrintStream p;
 						try {
 							p = new PrintStream(f);
-							p.println("Date,Test Id,Description,Expected Result,Actual Result");
+							p.println("Date,Test Id,Description,Actual Value,Expected Result,Actual Result");
 							p.close();
 							s_logger.debug("Wrote header to {}", appender.getFile());
 						} catch (Exception e) {
