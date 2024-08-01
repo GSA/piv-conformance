@@ -45,8 +45,7 @@ public class ConformanceTestDatabase {
     }
 
     /**
-     * Opens the Sqlite database in the file and makes the connection handle
-     * available
+     * Opens the Sqlite database in the file and makes the connection handle available
      *
      * @param filename of the file to be opened
      * @throws ConfigurationException
@@ -64,8 +63,12 @@ public class ConformanceTestDatabase {
         String dbUrl = null;
         try {
             Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            s_logger.error("Unable to locate SQLite JDBC driver: ", e);
+        }
+        try {
             dbUrl = "jdbc:sqlite:" + f.getCanonicalPath();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             s_logger.error("Unable to calculate canonical name for database file", e);
             throw new ConfigurationException("Unable to calculate canonical name for database file", e);
         }
@@ -149,9 +152,8 @@ public class ConformanceTestDatabase {
     }
 
     /*
-     * SELECT TestStepParameters.Id, TestStepParameters.Value FROM
-     * TestStepParameters JOIN TestSteps ON TestStepParameters.TestStepId =
-     * TestSteps.Id WHERE TestStepParameters.value LIKE
+     * SELECT TestStepParameters.Id, TestStepParameters.Value FROM TestStepParameters JOIN TestSteps ON
+     * TestStepParameters.TestStepId = TestSteps.Id WHERE TestStepParameters.value LIKE
      * 'X509_CERTIFICATE_FOR_PIV_AUTHENTICATION:%{}%'
      */
 
