@@ -6,6 +6,7 @@ module gov.gsa.pivconformance.gui {
     requires ch.qos.logback.classic;
     requires org.junit.platform.engine;
     requires org.junit.platform.launcher;
+    requires org.junit.platform.commons;
     requires java.smartcardio;
     requires java.sql;
     requires org.apache.commons.codec;

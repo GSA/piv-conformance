@@ -13,7 +13,7 @@
   
   <dependencies>
     <dependency>
-      <groupId>${parent.groupId}</groupId>
+      <groupId>${project.parent.groupId}</groupId>
       <artifactId>cardlib</artifactId>
       <version>${revision}</version>
     </dependency>

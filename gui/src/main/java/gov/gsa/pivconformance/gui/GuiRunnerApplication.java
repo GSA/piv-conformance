@@ -5,6 +5,7 @@ import ch.qos.logback.classic.LoggerContext;
 import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import gov.gsa.pivconformance.conformancelib.configuration.ConformanceTestDatabase;
 import gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController;
+
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
@@ -13,9 +14,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 
@@ -25,8 +29,8 @@ public class GuiRunnerApplication {
     private static String cctVersion = null;
 
     static {
-        // cctVersion = getVersion("build.version");
-        cctVersion = "Nobody Cares";
+        cctVersion = getVersion("build.version");
+        // cctVersion = "Nobody Cares";
     }
 
     protected JFrame m_mainFrame;
@@ -160,22 +164,17 @@ public class GuiRunnerApplication {
         return file;
     }
 
-    private static File getResourceFile(String target, String excludePattern) {
-        File resourceFile = null;
+    private static InputStream getResourceStream(String target) {
         s_logger.debug("Looking for resource:" + target);
-        // resourceFile = locateFile(new File("./"), target, excludePattern);
-        var thisClass = GuiRunnerApplication.class;
-        thisClass.getResource(target);
-        return resourceFile;
+        return GuiRunnerApplication.class.getResourceAsStream(target);
+
     }
 
     private static String getVersion(String name) {
         String version = null;
-        File resourceFile = getResourceFile("build.version", File.separator + "build" + File.separator);
         try {
-            BufferedReader versionFile = new BufferedReader(new FileReader(resourceFile));
-            version = versionFile.readLine();
-            versionFile.close();
+            InputStream resourceFile = getResourceStream("/build.version");
+            version = new String(resourceFile.readAllBytes());
         } catch (IOException e) {
             s_logger.error("Can't open " + name);
         }
@@ -210,7 +209,7 @@ public class GuiRunnerApplication {
 
         TestRunLogController trlc = TestRunLogController.getInstance();
         try {
-            trlc.bootStrapLogging(getResourceFile("user_log_config.xml", File.separator + "build" + File.separator));
+            trlc.bootStrapLogging(getResourceStream("/user_log_config.xml"));
         } catch (Exception e) {
             System.err.println("Unable to form the path to user log config file");
             e.printStackTrace();

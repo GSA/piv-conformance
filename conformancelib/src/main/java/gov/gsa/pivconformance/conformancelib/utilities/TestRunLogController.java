@@ -18,6 +18,7 @@ import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -36,8 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Singleton class that consolidates the appenders into a single disposable
- * group
+ * Singleton class that consolidates the appenders into a single disposable group
  *
  */
 public class TestRunLogController {
@@ -46,9 +46,8 @@ public class TestRunLogController {
     private static final TestRunLogController INSTANCE = new TestRunLogController();
 
     /*
-     * Note that these names MUST match the user_log_config.xml appender names.
-     * start time, end time, log file path name. It instantiates and destroys
-     * appenders as a group, but is ephemeral, so we can re-create a group each run.
+     * Note that these names MUST match the user_log_config.xml appender names. start time, end time, log file path
+     * name. It instantiates and destroys appenders as a group, but is ephemeral, so we can re-create a group each run.
      */
     static final HashMap<String, String> m_loggers = new HashMap<String, String>() {
         static final long serialVersionUID = 1L;
@@ -99,8 +98,7 @@ public class TestRunLogController {
     }
 
     /**
-     * Initializes a new TestRunLogController. One must be created per instance of
-     * CCT. ]
+     * Initializes a new TestRunLogController. One must be created per instance of CCT. ]
      *
      * @param ctx the logger context - one per application.
      */
@@ -169,21 +167,16 @@ public class TestRunLogController {
      *
      * @param logConfigFile log config File
      */
-    public void bootStrapLogging(File logConfigFile) {
+    public void bootStrapLogging(InputStream logConfigStream) {
         m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
         try {
-            if (logConfigFile.exists() && logConfigFile.canRead()) {
-                JoranConfigurator configurator = new JoranConfigurator();
-                // overriding the log directory property programmatically
-                m_ctx.putProperty("LOG_DIR", "logs");
-                configurator.setContext(m_ctx);
-                configurator.doConfigure(logConfigFile.getCanonicalPath());
-            }
+            JoranConfigurator configurator = new JoranConfigurator();
+            // overriding the log directory property programmatically
+            m_ctx.putProperty("LOG_DIR", "logs");
+            configurator.setContext(m_ctx);
+            configurator.doConfigure(logConfigStream);
         } catch (JoranException e) {
             // handled by status printer
-        } catch (IOException e) {
-            System.err.println("Unable to resolve logging config to a readable file");
-            e.printStackTrace();
         } catch (Exception e) {
             System.err.println("Exception opening user log config file: " + e.getMessage());
         }
@@ -332,8 +325,8 @@ public class TestRunLogController {
     }
 
     /**
-     * Captures the identifiers from the currently executing test case. This is a
-     * convenience method used to create identifying timestamps.
+     * Captures the identifiers from the currently executing test case. This is a convenience method used to create
+     * identifying timestamps.
      */
     public void captureIdentifiers() {
         PIVDataObject o = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);

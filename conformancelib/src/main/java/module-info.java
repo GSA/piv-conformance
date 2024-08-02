@@ -23,6 +23,6 @@ module gov.gsa.pivconformance.conformancelib {
     requires org.junit.platform.launcher;
     requires org.junit.platform.runner;
     requires info.picocli;
-    requires ch.qos.logback.classic;
-    requires ch.qos.logback.core;
+    requires transitive ch.qos.logback.classic;
+    requires transitive ch.qos.logback.core;
 }
