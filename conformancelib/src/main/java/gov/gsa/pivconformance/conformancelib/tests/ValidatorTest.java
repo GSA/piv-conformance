@@ -31,11 +31,6 @@ public class ValidatorTest {
     static Logger s_logger = LoggerFactory.getLogger(ValidatorTest.class);
     private static Validator m_validator;
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     static {
         try {
             m_validator = new Validator();
@@ -76,8 +71,6 @@ public class ValidatorTest {
             s_logger.debug("m_validator.isValid(): " + result);
             reporter.publishEntry(oid, String.valueOf(result));
             Assertions.assertTrue(result, "Failed for eeCert " + eeCert);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Passed for eeCert " + eeCert, "TRUE", result, "");
-
         } catch (Exception e) {
             s_logger.debug(e.getMessage());
             e.printStackTrace();
@@ -107,8 +100,6 @@ public class ValidatorTest {
             s_logger.debug("m_validator.isValid(): " + result);
             reporter.publishEntry(oid, String.valueOf(result));
             Assertions.assertTrue(result, "Failed for eeCert " + eeCert);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Passed for eeCert " + eeCert, "TRUE", result, "");
-
         } catch (Exception e) {
             s_logger.debug(e.getMessage());
             e.printStackTrace();
