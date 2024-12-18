@@ -28,11 +28,6 @@ public class SP800_73_4DiscoveryObjectTests {
 
     private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4DiscoveryObjectTests.class);
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     // Discovery Object Max Bytes comply with Table 18 in SP 800-83-4
     @DisplayName("SP800-73-4.38 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
@@ -66,8 +61,6 @@ public class SP800_73_4DiscoveryObjectTests {
 
         // Confirm Tag 0x4F is present
         assertTrue(tagList.contains(cardAppAIDTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Confirm Tag 0x4F is present", "TRUE",
-                tagList.contains(cardAppAIDTag), "");
     }
 
     // Tag 0x5F2F is present
@@ -84,8 +77,6 @@ public class SP800_73_4DiscoveryObjectTests {
         BerTag pinUsagePolicyTag = new BerTag(TagConstants.PIN_USAGE_POLICY_TAG);
 
         assertTrue(tagList.contains(pinUsagePolicyTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Confirm Tag 0x5F2F is present", "TRUE",
-                tagList.contains(pinUsagePolicyTag), "");
     }
 
     // Discovery Object The PIN usage policy matches the card capabilities provided
@@ -141,12 +132,7 @@ public class SP800_73_4DiscoveryObjectTests {
 
         // Confirm (0x4F, 0x5F2F) tag order
         assertTrue(Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.PIV_CARD_APPLICATION_AID_TAG));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Confirm (0x4F, 0x5F2F) tag order", "TRUE",
-                Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.PIV_CARD_APPLICATION_AID_TAG), "");
-
         assertTrue(Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.PIN_USAGE_POLICY_TAG));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Confirm Tag 0x5F2F is present", "TRUE",
-                Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.PIN_USAGE_POLICY_TAG), "");
     }
 
     // this is now only used to test changes to the atoms
