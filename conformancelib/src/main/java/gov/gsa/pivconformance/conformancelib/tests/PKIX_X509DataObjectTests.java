@@ -43,11 +43,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PKIX_X509DataObjectTests {
     private static final Logger s_logger = LoggerFactory.getLogger(PKIX_X509DataObjectTests.class);
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     public static final HashMap<String, String> PKIX_X509DataObjectIdentifiers = new HashMap<String, String>() {
         private static final long serialVersionUID = 1L;
         {
@@ -105,12 +100,8 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         assertTrue(cert.getKeyUsage() != null, "Key usage extension is absent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Key usage extension is present", "TRUE",
-                (cert.getKeyUsage() != null), "");
     }
 
     // Confirm digitalSignature bit is set
@@ -123,21 +114,15 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean[] ku = cert.getKeyUsage();
 
         // confirm key usage extension is present
         assertTrue(ku != null);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Key usage extension is present", "TRUE", (ku != null),
-                "");
 
         // taken out and placed somewhere else?
         // Confirm digitalSignature bit is set
         assertTrue(ku[0] == true, "digitalSignature bit is not set");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Digital Signature bit is set", "TRUE", (ku[0] == true),
-                "");
     }
 
     // Confirm no other bits are set
@@ -150,13 +135,9 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean[] foundBits = cert.getKeyUsage();
         assertNotNull(foundBits, "keyUsage extension is absent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Key usage extension is present", "TRUE",
-                (foundBits != null), "");
 
         byte[] foundBytes = bitsToBytes(foundBits);
         KeyUsage foundUsage = KeyUsage.getInstance(new DERBitString(foundBytes, 6));
@@ -167,9 +148,6 @@ public class PKIX_X509DataObjectTests {
         }
 
         if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID) == 0) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "OID compared to X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID is equal to 0", "TRUE",
-                    (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID)), "");
             assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
             assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
             assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
@@ -180,9 +158,6 @@ public class PKIX_X509DataObjectTests {
             assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly");
             assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly");
         } else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "OID compared to X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID is equal to 0", "TRUE",
-                    (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID)), "");
             assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
             assertTrue(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is not set");
             assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
@@ -193,13 +168,7 @@ public class PKIX_X509DataObjectTests {
             assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly is set");
             assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly is set");
         } else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "(OID compared to X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID is equal to 0", "TRUE",
-                    (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID)), "");
             if (cert.getPublicKey() instanceof RSAPublicKey) {
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "(Certificate Public Key is instance of RSA Public Key", "TRUE",
-                        (cert.getPublicKey() instanceof RSAPublicKey), "");
                 assertFalse(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is set");
                 assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
                 assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
@@ -210,9 +179,6 @@ public class PKIX_X509DataObjectTests {
                 assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly is set");
                 assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly is set");
             } else if (cert.getPublicKey() instanceof ECPublicKey) {
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "(Certificate Public Key is instance of EC Public Key", "TRUE",
-                        (cert.getPublicKey() instanceof ECPublicKey), "");
                 assertFalse(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is set");
                 assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
                 assertTrue(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is not set");
@@ -224,9 +190,6 @@ public class PKIX_X509DataObjectTests {
                 assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly is set");
             }
         } else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "(OID compared to X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID is equal to 0", "TRUE",
-                    (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID)), "");
             assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
             assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
             assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
@@ -237,9 +200,6 @@ public class PKIX_X509DataObjectTests {
             assertFalse(foundUsage.hasUsages(KeyUsage.encipherOnly), "encipherOnly");
             assertFalse(foundUsage.hasUsages(KeyUsage.decipherOnly), "decipherOnly");
         } else if (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID) == 0) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "(OID compared to CARD_HOLDER_UNIQUE_IDENTIFIER_OID is equal to 0", "TRUE",
-                    (oid.compareTo(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)), "");
             assertTrue(foundUsage.hasUsages(KeyUsage.digitalSignature), "digitialSignature is not set");
             assertFalse(foundUsage.hasUsages(KeyUsage.nonRepudiation), "nonRepudiation is set");
             assertFalse(foundUsage.hasUsages(KeyUsage.keyAgreement), "keyAgreement is set");
@@ -262,16 +222,12 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         // Get certificate policies extension
         byte[] cpex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
 
         // Confirm certificate policies extension is present
         assertTrue(cpex != null, "Certificate policies extension is absent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate policies extension is present", "TRUE",
-                (cpex != null), "");
     }
 
     // Confirm that id- fpki-common-authentication 2.16.840.1.101.3.2.1.3.13 OID (or
@@ -286,8 +242,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate eeCert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(eeCert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE",
-                (eeCert != null), "");
 
         if (containersAndPolicyOids == null) {
             ConformanceTestException e = new ConformanceTestException("policyOid is null");
@@ -326,8 +280,6 @@ public class PKIX_X509DataObjectTests {
             }
         }
         assertTrue(valid, failMsg);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Cert valid to trust anchor in default keystore", "TRUE",
-                valid, "");
     }
 
     /*
@@ -482,15 +434,12 @@ public class PKIX_X509DataObjectTests {
     void PKIX_Test_7(String oid, TestReporter reporter) {
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         // Get authorityInformationAccess extension
         byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
 
         // Confirm authorityInformationAccess extension is present
         assertTrue(aiaex != null, "AIA extension is not present");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "AIA extension is present", "TRUE", (aiaex != null), "");
     }
 
     // An accessMethod containing id-ad-ocsp is present (only PIV auth requires
@@ -502,8 +451,6 @@ public class PKIX_X509DataObjectTests {
     void PKIX_Test_8(String oid, TestReporter reporter) {
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
 
@@ -525,9 +472,6 @@ public class PKIX_X509DataObjectTests {
         }
         assertTrue(rv,
                 "An accessMethod containing " + X509ObjectIdentifiers.ocspAccessMethod.toString() + " is not present");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "An accessMethod containing " + X509ObjectIdentifiers.ocspAccessMethod.toString() + " is present",
-                "TRUE", rv, "");
     }
 
     // The accessLocation for the id-ad-ocsp AccessMethod is of type
@@ -541,8 +485,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
         byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
@@ -562,8 +504,6 @@ public class PKIX_X509DataObjectTests {
             s_logger.error("No AIA is present");
         }
         assertTrue(rv, "The accessLocation for this AccessMethod is not of type uniformResourceIdentifier.");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "The accessLocation for this AccessMethod is of type uniformResourceIdentifier", "TRUE", rv, "");
     }
 
     // Confirm that the access location for OCSP is http protocol
@@ -576,8 +516,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
 
@@ -602,7 +540,6 @@ public class PKIX_X509DataObjectTests {
             fail(e);
         }
         assertTrue(rv, "OCSP URL does not start with http:");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "OCSP URL starts with a http:", "TRUE", rv, "");
     }
 
     // Confirm that piv interim "2.16.840.1.101.3.6.9.1" extension is present
@@ -615,8 +552,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         if (cert != null) {
             // Get piv interim "2.16.840.1.101.3.6.9.1" extension
@@ -624,14 +559,7 @@ public class PKIX_X509DataObjectTests {
 
             // Confirm pivInterim extension is present and isn't empty
             assertTrue(pivInterim != null, "pivInterim extension is not present");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "pivInterim extension is present", "TRUE",
-                    (pivInterim != null), "");
-
             assertTrue(pivInterim.length > 0, "pivInterim extension is empty");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "pivInterim extension not empty", "TRUE",
-                    (pivInterim.length > 0), "");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "pivInterim extension actual length", "--",
-                    pivInterim.length, "");
         }
     }
 
@@ -646,8 +574,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         // issue #107... temporarily turning red all the time to avoid repeat
         // ConformanceTestException e = new ConformanceTestException("PKIX.11 needs to
@@ -684,8 +610,6 @@ public class PKIX_X509DataObjectTests {
 
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         CardHolderUniqueIdentifier o2 = (CardHolderUniqueIdentifier) AtomHelper
                 .getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
@@ -703,8 +627,6 @@ public class PKIX_X509DataObjectTests {
         }
 
         assertTrue(matchFascn(cert, fascn, requiredOid), "Certificate doesn't contain " + Hex.encodeHexString(fascn));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate contains " + Hex.encodeHexString(fascn),
-                "TRUE", matchFascn(cert, fascn, requiredOid), "");
     }
 
     // Confirm that expiration of certificate is not later than expiration of card
@@ -717,15 +639,11 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         PIVDataObject o2 = AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
 
         Date notAfter = cert.getNotAfter();
         assertNotNull(notAfter);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Not After is NOT NULL " + oid, "TRUE", (notAfter != null),
-                "");
 
         Date expirationDate = ((CardHolderUniqueIdentifier) o2).getExpirationDate();
         GregorianCalendar gc = new GregorianCalendar();
@@ -738,9 +656,6 @@ public class PKIX_X509DataObjectTests {
         // Confirm that expiration of certificate is not later than expiration of card
         assertTrue(notAfter.compareTo(exactDateTime) <= 0,
                 "Certificate " + notAfter + " expires later than the card " + exactDateTime);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate " + notAfter + " is not later than " + exactDateTime, "TRUE",
-                (notAfter.compareTo(exactDateTime) <= 0), "");
     }
 
     // For RSA certs, confirm that public exponent >= 65537
@@ -753,8 +668,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         PublicKey pubKey = cert.getPublicKey();
         // Only do this if this is an RSA key
@@ -763,8 +676,6 @@ public class PKIX_X509DataObjectTests {
             BigInteger be = BigInteger.valueOf(65537);
             assertTrue(((RSAPublicKey) (pubKey)).getPublicExponent().compareTo(be) >= 0,
                     "Public exponent is not >= 65537");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Public Exponent is >= 65637", "TRUE",
-                    (((RSAPublicKey) (pubKey)).getPublicExponent().compareTo(be) >= 0), "");
         }
     }
 
@@ -818,16 +729,12 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         // Get certificate policies extension
         byte[] cpex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_certificatePolicies"));
 
         // Confirm certificate policies extension is present
         assertTrue(cpex != null, "Certificate policies extension is absent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate policies extension is present", "TRUE",
-                (cpex != null), "");
 
         CertificatePolicies policies = null;
         try {
@@ -849,10 +756,6 @@ public class PKIX_X509DataObjectTests {
         // Confirm that policy oid is present
         assertTrue(containsOOID,
                 "Certificate policy " + policyOid + " is not present in certificate policies on the certificate");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate policy " + policyOid + " is present in certificate policies on certificate", "TRUE",
-                containsOOID, "");
-
     }
 
     // Confirm extendedKeyUsage extension is present and is marked critical
@@ -865,15 +768,12 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         // Get eku extension
         byte[] cpex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 
         // Confirm eku extension is present
         assertTrue(cpex != null, "EKU extension is absent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "EKU extension is present", "TRUE", (cpex != null), "");
     }
 
     // Confirm id-PIV-cardAuth is asserted and no other OID is asserted
@@ -890,16 +790,13 @@ public class PKIX_X509DataObjectTests {
 
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         // Get certificate policies extension
         byte[] ekuex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 
         // Confirm EKU extension is present
         assertTrue(ekuex != null, "Extended key usage extension is absent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "EKU extension is present", "TRUE", (ekuex != null), "");
-
+ 
         ExtendedKeyUsage eku = null;
         try {
             eku = ExtendedKeyUsage.getInstance(JcaX509ExtensionUtils.parseExtensionValue(ekuex));
@@ -908,16 +805,10 @@ public class PKIX_X509DataObjectTests {
         }
 
         assertNotNull(eku);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "EKU NOT NULL ", "TRUE", (eku != null), "");
 
         KeyPurposeId[] kpilist = eku.getUsages();
         assertTrue(kpilist.length == 1, "Extended Key Usage keyPurposeId asserts more than one OID");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
-
         assertTrue(ekuOid.compareTo(kpilist[0].getId()) == 0, "Certificate does not contain " + ekuOid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
     }
 
     @DisplayName("PKIX.21 test")
@@ -929,16 +820,12 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         // Get certificate policies extension
         byte[] ekuex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_ce_extKeyUsage"));
 
         // Confirm certificate policies extension is present
         assertTrue(ekuex != null, "Certificate policies extension is absent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate policies extension is present", "TRUE",
-                (ekuex != null), "");
 
         ExtendedKeyUsage eku = null;
         try {
@@ -948,8 +835,6 @@ public class PKIX_X509DataObjectTests {
         }
 
         assertNotNull(eku);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Extended Key Usage is NOT NULL", "TRUE", (eku != null),
-                "");
 
         boolean containsOOID = false;
 
@@ -961,8 +846,6 @@ public class PKIX_X509DataObjectTests {
         }
 
         assertTrue(containsOOID, "EKU does not contain " + ekuOid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Extended Key Usage contains " + ekuOid, "TRUE",
-                containsOOID, "");
     }
 
     // An accessMethod containing id-ad-caIssuers is present
@@ -973,8 +856,6 @@ public class PKIX_X509DataObjectTests {
     void PKIX_Test_22(String oid, TestReporter reporter) {
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
 
@@ -996,9 +877,6 @@ public class PKIX_X509DataObjectTests {
         }
         assertTrue(rv,
                 "An accessMethod containing " + X509ObjectIdentifiers.crlAccessMethod.toString() + " is not present");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "An accessMethod containing " + X509ObjectIdentifiers.crlAccessMethod.toString() + " is present",
-                "TRUE", rv, "");
     }
 
     // Check CRL DP for ".crl"
@@ -1011,8 +889,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
 
@@ -1030,7 +906,6 @@ public class PKIX_X509DataObjectTests {
             s_logger.error("No CRL distribution point present");
         }
         assertTrue(rv, "CRL DP does not end with .crl");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CRL ends with a .crl extension", "TRUE", rv, "");
     }
 
     // File has an extension of .p7c containing a certs-only CMS message (see RFC
@@ -1046,21 +921,16 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         Exception cause = null;
         byte[] extVal = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
         assertNotNull(extVal);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Extension value is NOT NULL", "TRUE", (extVal != null),
-                "");
+
         String errMsg = null;
         try {
             AuthorityInformationAccess aia = AuthorityInformationAccess
                     .getInstance(JcaX509ExtensionUtils.parseExtensionValue(extVal));
             assertNotNull(aia);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Authority Information Access is NOT NULL", "TRUE",
-                    (aia != null), "");
 
             AccessDescription[] descriptions = aia.getAccessDescriptions();
             for (AccessDescription ad : descriptions) {
@@ -1117,14 +987,9 @@ public class PKIX_X509DataObjectTests {
         if (sd != null) {
             errMsg = "Message is not a CMS message";
             assertTrue(sd.isCertificateManagementMessage(), errMsg);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Message is Certificate Management Message", "TRUE",
-                    sd.isCertificateManagementMessage(), "");
 
             errMsg = "Message is not a certs-only CMS";
             assertNull(td, errMsg);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Message is a cert-only CMS", "TRUE", (td != null),
-                    "");
-
         } else {
             errMsg = "Signed data was null";
             fail(errMsg);
@@ -1140,16 +1005,11 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         Calendar cal = Calendar.getInstance();
         Date today = cal.getTime();
 
         assertTrue(cert.getNotAfter().compareTo(today) >= 0, "Signing certificate expired " + cert.getNotAfter());
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Signing certificate not expired", "TRUE",
-                (cert.getNotAfter().compareTo(today) >= 0), "");
-
     }
 
     // GeneralName field exists that contain a URI asserting a Card UUID as
@@ -1174,8 +1034,6 @@ public class PKIX_X509DataObjectTests {
 
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         CardHolderUniqueIdentifier o2 = (CardHolderUniqueIdentifier) AtomHelper
                 .getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
@@ -1193,8 +1051,6 @@ public class PKIX_X509DataObjectTests {
         }
 
         assertTrue(matchUuid(cert, guid), "Certificate doesn't contain " + Hex.encodeHexString(guid));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate contains GUID: " + Hex.encodeHexString(guid),
-                "TRUE", matchUuid(cert, guid), "");
     }
 
     // No other name forms appear in the subjectAltName extension.
@@ -1212,8 +1068,6 @@ public class PKIX_X509DataObjectTests {
 
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         CardHolderUniqueIdentifier o2 = (CardHolderUniqueIdentifier) AtomHelper
                 .getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
@@ -1232,8 +1086,6 @@ public class PKIX_X509DataObjectTests {
 
         ArrayList<Integer> types = new ArrayList<Integer>(Arrays.asList(0, 6));
         assertTrue(onlyMatchesTypes(cert, types), "Certificate doesn't contain " + Hex.encodeHexString(guid));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
     }
 
     private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {
@@ -1242,8 +1094,6 @@ public class PKIX_X509DataObjectTests {
         // if(css == null) s_logger.error("Failed to retrieve card settings singleton
         // while constructing test parameters");
         assertNotNull(css, "Failed to get instance of Card Settings Singleton");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Instance of Card Settings Singleton created", "TRUE",
-                (css != null), "");
 
         if (css.getLastLoginStatus() == LOGIN_STATUS.LOGIN_FAIL) {
             ConformanceTestException e = new ConformanceTestException(
@@ -1262,17 +1112,12 @@ public class PKIX_X509DataObjectTests {
         MiddlewareStatus result = MiddlewareStatus.PIV_OK;
 
         assertNotNull(piv, "Invalid PIV application handle in singleton");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Valid PIV Handle obtained", "TRUE", (piv != null), "");
-
         assertNotNull(c, "Invalid card handle in singleton");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Valid Card Handle obtained", "TRUE", (c != null), "");
 
         for (String oid : oids) {
             // s_logger.debug("Retrieving certificate for oid {}", oid);
             PIVDataObject obj = PIVDataObjectFactory.createDataObjectForOid(oid);
             assertNotNull(obj, "Failed to allocate PIV data object");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "PIV Data Object is NOT NULL", "TRUE", (obj != null),
-                    "");
 
             result = piv.pivGetData(c, oid, obj);
             if (result != MiddlewareStatus.PIV_OK) {
@@ -1284,7 +1129,6 @@ public class PKIX_X509DataObjectTests {
             }
             boolean decoded = obj.decode();
             assertTrue(decoded, "Failed to decode object for OID " + oid);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Object decoded for OID " + oid, "TRUE", decoded, "");
 
             X509Certificate cert = null;
             if (oid.equals(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID)) {
@@ -1310,8 +1154,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
         byte[] aiaex = cert.getExtensionValue(PKIX_X509DataObjectIdentifiers.get("X509_id_pe_authorityInfoAccess"));
@@ -1331,8 +1173,6 @@ public class PKIX_X509DataObjectTests {
             s_logger.error("No AIA is present");
         }
         assertTrue(rv, "The accessLocation for this AccessMethod is not of type uniformResourceIdentifier.");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Access Location is of type Uniform Resource Identifier",
-                "TRUE", rv, "");
     }
 
     // Confirm that the access location for caIssuers is http protocol
@@ -1345,8 +1185,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
 
@@ -1370,8 +1208,6 @@ public class PKIX_X509DataObjectTests {
             s_logger.error("No AIA extension present.");
         }
         assertTrue(rv, "URI for id-ad-caIssuers is not http:");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "URI scheme for id-ad-caIssuers is http:", "TRUE", rv, "");
-
     }
 
     // The URI scheme for id-ce-cRLDistributionPoints is "http" (not "https")
@@ -1384,8 +1220,6 @@ public class PKIX_X509DataObjectTests {
             return;
         X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
         assertNotNull(cert, "Certificate could not be read for " + oid);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate readable for " + oid, "TRUE", (cert != null),
-                "");
 
         boolean rv = false;
 
@@ -1403,8 +1237,6 @@ public class PKIX_X509DataObjectTests {
             s_logger.error("No CRL distribution point present");
         }
         assertTrue(rv, "URI scheme for id-ce-cRLDistributionPoints is not http:");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "URI scheme for id-ce-cRLDistributionPoints is http:",
-                "TRUE", rv, "");
     }
 
     // The local provider methods are now only used to test the atoms... they are no
@@ -1420,28 +1252,18 @@ public class PKIX_X509DataObjectTests {
 
         X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
         assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert1 != null), "");
 
         X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
         assertNotNull(cert2, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert2 != null), "");
 
         X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
         assertNotNull(cert3, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert3 != null), "");
 
         X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
         assertNotNull(cert4, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert4 != null), "");
 
         X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getChuidSignerCert();
         assertNotNull(cert5, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert5 != null), "");
 
         // TODO: Technically, we should be checking biometric containers for embedded
         // content signer certs
@@ -1468,8 +1290,7 @@ public class PKIX_X509DataObjectTests {
         for (String oid : certContainersToTest) {
             X509Certificate cert = certificates.get(oid);
             assertNotNull(cert, "Certificate for container " + oid + " was not found.");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Certificate retrived for " + oid, "TRUE",
-                    (cert != null), "");
+
             generator.add(Arguments.of(cert, aiaOid));
             generator.add(Arguments.of(cert, crldpOid));
         }
@@ -1487,28 +1308,18 @@ public class PKIX_X509DataObjectTests {
 
         X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
         assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert1 != null), "");
 
         X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
         assertNotNull(cert2, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert2 != null), "");
 
         X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
         assertNotNull(cert3, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert3 != null), "");
 
         X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
         assertNotNull(cert4, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert4 != null), "");
 
         X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getChuidSignerCert();
         assertNotNull(cert5, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert5 != null), "");
 
         return Stream.of(Arguments.of(cert1, "1.3.6.1.1.16.4"), Arguments.of(cert2, "1.3.6.1.1.16.4"),
                 Arguments.of(cert3, "1.3.6.1.1.16.4"), Arguments.of(cert4, "1.3.6.1.1.16.4"),
@@ -1527,28 +1338,18 @@ public class PKIX_X509DataObjectTests {
 
         X509Certificate cert1 = ((X509CertificateDataObject) o1).getCertificate();
         assertNotNull(cert1, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert1 != null), "");
 
         X509Certificate cert2 = ((X509CertificateDataObject) o2).getCertificate();
         assertNotNull(cert2, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert2 != null), "");
 
         X509Certificate cert3 = ((X509CertificateDataObject) o3).getCertificate();
         assertNotNull(cert3, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert3 != null), "");
 
         X509Certificate cert4 = ((X509CertificateDataObject) o4).getCertificate();
         assertNotNull(cert4, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert4 != null), "");
 
         X509Certificate cert5 = ((CardHolderUniqueIdentifier) o5).getChuidSignerCert();
         assertNotNull(cert5, "Certificate retrived from X509CertificateDataObject object is NULL");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Certificate retrived from X509CertificateDataObject object is NOT NULL", "TRUE", (cert5 != null), "");
 
         return Stream.of(Arguments.of(cert1, 6), Arguments.of(cert2, 6), Arguments.of(cert3, 6), Arguments.of(cert4, 6),
                 Arguments.of(cert5, 6));
