@@ -21,12 +21,6 @@ import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 public class SP800_73_4FacialImageTests {
     private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4FacialImageTests.class);
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    // Note: No asserts were found in this file that output to the result .csv file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     // Card Holder Facial Image blob no larger than 12710 bytes
     @DisplayName("SP800-73-4.32 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
