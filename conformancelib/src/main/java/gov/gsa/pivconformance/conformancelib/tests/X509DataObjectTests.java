@@ -24,11 +24,6 @@ import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
 public class X509DataObjectTests {
     private static final Logger s_logger = LoggerFactory.getLogger(X509DataObjectTests.class);
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     // Cert container value lengths comply with Table 10, 15, 16, 17, 20-39, 42 of
     // SP 800-73-4
     @DisplayName("SP800-73-4.18 test")
@@ -37,7 +32,6 @@ public class X509DataObjectTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_18(String oid, TestReporter reporter) {
         assertTrue(false); // Abbreviated to make sure we don't fire this - remove entire atom if we don't
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Return false for SP800-73-4.18 test", "FALSE", false, "");
     }
 
     // Tags 0x70 and 0x71 are present in that order
@@ -62,22 +56,12 @@ public class X509DataObjectTests {
         BerTag berCertInfoTag = new BerTag(TagConstants.CERTINFO_TAG);
 
         assertTrue(tagList.contains(berCertTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", berCertTag + " contained in Tag List", "TRUE",
-                tagList.contains(berCertTag), "");
-
         assertTrue(tagList.contains(berCertInfoTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", berCertInfoTag + " contained in Tag List", "TRUE",
-                tagList.contains(berCertInfoTag), "");
 
         int tagIndex = tagList.indexOf(berCertTag);
 
         assertTrue(Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTIFICATE_TAG equals Tag List", "TRUE",
-                Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG), "");
-
         assertTrue(Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTINFO_TAG equals Tag List", "TRUE",
-                Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG), "");
     }
 
     // Tag 0x72 is optionally present and follows tags from 73-4.19
@@ -99,16 +83,8 @@ public class X509DataObjectTests {
             int tagIndex = tagList.indexOf(berCertTag);
 
             assertTrue(Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTIFICATE_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTINFO_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(tagIndex + 2).bytes, TagConstants.MSCUID_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "MSCUID_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex + 2).bytes, TagConstants.MSCUID_TAG), "");
         }
 
     }
@@ -129,43 +105,20 @@ public class X509DataObjectTests {
         BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 
         assertTrue(tagList.contains(berEDCTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List contains Ber Error Detection Code Tag", "TRUE",
-                tagList.contains(berEDCTag), "");
 
         int tagIndex = tagList.indexOf(berCertTag);
 
         if (tagList.contains(berMSCUIDTag)) {
 
             assertTrue(Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTIFICATE_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTINFO_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(tagIndex + 2).bytes, TagConstants.MSCUID_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "MSCUID_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex + 2).bytes, TagConstants.MSCUID_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(tagIndex + 3).bytes, TagConstants.ERROR_DETECTION_CODE_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "ERROR_DETECTION_CODE_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex + 3).bytes, TagConstants.ERROR_DETECTION_CODE_TAG), "");
-
         } else {
 
             assertTrue(Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTIFICATE_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex).bytes, TagConstants.CERTIFICATE_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "CERTINFO_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex + 1).bytes, TagConstants.CERTINFO_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(tagIndex + 2).bytes, TagConstants.ERROR_DETECTION_CODE_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "ERROR_DETECTION_CODE_TAG equals Tag List", "TRUE",
-                    Arrays.equals(tagList.get(tagIndex + 2).bytes, TagConstants.ERROR_DETECTION_CODE_TAG), "");
-
         }
 
     }
@@ -194,8 +147,6 @@ public class X509DataObjectTests {
                 }
             }
             assertTrue(present);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Check that the tag is present in the all CCC tags list", "TRUE", present, "");
         }
     }
 
@@ -213,14 +164,10 @@ public class X509DataObjectTests {
         BerTag berEDCTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 
         assertTrue(tagList.contains(berEDCTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Check that the tag is present in the all CCC tags list",
-                "TRUE", tagList.contains(berEDCTag), "");
 
         boolean ecHasData = o.getErrorDetectionCodeHasData();
 
         assertTrue(ecHasData == false);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Error Detction Code has data", "FALSE",
-                (ecHasData == false), "");
     }
 
     @SuppressWarnings("unused")
