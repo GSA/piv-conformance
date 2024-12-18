@@ -48,11 +48,6 @@ public class SP800_78_X509DataObjectTests {
 
     static Logger s_logger = LoggerFactory.getLogger(SP800_78_X509DataObjectTests.class);
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     /*
      * X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID:1.2.840.113549.1.1.1+NULL|1.2.840
      * .10045.2.1+1.2.840.10045.3.1.7,
@@ -141,16 +136,10 @@ public class SP800_78_X509DataObjectTests {
             RSAPublicKey rsaPk = (RSAPublicKey) pk;
             keylen = rsaPk.getModulus().bitLength();
             assertTrue((keylen == 2048 || keylen == 3072), keylen + " is an invalid key length");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", keylen + " is a valid key length", "TRUE",
-                    (keylen == 2048 || keylen == 3072), "");
-
         } else if (certAlgorithm.compareTo("EC") == 0) {
             java.security.interfaces.ECPublicKey ec = (java.security.interfaces.ECPublicKey) pk;
             keylen = ec.getParams().getCurve().getField().getFieldSize();
             assertTrue((keylen == 256 || keylen == 384), keylen + " is an invalid key length");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", keylen + " is a valid key length", "TRUE",
-                    (keylen == 256 || keylen == 384), "");
-
         }
 
         String curveFromCert = "";
@@ -185,16 +174,11 @@ public class SP800_78_X509DataObjectTests {
             if (certAlgorithm.compareTo("RSA") == 0) {
                 // check key size
                 assertTrue(modulus == 2048);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Key size is 2048", "TRUE", (modulus == 2048), "");
             } else if (certAlgorithm.compareTo("EC") == 0) {
                 // Confirm that the curve in the cert is prime256v1
                 assertTrue(supportedCurve1.compareTo(curveFromCert) == 0);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Curve in the cert is prime256v1", "TRUE",
-                        (supportedCurve1.compareTo(curveFromCert) == 0), "");
             } else {
                 assertTrue(false);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Return FALSE if RSA or EC != 0", "FALSE", false,
-                        "");
             }
 
         } else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID) == 0) {
@@ -202,40 +186,25 @@ public class SP800_78_X509DataObjectTests {
             if (certAlgorithm.compareTo("RSA") == 0) {
                 // check key size
                 assertTrue(modulus == 2048);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Key size is 2048", "TRUE", (modulus == 2048), "");
             } else if (certAlgorithm.compareTo("EC") == 0) {
 
                 // Confirm that the curve in the cert is prime256v1 or prime384v1
                 assertTrue(
                         supportedCurve1.compareTo(curveFromCert) == 0 || supportedCurve2.compareTo(curveFromCert) == 0);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Curve in the cert is prime256v1 or prime384v1",
-                        "TRUE", (supportedCurve1.compareTo(curveFromCert) == 0
-                                || supportedCurve2.compareTo(curveFromCert) == 0),
-                        "");
             } else {
                 assertTrue(false);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Return FALSE if RSA or EC != 0", "FALSE", false,
-                        "");
             }
         } else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID) == 0) {
 
             if (certAlgorithm.compareTo("RSA") == 0) {
                 // check key size
                 assertTrue(modulus == 2048);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Key size is 2048", "TRUE", (modulus == 2048), "");
-
             } else if (certAlgorithm.compareTo("EC") == 0) {
                 // Confirm that the curve in the cert is prime256v1 or prime384v1
                 assertTrue(
                         supportedCurve1.compareTo(curveFromCert) == 0 || supportedCurve2.compareTo(curveFromCert) == 0);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Curve in the cert is prime256v1 or prime384v1",
-                        "TRUE", (supportedCurve1.compareTo(curveFromCert) == 0
-                                || supportedCurve2.compareTo(curveFromCert) == 0),
-                        "");
             } else {
                 assertTrue(false);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Return FALSE if RSA or EC != 0", "FALSE", false,
-                        "");
             }
 
         } else if (oid.compareTo(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID) == 0) {
@@ -243,19 +212,13 @@ public class SP800_78_X509DataObjectTests {
             if (certAlgorithm.compareTo("RSA") == 0) {
                 // check key size
                 assertTrue(modulus == 2048);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Key size is 2048", "TRUE", (modulus == 2048), "");
-
             } else if (certAlgorithm.compareTo("EC") == 0) {
                 // Confirm that the curve in the cert is prime256v1 or prime384v1 <- (CB, not
                 // sure about this: prime384v1 is correct, maybe a cut and paste)
                 // I did not reflect in output file.
                 assertTrue(supportedCurve1.compareTo(curveFromCert) == 0);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Curve in the cert is prime256v1", "TRUE",
-                        (supportedCurve1.compareTo(curveFromCert) == 0), "");
             } else {
                 assertTrue(false);
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Return FALSE if RSA or EC != 0", "FALSE", false,
-                        "");
             }
         } else {
             // Let's for now assume this is a content signing cert.
@@ -318,41 +281,25 @@ public class SP800_78_X509DataObjectTests {
                     String errMsg = "Parameter must NOT be supplied for " + name + ".  Value of params "
                             + Hex.encodeHexString(params);
                     assertTrue((params[0] != 5 || params[1] != 0), errMsg);
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Parameter supplied for " + name + ".  Value of params " + Hex.encodeHexString(params),
-                            "TRUE", (params[0] != 5 || params[1] != 0), "");
-
                 } else {
                     s_logger.debug("Setting BC cert's params to null");
                     params = null;
                 }
                 assertTrue(params == null,
                         "No such algorithm or parameters not available for: " + cert.getSigAlgName());
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "No such algorithm or parameters not available for: " + cert.getSigAlgName(), "TRUE",
-                        (params == null), "");
-
             } else if (signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
                 byte[] params = cert.getSigAlgParams();
                 assertNotNull(params, "Parameters are not specified");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Parameters are specified", "TRUE",
-                        (params == null), "");
 
                 AlgorithmParameters aps = AlgorithmParameters.getInstance(cert.getSigAlgName());
                 assertNotNull(aps, "Algorithm parameters is null");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Algorithm parameters is null", "TRUE",
-                        (aps == null), "");
 
                 aps.init(params);
                 PSSParameterSpec pssps = aps.getParameterSpec(PSSParameterSpec.class);
                 assertNotNull(pssps, "Parameter spec is null");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Parameter spec IS NOT NULL", "TRUE",
-                        (pssps == null), "");
 
                 String digestAlg = pssps.getDigestAlgorithm();
                 assertTrue(digestAlg.toLowerCase().toLowerCase().replaceAll("-", "").equals("sha256"));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Digest Algorithm is equal to sha256", "TRUE",
-                        digestAlg.toLowerCase().toLowerCase().replaceAll("-", "").equals("sha256"), "");
 
             } else if (signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
                 byte[] params = cert.getSigAlgParams();
@@ -360,22 +307,14 @@ public class SP800_78_X509DataObjectTests {
                     s_logger.error("Parameter must NOT be supplied for " + signatureAlgOID + ".  Value of params "
                             + Hex.encodeHexString(params));
                 assertTrue(params == null, "Non-conformant signature algorithm OID");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Conformant signature algorithm OID", "TRUE",
-                        (params == null), "");
-
             } else if (signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
                 byte[] params = cert.getSigAlgParams();
                 if (params != null)
                     s_logger.error("Parameter must NOT be supplied for " + signatureAlgOID + ".  Value of params "
                             + Hex.encodeHexString(params));
                 assertTrue(params == null, "Non-conformant signature algorithm OID");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Conformant signature algorithm OID", "TRUE",
-                        (params == null), "");
-
             } else {
                 assertTrue(false, "Signature algorithm (" + signatureAlgOID + ") is not an allowable algorithm");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Signature algorithm (" + signatureAlgOID + ") is an allowable algorithm", "FALSE", false, "");
             }
         } catch (Exception e) {
             String msg = e.getMessage();
