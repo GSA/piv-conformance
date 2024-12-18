@@ -28,11 +28,6 @@ import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
 public class SP800_73_4PrintedInfoTests {
         private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4PrintedInfoTests.class);
 
-        // Create a logger to write content to .cvs file used to generate the result
-        // .html file.
-        private static Logger a_actualValueLogger = LoggerFactory
-                        .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
         // Printed Information value lengths comply with Table 14 of SP 800-73-4
         @DisplayName("SP800-73-4.27 test")
         @ParameterizedTest(name = "{index} => oid = {0}")
@@ -74,27 +69,13 @@ public class SP800_73_4PrintedInfoTests {
 
                 // Confirm tags 0x01, 0x02, 0x05, 0x06 are present
                 assertTrue(tagList.contains(berNameTag), "Container does not include Name");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Container includes Name", "TRUE",
-                                tagList.contains(berNameTag), "");
-
                 assertTrue(tagList.contains(berEmployeeAffiliationTag),
                                 "Container does not include Employee Affiliation");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Container includes Employee Affiliation", "TRUE",
-                                tagList.contains(berEmployeeAffiliationTag), "");
-
                 assertTrue(tagList.contains(berPrintedInformationExpirationDateTag),
                                 "Container does not include Expiration Date");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Container includes Expiration Date", "TRUE",
-                                tagList.contains(berPrintedInformationExpirationDateTag), "");
-
                 assertTrue(tagList.contains(berAgencyCardSerialTag),
                                 "Container does not include Agency Card Serial Number");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Container includes Agency Card Serial Number",
-                                "TRUE", tagList.contains(berAgencyCardSerialTag), "");
-
                 assertTrue(tagList.contains(berIssuerIDTag), "Container does not include Issuer Identifier");
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Container includes Issuer Identifier", "TRUE",
-                                tagList.contains(berIssuerIDTag), "");
         }
 
         // Tags 0x07 and 0x08 are optionally present in that order, following the tags
@@ -116,28 +97,18 @@ public class SP800_73_4PrintedInfoTests {
                 if (tagList.contains(berOrgAffiliationTag)) {
                         int issuerIdTagIndex = tagList.indexOf(berIssuerIdTag);
                         assertFalse(issuerIdTagIndex == -1, "Issuer Identification tag must be present");
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Issuer Identification tag present",
-                                        "FALSE", (issuerIdTagIndex == -1), "");
 
                         int orgAffiliationTagIndex = tagList.indexOf(berOrgAffiliationTag);
                         assertTrue(orgAffiliationTagIndex == issuerIdTagIndex + 1,
                                         "Tag 0x07 must follow tag 0x06 if present");
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag 0x07 follows tag 0x06 if present",
-                                        "TRUE", (orgAffiliationTagIndex == issuerIdTagIndex + 1), "");
 
                         int orgAffiliationTagL2Index = tagList.indexOf(berOrgAffiliationL2Tag);
                         if (orgAffiliationTagL2Index != -1) {
                                 assertTrue(orgAffiliationTagL2Index == orgAffiliationTagIndex + 1,
                                                 "Tag 0x08 must follow tag 0x07 if present");
-                                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                                                "Tag 0x08 follows tag 0x07 if present", "TRUE",
-                                                (orgAffiliationTagL2Index == orgAffiliationTagIndex + 1), "");
-
                         }
                 } else {
                         assertFalse(tagList.contains(berOrgAffiliationL2Tag));
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag 0x08 follows tag 0x07 if present",
-                                        "FALSE", tagList.contains(berOrgAffiliationL2Tag), "");
                 }
         }
 
@@ -156,8 +127,6 @@ public class SP800_73_4PrintedInfoTests {
 
                 // Make sure EDC tag is present
                 assertTrue(tagList.contains(berECTag));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "EDC tag is present", "TRUE",
-                                tagList.contains(berECTag), "");
         }
 
         // No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present
@@ -183,10 +152,6 @@ public class SP800_73_4PrintedInfoTests {
                                 }
                         }
                         assertTrue(present);
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                                        "No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present",
-                                        "TRUE", present, "");
-
                 }
         }
 
@@ -219,19 +184,8 @@ public class SP800_73_4PrintedInfoTests {
                         int serialNumberTagIndex = tagList.indexOf(berAgencyCardSerialTag);
                         int issuerIdTagIndex = tagList.indexOf(berIssuerIDTag);
                         assertTrue(nameTagIndex < employeeAffiliationTagIndex, "Tag 0x02 must follow tag 0x01");
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                                        "No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present",
-                                        "TRUE", (nameTagIndex < employeeAffiliationTagIndex), "");
-
                         assertTrue(employeeAffiliationTagIndex < serialNumberTagIndex, "Tag 0x05 must follow tag 0x02");
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                                        "No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present",
-                                        "TRUE", (employeeAffiliationTagIndex < serialNumberTagIndex), "");
-
                         assertTrue(serialNumberTagIndex < issuerIdTagIndex, "Tag 0x06 must follow tag 0x05");
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                                        "No tags other than (0x01, 0x02, 0x05, 0x06, 0x07, 0x08, 0xFE) are present",
-                                        "TRUE", (serialNumberTagIndex < issuerIdTagIndex), "");
                 } catch (Exception e) {
                         fail(e);
                 }
@@ -277,22 +231,12 @@ public class SP800_73_4PrintedInfoTests {
                         // the description in this case.
                         int ecTagIndex = tagList.indexOf(berECTag);
                         assertTrue(ecTagIndex == tagList.size() - 1, "ERROR_DETECTION_TAG must be the last tag");
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "ERROR_DETECTION_TAG is the last tag",
-                                        "TRUE", (ecTagIndex == tagList.size() - 1), "");
 
                         BerTag previousTag = tagList.get(ecTagIndex - 1);
                         assertTrue(previousTag.equals(berOrgAffiliationL2Tag)
                                         || previousTag.equals(berOrgAffiliationTag)
                                         || previousTag.equals(berIssuerIdentificationTag),
                                         "Tag 0xFE must follow either tag 0x06, 0x07, 0x08.");
-                        // Note: checks three options the same as above for output.
-                        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                                        "Tag 0xFE follows either tag 0x06, 0x07, 0x08.", "TRUE",
-                                        (previousTag.equals(berOrgAffiliationL2Tag)
-                                                        || previousTag.equals(berOrgAffiliationTag)
-                                                        || previousTag.equals(berIssuerIdentificationTag)),
-                                        "");
-
                         /*
                          * boolean optionalPresent = false;
                          *
