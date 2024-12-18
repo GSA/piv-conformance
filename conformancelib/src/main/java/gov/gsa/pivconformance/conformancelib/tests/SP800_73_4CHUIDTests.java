@@ -30,11 +30,6 @@ import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
 public class SP800_73_4CHUIDTests {
     private static final Logger s_logger = LoggerFactory.getLogger(SP800_73_4CHUIDTests.class);
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     // CHUID value lengths comply with Table 9 of SP 800-73-4
     @DisplayName("SP800-73-4.8 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
@@ -68,9 +63,6 @@ public class SP800_73_4CHUIDTests {
         BerTag berBufferLenTagTag = new BerTag(TagConstants.BUFFER_LENGTH_TAG);
         if (tagList.contains(berBufferLenTagTag)) {
             assertTrue(Arrays.equals(tagList.get(0).bytes, TagConstants.BUFFER_LENGTH_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Bytes in Tag List and BUFFER_LENGTH_TAG are equal to: " + TagConstants.BUFFER_LENGTH_TAG, "TRUE",
-                    Arrays.equals(tagList.get(0).bytes, TagConstants.BUFFER_LENGTH_TAG), "");
         }
     }
 
@@ -84,8 +76,6 @@ public class SP800_73_4CHUIDTests {
         List<BerTag> tagList = o.getTagList();
         BerTag berFASCTag = new BerTag(TagConstants.FASC_N_TAG);
         assertTrue(tagList.contains(berFASCTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List contains FASC_N_TAG: " + berFASCTag, "TRUE",
-                tagList.contains(berFASCTag), "");
     }
 
     // Tags 0x32 and 0x33 are optionally present and must follow 0x30 in that order
@@ -107,15 +97,8 @@ public class SP800_73_4CHUIDTests {
             int orgIDTagIndex = tagList.indexOf(berFASCTag);
 
             assertTrue(Arrays.equals(tagList.get(orgIDTagIndex).bytes, TagConstants.FASC_N_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Bytes in OrgIDTagIndex and FASC_N_TAG are equal to: " + orgIDTagIndex, "TRUE",
-                    Arrays.equals(tagList.get(orgIDTagIndex).bytes, TagConstants.FASC_N_TAG), TagConstants.FASC_N_TAG,
-                    "");
 
             assertTrue(Arrays.equals(tagList.get(orgIDTagIndex + 1).bytes, TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "OrgIDTag Index " + orgIDTagIndex, "TRUE",
-                    Arrays.equals(tagList.get(orgIDTagIndex + 1).bytes, TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG),
-                    "");
         }
 
         if (tagList.contains(berDUNSTag)) {
@@ -123,37 +106,13 @@ public class SP800_73_4CHUIDTests {
             int orgIDTagIndex = tagList.indexOf(berFASCTag);
 
             if (tagList.contains(berOrgIDTag)) {
-
                 assertTrue(Arrays.equals(tagList.get(orgIDTagIndex).bytes, TagConstants.FASC_N_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in OrgIDTagIndex and FASC_N_TAG are equal to: " + orgIDTagIndex, "TRUE",
-                        Arrays.equals(tagList.get(orgIDTagIndex).bytes, TagConstants.FASC_N_TAG), "");
-
                 assertTrue(Arrays.equals(tagList.get(orgIDTagIndex + 1).bytes,
                         TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in OrgIDTagIndex and ORGANIZATIONAL_IDENTIFIER_TAG are equal to: " + orgIDTagIndex,
-                        "TRUE",
-                        Arrays.equals(tagList.get(orgIDTagIndex + 1).bytes, TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG),
-                        "");
-
                 assertTrue(Arrays.equals(tagList.get(orgIDTagIndex + 2).bytes, TagConstants.DUNS_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in OrgIDTagIndex and DUNS_TAG are equal to: " + orgIDTagIndex, "TRUE",
-                        Arrays.equals(tagList.get(orgIDTagIndex + 2).bytes, TagConstants.DUNS_TAG), "");
-
             } else {
-
                 assertTrue(Arrays.equals(tagList.get(orgIDTagIndex).bytes, TagConstants.FASC_N_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in OrgIDTagIndex and FASC_N_TAG are equal to: " + orgIDTagIndex, "TRUE",
-                        Arrays.equals(tagList.get(orgIDTagIndex).bytes, TagConstants.FASC_N_TAG), "");
-
                 assertTrue(Arrays.equals(tagList.get(orgIDTagIndex + 1).bytes, TagConstants.DUNS_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in OrgIDTagIndex and DUNS_TAG are equal to: " + orgIDTagIndex, "TRUE",
-                        Arrays.equals(tagList.get(orgIDTagIndex + 1).bytes, TagConstants.DUNS_TAG), "");
-
             }
         }
     }
@@ -185,16 +144,8 @@ public class SP800_73_4CHUIDTests {
         }
         s_logger.debug("Cooked FASC-N: {}", cookedFascn);
         assertTrue(Integer.parseInt(cookedFascn.substring(0, 4)) != 0, "Agency code is zero");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Agency Code IS NOT equal to 0", "TRUE",
-                (Integer.parseInt(cookedFascn.substring(0, 4)) != 0), "");
-
         assertTrue(Integer.parseInt(cookedFascn.substring(4, 8)) != 0, "System code is zero");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "System code IS NOT equal to 0", "TRUE",
-                (Integer.parseInt(cookedFascn.substring(4, 8)) != 0), "");
-
         assertTrue(Integer.parseInt(cookedFascn.substring(8, 14)) != 0, "Credential number is zero");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Credential number IS NOT equal to 0", "TRUE",
-                (Integer.parseInt(cookedFascn.substring(8, 14)) != 0), "");
     }
 
     // Tag 0x36 is optionally present and follows tags from 73-4.10, 73-4.11,
@@ -229,33 +180,13 @@ public class SP800_73_4CHUIDTests {
                 assertTrue(tagList.size() >= 5);
 
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in orgFASCNTagIndex and FASC_N_TAG are equal", "TRUE",
-                        Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG), "");
-
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes,
                         TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in orgFASCNTagIndex and ORGANIZATIONAL_IDENTIFIER_TAG are equal", "TRUE",
-                        Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes,
-                                TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG),
-                        "");
-
-                assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Bytes in orgFASCNTagIndex and GUID_TAG are equal",
-                        "TRUE", Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG), "");
-
+                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG));
                 assertTrue(
                         Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in orgFASCNTagIndex and CHUID_EXPIRATION_DATE_TAG are equal", "TRUE",
-                        Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG),
-                        "");
 
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 4).bytes, TagConstants.CARDHOLDER_UUID_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in orgFASCNTagIndex and CARDHOLDER_UUID_TAG are equal", "TRUE",
-                        Arrays.equals(tagList.get(orgFASCNTagIndex + 4).bytes, TagConstants.CARDHOLDER_UUID_TAG), "");
             }
 
             if (tagList.contains(berDUNSTag)) {
@@ -265,110 +196,35 @@ public class SP800_73_4CHUIDTests {
                 if (tagList.contains(berOrgIDTag)) {
 
                     assertTrue(tagList.size() >= 6);
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List size is >= 6", "TRUE",
-                            (tagList.size() >= 6), "");
 
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and FASC_N_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG), "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes,
                             TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and ORGANIZATIONAL_IDENTIFIER_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes,
-                                    TagConstants.ORGANIZATIONAL_IDENTIFIER_TAG),
-                            "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.DUNS_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and DUNS_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.DUNS_TAG), "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.GUID_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and GUID_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.GUID_TAG), "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 4).bytes,
                             TagConstants.CHUID_EXPIRATION_DATE_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and CHUID_EXPIRATION_DATE_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 4).bytes,
-                                    TagConstants.CHUID_EXPIRATION_DATE_TAG),
-                            "");
-
                     assertTrue(
                             Arrays.equals(tagList.get(orgFASCNTagIndex + 5).bytes, TagConstants.CARDHOLDER_UUID_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and CARDHOLDER_UUID_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 5).bytes, TagConstants.CARDHOLDER_UUID_TAG),
-                            "");
-
                 } else {
 
                     assertTrue(tagList.size() >= 5);
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List size is >= 5", "TRUE",
-                            (tagList.size() >= 5), "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and FASC_N_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG), "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes, TagConstants.DUNS_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and DUNS_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes, TagConstants.DUNS_TAG), "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and GUID_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG), "");
-
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes,
                             TagConstants.CHUID_EXPIRATION_DATE_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and CHUID_EXPIRATION_DATE_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes,
-                                    TagConstants.CHUID_EXPIRATION_DATE_TAG),
-                            "");
-
                     assertTrue(
                             Arrays.equals(tagList.get(orgFASCNTagIndex + 4).bytes, TagConstants.CARDHOLDER_UUID_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "Bytes in orgFASCNTagIndex and CARDHOLDER_UUID_TAG are equal", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 4).bytes, TagConstants.CARDHOLDER_UUID_TAG),
-                            "");
                 }
             }
 
             if (optionalTagsPresent == false) {
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "If Optional Tags are Present", "FALSE",
-                        optionalTagsPresent, "");
-
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in orgFASCNTagIndex and FASC_N_TAG are equal", "TRUE",
-                        Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG), "");
-
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes, TagConstants.GUID_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Bytes in orgFASCNTagIndex and GUID_TAG are equal",
-                        "TRUE", Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes, TagConstants.GUID_TAG), "");
-
                 assertTrue(
                         Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in orgFASCNTagIndex and CHUID_EXPIRATION_DATE_TAG are equal", "TRUE",
-                        Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG),
-                        "");
-
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.CARDHOLDER_UUID_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                        "Bytes in orgFASCNTagIndex and CARDHOLDER_UUID_TAG are equal", "TRUE",
-                        Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.CARDHOLDER_UUID_TAG), "");
-
             }
         }
     }
@@ -388,9 +244,6 @@ public class SP800_73_4CHUIDTests {
         BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
 
         assertTrue(tagList.contains(berIssuerAssymSigTag) && tagList.contains(berErrorDetectionCodeTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "ISSUER_ASYMMETRIC_SIGNATURE_TAG and ERROR_DETECTION_CODE_TAG present", "TRUE",
-                (tagList.contains(berIssuerAssymSigTag) && tagList.contains(berErrorDetectionCodeTag)), "");
     }
 
     // Expiration Date is formatted YYYYMMDD
@@ -407,9 +260,6 @@ public class SP800_73_4CHUIDTests {
         // Decode for CardHolderUniqueIdentifier class parses the date in YYYYMMDD
         // format.
         assertNotNull(expirationDate);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Expiration Date NOT NULL: " + expirationDate, "TRUE",
-                (expirationDate != null), "");
-
     }
 
     // Expiration Date is with in N years
@@ -442,12 +292,7 @@ public class SP800_73_4CHUIDTests {
         Date todayPlus6Years = cal.getTime();
 
         assertTrue(expirationDate.compareTo(today) >= 0);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Expiration date: " + expirationDate, "TRUE",
-                (expirationDate.compareTo(today) >= 0), "");
-
         assertTrue(expirationDate.compareTo(todayPlus6Years) <= 0);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Expiration date: " + todayPlus6Years, "TRUE",
-                (expirationDate.compareTo(todayPlus6Years) <= 0), "");
     }
 
     // No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are
@@ -475,8 +320,6 @@ public class SP800_73_4CHUIDTests {
                 }
             }
             assertTrue(present);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag is present in all CHUID tags.", "TRUE", present,
-                    "");
         }
     }
 
@@ -497,9 +340,6 @@ public class SP800_73_4CHUIDTests {
             }
             int tagIndex = tagList.indexOf(berFASCTag);
             assertTrue(tagIndex == 0 || tagIndex == 1);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag Index equals 0 or 1", "TRUE",
-                    (tagIndex == 0 || tagIndex == 1), "");
-
         } catch (Exception e) {
             fail(e);
         }
@@ -559,11 +399,7 @@ public class SP800_73_4CHUIDTests {
                 optionalTagsPresent = true;
 
                 if (tagList.contains(berOrgIDTag)) {
-
                     assertTrue(tagList.size() >= 5);
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List size is >= 5", "TRUE",
-                            (tagList.size() >= 5), "");
-
                     if ((Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG)) == false) {
                         Exception e = new Exception("tagList.get(orgFASCNTagIndex).bytes != TagConstants.FASC_N_TAG");
                         throw e;
@@ -579,16 +415,8 @@ public class SP800_73_4CHUIDTests {
                         throw e;
                     }
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.GUID_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "The orgFASCNTagIndex + 3 and UID_TAG are equal.", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 3).bytes, TagConstants.GUID_TAG), "");
-
                 } else {
-
                     assertTrue(tagList.size() >= 4);
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List size is >= 4", "TRUE",
-                            (tagList.size() >= 4), "");
-
                     if ((Arrays.equals(tagList.get(orgFASCNTagIndex).bytes, TagConstants.FASC_N_TAG)) == false) {
                         Exception e = new Exception("tagList.get(orgFASCNTagIndex).bytes != TagConstants.FASC_N_TAG");
                         throw e;
@@ -598,10 +426,6 @@ public class SP800_73_4CHUIDTests {
                         throw e;
                     }
                     assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG));
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                            "The orgFASCNTagIndex + 2 and GUID_TAG are equal.", "TRUE",
-                            Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG), "");
-
                 }
             } else if (tagList.contains(berOrgIDTag)) {
                 optionalTagsPresent = true;
@@ -621,8 +445,6 @@ public class SP800_73_4CHUIDTests {
                     throw e;
                 }
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "The orgFASCNTagIndex + 2 and GUID_TAG are equal.",
-                        "TRUE", Arrays.equals(tagList.get(orgFASCNTagIndex + 2).bytes, TagConstants.GUID_TAG), "");
             }
 
             if (optionalTagsPresent == false) {
@@ -632,9 +454,6 @@ public class SP800_73_4CHUIDTests {
                     throw e;
                 }
                 assertTrue(Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes, TagConstants.GUID_TAG));
-                a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "The orgFASCNTagIndex + 1 and GUID_TAG are equal.",
-                        "TRUE", Arrays.equals(tagList.get(orgFASCNTagIndex + 1).bytes, TagConstants.GUID_TAG), "");
-
             }
         } catch (Exception e) {
             fail(e);
@@ -652,8 +471,6 @@ public class SP800_73_4CHUIDTests {
             List<BerTag> tagList = o.getTagList();
             BerTag berExpirationDateTag = new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG);
             assertTrue(tagList.contains(berExpirationDateTag));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List contains CHUID_EXPIRATION_DATE_TAG", "TRUE",
-                    tagList.contains(berExpirationDateTag), "");
         } catch (Exception e) {
             fail(e);
         }
@@ -693,10 +510,6 @@ public class SP800_73_4CHUIDTests {
                 throw e;
             }
             assertTrue(Arrays.equals(tagList.get(orgGuidTagIndex + 1).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "The orgFASCNTagIndex + 1 and CHUID_EXPIRATION_DATE_TAG are equal.", "TRUE",
-                    Arrays.equals(tagList.get(orgGuidTagIndex + 1).bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG), "");
-
         } catch (Exception e) {
             fail(e);
         }
@@ -713,9 +526,6 @@ public class SP800_73_4CHUIDTests {
             List<BerTag> tagList = o.getTagList();
             BerTag berIssuerAssymSigTag = new BerTag(TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG);
             assertTrue(tagList.contains(berIssuerAssymSigTag));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List contains ISSUER_ASYMMETRIC_SIGNATURE_TAG",
-                    "TRUE", tagList.contains(berIssuerAssymSigTag), "");
-
         } catch (Exception e) {
             fail(e);
         }
@@ -748,18 +558,6 @@ public class SP800_73_4CHUIDTests {
                     || Arrays.equals(tagList.get(berIssuerAssymSigTagIndex - 1).bytes,
                             TagConstants.CARDHOLDER_UUID_TAG)),
                     "Tag 0x3E preceded by invalid tag");
-            // Both are logged but only one will display true and true, the other will
-            // display true and false.
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "ISSUER_ASYMMETRIC_SIGNATURE_TAG is equal to CHUID_EXPIRATION_DATE_TAG", "TRUE",
-                    Arrays.equals(tagList.get(berIssuerAssymSigTagIndex - 1).bytes,
-                            TagConstants.CHUID_EXPIRATION_DATE_TAG),
-                    "");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "ISSUER_ASYMMETRIC_SIGNATURE_TAG is equal to CARDHOLDER_UUID_TAG", "TRUE",
-                    Arrays.equals(tagList.get(berIssuerAssymSigTagIndex - 1).bytes, TagConstants.CARDHOLDER_UUID_TAG),
-                    "");
-
         } catch (Exception e) {
             fail(e);
         }
@@ -777,11 +575,7 @@ public class SP800_73_4CHUIDTests {
             List<BerTag> tagList = o.getTagList();
 
             BerTag berErrorDetectionCodeTag = new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG);
-
             assertTrue(tagList.contains(berErrorDetectionCodeTag));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List contains ERROR_DETECTION_CODE_TAG", "TRUE",
-                    tagList.contains(berErrorDetectionCodeTag), "");
-
         } catch (Exception e) {
             fail(e);
         }
@@ -810,9 +604,6 @@ public class SP800_73_4CHUIDTests {
             int berIssuerAssymSigTagIndex = tagList.indexOf(berIssuerAssymSigTag);
             int berErrorDetectionCodeTagIndex = tagList.indexOf(berErrorDetectionCodeTag);
             assertTrue(berErrorDetectionCodeTagIndex == berIssuerAssymSigTagIndex + 1, "Tag 0xFE must follow tag 0x3E");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "ERROR_DETECTION_CODE_TAG equals ISSUER_ASYMMETRIC_SIGNATURE_TAG + 1", "TRUE",
-                    (berErrorDetectionCodeTagIndex == berIssuerAssymSigTagIndex + 1), "");
 
         } catch (Exception e) {
             fail(e);
