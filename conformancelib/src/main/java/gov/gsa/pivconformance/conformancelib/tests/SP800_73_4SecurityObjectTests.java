@@ -34,11 +34,6 @@ import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
 public class SP800_73_4SecurityObjectTests {
     static Logger s_logger = LoggerFactory.getLogger(SP800_73_4SecurityObjectTests.class);
 
-    // Create a logger to write content to .cvs file used to generate the result
-    // .html file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-
     // Security Object value lengths comply with Table 12 of SP 800-73-4
     @DisplayName("SP800-73-4.33 test")
     @ParameterizedTest(name = "{index} => oid = {0}")
@@ -72,7 +67,6 @@ public class SP800_73_4SecurityObjectTests {
 
         boolean decoded = o.decode();
         assertTrue(decoded);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "PIV Data is decoded", "TRUE", decoded, "");
 
         // Get tag list
         List<BerTag> tagList = o.getTagList();
@@ -83,16 +77,8 @@ public class SP800_73_4SecurityObjectTests {
 
         // Confirm tags 0xBA, 0xBB, 0XFE are present
         assertTrue(tagList.contains(berMappingTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Ber Mapping Tag present", "TRUE",
-                tagList.contains(berMappingTag), "");
-
         assertTrue(tagList.contains(berSecurityObjectTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Ber Security Object Tag", "TRUE",
-                tagList.contains(berSecurityObjectTag), "");
-
         assertTrue(tagList.contains(berEDCTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Ber EDCTag", "TRUE", tagList.contains(berEDCTag), "");
-
     }
 
     // No tags other than (0xBA, 0xBB, 0xFE) are present
@@ -118,37 +104,18 @@ public class SP800_73_4SecurityObjectTests {
 
         // Confirm tags 0x01, 0x02, 0x05, 0x06 are present
         assertTrue(tagList.contains(berMappingTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Ber Mapping Tag present", "TRUE",
-                tagList.contains(berMappingTag), "");
-
         assertTrue(tagList.contains(berSecurityObjectTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Ber Security Object Tag", "TRUE",
-                tagList.contains(berSecurityObjectTag), "");
-
         assertTrue(tagList.contains(berEDCTag));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Ber EDCTag", "TRUE", tagList.contains(berEDCTag), "");
-
         // Confirm only 3 tags are present
         assertTrue(tagList.size() == 3);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List length equals 3", "TRUE", (tagList.size() == 3),
-                "");
 
         int orgMappingTagIndex = tagList.indexOf(berMappingTag);
 
         // Confirm tags 0x01, 0x02, 0x05, 0x06 are in right order
         assertTrue(
                 Arrays.equals(tagList.get(orgMappingTagIndex).bytes, TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "MAPPING_OF_DG_TO_CONTAINER_ID_TAG is present", "TRUE",
-                Arrays.equals(tagList.get(orgMappingTagIndex).bytes, TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG),
-                "");
-
         assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex + 1).bytes, TagConstants.SECURITY_OBJECT_TAG));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "SECURITY_OBJECT_TAG is present", "TRUE",
-                Arrays.equals(tagList.get(orgMappingTagIndex + 1).bytes, TagConstants.SECURITY_OBJECT_TAG), "");
-
         assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex + 2).bytes, TagConstants.ERROR_DETECTION_CODE_TAG));
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "ERROR_DETECTION_CODE_TAG is present", "TRUE",
-                Arrays.equals(tagList.get(orgMappingTagIndex + 2).bytes, TagConstants.ERROR_DETECTION_CODE_TAG), "");
     }
 
     // Parse data at tag 0xBA and for each data container found ensure that
@@ -163,21 +130,15 @@ public class SP800_73_4SecurityObjectTests {
 
         boolean decoded = o.decode();
         assertTrue(decoded);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "PIV Data is decoded", "TRUE", decoded, "");
-
         HashMap<Integer, String> idList = ((SecurityObject) o).getContainerIDList();
 
         assertTrue(idList.size() > 0);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Tag List length equals 3", "TRUE", (idList.size() > 0),
-                "");
 
         for (HashMap.Entry<Integer, String> entry : idList.entrySet()) {
             s_logger.debug("Container ID list: index " + entry.getKey() + " is "
                     + APDUConstants.containerOidToNameMap.get(entry.getValue()));
             PIVDataObject tmpObj = AtomHelper.getDataObject(entry.getValue());
             assertNotNull(tmpObj);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "PIV Data IS NOT NULL", "TRUE", (tmpObj != null), "");
-
         }
     }
 
@@ -199,8 +160,6 @@ public class SP800_73_4SecurityObjectTests {
 
         boolean decoded = o.decode();
         assertTrue(decoded);
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "PIV Data is decoded", "TRUE", decoded, "");
-
         // Convenience hashes
         HashMap<String, byte[]> soDataElements = new HashMap<String, byte[]>();
         HashMap<Integer, String> idList = ((SecurityObject) o).getContainerIDList();
@@ -302,8 +261,6 @@ public class SP800_73_4SecurityObjectTests {
                     soDataElements.put(APDUConstants.PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID, dataObject.getBytes());
                 } else {
                     fail("Unrecongnized container OID (" + oid + ")");
-                    a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Unrecongnized container OID (" + oid + ")",
-                            " --- ", oid, "");
                 }
             } else {
                 String errMsg = String.format("Security object data group 0x%s, OID %s was not found",
@@ -313,7 +270,6 @@ public class SP800_73_4SecurityObjectTests {
             }
             decoded = dataObject.decode();
             assertTrue(decoded);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "PIV Data is decoded", "TRUE", decoded, "");
         }
 
         ((SecurityObject) o).setMapOfDataElements(soDataElements);
@@ -323,10 +279,6 @@ public class SP800_73_4SecurityObjectTests {
         // field)
         boolean verified = ((SecurityObject) o).verifyHashes();
         assertTrue(verified, "Hashes is security object were not equivalent");
-        a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                "Digest from signed attributes bag matches the digest over Fingerprint biometric data", "TRUE",
-                verified, "");
-
     }
 
     // Tags 0xBA, 0xBB, 0XFE are in that order
@@ -340,7 +292,6 @@ public class SP800_73_4SecurityObjectTests {
 
             boolean decoded = o.decode();
             assertTrue(decoded);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "PIV Data is decoded", "TRUE", decoded, "");
 
             // Get tag list
             List<BerTag> tagList = o.getTagList();
@@ -368,19 +319,8 @@ public class SP800_73_4SecurityObjectTests {
             // Confirm tags 0xBA, 0xBB, 0XFE are in right order
             assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex).bytes,
                     TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "MAPPING_OF_DG_TO_CONTAINER_ID_TAG is present", "TRUE",
-                    Arrays.equals(tagList.get(orgMappingTagIndex).bytes,
-                            TagConstants.MAPPING_OF_DG_TO_CONTAINER_ID_TAG),
-                    "");
-
             assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex + 1).bytes, TagConstants.SECURITY_OBJECT_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "SECURITY_OBJECT_TAG is present", "TRUE",
-                    Arrays.equals(tagList.get(orgMappingTagIndex).bytes, TagConstants.SECURITY_OBJECT_TAG), "");
-
             assertTrue(Arrays.equals(tagList.get(orgMappingTagIndex + 2).bytes, TagConstants.ERROR_DETECTION_CODE_TAG));
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "ERROR_DETECTION_CODE_TAG is present", "TRUE",
-                    Arrays.equals(tagList.get(orgMappingTagIndex).bytes, TagConstants.ERROR_DETECTION_CODE_TAG), "");
-
         } catch (Exception e) {
             fail(e);
         }
