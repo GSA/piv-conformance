@@ -24,10 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BER_TLVTests {
-    // Create logger for to write to .csv file that generates the .html results
-    // file.
-    private static Logger a_actualValueLogger = LoggerFactory
-            .getLogger("gov.gsa.pivconformance.conformancelib.testResult");
 
     // Length field encoded as shown in SP800-85B Table 1
     @DisplayName("BERTLV.1 test")
@@ -40,7 +36,6 @@ public class BER_TLVTests {
 
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
-        a_actualValueLogger.info("{},{},{},{},{}", " -- ", "Actual byte length NOT NULL", "TRUE", (bertlv != null), "");
 
         BerTlvParser tp = new BerTlvParser(new CCTTlvLogger(BER_TLVTests.class));
 
@@ -56,102 +51,56 @@ public class BER_TLVTests {
 
         if (lengthBytesCount == 1) {
             // If length is 1 byte first between '00' and '7F'
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual length of byte count is equal to 1", "1",
-                    lengthBytesCount, "");
-
+           
             int l = firstByte.intValue();
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual first byte value", " -- ", l, "");
+            
             assertTrue(l > 0);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual first byte value is within range of expected value [ > 0 ]", "TRUE", (l > 0), "");
+            
             assertTrue(l <= 127);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual first byte value is within range of expected value [ <= 127 ]", "TRUE", (l <= 127), "");
 
             assertTrue(valueLength > 0);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual length value", " -- ", valueLength, "");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ > 0 ]", "TRUE", (valueLength > 0), "");
+            
             assertTrue(valueLength <= 127);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ <= 127 ]", "TRUE", (valueLength <= 127),
-                    "");
-
+           
         } else if (lengthBytesCount == 2) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length of byte count is equal to expected value", "2", lengthBytesCount, "");
-
+            
             // If length is 2 bytes first byte is '81'
             assertTrue((firstByte & 0x81) == 0x81);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual first byte is equal to 81", "TRUE",
-                    ((firstByte & 0x81) == 0x81), "");
-
+            
             assertTrue(valueLength > 0);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual length value", " -- ", valueLength, "");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ > 0 ]", "TRUE", (valueLength > 0), "");
+            
             assertTrue(valueLength <= 255);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ <= 255 ]", "TRUE", (valueLength <= 255),
-                    "");
 
         } else if (lengthBytesCount == 3) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length of byte count is equal to expected value", "3", lengthBytesCount, "");
-
+            
             // If length is 3 bytes first byte is '82'
             assertTrue((firstByte & 0x82) == 0x82);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual first byte is equal to 82", "TRUE",
-                    ((firstByte & 0x82) == 0x82), "");
 
             assertTrue(valueLength > 0);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual length value", " -- ", valueLength, "");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ > 0 ]", "TRUE", (valueLength > 0), "");
+            
             assertTrue(valueLength <= 65535);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ <= 65535 ]", "TRUE",
-                    (valueLength <= 65535), "");
 
         } else if (lengthBytesCount == 4) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length of byte count is equal to expected value", "4", lengthBytesCount, "");
-
+            
             // If length is 4 bytes first byte is '83'
             assertTrue((firstByte & 0x83) == 0x83);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual first byte is equal to 83", "TRUE",
-                    ((firstByte & 0x83) == 0x83), "");
 
             assertTrue(valueLength > 0);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual length value", " -- ", valueLength, "");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ > 0 ]", "TRUE", (valueLength > 0), "");
+            
             assertTrue(valueLength <= 16777215);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ <= 16777215 ]", "TRUE",
-                    (valueLength <= 16777215), "");
 
         } else if (lengthBytesCount == 5) {
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length of byte count is equal to expected value", "5", lengthBytesCount, "");
-
+            
             // If length is 5 bytes first byte is '84'
             assertTrue((firstByte & 0x84) == 0x84);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual first byte is equal to 84", "TRUE",
-                    ((firstByte & 0x84) == 0x84), "");
 
             assertTrue(valueLength > 0);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ", "Actual length value", " -- ", valueLength, "");
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual length value is within range of expected value [ > 0 ]", "TRUE", (valueLength > 0), "");
-
+            
             byte[] restLengthBytes = Arrays.copyOfRange(bertlv, aOffset + tagBytesCount + 1, lengthBytesCount);
 
             BigInteger lenValue = new BigInteger(restLengthBytes);
             BigInteger f = new BigInteger("4294967295");
             assertTrue(lenValue.compareTo(f) != 1);
-            a_actualValueLogger.info("{},{},{},{},{}", "  --  ",
-                    "Actual values " + lenValue + " and " + f + " not equal to 1", "TRUE", (valueLength != 1), "");
         }
 
     }
@@ -171,8 +120,6 @@ public class BER_TLVTests {
         // successful return code and returned bytes should satisfy this test
         // TODO: Confirm that this assumption is correct
         assertNotNull(bertlv);
-        a_actualValueLogger.info("{},{},{},{},{}", " -- ", "Actual value byte length NOT NULL", "TRUE",
-                (bertlv != null), "");
     }
 
     // Each data object returned with 2 byte status word (90 00)
@@ -186,8 +133,6 @@ public class BER_TLVTests {
 
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
-        a_actualValueLogger.info("{},{},{},{},{}", " -- ", "Actual value byte length NOT NULL", "TRUE",
-                (bertlv != null), "");
     }
 
     // If a variable length field has length of 0, tag length is followed
@@ -202,8 +147,6 @@ public class BER_TLVTests {
 
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
-        a_actualValueLogger.info("{},{},{},{},{}", " -- ", "Actual value byte length NOT NULL", "TRUE",
-                (bertlv != null), "");
         // Our TLV parser would have thrown if a variable length field had a 0 length
         // but was followed by something other than
         // a next tag. non-null getBytes() should pass this atom.
@@ -224,9 +167,7 @@ public class BER_TLVTests {
         // if the object decoded successfully, this test passed.
         // Confirm that we received all the data for the object and are able to decode.
         assertTrue(decoded);
-        a_actualValueLogger.info("{},{},{},{},{}", " -- ", "Actual decoded value equals expected value", "TRUE",
-                decoded, "");
-
+      
     }
 
     /*
