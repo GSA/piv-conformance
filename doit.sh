@@ -6,7 +6,7 @@ TS=$(date +%Y%m%d%H%M%S)
 ### Linux/Unix/MacOS
 echo "Running install for CCT Tool $VERSION..."
 echo ""
-./mvnw package -f pom.xml`
+./mvnw package -f pom.xml
 
 
 

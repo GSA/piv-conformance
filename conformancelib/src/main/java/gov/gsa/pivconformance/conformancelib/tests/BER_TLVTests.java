@@ -51,51 +51,36 @@ public class BER_TLVTests {
 
         if (lengthBytesCount == 1) {
             // If length is 1 byte first between '00' and '7F'
-           
             int l = firstByte.intValue();
             
             assertTrue(l > 0);
-            
             assertTrue(l <= 127);
-
             assertTrue(valueLength > 0);
-            
             assertTrue(valueLength <= 127);
-           
         } else if (lengthBytesCount == 2) {
             
             // If length is 2 bytes first byte is '81'
             assertTrue((firstByte & 0x81) == 0x81);
-            
             assertTrue(valueLength > 0);
-            
             assertTrue(valueLength <= 255);
-
         } else if (lengthBytesCount == 3) {
             
             // If length is 3 bytes first byte is '82'
             assertTrue((firstByte & 0x82) == 0x82);
-
             assertTrue(valueLength > 0);
-            
             assertTrue(valueLength <= 65535);
-
         } else if (lengthBytesCount == 4) {
             
             // If length is 4 bytes first byte is '83'
             assertTrue((firstByte & 0x83) == 0x83);
-
             assertTrue(valueLength > 0);
-            
             assertTrue(valueLength <= 16777215);
-
         } else if (lengthBytesCount == 5) {
             
             // If length is 5 bytes first byte is '84'
             assertTrue((firstByte & 0x84) == 0x84);
-
             assertTrue(valueLength > 0);
-            
+
             byte[] restLengthBytes = Arrays.copyOfRange(bertlv, aOffset + tagBytesCount + 1, lengthBytesCount);
 
             BigInteger lenValue = new BigInteger(restLengthBytes);
@@ -113,7 +98,6 @@ public class BER_TLVTests {
     void berTLV_Test_2(String oid, TestReporter reporter) {
 
         PIVDataObject o = AtomHelper.getDataObject(oid);
-
         byte[] bertlv = o.getBytes();
 
         // pivGetData retrieves each data container using the 3 byte tag checking for a

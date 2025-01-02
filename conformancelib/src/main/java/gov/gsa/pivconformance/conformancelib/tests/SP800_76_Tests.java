@@ -645,7 +645,7 @@ public class SP800_76_Tests {
                 // Make sure biometric data block is present
                 assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
                 assertTrue(biometricDataBlock.length >= 25);
- 
+
                 byte[] resolutionXBuff = Arrays.copyOfRange(biometricDataBlock, 20, 22);
                 byte[] resolutionYBuff = Arrays.copyOfRange(biometricDataBlock, 22, 24);
 
@@ -944,7 +944,7 @@ public class SP800_76_Tests {
                 // Make sure biometric data block is present
                 assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
                 assertTrue(biometricDataBlock.length >= 29);
- 
+
                 byte[] numberOfFingerViewsBuff = Arrays.copyOfRange(biometricDataBlock, 24, 25);
                 assertNotNull(numberOfFingerViewsBuff);
 
@@ -1149,7 +1149,7 @@ public class SP800_76_Tests {
                 // Make sure biometric data block is present
                 assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
                 assertTrue(biometricDataBlock.length >= 29);
- 
+
                  byte[] numberOfFingerViewsBuff = Arrays.copyOfRange(biometricDataBlock, 24, 25);
                 assertNotNull(numberOfFingerViewsBuff);
 
@@ -1588,7 +1588,7 @@ public class SP800_76_Tests {
 
                 System.out.print(str);
                 assertNotNull(biometricCreationDate);
- 
+
                 // Get the creation date value and parse it into a Date object using
                 // "YYYYMMDDhhmmssZ" format
                 try {

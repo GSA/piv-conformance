@@ -796,7 +796,7 @@ public class PKIX_X509DataObjectTests {
 
         // Confirm EKU extension is present
         assertTrue(ekuex != null, "Extended key usage extension is absent");
- 
+
         ExtendedKeyUsage eku = null;
         try {
             eku = ExtendedKeyUsage.getInstance(JcaX509ExtensionUtils.parseExtensionValue(ekuex));

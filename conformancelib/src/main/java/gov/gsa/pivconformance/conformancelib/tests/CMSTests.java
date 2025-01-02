@@ -155,7 +155,6 @@ public class CMSTests {
         try {
             Map<String, List<String>> mp = ParameterUtils.MapFromString(params);
             assertNotNull(mp);
-            
             Iterator<Map.Entry<String, List<String>>> it = mp.entrySet().iterator();
             boolean foundContainer = false;
             while (it.hasNext()) {
@@ -1001,7 +1000,7 @@ public class CMSTests {
 
             AttributeTable attributeTable = signer.getSignedAttributes();
             assertTrue(attributeTable != null, "AttributeTable is null");
- 
+
             ASN1ObjectIdentifier pivFASCN_OID = new ASN1ObjectIdentifier(fascnOID);
             Attribute attr = attributeTable.get(pivFASCN_OID);
 

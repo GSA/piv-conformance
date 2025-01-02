@@ -1,0 +1,1 @@
+java -Djava.security.debug=certpath -jar gui/target/gui-$VERSION.jar >>console.log 2>&1\r
