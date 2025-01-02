@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.Color;
 
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.reporting.ReportEntry;
@@ -72,7 +73,7 @@ public class GuiTestListener implements TestExecutionListener {
         s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
 
         s_testResultLogger.info("{},\"{}\",{},{},{}", m_testCaseIdentifier, m_testCaseDescription.replaceAll("\"", "'"),
-                "", "", (m_atomAborted || m_atomFailed) ? "Fail" : "Pass");
+"", (m_atomFailed) ? m_testStepResults.toString() : "", (m_atomAborted || m_atomFailed) ? "Fail" : "Pass");
         GuiTestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel()
                 .getNodeByName(m_testCaseIdentifier);
         if (tcNode != null) {
@@ -85,6 +86,10 @@ public class GuiTestListener implements TestExecutionListener {
         try {
             SwingUtilities.invokeAndWait(() -> {
                 m_progressBar.setString(m_testCaseIdentifier + " Finished.");
+                if (m_progressBar.getValue() == m_progressBar.getMaximum()) {
+                    m_progressBar.setForeground(new Color(0, 128, 0));
+                    m_progressBar.setString("All Tests are complete!");
+                }
                 m_progressBar.setValue(m_progressBar.getValue() + 1);
                 if (model != null && tcNode != null)
                     model.nodeChanged(tcNode);
