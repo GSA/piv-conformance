@@ -173,10 +173,11 @@ public class GuiRunnerApplication {
     private static String getVersion(String name) {
         String version = null;
         try {
+            // build.version file located in /piv-conformance/gui/src/main/resources/build.version - CJB
             InputStream resourceFile = getResourceStream("/build.version");
             version = new String(resourceFile.readAllBytes());
         } catch (IOException e) {
-            s_logger.error("Can't open " + name);
+            s_logger.error("Can't open " + name + " file.");
         }
         return version;
     }

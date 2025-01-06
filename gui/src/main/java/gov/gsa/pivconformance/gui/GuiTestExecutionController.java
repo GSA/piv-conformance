@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.awt.Color;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -45,6 +46,7 @@ public final class GuiTestExecutionController {
     private GuiRunnerToolbar m_toolBar;
     private boolean m_running;
     private LoggerContext m_ctx;
+    private Color prevcolor;
 
     public static GuiTestExecutionController getInstance() {
         return INSTANCE;
@@ -136,6 +138,12 @@ public final class GuiTestExecutionController {
                 m_testExecutionPanel.getRunButton().setEnabled(false);
                 // TODO: Fix this or else
                 m_toolBar.getComponents()[0].setEnabled(false);
+                // Reset progressbar Foreground color after running once, if ran again. - CJB
+                if (prevcolor == null) {
+                    prevcolor = progress.getForeground();
+                } else {
+                    progress.setForeground(prevcolor);
+                }
                 progress.setMaximum(db.getTestCaseCount());
                 progress.setValue(0);
                 progress.setVisible(true);

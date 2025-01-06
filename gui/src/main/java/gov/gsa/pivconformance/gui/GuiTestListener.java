@@ -1,17 +1,17 @@
 package gov.gsa.pivconformance.gui;
 
 import java.lang.reflect.InvocationTargetException;
-import java.security.Timestamp;
+//import java.security.Timestamp; // never used
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+//import java.util.concurrent.atomic.AtomicReference; // never used
+//import java.util.function.Supplier; // never used
+import java.awt.Color;
 
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.Color;
 
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.reporting.ReportEntry;
@@ -23,10 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.conformancelib.configuration.TestCaseModel;
 import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
-import gov.gsa.pivconformance.conformancelib.configuration.TestStepModel;
-import gov.gsa.pivconformance.conformancelib.tests.BER_TLVTests;
-import gov.gsa.pivconformance.conformancelib.tools.TestCaseRunner;
-import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
+// Never Used, left for future use - CJB
+// import gov.gsa.pivconformance.conformancelib.configuration.TestStepModel;
+// import gov.gsa.pivconformance.conformancelib.tests.BER_TLVTests;
+// import gov.gsa.pivconformance.conformancelib.tools.TestCaseRunner;
+// import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 
 public class GuiTestListener implements TestExecutionListener {
 
@@ -71,9 +72,10 @@ public class GuiTestListener implements TestExecutionListener {
             s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");
         TestExecutionListener.super.testPlanExecutionFinished(testPlan);
         s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
-
+        // This section writes to the CONFORMANCE log that is used to generate the .csv file used to display the HTML report. - CJB
         s_testResultLogger.info("{},\"{}\",{},{},{}", m_testCaseIdentifier, m_testCaseDescription.replaceAll("\"", "'"),
-"", (m_atomFailed) ? m_testStepResults.toString() : "", (m_atomAborted || m_atomFailed) ? "Fail" : "Pass");
+(m_atomFailed) ? "expected value" : "", (m_atomFailed) ? "actual value" : "", (m_atomAborted || m_atomFailed) ? "Fail" : "Pass");
+
         GuiTestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel()
                 .getNodeByName(m_testCaseIdentifier);
         if (tcNode != null) {
@@ -86,13 +88,16 @@ public class GuiTestListener implements TestExecutionListener {
         try {
             SwingUtilities.invokeAndWait(() -> {
                 m_progressBar.setString(m_testCaseIdentifier + " Finished.");
+                // Check to see if progressbar is at 100% - CJB
                 if (m_progressBar.getValue() == m_progressBar.getMaximum()) {
+                    // Set progress color to green when all tests are complete. - CJB
                     m_progressBar.setForeground(new Color(0, 128, 0));
-                    m_progressBar.setString("All Tests are complete!");
+                    m_progressBar.setString("All Tests are complete, click HTML in the toolbar to view test report.");
+                    s_logger.info("All Tests are complete.");
                 }
                 m_progressBar.setValue(m_progressBar.getValue() + 1);
                 if (model != null && tcNode != null)
-                    model.nodeChanged(tcNode);
+                model.nodeChanged(tcNode);
             });
         } catch (InterruptedException | InvocationTargetException e) {
             s_logger.error("Failed to update progress bar on secondary thread", e);

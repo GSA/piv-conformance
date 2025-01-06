@@ -1,76 +1,40 @@
 #!/bin/bash
-VERSION=$(cat ./release.version)
+VERSION=$(cat ./gui/src/main/resources/build.version)
 # Timestamp of build
 TS=$(date +%Y%m%d%H%M%S)
 
-### Linux/Unix/MacOS
-echo "Running install for CCT Tool $VERSION..."
+# Clean Option
+if [ "$1" == "-cleanup" ]; then
+    echo ""
+    echo "Cleaning up /piv-conformance directory."
+    echo ""
+    echo "one moment..."
+    echo ""
+    ./mvnw clean
+    echo ""
+    echo "Clean-up is complete, run ./doit.sh to build piv-conformance again."
+    exit
+fi
+
+
+# Run Script Setup: 
+#
+### Populates run script file for Linux, GitBash, WSL, or Macs (rewritten each run of doit.sh and captures version/release number.)
+echo "java -Djava.security.debug=certpath -jar gui/target/gui-$VERSION.jar >>console.log 2>&1" > run.sh
+
+### Populates run script file for Windows (rewritten each run of doit.sh and captures version/release number.)
+echo "java -Djava.security.debug=certpath -jar gui\\target\\gui-$VERSION.jar >>console.log 2>&1\r" > run.bat
+
+# OSTYPE
+echo ""
+echo "You are running on $OSTYPE"
+echo ""
+
+### Running install process...
+echo ""
+echo "Running the build process for CCT Tool $VERSION..."
 echo ""
 ./mvnw package -f pom.xml
-
-
-
-
-
-
-
-# Do not use commented code below, use only for reference. 
-
-
-
-# Default to always test with Gradle
-
-# TESTOPT=1
-# if [ "$1" == "-notest" ]; then
-#   TESTOPT=0
-# fi
-
-# if [ 1 -eq 1 ]; then
-# GRADLE=$(type gradle 2>/dev/null | awk '{ print $3 }')
-# if [ ! -z "$GRADLE" ]; then gradle -stop; fi
-
-# pushd cardlib >/dev/null 2>&1
-#     ./gradlew clean
-#     if [ $TESTOPT -eq 1 ]; then
-#         ./gradlew build install installSource || exit 1 
-#     else
-#         ./gradlew -x junitPlatformTest -x generateHtmlTestReports clean install installSource || exit 1
-#     fi
-# popd >/dev/null 2>&1
-
-# pushd conformancelib >/dev/null 2>&1
-#     ./gradlew clean
-#     if [ $TESTOPT -eq 1 ]; then
-#         ./gradlew build install installSource || exit 1
-#     else
-#         ./gradlew -x test clean install installSource || exit 1
-#     fi    
-# popd >/dev/null 2>&1
-
-# pushd tools/85b-swing-gui 2>&1
-#     ./gradlew clean
-#     ./gradlew -x test clean build install installSource || exit 1
-#     cp build/libs/*shadow* ../../libs
-# popd >/dev/null 2>&1
-# fi
-
-# VERSION=$(cat ./tools/85b-swing-gui/build/resources/main/build.version)
-# TS=$(date +%Y%m%d%H%M%S)
-# rm -rf fips201-card-conformance-tool-$VERSION
-# mkdir -p fips201-card-conformance-tool-$VERSION
-# pushd fips201-card-conformance-tool-$VERSION >/dev/null 2>&1
-#     cp -p ../cardlib/build/resources/main/user_log_config.xml .
-#     cp -p ../conformancelib/testdata/*.db .
-#     cp -p ../conformancelib/src/main/resources/pdval.properties .
-#     cp -pr ../conformancelib/src/main/resources/x509-certs .
-#     cp -p ../tools/85b-swing-gui/build/resources/main/build.version .
-#     tar xvf ../tools/85b-swing-gui/build/distributions/gov.gsa.pivconformance.gui-shadow-$VERSION.tar
-#     cp -p gov.gsa.pivconformance.gui-shadow-$VERSION/lib/gov.gsa.pivconformance.gui-$VERSION-shadow.jar .
-#     rm -rf gov.gsa.pivconformance.gui-shadow-$VERSION
-#     echo "java -Djava.security.debug=certpath -jar $(ls *-shadow.jar) >>console.log 2>&1\r" >run.bat
-#     echo "java -Djava.security.debug=certpath -jar $(ls *-shadow.jar) >>console.log 2>&1" >run.sh
-#     chmod 755 run.sh
-# popd
-
-# mv fips201-card-conformance-tool-$VERSION fips201-card-conformance-tool-${VERSION}-${TS}
-# zip -r fips201-card-conformance-tool-${VERSION}-${TS}.zip fips201-card-conformance-tool-${VERSION}-${TS}/*
+echo ""
+echo "The build process is complete"
+echo "Execute the run.sh or run.bat file to run piv-conformance."

@@ -15,7 +15,8 @@
   </modules>
 
   <properties>
-    <revision>2.0.0</revision>
+    <!-- Update release/version number below and in the /gui/src/main/resources/build.version file -->
+    <revision>1.0.10</revision>
     <maven.test.skip>true</maven.test.skip>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>

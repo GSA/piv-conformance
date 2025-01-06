@@ -20,8 +20,9 @@ import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.cardlib.tlv.BerTlvParser;
 import gov.gsa.pivconformance.cardlib.tlv.CCTTlvLogger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+// Never used here but left for future use
+// import org.slf4j.Logger;
+// import org.slf4j.LoggerFactory;
 
 public class BER_TLVTests {
 
@@ -52,13 +53,11 @@ public class BER_TLVTests {
         if (lengthBytesCount == 1) {
             // If length is 1 byte first between '00' and '7F'
             int l = firstByte.intValue();
-
             assertTrue(l > 0);
             assertTrue(l <= 127);
             assertTrue(valueLength > 0);
             assertTrue(valueLength <= 127);
         } else if (lengthBytesCount == 2) {
-
             // If length is 2 bytes first byte is '81'
             assertTrue((firstByte & 0x81) == 0x81);
             assertTrue(valueLength > 0);
