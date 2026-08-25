@@ -4,6 +4,10 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMetho
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +42,8 @@ public class GuiTestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestExecutionController.class);
 	private static final GuiTestExecutionController INSTANCE = new GuiTestExecutionController();
 	private static final String tag30TestId = "8.2.2.1"; // TODO: Fixme
+	private static final DateTimeFormatter SUMMARY_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
+			.withZone(ZoneId.systemDefault());
 
 	private TestRunLogController m_trlc;
 	private GuiTestTreePanel m_testTreePanel;
@@ -106,24 +112,48 @@ public class GuiTestExecutionController {
 	public void setLoggerContext(LoggerContext ctx) {
 		m_ctx = ctx;
 	}
+
+	void runAllTestsSafely(GuiTestCaseTreeNode root) {
+		try {
+			runAllTests(root);
+		} catch (RuntimeException e) {
+			s_logger.error("The test run ended unexpectedly", e);
+			m_running = false;
+			SwingUtilities.invokeLater(() -> {
+				GuiRunnerAppController controller = GuiRunnerAppController.getInstance();
+				controller.getDisplayTestReportAction().setEnabled(true);
+				controller.getPackageResultsAction().setCompletedRun(null);
+				setDatabaseActionsEnabled(true);
+				m_testExecutionPanel.getRunButton().setEnabled(true);
+				m_testExecutionPanel.setPostRunActionsVisible(false);
+				CopyableErrorDialog.show(controller.getMainFrame(), "Test Run Error",
+						"The test run ended unexpectedly. No review package was prepared.", e.getMessage());
+			});
+		}
+	}
 	
 	void runAllTests(GuiTestCaseTreeNode root) {
-		
+		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
+		if(db == null || db.getConnection() == null) {
+			s_logger.error("Unable to run tests without a valid database");
+			return;
+		}
+		Path selectedDatabase = selectedDatabasePath(db);
+		if (selectedDatabase == null) {
+			s_logger.error("Unable to run tests without the selected database filename");
+			return;
+		}
+
+		Instant runStarted = Instant.now();
 		m_trlc.setStartTimes();
-		
+
 		GuiDisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
-		display.setEnabled(false);
+		PackageResultsAction packageResults = GuiRunnerAppController.getInstance().getPackageResultsAction();
 		
 		s_logger.debug("----------------------------------------");
 		s_logger.debug("FIPS 201 CCT " + GuiRunnerAppController.getInstance().getCctVersion());
 		s_logger.debug("----------------------------------------");
 		
-		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
-		if(db == null || db.getConnection() == null) {
-			s_logger.error("Unable to run tests without a valid database");
-			// XXX *** Display message don't just log it
-			return;
-		}
 		m_running = true;
 		GuiRunnerAppController.getInstance().reloadTree();
 		PCSCWrapper pcsc = PCSCWrapper.getInstance();
@@ -132,10 +162,12 @@ public class GuiTestExecutionController {
 		int atomCount = 0;
 		JProgressBar progress = m_testExecutionPanel.getTestProgressBar();
 		try {
-			SwingUtilities.invokeAndWait(() -> {			
+			SwingUtilities.invokeAndWait(() -> {
+				display.setEnabled(false);
+				packageResults.setCompletedRun(null);
+				m_testExecutionPanel.setPostRunActionsVisible(false);
 				m_testExecutionPanel.getRunButton().setEnabled(false);
-				// TODO: Fix this or else
-				m_toolBar.getComponents()[0].setEnabled(false);
+				setDatabaseActionsEnabled(false);
 				progress.setMaximum(db.getTestCaseCount());
 				progress.setValue(0);
 				progress.setVisible(true);
@@ -265,8 +297,7 @@ public class GuiTestExecutionController {
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
-				// TODO: Fix this or else
-				m_toolBar.getComponents()[0].setEnabled(true);
+				setDatabaseActionsEnabled(true);
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
 			s_logger.error("Failed to enable run button", e);
@@ -279,11 +310,61 @@ public class GuiTestExecutionController {
 
 		m_trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
 		m_trlc.cleanup();
+		Instant runFinished = Instant.now();
 		m_running = false;
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
 		cpiv.clearCache();
-		display.setEnabled(true);
+		try {
+			String timeStamp = m_trlc.getTimeStamp();
+			Path resultsDirectory = Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize();
+			Path csv = ReviewPackageBuilder.findConformanceCsv(resultsDirectory, timeStamp);
+			RunResultsSummary summary = RunResultsSummary.fromCsv(csv);
+			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, csv,
+					timeStamp, runStarted, runFinished, summary);
+			SwingUtilities.invokeLater(() -> {
+				display.setEnabled(true);
+				packageResults.setCompletedRun(completedRun);
+				m_testExecutionPanel.setPostRunActionsVisible(true);
+				showCompletionSummary(completedRun);
+			});
+		} catch (Exception e) {
+			s_logger.error("The completed run could not be prepared for review packaging", e);
+			SwingUtilities.invokeLater(() -> {
+				display.setEnabled(true);
+				showCompletionError(e.getMessage());
+			});
+		}
+	}
+
+	private Path selectedDatabasePath(ConformanceTestDatabase db) {
+		Path databasePath = db.getDatabasePath();
+		return databasePath == null ? null : databasePath.toAbsolutePath().normalize();
+	}
+
+	private void setDatabaseActionsEnabled(boolean enabled) {
+		GuiRunnerAppController controller = GuiRunnerAppController.getInstance();
+		controller.getOpenDatabaseAction().setEnabled(enabled);
+		controller.getOpenDefaultPIVDatabaseAction().setEnabled(enabled);
+		controller.getOpenDefaultPIVIDatabaseAction().setEnabled(enabled);
+	}
+
+	private void showCompletionSummary(CompletedTestRun run) {
+		RunResultsSummary summary = run.getSummary();
+		String message = "Conformance run completed.\n\n"
+				+ "Database: " + run.getDatabasePath().getFileName() + "\n"
+				+ "Results: " + summary.getPassed() + " passed, " + summary.getFailed() + " failed, "
+				+ summary.getTotal() + " total\n"
+				+ "Started: " + SUMMARY_TIME.format(run.getStartedAt()) + "\n"
+				+ "Finished: " + SUMMARY_TIME.format(run.getFinishedAt()) + "\n"
+				+ "Results folder: " + run.getResultsDirectory();
+		JOptionPane.showMessageDialog(GuiRunnerAppController.getInstance().getMainFrame(), message,
+				"Run Complete", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	private void showCompletionError(String detail) {
+		CopyableErrorDialog.show(GuiRunnerAppController.getInstance().getMainFrame(), "Run Finished",
+				"The test run finished, but its results could not be prepared for packaging.", detail);
 	}
 
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

@@ -9,8 +9,7 @@ import javax.swing.ImageIcon;
 
 import java.awt.Color;
 import java.awt.HeadlessException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -55,6 +54,8 @@ public class SimpleTestExecutionPanel extends JPanel {
 	private final JTextField m_readerStatusField;
 	private final JProgressBar m_testProgressBar;
 	private final JButton m_runButton;
+	private final JButton m_viewResultsButton;
+	private final JButton m_packageResultsButton;
 	public SimpleTestExecutionPanel() {
 		setBackground(Color.WHITE);
 		
@@ -191,14 +192,22 @@ public class SimpleTestExecutionPanel extends JPanel {
 					dialog.setVisible(true);
 					return;
 				}
-				GuiTestExecutionController tc = GuiTestExecutionController.getInstance();
-				GuiTestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
-				new Thread(() -> {
-					tc.runAllTests(root);
-				}).start();
+					GuiTestExecutionController tc = GuiTestExecutionController.getInstance();
+					GuiTestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
+					new Thread(() -> tc.runAllTestsSafely(root), "cct-test-run").start();
 				
 			}
 		});
+
+		m_viewResultsButton = new JButton(GuiRunnerAppController.getInstance().getDisplayTestReportAction());
+		m_viewResultsButton.setText("View Results");
+		m_viewResultsButton.setIcon(null);
+		m_viewResultsButton.setVisible(false);
+
+		m_packageResultsButton = new JButton(GuiRunnerAppController.getInstance().getPackageResultsAction());
+		m_packageResultsButton.setText("Package Results");
+		m_packageResultsButton.setIcon(null);
+		m_packageResultsButton.setVisible(false);
 		
 		m_testProgressBar = new JProgressBar();
 		m_testProgressBar.setAlignmentY(Component.TOP_ALIGNMENT);
@@ -270,7 +279,11 @@ public class SimpleTestExecutionPanel extends JPanel {
 					.addComponent(btnRefreshReaders, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(m_runButton)
-					.addGap(317))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(m_viewResultsButton)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(m_packageResultsButton)
+					.addGap(106))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -310,7 +323,9 @@ public class SimpleTestExecutionPanel extends JPanel {
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnRefreshReaders)
-						.addComponent(m_runButton))
+						.addComponent(m_runButton)
+						.addComponent(m_viewResultsButton)
+						.addComponent(m_packageResultsButton))
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		setLayout(groupLayout);
@@ -326,16 +341,10 @@ public class SimpleTestExecutionPanel extends JPanel {
 	public void refreshDatabaseInfo() {
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
 		if(db != null) {
-			Connection c = db.getConnection();
-			if(c != null) {
-				String filename = null;
-				try {
-					filename = c.getClientInfo("filename");
-				} catch (SQLException e) {
-					m_databaseNameField.setText("No filename information is available.");
-				}
-				if(filename != null) {
-					m_databaseNameField.setText(filename);
+			if(db.getConnection() != null) {
+				Path databasePath = db.getDatabasePath();
+				if(databasePath != null) {
+					m_databaseNameField.setText(databasePath.toString());
 				} else {
 					m_databaseNameField.setText("(unavailable)");
 				}
@@ -378,6 +387,13 @@ public class SimpleTestExecutionPanel extends JPanel {
 	}
 	public JButton getRunButton() {
 		return m_runButton;
+	}
+
+	public void setPostRunActionsVisible(boolean visible) {
+		m_viewResultsButton.setVisible(visible);
+		m_packageResultsButton.setVisible(visible);
+		revalidate();
+		repaint();
 	}
 
 	public void refreshReaderStatus(CardSettingsSingleton css) {

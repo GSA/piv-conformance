@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 public class ConformanceTestDatabase {
 	private static final Logger s_logger = LoggerFactory.getLogger(ConformanceTestDatabase.class);
 	private static final String TEST_SET = "SELECT * FROM TestCases WHERE Enabled = 1";
+	private Path m_databasePath;
 	
 	public ConformanceTestDatabase(Connection conn) {
 		setConnconnection(conn);
@@ -32,8 +33,13 @@ public class ConformanceTestDatabase {
 		return m_conn;
 	}
 
+	public Path getDatabasePath() {
+		return m_databasePath;
+	}
+
 	public void setConnconnection(Connection conn) {
 		m_conn = conn;
+		m_databasePath = null;
 	}
 
 	public int getTestCaseCount() {
@@ -59,11 +65,14 @@ public class ConformanceTestDatabase {
             throw new ConfigurationException("Database file " + filename + " does not exist");
         }
 
-        String dbUrl = null;
-        try {
-        	Class.forName("org.sqlite.JDBC");
-        	dbUrl = "jdbc:sqlite:" + f.getCanonicalPath();
-        } catch (IOException | ClassNotFoundException e) {
+		String dbUrl = null;
+		Path databasePath = null;
+		try {
+			Class.forName("org.sqlite.JDBC");
+			File canonicalFile = f.getCanonicalFile();
+			dbUrl = "jdbc:sqlite:" + canonicalFile.getPath();
+			databasePath = canonicalFile.toPath().toAbsolutePath().normalize();
+		} catch (IOException | ClassNotFoundException e) {
             s_logger.error("Unable to calculate canonical name for database file", e);
             throw new ConfigurationException("Unable to calculate canonical name for database file", e);
         }
@@ -82,14 +91,10 @@ public class ConformanceTestDatabase {
             } catch (SQLException e) {
                 s_logger.error("Unable to read driver metadata", e);
             }
-        }
-        m_conn = conn;
-        try {
-			m_conn.setClientInfo("filename", filename);
-		} catch (SQLClientInfoException e) {
-			s_logger.error("setClientInfo failed for database connection.", e);
 		}
-        s_logger.info("Opened conformance test database in {}", filename);
+		m_conn = conn;
+		m_databasePath = databasePath;
+		s_logger.info("Opened conformance test database in {}", filename);
 	}
 	
 	public List<TestCaseModel> getTestCases() throws ConfigurationException {

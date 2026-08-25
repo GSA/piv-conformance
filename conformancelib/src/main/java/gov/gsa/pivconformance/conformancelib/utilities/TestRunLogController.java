@@ -19,10 +19,13 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -42,6 +45,7 @@ public class TestRunLogController {
 
 	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(TestRunLogController.class);
 	private static final TestRunLogController INSTANCE = new TestRunLogController();
+	private static final String CONFORMANCE_HEADER = "Date,Test Id,Description,Expected Result,Actual Result";
 
 	/*
 	 * Note that these names MUST match the user_log_config.xml appender names.
@@ -369,9 +373,32 @@ public class TestRunLogController {
 		Iterator<?> i = m_appenders.entrySet().iterator();
 		while (i.hasNext()) {
 			me = (Map.Entry<String, TimeStampedFileAppender<ILoggingEvent>>) i.next();
+			String logName = me.getKey();
 			TimeStampedFileAppender<ILoggingEvent> appender = me.getValue();
+			try {
+				appender.stop();
+				String filename = m_filenames.get(logName);
+				resetLogFile(Paths.get(filename), "CONFORMANCELOG".equals(logName));
+				appender.setFile(filename);
+				appender.setAppend(true);
+				appender.start();
+				appender.setAppend(false);
+			} catch (IOException e) {
+				s_logger.error("Unable to prepare {} for a new test run", logName, e);
+				throw new IllegalStateException("Unable to prepare logs for a new test run", e);
+			}
 			appender.setStartTime(startTime);
 		}	
+	}
+
+	static void resetLogFile(Path file, boolean conformanceCsv) throws IOException {
+		Path absolute = file.toAbsolutePath().normalize();
+		Path parent = absolute.getParent();
+		if (parent != null) Files.createDirectories(parent);
+		byte[] contents = conformanceCsv
+				? (CONFORMANCE_HEADER + System.lineSeparator()).getBytes(StandardCharsets.UTF_8)
+				: new byte[0];
+		Files.write(absolute, contents, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -474,30 +501,9 @@ public class TestRunLogController {
 	 * 
 	 */
 	
-	@SuppressWarnings("unchecked")
 	public void cleanup() {
-		Map.Entry<String, String> me = null;
-		Iterator<?> i = m_loggers.entrySet().iterator();
 		ArtifactWriter.prependNames(m_timeStamp);
 		ArtifactWriter.clean();
-		while (i.hasNext()) {
-			me = (Map.Entry<String, String>) i.next();
-			String loggerName = me.getKey();
-			String loggerClass = me.getValue();
-	
-			Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
-			TimeStampedFileAppender<ILoggingEvent> appender = null;
-	
-			try {
-				appender = (TimeStampedFileAppender<ILoggingEvent>) logger.getAppender(loggerName);
-				if (appender != null) {
-					File f = new File(appender.getFile());
-					f.delete();
-				}
-			} catch (Exception e) {
-				s_logger.warn("Can't delete {}: {}", appender.getFile(), e.getMessage());
-			}
-		}
 	}
 	
 	/**
