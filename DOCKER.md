@@ -22,4 +22,4 @@ docker run --rm \
   piv-conformance
 ```
 
-The container seeds `/data` with the required databases and configuration on first launch. Logs, artifacts, and generated review ZIPs remain in the mounted `cct-docker-data` directory.
+The container seeds `/data` with the required databases and configuration on first launch. Logs, artifacts, and generated result ZIPs remain in the mounted `cct-docker-data` directory.

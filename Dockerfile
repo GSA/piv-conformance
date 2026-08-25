@@ -1,9 +1,7 @@
 FROM eclipse-temurin:11-jdk-jammy AS build
 
-ARG CCT_GIT_COMMIT=container
+ARG CCT_GIT_COMMIT=unknown
 ARG CCT_GIT_COMMIT_EPOCH=0
-ENV CCT_GIT_COMMIT=${CCT_GIT_COMMIT} \
-    CCT_GIT_COMMIT_EPOCH=${CCT_GIT_COMMIT_EPOCH}
 
 WORKDIR /workspace
 COPY . .
@@ -34,8 +32,7 @@ RUN apt-get update \
 COPY --from=build /opt/cct /opt/cct
 COPY docker/entrypoint.sh /usr/local/bin/cct-entrypoint
 RUN chmod 0755 /usr/local/bin/cct-entrypoint \
-    && mkdir -p /data \
-    && chmod 0777 /data
+    && mkdir -p /data
 
 VOLUME ["/data"]
 WORKDIR /data

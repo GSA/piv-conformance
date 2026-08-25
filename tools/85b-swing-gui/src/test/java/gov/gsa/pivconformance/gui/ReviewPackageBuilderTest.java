@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -28,7 +25,6 @@ import gov.gsa.pivconformance.conformancelib.configuration.ConformanceTestDataba
 
 class ReviewPackageBuilderTest {
 	private static final String PREFIX = "card-identifier_20260819_010203-20260819_020304";
-	private static final Clock FIXED_CLOCK = Clock.fixed(Instant.parse("2026-08-19T12:34:56Z"), ZoneOffset.UTC);
 
 	@TempDir
 	Path tempDirectory;
@@ -37,7 +33,7 @@ class ReviewPackageBuilderTest {
 	@ValueSource(strings = { "PIV_Production_Cards.db", "PIV-I_Production_Cards.db" })
 	void packagesExactlyOneCompletedRunAndSelectedDatabase(String databaseName) throws Exception {
 		Path database = createEvidence(databaseName, "database");
-		Path csv = write("logs/conformancelog/" + PREFIX + "-conformance_results.csv",
+		write("logs/conformancelog/" + PREFIX + "-conformance_results.csv",
 				"Date,Test Id,Description,Expected Result,Actual Result\n"
 				+ "2026-08-19 01:02:04,1,one,Pass,Pass\n"
 				+ "2026-08-19 01:02:05,2,two,Pass,Fail\n");
@@ -51,14 +47,12 @@ class ReviewPackageBuilderTest {
 		write("x509-certs/valid/policy.xml", "policy");
 		write("unused.db", "unused database");
 		write("tool.jar", "executable");
-		write("cct-review-results-20200101-000000.zip", "old package");
+		write("cct-results-20200101-000000.zip", "old package");
 
-		CompletedTestRun run = completedRun(database, csv);
-		ReviewPackage result = new ReviewPackageBuilder(FIXED_CLOCK).build(run);
+		Path result = new ReviewPackageBuilder().build(completedRun(database));
 
-		assertEquals("cct-review-results-20260819-123456.zip", result.getPath().getFileName().toString());
-		assertEquals(64, result.getSha256().length());
-		assertTrue(result.getSize() > 0);
+		assertTrue(result.getFileName().toString().startsWith("cct-results-"));
+		assertTrue(result.getFileName().toString().endsWith(".zip"));
 		assertEquals(Arrays.asList(
 				databaseName,
 				"logs/apdu/" + PREFIX + "-apdu_transmission.log",
@@ -66,21 +60,19 @@ class ReviewPackageBuilderTest {
 				"piv-artifacts/" + PREFIX + "-chuid.bin",
 				"x509-artifacts/" + PREFIX + "-authentication.crt",
 				"x509-certs/cacerts.jks",
-				"x509-certs/valid/policy.xml"), zipEntries(result.getPath()));
-		assertFalse(result.getPath().getFileName().toString().contains("card-identifier"));
+				"x509-certs/valid/policy.xml"), zipEntries(result));
+		assertFalse(result.getFileName().toString().contains("card-identifier"));
 	}
 
 	@Test
 	void preservesLegacyEvidenceBytesUnchanged() throws Exception {
 		Path database = createEvidence("PIV_ICAM_Test_Cards.db", "database");
-		Path csv = basicCsv();
+		basicCsv();
 		byte[] evidence = new byte[] { 0x00, 0x31, 0x32, 0x33, 0x34, (byte) 0xff, 0x0a };
 		Path apdu = writeBytes("logs/apdu/" + PREFIX + "-apdu_transmission.log", evidence);
-		CompletedTestRun run = completedRun(database, csv);
-
-		ReviewPackage result = new ReviewPackageBuilder(FIXED_CLOCK).build(run);
+		Path result = new ReviewPackageBuilder().build(completedRun(database));
 		assertEquals(Arrays.toString(Files.readAllBytes(apdu)),
-				Arrays.toString(zipEntry(result.getPath(), "logs/apdu/" + apdu.getFileName())));
+				Arrays.toString(zipEntry(result, "logs/apdu/" + apdu.getFileName())));
 	}
 
 	@Test
@@ -89,8 +81,8 @@ class ReviewPackageBuilderTest {
 		assertFalse(action.isEnabled());
 
 		Path database = createEvidence("PIV_Production_Cards.db", "database");
-		Path csv = basicCsv();
-		action.setCompletedRun(completedRun(database, csv));
+		basicCsv();
+		action.setCompletedRun(completedRun(database));
 		assertTrue(action.isEnabled());
 
 		action.setCompletedRun(null);
@@ -115,28 +107,15 @@ class ReviewPackageBuilderTest {
 
 	@Test
 	void rejectsMissingCompletedRunAndAmbiguousCsv() throws Exception {
-		ReviewPackageBuilder builder = new ReviewPackageBuilder(FIXED_CLOCK);
+		ReviewPackageBuilder builder = new ReviewPackageBuilder();
 		assertThrows(IllegalStateException.class, () -> builder.build(null));
 
 		Path database = createEvidence("PIV_Production_Cards.db", "database");
-		Path csv = basicCsv();
+		basicCsv();
 		write("logs/other/" + PREFIX + "-second.csv", "Date,Actual Result\nnow,Pass\n");
-		CompletedTestRun run = completedRun(database, csv);
+		CompletedTestRun run = completedRun(database);
 		IOException error = assertThrows(IOException.class, () -> builder.build(run));
 		assertTrue(error.getMessage().contains("exactly one conformance CSV"));
-	}
-
-	@Test
-	void producesDeterministicZipContent() throws Exception {
-		Path database = createEvidence("PIV_Production_Cards.db", "database");
-		Path csv = basicCsv();
-		CompletedTestRun run = completedRun(database, csv);
-		ReviewPackageBuilder builder = new ReviewPackageBuilder(FIXED_CLOCK);
-
-		ReviewPackage first = builder.build(run);
-		ReviewPackage second = builder.build(run);
-		assertEquals(first.getSha256(), second.getSha256());
-		assertEquals("cct-review-results-20260819-123456-2.zip", second.getPath().getFileName().toString());
 	}
 
 	private Path basicCsv() throws IOException {
@@ -146,8 +125,8 @@ class ReviewPackageBuilderTest {
 				+ "now,1,one,Pass,Pass\nnow,2,two,Pass,Fail\n");
 	}
 
-	private CompletedTestRun completedRun(Path database, Path csv) {
-		return new CompletedTestRun(tempDirectory, database, csv, PREFIX);
+	private CompletedTestRun completedRun(Path database) {
+		return new CompletedTestRun(tempDirectory, database, PREFIX);
 	}
 
 	private Path createEvidence(String relative, String contents) throws IOException {

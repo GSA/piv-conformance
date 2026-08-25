@@ -163,8 +163,8 @@ public class GuiRunnerAppController {
 	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");
 	    m_displayTestReportAction = new GuiDisplayTestReportAction("Display Test Report", displayReportIcon, "Display test report for current log");
 	    ImageIcon packageIcon = getActionIcon("database_save", "Package Results");
-	    m_packageResultsAction = new PackageResultsAction("Package Results for Review Manager", packageIcon,
-				"Create a ZIP containing the latest completed run for Review Manager");
+	    m_packageResultsAction = new PackageResultsAction("Package Results", packageIcon,
+				"Create a ZIP containing the latest completed run");
 	    ImageIcon savingIcon = getActionIcon("folder", "Saving");
 	    ImageIcon pivIcon = getActionIcon("PIV", "Open");
 	    m_openDefaultPIVDatabaseAction = new OpenDefaultPIVDatabaseAction("Open Default PIV Database", pivIcon, "Open Default PIV conformance test database");

@@ -294,8 +294,7 @@ public class GuiTestExecutionController {
 		try {
 			String timeStamp = m_trlc.getTimeStamp();
 			Path resultsDirectory = Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize();
-			Path csv = ReviewPackageBuilder.findConformanceCsv(resultsDirectory, timeStamp);
-			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, csv, timeStamp);
+			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, timeStamp);
 			SwingUtilities.invokeLater(() -> {
 				display.setEnabled(true);
 				packageResults.setCompletedRun(completedRun);
