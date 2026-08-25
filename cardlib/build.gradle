@@ -12,7 +12,6 @@ buildscript {
 
 plugins {
     id 'java-library'
-    id "org.ajoberstar.grgit" version "4.1.0"
     id 'com.github.johnrengelman.shadow' version '4.0.4'
     id 'de.jjohannes.extra-java-module-info' version '0.1'
 }
@@ -161,13 +160,11 @@ junitPlatformTest {
         println 'Cloning, please wait...'
         File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
         if (!cardsDir.exists()) {
-            def grgit = org.ajoberstar.grgit.Grgit.clone(dir: cardsDir, uri: 'https://github.com/GSA/gsa-icam-card-builder', checkout: true, refToCheckout: 'master')
-            if (grgit != null) {
-                grgit.describe()
-                System.out.println 'Cloned ' + cardsDir.getName()
-            } else {
-                System.out.println 'Couldn\'t clone gsa-icam-card-builder'
+            project.exec {
+                commandLine 'git', 'clone', '--branch', 'master', '--single-branch',
+                        'https://github.com/GSA/gsa-icam-card-builder', cardsDir
             }
+            System.out.println 'Cloned ' + cardsDir.getName()
         } else {
             System.out.println cardsDir.getName() + ' exists, reusing'
         }
@@ -210,12 +207,10 @@ compileJava {
     doFirst {
         version = getVersion()    
 
-        def dir = "${project.rootDir}/../"
-        def git = org.ajoberstar.grgit.Grgit.open(dir: dir)
-        def commit = git.head()
-
-        def commitId = commit.abbreviatedId
-        def commitDate = commit.getDate()
+        def repositoryDir = project.rootDir.parentFile
+        def commitId = ['git', 'rev-parse', '--short', 'HEAD'].execute(null, repositoryDir).text.trim()
+        def commitDateText = ['git', 'show', '-s', '--format=%ct', 'HEAD'].execute(null, repositoryDir).text.trim()
+        def commitDate = new Date(Long.parseLong(commitDateText) * 1000L)
         def buildDate = new Date()
         File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
         File propertiesFile = new File(resourcesDir, 'version.properties')
