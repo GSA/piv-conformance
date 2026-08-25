@@ -5,9 +5,6 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMetho
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,8 +39,6 @@ public class GuiTestExecutionController {
 	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestExecutionController.class);
 	private static final GuiTestExecutionController INSTANCE = new GuiTestExecutionController();
 	private static final String tag30TestId = "8.2.2.1"; // TODO: Fixme
-	private static final DateTimeFormatter SUMMARY_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
-			.withZone(ZoneId.systemDefault());
 
 	private TestRunLogController m_trlc;
 	private GuiTestTreePanel m_testTreePanel;
@@ -144,7 +139,6 @@ public class GuiTestExecutionController {
 			return;
 		}
 
-		Instant runStarted = Instant.now();
 		m_trlc.setStartTimes();
 
 		GuiDisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
@@ -310,7 +304,6 @@ public class GuiTestExecutionController {
 
 		m_trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
 		m_trlc.cleanup();
-		Instant runFinished = Instant.now();
 		m_running = false;
 		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
 		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
@@ -319,14 +312,12 @@ public class GuiTestExecutionController {
 			String timeStamp = m_trlc.getTimeStamp();
 			Path resultsDirectory = Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize();
 			Path csv = ReviewPackageBuilder.findConformanceCsv(resultsDirectory, timeStamp);
-			RunResultsSummary summary = RunResultsSummary.fromCsv(csv);
-			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, csv,
-					timeStamp, runStarted, runFinished, summary);
+			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, csv, timeStamp);
 			SwingUtilities.invokeLater(() -> {
 				display.setEnabled(true);
 				packageResults.setCompletedRun(completedRun);
 				m_testExecutionPanel.setPostRunActionsVisible(true);
-				showCompletionSummary(completedRun);
+				packageResults.packageCompletedRun();
 			});
 		} catch (Exception e) {
 			s_logger.error("The completed run could not be prepared for review packaging", e);
@@ -347,19 +338,6 @@ public class GuiTestExecutionController {
 		controller.getOpenDatabaseAction().setEnabled(enabled);
 		controller.getOpenDefaultPIVDatabaseAction().setEnabled(enabled);
 		controller.getOpenDefaultPIVIDatabaseAction().setEnabled(enabled);
-	}
-
-	private void showCompletionSummary(CompletedTestRun run) {
-		RunResultsSummary summary = run.getSummary();
-		String message = "Conformance run completed.\n\n"
-				+ "Database: " + run.getDatabasePath().getFileName() + "\n"
-				+ "Results: " + summary.getPassed() + " passed, " + summary.getFailed() + " failed, "
-				+ summary.getTotal() + " total\n"
-				+ "Started: " + SUMMARY_TIME.format(run.getStartedAt()) + "\n"
-				+ "Finished: " + SUMMARY_TIME.format(run.getFinishedAt()) + "\n"
-				+ "Results folder: " + run.getResultsDirectory();
-		JOptionPane.showMessageDialog(GuiRunnerAppController.getInstance().getMainFrame(), message,
-				"Run Complete", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private void showCompletionError(String detail) {

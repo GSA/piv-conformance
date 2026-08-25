@@ -50,6 +50,10 @@ public class PackageResultsAction extends AbstractAction {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		packageCompletedRun();
+	}
+
+	void packageCompletedRun() {
 		final CompletedTestRun run = m_completedRun;
 		if (run == null) {
 			showError("No successfully completed test run is available to package.");

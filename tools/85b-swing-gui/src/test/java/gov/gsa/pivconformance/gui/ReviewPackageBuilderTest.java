@@ -55,8 +55,7 @@ class ReviewPackageBuilderTest {
 		write("tool.jar", "executable");
 		write("cct-review-results-20200101-000000.zip", "old package");
 
-		RunResultsSummary summary = RunResultsSummary.fromCsv(csv);
-		CompletedTestRun run = completedRun(database, csv, summary);
+		CompletedTestRun run = completedRun(database, csv);
 		ReviewPackage result = new ReviewPackageBuilder(FIXED_CLOCK).build(run);
 
 		assertEquals("cct-review-results-20260819-123456.zip", result.getPath().getFileName().toString());
@@ -79,7 +78,7 @@ class ReviewPackageBuilderTest {
 		Path csv = basicCsv();
 		byte[] evidence = new byte[] { 0x00, 0x31, 0x32, 0x33, 0x34, (byte) 0xff, 0x0a };
 		Path apdu = writeBytes("logs/apdu/" + PREFIX + "-apdu_transmission.log", evidence);
-		CompletedTestRun run = completedRun(database, csv, RunResultsSummary.fromCsv(csv));
+		CompletedTestRun run = completedRun(database, csv);
 
 		ReviewPackage result = new ReviewPackageBuilder(FIXED_CLOCK).build(run);
 		assertEquals(Arrays.toString(Files.readAllBytes(apdu)),
@@ -102,7 +101,7 @@ class ReviewPackageBuilderTest {
 
 		Path database = createEvidence("PIV_Production_Cards.db", "database");
 		Path csv = basicCsv();
-		action.setCompletedRun(completedRun(database, csv, RunResultsSummary.fromCsv(csv)));
+		action.setCompletedRun(completedRun(database, csv));
 		assertTrue(action.isEnabled());
 
 		action.setCompletedRun(null);
@@ -133,7 +132,7 @@ class ReviewPackageBuilderTest {
 		Path database = createEvidence("PIV_Production_Cards.db", "database");
 		Path csv = basicCsv();
 		write("logs/other/" + PREFIX + "-second.csv", "Date,Actual Result\nnow,Pass\n");
-		CompletedTestRun run = completedRun(database, csv, RunResultsSummary.fromCsv(csv));
+		CompletedTestRun run = completedRun(database, csv);
 		IOException error = assertThrows(IOException.class, () -> builder.build(run));
 		assertTrue(error.getMessage().contains("exactly one conformance CSV"));
 	}
@@ -142,22 +141,13 @@ class ReviewPackageBuilderTest {
 	void producesDeterministicZipContent() throws Exception {
 		Path database = createEvidence("PIV_Production_Cards.db", "database");
 		Path csv = basicCsv();
-		CompletedTestRun run = completedRun(database, csv, RunResultsSummary.fromCsv(csv));
+		CompletedTestRun run = completedRun(database, csv);
 		ReviewPackageBuilder builder = new ReviewPackageBuilder(FIXED_CLOCK);
 
 		ReviewPackage first = builder.build(run);
 		ReviewPackage second = builder.build(run);
 		assertEquals(first.getSha256(), second.getSha256());
 		assertEquals("cct-review-results-20260819-123456-2.zip", second.getPath().getFileName().toString());
-	}
-
-	@Test
-	void parsesCompletionCounts() throws Exception {
-		Path csv = basicCsv();
-		RunResultsSummary summary = RunResultsSummary.fromCsv(csv);
-		assertEquals(1, summary.getPassed());
-		assertEquals(1, summary.getFailed());
-		assertEquals(2, summary.getTotal());
 	}
 
 	private Path basicCsv() throws IOException {
@@ -167,9 +157,8 @@ class ReviewPackageBuilderTest {
 				+ "now,1,one,Pass,Pass\nnow,2,two,Pass,Fail\n");
 	}
 
-	private CompletedTestRun completedRun(Path database, Path csv, RunResultsSummary summary) {
-		return new CompletedTestRun(tempDirectory, database, csv, PREFIX,
-				Instant.parse("2026-08-19T01:02:03Z"), Instant.parse("2026-08-19T02:03:04Z"), summary);
+	private CompletedTestRun completedRun(Path database, Path csv) {
+		return new CompletedTestRun(tempDirectory, database, csv, PREFIX);
 	}
 
 	private Path createEvidence(String relative, String contents) throws IOException {
