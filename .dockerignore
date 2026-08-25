@@ -1,0 +1,10 @@
+.git
+.gradle
+**/.gradle
+**/build
+libs
+fips201-card-conformance-tool-*
+cct-review-results-*.zip
+cct-docker-data
+*.log
+.DS_Store

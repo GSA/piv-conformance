@@ -119,4 +119,5 @@ fips201-card-conformance-tool-[0-9]*\.[0-9]*\.[0-9]*-beta-[0-9]*/*
 /fips201-card-conformance-tool-*/
 /fips201-card-conformance-tool-*.zip
 /cct-review-results-*.zip
+/cct-docker-data/
 libs/*

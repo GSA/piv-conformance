@@ -54,6 +54,16 @@ def getVersion = { ->
     String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
+def gitValue = { List<String> command, String fallback ->
+    try {
+        def process = command.execute(null, project.rootDir.parentFile)
+        String output = process.text.trim()
+        return process.exitValue() == 0 && !output.isEmpty() ? output : fallback
+    } catch (Exception ignored) {
+        return fallback
+    }
+}
+
 String killJavaPid() {
     try {
         RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean()
@@ -207,9 +217,10 @@ compileJava {
     doFirst {
         version = getVersion()    
 
-        def repositoryDir = project.rootDir.parentFile
-        def commitId = ['git', 'rev-parse', '--short', 'HEAD'].execute(null, repositoryDir).text.trim()
-        def commitDateText = ['git', 'show', '-s', '--format=%ct', 'HEAD'].execute(null, repositoryDir).text.trim()
+        def commitId = System.getenv('CCT_GIT_COMMIT') ?:
+                gitValue(['git', 'rev-parse', '--short', 'HEAD'], 'unknown')
+        def commitDateText = System.getenv('CCT_GIT_COMMIT_EPOCH') ?:
+                gitValue(['git', 'show', '-s', '--format=%ct', 'HEAD'], '0')
         def commitDate = new Date(Long.parseLong(commitDateText) * 1000L)
         def buildDate = new Date()
         File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
