@@ -108,25 +108,6 @@ public class GuiTestExecutionController {
 		m_ctx = ctx;
 	}
 
-	void runAllTestsSafely(GuiTestCaseTreeNode root) {
-		try {
-			runAllTests(root);
-		} catch (RuntimeException e) {
-			s_logger.error("The test run ended unexpectedly", e);
-			m_running = false;
-			SwingUtilities.invokeLater(() -> {
-				GuiRunnerAppController controller = GuiRunnerAppController.getInstance();
-				controller.getDisplayTestReportAction().setEnabled(true);
-				controller.getPackageResultsAction().setCompletedRun(null);
-				setDatabaseActionsEnabled(true);
-				m_testExecutionPanel.getRunButton().setEnabled(true);
-				m_testExecutionPanel.setPostRunActionsVisible(false);
-				CopyableErrorDialog.show(controller.getMainFrame(), "Test Run Error",
-						"The test run ended unexpectedly. No review package was prepared.", e.getMessage());
-			});
-		}
-	}
-	
 	void runAllTests(GuiTestCaseTreeNode root) {
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
 		if(db == null || db.getConnection() == null) {
@@ -161,7 +142,8 @@ public class GuiTestExecutionController {
 				packageResults.setCompletedRun(null);
 				m_testExecutionPanel.setPostRunActionsVisible(false);
 				m_testExecutionPanel.getRunButton().setEnabled(false);
-				setDatabaseActionsEnabled(false);
+				// TODO: Fix this or else
+				m_toolBar.getComponents()[0].setEnabled(false);
 				progress.setMaximum(db.getTestCaseCount());
 				progress.setValue(0);
 				progress.setVisible(true);
@@ -291,7 +273,8 @@ public class GuiTestExecutionController {
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				m_testExecutionPanel.getRunButton().setEnabled(true);
-				setDatabaseActionsEnabled(true);
+				// TODO: Fix this or else
+				m_toolBar.getComponents()[0].setEnabled(true);
 			});
 		} catch (InvocationTargetException | InterruptedException e) {
 			s_logger.error("Failed to enable run button", e);
@@ -323,7 +306,9 @@ public class GuiTestExecutionController {
 			s_logger.error("The completed run could not be prepared for review packaging", e);
 			SwingUtilities.invokeLater(() -> {
 				display.setEnabled(true);
-				showCompletionError(e.getMessage());
+				JOptionPane.showMessageDialog(GuiRunnerAppController.getInstance().getMainFrame(),
+						"The test run finished, but its results could not be packaged.\n" + e.getMessage(),
+						"Run Finished", JOptionPane.ERROR_MESSAGE);
 			});
 		}
 	}
@@ -331,18 +316,6 @@ public class GuiTestExecutionController {
 	private Path selectedDatabasePath(ConformanceTestDatabase db) {
 		Path databasePath = db.getDatabasePath();
 		return databasePath == null ? null : databasePath.toAbsolutePath().normalize();
-	}
-
-	private void setDatabaseActionsEnabled(boolean enabled) {
-		GuiRunnerAppController controller = GuiRunnerAppController.getInstance();
-		controller.getOpenDatabaseAction().setEnabled(enabled);
-		controller.getOpenDefaultPIVDatabaseAction().setEnabled(enabled);
-		controller.getOpenDefaultPIVIDatabaseAction().setEnabled(enabled);
-	}
-
-	private void showCompletionError(String detail) {
-		CopyableErrorDialog.show(GuiRunnerAppController.getInstance().getMainFrame(), "Run Finished",
-				"The test run finished, but its results could not be prepared for packaging.", detail);
 	}
 
 	private void registerListeners(Launcher l, List<TestExecutionListener> listeners) {

@@ -95,9 +95,6 @@ public class GuiRunnerApplication {
 
 		JMenuItem mntmDisplayTestReport = new JMenuItem(c.getDisplayTestReportAction());
 		mnView.add(mntmDisplayTestReport);
-
-		JMenuItem mntmPackageResults = new JMenuItem(c.getPackageResultsAction());
-		mnView.add(mntmPackageResults);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);

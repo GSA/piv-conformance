@@ -182,7 +182,7 @@ public class PackageResultsAction extends AbstractAction {
 	}
 
 	private void showError(String message) {
-		CopyableErrorDialog.show(GuiRunnerAppController.getInstance().getMainFrame(), "Package Results Error",
-				"The review package could not be created.", message);
+		JOptionPane.showMessageDialog(GuiRunnerAppController.getInstance().getMainFrame(), message,
+				"Package Results Error", JOptionPane.ERROR_MESSAGE);
 	}
 }

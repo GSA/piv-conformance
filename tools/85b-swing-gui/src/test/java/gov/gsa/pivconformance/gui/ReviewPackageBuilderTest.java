@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.swing.JTextArea;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -83,15 +81,6 @@ class ReviewPackageBuilderTest {
 		ReviewPackage result = new ReviewPackageBuilder(FIXED_CLOCK).build(run);
 		assertEquals(Arrays.toString(Files.readAllBytes(apdu)),
 				Arrays.toString(zipEntry(result.getPath(), "logs/apdu/" + apdu.getFileName())));
-	}
-
-	@Test
-	void errorDetailsAreWrappedSelectableText() {
-		JTextArea details = CopyableErrorDialog.createDetails("A very long diagnostic path");
-		assertFalse(details.isEditable());
-		assertTrue(details.getLineWrap());
-		assertTrue(details.getWrapStyleWord());
-		assertEquals("A very long diagnostic path", details.getText());
 	}
 
 	@Test

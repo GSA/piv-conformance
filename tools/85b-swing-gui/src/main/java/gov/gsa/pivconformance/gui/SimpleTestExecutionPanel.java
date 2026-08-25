@@ -192,9 +192,11 @@ public class SimpleTestExecutionPanel extends JPanel {
 					dialog.setVisible(true);
 					return;
 				}
-					GuiTestExecutionController tc = GuiTestExecutionController.getInstance();
-					GuiTestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
-					new Thread(() -> tc.runAllTestsSafely(root), "cct-test-run").start();
+				GuiTestExecutionController tc = GuiTestExecutionController.getInstance();
+				GuiTestCaseTreeNode root = GuiRunnerAppController.getInstance().getApp().getTreePanel().getRootNode();
+				new Thread(() -> {
+					tc.runAllTests(root);
+				}).start();
 				
 			}
 		});
