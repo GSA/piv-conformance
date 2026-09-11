@@ -37,6 +37,7 @@ public class GuiRunnerAppController {
 	private GuiToggleTestTreeAction m_toggleTreeAction;
 	private GuiDisplayAboutDialogAction m_displayAboutDialogAction;
 	private GuiDisplayTestReportAction m_displayTestReportAction;
+	private PackageResultsAction m_packageResultsAction;
 	private OpenDefaultPIVDatabaseAction m_openDefaultPIVDatabaseAction;
 	private OpenDefaultPIVIDatabaseAction m_openDefaultPIVIDatabaseAction;
 	private GuiTestExecutionController m_tec;
@@ -55,6 +56,7 @@ public class GuiRunnerAppController {
 		m_toggleTreeAction = null;
 		m_displayAboutDialogAction = null;
 		m_displayTestReportAction = null;
+		m_packageResultsAction = null;
 		m_openDefaultPIVDatabaseAction = null;
 		m_openDefaultPIVIDatabaseAction = null;
 		m_tec = null;
@@ -138,6 +140,10 @@ public class GuiRunnerAppController {
 		return m_displayTestReportAction;
 	}
 
+	PackageResultsAction getPackageResultsAction() {
+		return m_packageResultsAction;
+	}
+
 	public void showAboutDialog() {
 		s_logger.error("Stubbed out showAboutDialog() is still here");
 	}
@@ -156,6 +162,9 @@ public class GuiRunnerAppController {
 	    m_toggleTreeAction = new GuiToggleTestTreeAction("Toggle test tree view", toggleIcon, "Show or hide the test tree");
 	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");
 	    m_displayTestReportAction = new GuiDisplayTestReportAction("Display Test Report", displayReportIcon, "Display test report for current log");
+	    ImageIcon packageIcon = getActionIcon("database_save", "Package Results");
+	    m_packageResultsAction = new PackageResultsAction("Package Results", packageIcon,
+				"Create a ZIP containing the latest completed run");
 	    ImageIcon savingIcon = getActionIcon("folder", "Saving");
 	    ImageIcon pivIcon = getActionIcon("PIV", "Open");
 	    m_openDefaultPIVDatabaseAction = new OpenDefaultPIVDatabaseAction("Open Default PIV Database", pivIcon, "Open Default PIV conformance test database");
