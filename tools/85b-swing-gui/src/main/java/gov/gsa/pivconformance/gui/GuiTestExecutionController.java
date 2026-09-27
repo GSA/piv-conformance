@@ -293,7 +293,7 @@ public class GuiTestExecutionController {
 		cpiv.clearCache();
 		try {
 			String timeStamp = m_trlc.getTimeStamp();
-			Path resultsDirectory = Path.of(System.getProperty("user.dir")).toAbsolutePath().normalize();
+			Path resultsDirectory = CctApplicationPaths.dataDirectory();
 			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, timeStamp);
 			SwingUtilities.invokeLater(() -> {
 				display.setEnabled(true);

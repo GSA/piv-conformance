@@ -25,6 +25,7 @@ public class GuiRunnerApplication {
 	private static String cctVersion = null;
 
 	static {
+		CctApplicationPaths.initialize();
 		cctVersion = getVersion("build.version");
 	}
 
@@ -160,22 +161,28 @@ public class GuiRunnerApplication {
 	}
 
 	private static File getResourceFile(String target, String excludePattern) {
-		File resourceFile = null;
 		s_logger.debug("Looking for resource:" + target);
-		resourceFile = locateFile(new File("./"), target, excludePattern);
-		return resourceFile;
+		java.nio.file.Path resource = CctApplicationPaths.findResource(target);
+		if (resource != null) return resource.toFile();
+		return locateFile(new File("./"), target, excludePattern);
 	}
 
 	private static String getVersion(String name) {
-		String version = null;
 		File resourceFile = getResourceFile("build.version", File.separator + "build" + File.separator);
-		try {
-			BufferedReader versionFile = new BufferedReader (new FileReader(resourceFile));
-			version = versionFile.readLine();
+		try (BufferedReader versionFile = openVersionReader(name, resourceFile)) {
+			String version = versionFile.readLine();
+			if (version == null || version.isBlank()) throw new IOException("Version is empty");
+			return version.trim();
 		} catch (IOException e) {
-			s_logger.error("Can't open " + name);
+			throw new IllegalStateException("Can't open " + name, e);
 		}
-		return version;
+	}
+
+	private static BufferedReader openVersionReader(String name, File resourceFile) throws IOException {
+		if (resourceFile != null) return new BufferedReader(new FileReader(resourceFile, StandardCharsets.UTF_8));
+		InputStream resourceStream = GuiRunnerApplication.class.getResourceAsStream("/" + name);
+		if (resourceStream == null) throw new FileNotFoundException(name);
+		return new BufferedReader(new InputStreamReader(resourceStream, StandardCharsets.UTF_8));
 	}
 
 	/**

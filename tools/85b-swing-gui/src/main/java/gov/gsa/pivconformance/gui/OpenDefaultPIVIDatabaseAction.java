@@ -28,16 +28,16 @@ public class OpenDefaultPIVIDatabaseAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFrame mainFrame = GuiRunnerAppController.getInstance().getMainFrame();
-		String fullPath = "PIV-I_Production_Cards.db";
 		try {
+			String fullPath = CctApplicationPaths.requireResource("PIV-I_Production_Cards.db").toString();
 			ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 			db.openDatabaseInFile(fullPath);
 			GuiRunnerAppController.getInstance().setTestDatabase(db);
 
 			if(db != null) GuiRunnerAppController.getInstance().getApp().getMainContent().getTestExecutionPanel().getDatabaseNameField().setText(fullPath);
 			
-		} catch(ConfigurationException ce) {
-			s_logger.error("Failed to open conformance test database from {}", fullPath);
+		} catch(ConfigurationException | IllegalStateException ce) {
+			s_logger.error("Failed to open the default PIV-I conformance test database", ce);
 			JOptionPane.showMessageDialog(mainFrame, "Unable to open test database");
 		}
 	}

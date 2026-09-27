@@ -1,0 +1,33 @@
+FIPS 201 Card Conformance Tool (CCT) {{VERSION}}
+Windows x64 portable application
+================================================
+
+START CCT
+
+1. Extract the entire ZIP to a local folder.
+2. Open the extracted folder.
+3. Double-click CCT.exe.
+
+Do not run CCT from inside the ZIP, and do not move CCT.exe away from the app
+and runtime folders. Java is included; no separate Java installation is needed.
+If Windows or an organizational security policy blocks the unsigned application,
+contact the supporting IT team rather than disabling security controls.
+
+DATA AND RESULTS
+
+CCT writes logs, captured artifacts, and result ZIPs to:
+
+    %LOCALAPPDATA%\GSA\CCT
+
+This keeps writable test evidence separate from the application binaries.
+
+SMART-CARD READER
+
+A supported reader and its normal Windows driver are still required for card
+testing. CCT should open normally when no reader is attached; reader selection
+will be empty or unavailable until Windows detects a reader.
+
+SAFETY
+
+For an initial smoke test with a real card, run only a test already approved as
+non-destructive. Do not run state-changing card tests casually.

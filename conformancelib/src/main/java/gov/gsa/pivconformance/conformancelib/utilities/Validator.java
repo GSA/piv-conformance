@@ -943,8 +943,16 @@ public class Validator {
                 s_logger.debug("Loading properties");
                 if (props.get("provider") != null)
                     setProvider((String) props.get("provider"));
-                if (props.get("resourceDir") != null)
-                    setResourceDir((String) props.get("resourceDir"));
+				if (props.get("resourceDir") != null) {
+					String resourceDirectory = (String) props.get("resourceDir");
+					if (loadedProperties.source() == ValidatorHelper.ResourceSource.EXTERNAL_FILE
+							&& !new File(resourceDirectory).isAbsolute()
+							&& !resourceDirectory.contains("://")) {
+						Path propertiesPath = Path.of(loadedProperties.location()).toAbsolutePath().normalize();
+						resourceDirectory = propertiesPath.getParent().resolve(resourceDirectory).normalize().toString();
+					}
+					setResourceDir(resourceDirectory);
+				}
                 if (props.get("storePass") != null)
                     setStorePass((String) props.get("storePass"));
                 if (props.get("keyStore") != null) {

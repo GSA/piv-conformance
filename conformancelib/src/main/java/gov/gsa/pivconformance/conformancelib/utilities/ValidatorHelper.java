@@ -153,18 +153,33 @@ public class ValidatorHelper {
     }
 
     /**
-     * The single external-versus-bundled default boundary: an existing,
-     * readable path relative to the process working directory wins; otherwise
-     * the same platform-independent classpath name is used. Explicit operator
-     * paths must use {@link #openExternalFile(String)} instead.
+	 * The single external-versus-bundled default boundary: an existing,
+	 * readable path relative to the process working directory wins, followed by
+	 * configured writable and installed application resource directories.
+	 * Otherwise the same platform-independent classpath name is used. Explicit
+	 * operator paths must use {@link #openExternalFile(String)} instead.
      */
-    public static OpenedResource openDefaultResource(String resourceName) throws ConformanceTestException {
-        Path externalPath = Path.of(resourceName).toAbsolutePath().normalize();
-        if (Files.isRegularFile(externalPath) && Files.isReadable(externalPath)) {
-            return openExternalFile(externalPath.toString());
-        }
-        return openBundledResource(resourceName);
-    }
+	public static OpenedResource openDefaultResource(String resourceName) throws ConformanceTestException {
+		Path externalPath = Path.of(resourceName).toAbsolutePath().normalize();
+		if (Files.isRegularFile(externalPath) && Files.isReadable(externalPath)) {
+			return openExternalFile(externalPath.toString());
+		}
+		String[] configuredDirectories = {
+				System.getProperty("cct.data.dir"),
+				System.getProperty("cct.resource.dir")
+		};
+		for (String configuredDirectory : configuredDirectories) {
+			if (configuredDirectory != null && !configuredDirectory.isBlank()) {
+				Path base = Path.of(configuredDirectory).toAbsolutePath().normalize();
+				Path installedPath = base.resolve(resourceName).normalize();
+				if (installedPath.startsWith(base) && Files.isRegularFile(installedPath)
+						&& Files.isReadable(installedPath)) {
+					return openExternalFile(installedPath.toString());
+				}
+			}
+		}
+		return openBundledResource(resourceName);
+	}
 
     private static String normalizeClasspathResourceName(String resourceName) {
         String normalizedName = resourceName.replace('\\', '/');
@@ -335,7 +350,8 @@ public class ValidatorHelper {
             }
             if (!Files.exists(dirPath)) {
                 s_logger.warn("Can't create " + dirPath);
-                dirPath = Paths.get("."); // Failsafe is to dump the file in resourceDir
+				dirPath = Path.of(System.getProperty("cct.data.dir", System.getProperty("user.dir")))
+						.toAbsolutePath().normalize();
             }
         }
         String fullName = dirPath + File.separator + subject;
