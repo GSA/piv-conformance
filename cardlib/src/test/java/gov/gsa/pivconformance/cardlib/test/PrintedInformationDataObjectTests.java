@@ -5,46 +5,27 @@ import gov.gsa.pivconformance.cardlib.card.client.APDUUtils;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObjectFactory;
 import gov.gsa.pivconformance.cardlib.card.client.PrintedInformation;
-import gov.gsa.pivconformance.cardlib.utils.OSUtils;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PrintedInformationDataObjectTests {
-    private static String resDir = null;
-    static {
-        try {
-            URI uri = ClassLoader.getSystemResource("").toURI();
-            resDir = Paths.get(uri).toString();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Looking in: " + resDir);
-    }
-
     @DisplayName("Test Printed Information Object Data Object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-    //@MethodSource("dataObjectTestProvider")
+    @MethodSource("dataObjectTestProvider")
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get(resDir + File.separator + file);
+        Path filePath = TestResourceUtils.path(file);
         System.out.println("Looking for " + filePath);
         byte[] fileData = null;
         try {
@@ -54,6 +35,7 @@ public class PrintedInformationDataObjectTests {
         }
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
+        o.setContainerName(APDUConstants.getFileNameForOid(oid));
         reporter.publishEntry(oid, o.getClass().getSimpleName());
 
         byte[] data = APDUUtils.getTLV(APDUConstants.DATA, fileData);
@@ -61,7 +43,7 @@ public class PrintedInformationDataObjectTests {
         o.setOID(oid);
         o.setBytes(data);
         boolean decoded = o.decode();
-        assert (decoded);
+        assertTrue(decoded);
 
         assertNotNull(((PrintedInformation) o).getName());
         assertNotNull(((PrintedInformation) o).getEmployeeAffiliation());

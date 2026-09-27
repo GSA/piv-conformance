@@ -14,11 +14,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,23 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BiometricDataObjectTests {
-    private static String resDir = null;
-    static {
-        try {
-            URI uri = ClassLoader.getSystemResource("").toURI();
-            resDir = Paths.get(uri).toString();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Looking in: " + resDir);
-    }
     @DisplayName("Test Biometric Data Object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-    //@MethodSource("dataObjectTestProvider")
+    @MethodSource("dataObjectTestProvider")
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get(resDir + File.separator + file);
+        Path filePath = TestResourceUtils.path(file);
         System.out.println("Looking for " + filePath.getParent() + File.separator + filePath.getFileName());
         byte[] fileData = null;
         try {
@@ -53,6 +40,7 @@ public class BiometricDataObjectTests {
         }
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
+        o.setContainerName(APDUConstants.getFileNameForOid(oid));
         reporter.publishEntry(oid, o.getClass().getSimpleName());
 
 
@@ -61,7 +49,7 @@ public class BiometricDataObjectTests {
         o.setOID(oid);
         o.setBytes(data);
         boolean decoded = o.decode();
-        assert(decoded);
+        assertTrue(decoded);
 
         assertNotNull(((CardHolderBiometricData) o).getBiometricCreationDate());
         assertNotNull(((CardHolderBiometricData) o).getValidityPeriodFrom());

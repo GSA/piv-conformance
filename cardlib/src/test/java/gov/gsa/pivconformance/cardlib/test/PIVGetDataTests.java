@@ -25,6 +25,7 @@ import javax.smartcardio.TerminalFactory;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("Hardware")
@@ -42,12 +43,13 @@ public class PIVGetDataTests {
         } catch (CardException e) {
             fail("Unable to list readers");
         }
+        assertTrue(!terminals.isEmpty(), "No PC/SC reader is available");
     }
 
     @Test
     @DisplayName("Ensure readers")
     void testReaderList() {
-        assert(terminals.size() > 0);
+        assertTrue(!terminals.isEmpty(), "No PC/SC reader is available");
     }
 
     @Test
@@ -55,13 +57,13 @@ public class PIVGetDataTests {
     void testConnection() {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
-            assert (terminals.get(0).isCardPresent());
+            assertTrue(terminals.get(0).isCardPresent(), "No card is inserted");
         }catch(CardException ce) {
             fail(ce);
         }
         CardHandle ch = new CardHandle();
         MiddlewareStatus result = PIVMiddleware.pivConnect(true, cd, ch);
-        assert(result == MiddlewareStatus.PIV_OK);
+        assertEquals(MiddlewareStatus.PIV_OK, result);
     }
 
     @Test
@@ -69,13 +71,13 @@ public class PIVGetDataTests {
     void testSelect(TestReporter reporter) {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
-            assert (terminals.get(0).isCardPresent());
+            assertTrue(terminals.get(0).isCardPresent(), "No card is inserted");
         }catch(CardException ce) {
             fail(ce);
         }
         CardHandle ch = new CardHandle();
         MiddlewareStatus result = PIVMiddleware.pivConnect(true, cd, ch);
-        assertEquals(result, MiddlewareStatus.PIV_OK);
+        assertEquals(MiddlewareStatus.PIV_OK, result);
         reporter.publishEntry("Reader", cd.getTerminal().getName());
         piv = new DefaultPIVApplication();
         ApplicationAID aid  = new ApplicationAID();
@@ -90,13 +92,13 @@ public class PIVGetDataTests {
     void testAuth(TestReporter reporter) {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
-            assert (terminals.get(0).isCardPresent());
+            assertTrue(terminals.get(0).isCardPresent(), "No card is inserted");
         }catch(CardException ce) {
             fail(ce);
         }
         CardHandle ch = new CardHandle();
         MiddlewareStatus result = PIVMiddleware.pivConnect(true, cd, ch);
-        assertEquals(result, MiddlewareStatus.PIV_OK);
+        assertEquals(MiddlewareStatus.PIV_OK, result);
         piv = new DefaultPIVApplication();
         ApplicationAID aid  = new ApplicationAID();
         ApplicationProperties cardAppProperties = new ApplicationProperties();
@@ -114,13 +116,13 @@ public class PIVGetDataTests {
     void testPIVGetData(TestReporter reporter) {
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
-            assert (terminals.get(0).isCardPresent());
+            assertTrue(terminals.get(0).isCardPresent(), "No card is inserted");
         }catch(CardException ce) {
             fail(ce);
         }
         CardHandle ch = new CardHandle();
         MiddlewareStatus result = PIVMiddleware.pivConnect(true, cd, ch);
-        assertEquals(result, MiddlewareStatus.PIV_OK);
+        assertEquals(MiddlewareStatus.PIV_OK, result);
         piv = new DefaultPIVApplication();
         ApplicationAID aid  = new ApplicationAID();
         ApplicationProperties cardAppProperties = new ApplicationProperties();

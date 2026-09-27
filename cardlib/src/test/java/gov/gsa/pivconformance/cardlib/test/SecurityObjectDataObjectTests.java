@@ -6,47 +6,29 @@ import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.SecurityObject;
 import gov.gsa.pivconformance.cardlib.card.client.SignedPIVDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObjectFactory;
-import gov.gsa.pivconformance.cardlib.utils.OSUtils;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
-import static gov.gsa.pivconformance.cardlib.card.client.APDUConstants.getFileNameForOid;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SecurityObjectDataObjectTests {
-	private static String resDir = null;
-    static {
-        try {
-            URI uri = ClassLoader.getSystemResource("").toURI();
-            resDir = Paths.get(uri).toString();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Looking in: " + resDir);
-    }
-
     @DisplayName("Test Security Object Data Object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-    //@MethodSource("dataObjectTestProvider")
+    @MethodSource("dataObjectTestProvider")
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get(resDir + File.separator + file);
+        Path filePath = TestResourceUtils.path(file);
         byte[] fileData = null;
         try {
             fileData = Files.readAllBytes(filePath);
@@ -55,6 +37,7 @@ public class SecurityObjectDataObjectTests {
         }
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
+        o.setContainerName(APDUConstants.getFileNameForOid(oid));
         reporter.publishEntry(oid, o.getClass().getSimpleName());
 
         APDUUtils.getTLV(APDUConstants.DATA, fileData);
@@ -62,7 +45,7 @@ public class SecurityObjectDataObjectTests {
         o.setOID(oid);
         o.setBytes(fileData);
         boolean decoded = o.decode();
-        assert(decoded);
+        assertTrue(decoded);
 
         assertNotNull(((SecurityObject) o).getMapping());
         assertNotNull(((SecurityObject) o).getContainerIDList());

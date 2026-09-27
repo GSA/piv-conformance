@@ -30,6 +30,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Tag("Hardware")
@@ -47,11 +48,12 @@ public class PIVSignatureVerificationTests {
         } catch (CardException e) {
             fail("Unable to list readers");
         }
+        assertTrue(!terminals.isEmpty(), "No PC/SC reader is available");
     }
 
     @Test @DisplayName("Ensure readers")
     void testReaderList() {
-        assert(terminals.size() > 0);
+        assertTrue(!terminals.isEmpty(), "No PC/SC reader is available");
     }
 
 
@@ -60,13 +62,13 @@ public class PIVSignatureVerificationTests {
         X509Certificate signingCertificate = null;
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
-            assert (terminals.get(0).isCardPresent());
+            assertTrue(terminals.get(0).isCardPresent(), "No card is inserted");
         }catch(CardException ce) {
             fail(ce);
         }
         CardHandle ch = new CardHandle();
         MiddlewareStatus result = PIVMiddleware.pivConnect(true, cd, ch);
-        assertEquals(result, MiddlewareStatus.PIV_OK);
+        assertEquals(MiddlewareStatus.PIV_OK, result);
         piv = new DefaultPIVApplication();
         ApplicationAID aid  = new ApplicationAID();
         ApplicationProperties cardAppProperties = new ApplicationProperties();
