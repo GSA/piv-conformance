@@ -1,4 +1,5 @@
 module gov.gsa.pivconformance.conformancelib {
+	opens gov.gsa.pivconformance.conformancelib.tests to org.junit.platform.commons;
 	exports gov.gsa.pivconformance.conformancelib.utilities;
 	exports gov.gsa.pivconformance.conformancelib.tools.junitconsole;
 	exports gov.gsa.pivconformance.conformancelib.tools;

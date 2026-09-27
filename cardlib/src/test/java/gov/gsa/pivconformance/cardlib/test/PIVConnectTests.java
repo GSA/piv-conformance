@@ -9,6 +9,7 @@ import gov.gsa.pivconformance.cardlib.card.client.MiddlewareStatus;
 import gov.gsa.pivconformance.cardlib.card.client.PIVMiddleware;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestReporter;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@Tag("Hardware")
 public class PIVConnectTests {
     List<CardTerminal> terminals = null;
     @BeforeEach

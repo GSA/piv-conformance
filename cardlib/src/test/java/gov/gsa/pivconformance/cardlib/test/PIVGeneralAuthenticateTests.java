@@ -24,6 +24,7 @@ import gov.gsa.pivconformance.cardlib.card.client.PIVMiddleware;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("Hardware")
 public class PIVGeneralAuthenticateTests {
 
     List<CardTerminal> terminals = null;
@@ -55,7 +56,7 @@ public class PIVGeneralAuthenticateTests {
             result = piv.pivSelectCardApplication(currentCardHandle, aid, cardAppProperties);
 			assertEquals(MiddlewareStatus.PIV_OK, result);
 			PIVAuthenticators authenticators = new PIVAuthenticators();
-			authenticators.addApplicationPin("123456");
+			authenticators.addApplicationPin(HardwareTestCredentials.requirePinForApprovedTestCard());
 			result = piv.pivLogIntoCardApplication(currentCardHandle, authenticators.getBytes());
 			assertEquals(MiddlewareStatus.PIV_OK, result);
         } catch (CardException e) {

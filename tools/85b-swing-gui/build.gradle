@@ -1,46 +1,39 @@
 // 85b-swing-gui/build.gradle
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
-    id 'de.jjohannes.extra-java-module-info' version '0.1'
- 
+    id 'application'
+    id 'eclipse'
+    id 'com.gradleup.shadow' version '8.3.10'
 }
 
 java {
-    modularity.inferModulePath.set(true)
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withSourcesJar()
 }
 
-apply plugin: 'java-library'
-apply plugin: 'application'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'eclipse'
+application {
+    mainClass = 'gov.gsa.pivconformance.gui.GuiRunnerApplication'
+}
 
 repositories {
-    jcenter()
-    maven { url 'https://repository.apache.org/snapshots' }
+    mavenCentral()
     flatDir {
         dirs '../../libs', '../../cardlib/build/libs', '../../conformancelib/build/libs'
     }
 }
 
 def getVersion = { ->
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
-    File versionFile = new File(resourcesDir, 'build.version')
-    if(!versionFile.exists()) {
-        resourcesDir.mkdirs()
-        versionFile.createNewFile()
-        println 'Initializing build.version file...'
-        versionFile.text = '0.0-changeme'
+    File versionFile = file('src/main/resources/build.version')
+    if (!versionFile.exists()) {
+        throw new GradleException("Missing required version file: ${versionFile}")
     }
-    String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
+    versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
+
+version = getVersion()
 
 dependencies {
     implementation 'commons-cli:commons-cli:1.4'
@@ -56,142 +49,63 @@ dependencies {
     implementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     implementation 'org.junit.platform:junit-platform-launcher:1.7.0'
     implementation 'edu.washington.cs.types.checker:checker-framework:1.7.0'
+    runtimeOnly 'com.payneteasy:ber-tlv:1.0-11'
+    runtimeOnly 'com.sun.mail:javax.mail:1.6.2'
+    runtimeOnly 'javax.activation:activation:1.1'
+    runtimeOnly 'org.apache.ibatis:ibatis-core:3.0'
+    runtimeOnly 'org.bouncycastle:bcpkix-jdk15on:1.66'
+    runtimeOnly 'org.bouncycastle:bcprov-jdk15on:1.66'
+    runtimeOnly 'info.picocli:picocli:3.6.0'
+    runtimeOnly 'junit:junit:4.13'
+    runtimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    runtimeOnly 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    runtimeOnly 'org.xerial:sqlite-jdbc:3.34.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
 }
 
-extraJavaModuleInfo {
-    module("hamcrest-core-1.3.jar", "org.hamcrest", "1.3") {
-        exports("hamcrest.core")
-    }
-    module("slf4j-api-2.0.0-alpha1.jar", "org.slf4j", "1.4") {
-        exports("slf4j.api")
-    }
-    module("sqlite-jdbc-3.32.3.2.jar", "org.xerial.sqlite", "3.32.3.2") {
-        exports("org.sqlite")
-    }
-    module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
-        exports("org.apache.commons.cli")
-    }
-    module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
-        exports("org.apache.commons.csv")
-    }
-     module("commons-codec-1.15.jar", "org.apache.commons.codec", "1.15") {
-        exports("org.apache.commons.codec")
-        exports("org.apache.commons.codec.binary")
-    }   
-    module("logback-classic-1.3.0-alpha5.jar", "ch.qos.logback", "1.3.0-alpha5") {
-        exports("logback.classic")
-    }
-    module("logback-core-1.3.0-alpha5.jar", "ch.qos.logback", "1.3.0-alpha5") {
-        exports("logback.core")
-        exports("logback.core.rolling")
-    }
-    automaticModule("activation-1.1.jar","javax.activation")
-    automaticModule("checker-framework-1.7.0.jar","edu.washington.cs.types.checker")
-    automaticModule("ibatis-core-3.0.jar", "org.apache.ibatis")
-    automaticModule("jgoodies-forms-1.6.0.jar", "com.jgoodies.forms")
-    automaticModule("jgoodies-common-1.4.0.jar", "com.jgoodies.common")
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.debugOptions.debugLevel = 'source,lines,vars'
 }
 
-sourceSets {
-    main {
-        java {
-            if(targetCompatibility != JavaVersion.VERSION_11)
-                exclude '**/module-info.java'
-        }
-    }
-}
-
-import org.gradle.plugins.ide.eclipse.model.AccessRule
-
-eclipse {
-    classpath {
-        file {
-            whenMerged {
-                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
-                jre.accessRules.add(new AccessRule('0', 'javax/smartcardio/**'))
-
-                //def cardlib = entries.find { it.path.contains 'cardlib' }
-                //cardlib.sourcePath = fileReference(file('../../libs/' + 'gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
-                //def conformancelib = entries.find { it.path.contains 'fips' }
-                //conformancelib.sourcePath = fileReference(file('../../libs/gov.gsa.pivconformance.cardlib' + '-' + getVersion() + '.jar'))
-            }
-        }
-    }
-}
-
-task copyResources(type: Copy) {
-    from "${buildDir}/resources", "$projectDir/tools/85b-swing-gui/user_log_config.xml", "${projectDir}/conformancelib/testdata/*.db"
-    into "${buildDir}/distributions"
-}
-
-shadowJar {
-    classifier = ''
-}
-
-// Define the main class for the application jar that will be produced
-mainClassName = 'gov.gsa.pivconformance.gui.GuiRunnerApplication'
-
-jar {
-    version = getVersion()
-    dependsOn(copyResources)
-    dependsOn(shadowJar { classifier = null })
-    manifest {
-        attributes 'Main-Class': mainClassName
-    }
-    doLast {
-        println 'archiveName: ' + archiveName
-        configurations.runtime.each { println it }
-    }
-}
-
-run {
-    if (project.hasProperty("appArgs")) {
-        args Eval.me(appArgs)
-    }
-}
-
-// use junit platform for tests
 test {
     useJUnitPlatform()
     testLogging {
-        events "passed", "skipped", "failed"
+        events 'passed', 'skipped', 'failed'
     }
 }
 
-compileJava {
-    options.debugOptions.debugLevel = "source,lines,vars"
+jar {
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
 }
 
-task sourceJar(type: Jar, dependsOn: classes) {
-    classifier 'sources'
-    from sourceSets.main.allSource
+shadowJar {
+    archiveFileName = 'gov.gsa.pivconformance.gui-' + getVersion() + '-shadow.jar'
+    mergeServiceFiles()
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
 }
 
-task copyShadowLibs(type: Copy) {
-    from configurations.shadow
-    into '../../libs'
+tasks.register('installSource') {
+    dependsOn sourcesJar
+    doLast {
+        copy {
+            from sourcesJar
+            into '../../libs'
+        }
+    }
 }
 
-shadowJar.dependsOn copyShadowLibs
-
-shadowJar.doFirst {
-    archiveName = 'gov.gsa.pivconformance.gui' + '-' + getVersion() + '-shadow.jar' 
-    println 'shadowJar.doFirst.archveName: ' + archiveName
-}
-
-task installSource(type: Copy) {
-    version = getVersion()
-    dependsOn copyShadowLibs
-    dependsOn sourceJar
-    from sourceJar
-    into '../../libs' 
-}
-
-task install(type: Copy) {
-    version = getVersion()
-    dependsOn jar
-    from shadowJar
-    into '../../libs' 
+tasks.register('install') {
+    dependsOn shadowJar
+    doLast {
+        copy {
+            from shadowJar
+            into '../../libs'
+        }
+    }
 }

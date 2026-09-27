@@ -17,8 +17,10 @@ import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import org.bouncycastle.cms.CMSSignedData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestReporter;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
@@ -30,11 +32,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@Tag("Hardware")
 public class PIVSignatureVerificationTests {
     List<CardTerminal> terminals = null;
     DefaultPIVApplication piv = null;
+    String applicationPin = null;
     @BeforeEach
-    void init() {
+    void init(TestInfo testInfo) {
+        applicationPin = HardwareTestCredentials.pinFor(testInfo);
         PCSCUtils.ConfigureUserProperties();
         TerminalFactory tf = TerminalFactory.getDefault();
         try {
@@ -50,7 +55,7 @@ public class PIVSignatureVerificationTests {
     }
 
 
-    @Test @DisplayName("Test signature verfication")
+    @Test @Tag("PIN") @DisplayName("Test signature verfication")
     void testPIVGetData(TestReporter reporter) {
         X509Certificate signingCertificate = null;
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
@@ -68,7 +73,7 @@ public class PIVSignatureVerificationTests {
         result = piv.pivSelectCardApplication(ch, aid, cardAppProperties);
         assertEquals(MiddlewareStatus.PIV_OK, result);
         PIVAuthenticators authenticators = new PIVAuthenticators();
-        authenticators.addApplicationPin("123456");
+        authenticators.addApplicationPin(applicationPin);
         result = piv.pivLogIntoCardApplication(ch, authenticators.getBytes());
         assertEquals(MiddlewareStatus.PIV_OK, result);
 

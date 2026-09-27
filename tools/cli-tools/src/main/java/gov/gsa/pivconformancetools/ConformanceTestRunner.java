@@ -132,8 +132,6 @@ public class ConformanceTestRunner {
                 String pinFromConfig = rs.getString("ApplicationPIN");
                 if(pinFromConfig != null && !pinFromConfig.isEmpty()) {
                     css.setApplicationPin(pinFromConfig);
-                } else {
-                    css.setApplicationPin("123456");
                 }
             }
         } catch (SQLException e) {

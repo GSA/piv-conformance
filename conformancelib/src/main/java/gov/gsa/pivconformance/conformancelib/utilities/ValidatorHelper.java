@@ -18,12 +18,33 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 
-import static gov.gsa.pivconformance.conformancelib.utilities.TestRunLogController.pathFixup;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ValidatorHelper {
 
     private static final Logger s_logger = LoggerFactory.getLogger(ValidatorHelper.class);
+
+    public enum ResourceSource {
+        EXTERNAL_FILE,
+        CLASSPATH
+    }
+
+    /**
+     * An opened resource together with the non-secret source selected for it.
+     */
+    public record OpenedResource(InputStream stream, ResourceSource source, String location)
+            implements AutoCloseable {
+        @Override
+        public void close() throws IOException {
+            stream.close();
+        }
+    }
+
+    /**
+     * Properties loaded through the documented default-resource boundary.
+     */
+    public record LoadedProperties(Properties properties, ResourceSource source, String location) {
+    }
     public static X509Certificate getX509CertificateFromPath(String fullPathName) throws ConformanceTestException {
         String v_fullPathName = TestRunLogController.pathFixup(fullPathName);
         s_logger.debug("getX509CertificateFromPath(" + v_fullPathName + ")");
@@ -50,44 +71,107 @@ public class ValidatorHelper {
      * @throws Exception
      * @throws ConformanceTestException if an error occurs
      */
-    public static Properties readPropertiesFile(String fileName) throws ConformanceTestException {
-        Properties properties = null;
-        String path = pathFixup(System.getProperty("user.dir") + File.separator + fileName);
-        s_logger.debug("Opening properties file " + path);
-        try {
-            InputStream is = new FileInputStream(path);
-            properties = new Properties();
-            properties.load(is);
-            is.close();
-            s_logger.debug("Loaded properties from " + path);
+    public static LoadedProperties readDefaultProperties(String fileName) throws ConformanceTestException {
+        try (OpenedResource resource = openDefaultResource(fileName)) {
+            Properties properties = new Properties();
+            properties.load(resource.stream());
+            s_logger.info("Loaded default properties from {} {}", resource.source(), resource.location());
+            return new LoadedProperties(properties, resource.source(), resource.location());
         } catch (Exception e) {
             String msg = "readPropertiesFile exception: " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         }
-
-        return properties;
     }
 
     /**
-     * Gets a file from the specified resource for the specified class.
+     * Reads an explicitly supplied external properties file. Retained for API
+     * compatibility; unlike the temporary migration implementation, it never
+     * falls back to the classpath.
+     */
+    public static Properties readPropertiesFile(String fileName) throws ConformanceTestException {
+        try (OpenedResource resource = openExternalFile(fileName)) {
+            Properties properties = new Properties();
+            properties.load(resource.stream());
+            return properties;
+        } catch (IOException e) {
+            throw new ConformanceTestException("Unable to read explicit properties file " + fileName + ": "
+                    + e.getMessage());
+        }
+    }
+
+    /**
+     * Opens an explicitly supplied filesystem path. Retained for API
+     * compatibility and deliberately has no classpath fallback.
+     */
+    public static InputStream getStreamFromResourceFile(String fileName) throws ConformanceTestException {
+        return openExternalFile(fileName).stream();
+    }
+
+    /**
+     * Opens an explicitly supplied filesystem path. This method never falls
+     * back to a bundled resource.
      *
      * @param fileName the basename of the resource file
      * @return InputStream to the open resource or null if an en exception thrown
      * @throws ConformanceTestException if any error occurs
      */
-    public static InputStream getStreamFromResourceFile(String fileName) throws ConformanceTestException {
-        FileInputStream inputStream = null;
-        String path = pathFixup(fileName);
+    public static OpenedResource openExternalFile(String fileName) throws ConformanceTestException {
         try {
-            s_logger.debug("Getting stream from resource file " + path);
-            inputStream = new FileInputStream(path);
+            Path externalPath = Path.of(fileName).toAbsolutePath().normalize();
+            if (!Files.isRegularFile(externalPath) || !Files.isReadable(externalPath)) {
+                throw new FileNotFoundException(externalPath.toString());
+            }
+            s_logger.info("Using external resource {}", externalPath);
+            return new OpenedResource(Files.newInputStream(externalPath), ResourceSource.EXTERNAL_FILE,
+                    externalPath.toString());
         } catch (Exception e) {
-            String msg = "getStreamFromResourceFile exception: " + e.getMessage() + " while accessing " + path;
+            String msg = "Unable to open explicit external file " + fileName + ": " + e.getMessage();
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
         }
-        return inputStream;
+    }
+
+    /**
+     * Opens a bundled classpath resource. Classpath identifiers are normalized
+     * to '/' and never interpreted as filesystem paths.
+     */
+    public static OpenedResource openBundledResource(String resourceName) throws ConformanceTestException {
+        try {
+            String normalizedName = normalizeClasspathResourceName(resourceName);
+            InputStream resourceStream = ValidatorHelper.class.getClassLoader().getResourceAsStream(normalizedName);
+            if (resourceStream != null) {
+                s_logger.info("Using bundled resource {}", normalizedName);
+                return new OpenedResource(resourceStream, ResourceSource.CLASSPATH, normalizedName);
+            }
+            throw new FileNotFoundException(normalizedName);
+        } catch (Exception e) {
+            String msg = "Unable to open bundled resource " + resourceName + ": " + e.getMessage();
+            s_logger.error(msg);
+            throw new ConformanceTestException(msg);
+        }
+    }
+
+    /**
+     * The single external-versus-bundled default boundary: an existing,
+     * readable path relative to the process working directory wins; otherwise
+     * the same platform-independent classpath name is used. Explicit operator
+     * paths must use {@link #openExternalFile(String)} instead.
+     */
+    public static OpenedResource openDefaultResource(String resourceName) throws ConformanceTestException {
+        Path externalPath = Path.of(resourceName).toAbsolutePath().normalize();
+        if (Files.isRegularFile(externalPath) && Files.isReadable(externalPath)) {
+            return openExternalFile(externalPath.toString());
+        }
+        return openBundledResource(resourceName);
+    }
+
+    private static String normalizeClasspathResourceName(String resourceName) {
+        String normalizedName = resourceName.replace('\\', '/');
+        while (normalizedName.startsWith("/")) {
+            normalizedName = normalizedName.substring(1);
+        }
+        return normalizedName;
     }
 
     /**

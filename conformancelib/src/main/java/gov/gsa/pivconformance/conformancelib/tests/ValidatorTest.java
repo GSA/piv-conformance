@@ -48,6 +48,7 @@ public class ValidatorTest {
     }
 
     @Tag("Sun")
+    @Tag("ExternalCertificateFixture")
     @DisplayName("Certificate Path Validation Sun")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
     @MethodSource("positiveCaseCertProvider")
@@ -73,6 +74,7 @@ public class ValidatorTest {
         }
     }
     @Tag("BC")
+    @Tag("ExternalCertificateFixture")
     @DisplayName("Certificate Path Validation BouncyCastle")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
     @MethodSource("positiveCaseCertProvider")
