@@ -100,6 +100,15 @@ tasks.register('certificateFixtureTest', Test) {
     }
 }
 
+tasks.register('currentCandidateTest', Test) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = 'Hardware-free evidence for the incomplete CURRENT_2026_CANDIDATE profile.'
+    testClassesDirs = sourceSets.main.output.classesDirs
+    classpath = sourceSets.main.runtimeClasspath
+    useJUnitPlatform { includeTags 'CurrentCandidateEvidence' }
+    jvmArgs '--add-exports=org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
+}
+
 jar {
     version = getVersion()
     manifest {
