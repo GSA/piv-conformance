@@ -120,6 +120,16 @@ public final class CurrentDataModel {
         // Certificate parsing, compression validity and signature are separate assertions.
     }
 
+    /** Extract a certificate after current-profile TLV checks, without historical limits. */
+    public static byte[] certificateBytes(byte[] bytes) {
+        certificateObject(bytes);
+        Map<Integer, byte[]> f = fields(bytes,"73-CERT-FIELDS",new int[]{0x70,0x71,0xfe},Set.of());
+        if (f.get(0x71)[0] == 0) return f.get(0x70);
+        try (var input = new java.util.zip.GZIPInputStream(new java.io.ByteArrayInputStream(f.get(0x70)))) {
+            return input.readAllBytes();
+        } catch (java.io.IOException e) { throw new AssertionError("73-CERT-FIELDS: malformed GZIP certificate",e); }
+    }
+
     /** Section 3.1.7 structure only. Table 13 size interpretation awaits NIST review. */
     public static void securityObject(byte[] bytes) {
         String rule = "73-SECURITY-FIELDS";
