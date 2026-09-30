@@ -1,0 +1,42 @@
+[
+  {
+    "document": "NIST.SP.800-73pt1-5",
+    "revision": "July 2024",
+    "status": "FINAL",
+    "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf",
+    "sha256": "7d3f0d707b1cbd1bbab4b85aeb67b4a7957f01af608121d1fef6410f0b763b11",
+    "scope": "PRIMARY_PART_1"
+  },
+  {
+    "document": "NIST.SP.800-78-5",
+    "revision": "July 2024",
+    "status": "FINAL",
+    "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-78-5.pdf",
+    "sha256": "7d5733af8c2516364084286528f49cb65b18dc01f1d4301beced4afbf31b2d3c",
+    "scope": "DATA_MODEL_CRYPTO"
+  },
+  {
+    "document": "NIST.SP.800-76-2",
+    "revision": "July 2013",
+    "status": "FINAL",
+    "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf",
+    "sha256": "44bff9a17e34e8dff87c14ed3dbbad66b6e12255334d7d061256ab9b016a451d",
+    "scope": "BIOMETRIC_FORMAT"
+  },
+  {
+    "document": "NIST.FIPS.201-3",
+    "revision": "January 2022",
+    "status": "FINAL",
+    "url": "https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.201-3.pdf",
+    "sha256": "3d305e90719e373963d3753d7d07d648361e35099e95e551763962e26456e73e",
+    "scope": "CROSS_CUTTING"
+  },
+  {
+    "document": "NIST.SP.800-78-4",
+    "revision": "May 2015",
+    "status": "SUPERSEDED",
+    "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-78-4.pdf",
+    "sha256": "cdb1133a4fa1d6335462aefa24741783fcf2581978f87350171dd402c3ae57e8",
+    "scope": "HISTORICAL_ONLY"
+  }
+]

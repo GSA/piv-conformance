@@ -1,0 +1,38 @@
+[
+  {
+    "id": "NIST-2031",
+    "status": "NIST_DECISION_REQUIRED",
+    "source": "SP800-78-5 3.1 Tables 1 and 10 vs 3.1/6.3 prose",
+    "requirement": "128-bit transition after 2030",
+    "historical_behavior": "No time policy; active RSA2048 required by 78.1",
+    "interpretation_a": "Table 2031 column makes RSA2048 an unconditional failure",
+    "interpretation_b": "SHOULD plus explicit agency deferral language makes transition policy conditional",
+    "implementation_impact": "Require policy context and effective-date semantics; no wall-clock automatic switch",
+    "test_result_impact": "RSA2048 may fail or produce policy finding after 2030",
+    "question": "How should a conformance tester reconcile the 2031 RSA columns with the SHOULD and agency-deferral language, and should it use issuance, expiry, usage, or evaluation date?"
+  },
+  {
+    "id": "NIST-SO-LIMIT",
+    "status": "NIST_DECISION_REQUIRED",
+    "source": "SP800-73-5 Part1 3.1.7 and Appendix A Table13",
+    "requirement": "Security Object mapping 30 bytes and BB 1298 vs all present unsigned objects",
+    "historical_behavior": "Size check disabled, issue90; hashes implementation present",
+    "interpretation_a": "Table13 limits apply strictly",
+    "interpretation_b": "Larger signed objects may be needed for allowed optional data/stronger algorithms; clarification needed",
+    "implementation_impact": "Candidate currently checks table widths only and must not be released until reviewed",
+    "test_result_impact": "A structurally valid oversized SO could fail the table check",
+    "question": "Are Table13 limits BA=30 and BB=1298 strict for all allowed optional-object/algorithm combinations, or are larger values permitted?"
+  },
+  {
+    "id": "NIST-PIV-I",
+    "status": "NIST_DECISION_REQUIRED",
+    "source": "FIPS201-3 scope; repository PIV-I profiles",
+    "requirement": "Current PIV-I applicability",
+    "historical_behavior": "Separate PIV-I databases with shared atoms",
+    "interpretation_a": "Federal PIV requirements apply with explicit PIV-I exceptions",
+    "interpretation_b": "A separately versioned PIV-I policy determines applicability",
+    "implementation_impact": "Keep PIV-I historical until policy is specified",
+    "test_result_impact": "No current PIV-I verdict",
+    "question": "Which exact final PIV-I policy/profile and exceptions should the current CCT candidate evaluate?"
+  }
+]
