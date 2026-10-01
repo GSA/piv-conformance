@@ -1,0 +1,1008 @@
+{
+  "status": "SYNTHETIC_GENERIC_POLICY_CORPUS; HISTORICAL_RECOVERY_INCOMPLETE",
+  "archive_search": [
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260819132011/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260916123811/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260916123032/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "conformancelib/src/main/resources/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "conformancelib/build/resources/main/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260819143545/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "dist/fips201-card-conformance-tool-1.0.7-windows-x64/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "dist/fips201-card-conformance-tool-1.0.7-windows-x64 2/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260915111730/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260927035045/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260915112200/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260819160916/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    },
+    {
+      "path": "fips201-card-conformance-tool-1.0.7-20260927035429/x509-certs/valid/valid.zip",
+      "archive_sha256": "fb8902884884f56a2b8b69d31591755f545122f56b7dcf495fd09c583bf9fd8e",
+      "matches": [
+        {
+          "file": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+          "encrypted": true,
+          "size": 1969
+        },
+        {
+          "file": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+          "encrypted": true,
+          "size": 1650
+        },
+        {
+          "file": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+          "encrypted": true,
+          "size": 1915
+        },
+        {
+          "file": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+          "encrypted": true,
+          "size": 1903
+        },
+        {
+          "file": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+          "encrypted": true,
+          "size": 1172
+        },
+        {
+          "file": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+          "encrypted": true,
+          "size": 1792
+        },
+        {
+          "file": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+          "encrypted": true,
+          "size": 1488
+        },
+        {
+          "file": "647648241796A6971959268233B3845E20057662.cer",
+          "encrypted": true,
+          "size": 1343
+        },
+        {
+          "file": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+          "encrypted": true,
+          "size": 1462
+        },
+        {
+          "file": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+          "encrypted": true,
+          "size": 1537
+        },
+        {
+          "file": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+          "encrypted": true,
+          "size": 1450
+        },
+        {
+          "file": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+          "encrypted": true,
+          "size": 1499
+        }
+      ]
+    }
+  ],
+  "git_history_matching_loose_certificate_objects": [],
+  "adjacent_matching_filenames": [],
+  "search_scope": [
+    "All available local Git refs/tags and reachable paths",
+    "All local repository ZIP central directories and packaged artifacts",
+    "Adjacent Projects certificate filenames",
+    "Policy XML, historical ValidatorTest and databases",
+    "Public web search GSA certificate filename and NIST/GSA repositories"
+  ],
+  "limits": [
+    "Encrypted archive does not establish whether certificates contain real identities; no originals decrypted, copied or used",
+    "Remote release assets not present locally were not exhaustively downloaded; authoritative original recovery remains incomplete"
+  ],
+  "validation_time": "2026-09-30T12:00:00Z",
+  "providers": [
+    "SUN",
+    "BC 1.66"
+  ],
+  "generator": "scripts/standards/SyntheticCertificateCorpus.java",
+  "determinism": "Two fresh generations produced identical MANIFEST.tsv under Java17/BC1.66",
+  "revocation": "NOT TESTED",
+  "historical_lane": "historicalCertificateFixtureTest: retains 24 missing-file failures",
+  "candidate_lane": "certificateFixtureTest: synthetic PKIX; explicit caller trust, offline store, fixed time",
+  "mapping": [
+    {
+      "historical_filename": "33B6299EFB4BF3AFA5011DD6D277750FC3E0136B.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.3.18",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-01.der",
+      "sha256": "d1cd7d3bdf8199909ef0fbe1dbcf56ea5648cd58c6e1bedd980ea009b7735a16",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "33F81E52894675382081ACCC7B52AA7611B919CE.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.3.7",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-02.der",
+      "sha256": "6e2e1f556a2d7bb71f8496e953048934bba1033d638db6b35ba296bf6af749dd",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "44AEE28EB03F6A1BCF4FF57BDA543D84CD6A1FAC.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.3.7",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-03.der",
+      "sha256": "067e0a17497273772d58053283688c34f49cc6107b9a8aea35322993f4db70ad",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "4EB9BB78CE44E06ED812E3F40B806517C45742B4.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.3.2",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-04.der",
+      "sha256": "e8417b280056d5762f1391e7e6605571f5ebf5758d735416f015135a14eb6bf6",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "5A76DB461085236CD5304E7ED451CBDBE0D7838B.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.3.18",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-05.der",
+      "sha256": "90e58b09e78b44e7ab6d5e08489965e25473c5672d5425537514c0ba5c198934",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "5C8E5EAB05C5AB96997459DB718A5D0260EB904C.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.3.6",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-06.der",
+      "sha256": "e067cd31a5dfd2beb59751aa65f7724f4c794e1888bc2a70ea2557e720a59e68",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "647648241796A6971959268233B3845E20057662.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.3.18",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-07.der",
+      "sha256": "631073301ef0791f4be6ed3d4688f748a7b8290466eea8d0c5b50cb5800065bf",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "7f792fb2b5b9596f7cb8ce682cda66dfc6c3bb27.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.48.13",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-08.der",
+      "sha256": "f694e56771dc4edd37e9a6133b4bbcc5a0287bfefd8560b6ff6a564f8ab8f4de",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "85c22364eeaf1ce2dbcf3d158946bb4dc65960cc.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.48.9",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-09.der",
+      "sha256": "13fb4a5d096998c8e691fad723bc3f34731998a1a59b9cd1c9c20c5a78ea517b",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "eb535408678345d832041694ce49b2b42b08cb5a.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.48.11",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-10.der",
+      "sha256": "ae50358f1e70660bfb51aa8b759ff103a57c6aca2a63b8add4557ac22dab9542",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "ef56bcbeb65bc3302d8cbee17aaa32f1b0f02388.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.48.4",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-11.der",
+      "sha256": "3d920ea710698c508b050079ea75342f418de782f71cee47dd04e32d8b80db8c",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    },
+    {
+      "historical_filename": "5a9ffcba1cfa00499384e7a134d976875b804fa7.cer",
+      "historical_policy_oid": "2.16.840.1.101.3.2.1.48.9",
+      "replacement": "conformancelib/src/main/resources/standards/synthetic-certificates/policy-12.der",
+      "sha256": "ebccdea9b7097f2253867aca5192a6b21c6fe79dd78fbbd517b6609ea5f649f2",
+      "normative_source": "RFC5280 section 6 (path and initial policy processing); NOT proof of the federal certificate profile identified by this OID",
+      "historical_assertion": "ValidatorTest.testIsValid_Sun/testIsValid_BouncyCastle expects isValid(..., policy, anchor) true",
+      "replacement_assertion": "Explicit-trust, date-pinned path requires policy; valid path passes, same path with wrong policy fails",
+      "semantic_equivalence": "Only the generic path/policy positive intention is preserved. Original issuer chains, AIA, federal trust and certificate profiles are unavailable and are NOT claimed equivalent."
+    }
+  ]
+}

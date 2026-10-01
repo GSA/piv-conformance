@@ -83,7 +83,7 @@ tasks.withType(Test).configureEach {
     }
 }
 
-tasks.register('certificateFixtureTest', Test) {
+tasks.register('historicalCertificateFixtureTest', Test) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = 'Runs certificate-path validation tests that require the external certificate fixture set.'
     testClassesDirs = sourceSets.main.output.classesDirs
@@ -98,6 +98,15 @@ tasks.register('certificateFixtureTest', Test) {
     testLogging {
         events 'passed', 'skipped', 'failed'
     }
+}
+
+tasks.register('certificateFixtureTest', Test) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = 'Offline synthetic PKIX corpus through SUN and BC; not historical federal-path equivalence.'
+    testClassesDirs = sourceSets.main.output.classesDirs
+    classpath = sourceSets.main.runtimeClasspath
+    useJUnitPlatform { includeTags 'SyntheticCertificateEvidence' }
+    jvmArgs '--add-exports=org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
 }
 
 tasks.register('currentCandidateTest', Test) {
