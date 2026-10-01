@@ -42,7 +42,10 @@ public final class CurrentCrypto {
             String oid = algorithm.getAlgorithm().getId();
             if (RSA.equals(oid)) {
                 require(algorithm.getParameters() instanceof ASN1Null,"78-SPKI","rsaEncryption parameters must be NULL (RFC3279 2.3.1)");
-                org.bouncycastle.asn1.pkcs.RSAPublicKey key = org.bouncycastle.asn1.pkcs.RSAPublicKey.getInstance(spki.parsePublicKey());
+                ASN1Sequence rsa=ASN1Sequence.getInstance(spki.parsePublicKey());
+                require(rsa.size()==2 && ASN1Integer.getInstance(rsa.getObjectAt(0)).getValue().signum()>0
+                        && ASN1Integer.getInstance(rsa.getObjectAt(1)).getValue().signum()>0,"78-SPKI","RSA integers must be positive");
+                org.bouncycastle.asn1.pkcs.RSAPublicKey key = org.bouncycastle.asn1.pkcs.RSAPublicKey.getInstance(rsa);
                 int size = key.getModulus().bitLength();
                 require(key.getModulus().signum()>0 && (size==2048 || size==3072),"78-CARD-KEY","RSA modulus must be 2048 or 3072 bits");
                 require(BigInteger.valueOf(65537).equals(key.getPublicExponent()),"78-RSA-EXPONENT","PIV RSA exponent must be 65537");
@@ -75,6 +78,7 @@ public final class CurrentCrypto {
                 int previous = -1;
                 for (ASN1Encodable field : ASN1Sequence.getInstance(params)) {
                     require(field instanceof ASN1TaggedObject,rule,"PSS field must be tagged");
+                    require(((ASN1TaggedObject)field).isExplicit(),rule,"PSS field must use explicit tagging");
                     int tag = ((ASN1TaggedObject)field).getTagNo();
                     require(tag>previous && tag<=3,rule,"duplicate, unknown or unordered PSS parameter");
                     previous=tag;
@@ -86,6 +90,9 @@ public final class CurrentCrypto {
                 require(pss.getMaskGenAlgorithm().getAlgorithm().getId().equals("1.2.840.113549.1.1.8"),rule,"PSS mask algorithm must be MGF1");
                 AlgorithmIdentifier mgfHash=AlgorithmIdentifier.getInstance(pss.getMaskGenAlgorithm().getParameters());
                 require(mgfHash!=null,rule,"MGF1 hash identifier required");
+                require(Set.of("1.3.14.3.2.26","2.16.840.1.101.3.4.2.4",SHA256,SHA384,"2.16.840.1.101.3.4.2.3")
+                        .contains(mgfHash.getAlgorithm().getId()),rule,"MGF1 hash not listed in RFC4055 section 2.1");
+                require(mgfHash.getParameters()==null || mgfHash.getParameters() instanceof ASN1Null,rule,"invalid MGF1 hash parameters");
                 require(pss.getSaltLength().signum()>=0,rule,"negative PSS salt length");
                 require(pss.getTrailerField().equals(BigInteger.ONE),rule,"PSS trailer must be 1");
             } else require(false,rule,"disallowed signature algorithm " + oid);

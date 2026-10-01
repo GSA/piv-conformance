@@ -34,7 +34,9 @@ def ec(curve,point,p=None):return seq(alg(EC,oid(curve) if p is None else p),der
 def add(id,method,data,expected='PASS',kind='positive',rules=None):
     vectors.append(dict(id=id,method=method,input_hex=data.hex(),expected=expected,kind=kind,requirements=rules or [expected],sha256=hashlib.sha256(data).hexdigest()))
 for n in [1024,2047,2048,2049,3071,3072,3073,4096]:add('rsa-bits-'+str(n),'cardKey',rsa(n),'PASS' if n in [2048,3072] else '78-CARD-KEY','boundary',['78-CARD-KEY','78-SPKI','78-RSA-EXPONENT'])
-for e in [3,65536,65537,65539,-1]:add('rsa-exponent-'+str(e),'cardKey',rsa(2048,e),'PASS' if e==65537 else '78-RSA-EXPONENT','boundary',['78-RSA-EXPONENT'])
+for e in [3,65536,65537,65539]:add('rsa-exponent-'+str(e),'cardKey',rsa(2048,e),'PASS' if e==65537 else '78-RSA-EXPONENT','boundary',['78-RSA-EXPONENT'])
+add('rsa-negative-exponent','cardKey',rsa(2048,-1),'78-SPKI','malformed')
+add('rsa-negative-modulus','cardKey',seq(alg(RSA,NULL),der(3,b'\0'+seq(integer(-1),integer(65537)))),'78-SPKI','malformed')
 add('rsa-absent-parameters','cardKey',rsa(2048,p=b''),'78-SPKI','negative')
 add('rsa-integer-parameters','cardKey',rsa(2048,p=integer(1)),'78-SPKI','negative')
 p256=bytes.fromhex('04'+'6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296'+'4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5')
@@ -58,6 +60,7 @@ add('pss-sha1-default','signatureAlgorithm',alg(PSS,seq()),'78-CERT-SIGNATURE','
 add('pss-duplicate-hash','signatureAlgorithm',alg(PSS,seq(der(0xa0,alg(SHA256,NULL)),der(0xa0,alg(SHA384,NULL)))),'78-CERT-SIGNATURE','malformed')
 add('pss-negative-salt','signatureAlgorithm',alg(PSS,seq(der(0xa0,alg(SHA256,NULL)),der(0xa2,integer(-1)))),'78-CERT-SIGNATURE','boundary')
 add('pss-invalid-trailer','signatureAlgorithm',alg(PSS,seq(der(0xa0,alg(SHA256,NULL)),der(0xa3,integer(2)))),'78-CERT-SIGNATURE','negative')
+add('pss-unknown-mgf-hash','signatureAlgorithm',alg(PSS,seq(der(0xa0,alg(SHA256,NULL)),der(0xa1,alg('1.2.840.113549.1.1.8',alg('1.2.3.4',NULL))))),'78-CERT-SIGNATURE','negative')
 for o,name in [('1.2.840.113549.1.1.5','sha1'),('1.2.840.113549.1.1.13','sha512'),('1.2.3.4','unknown')]:add('signature-'+name,'signatureAlgorithm',alg(o,NULL),'78-CERT-SIGNATURE','negative')
 for method,valid,rule in [('cardKey',rsa(2048),'78-SPKI'),('signatureAlgorithm',alg('1.2.840.113549.1.1.11',NULL),'78-CERT-SIGNATURE')]:
     for name,b in [('empty',b''),('truncated',valid[:-1]),('trailing',valid+b'\0'),('bad-length',b'\x30\x84\xff\xff\xff\xff')]:add(method+'-'+name,method,b,rule,'malformed')
