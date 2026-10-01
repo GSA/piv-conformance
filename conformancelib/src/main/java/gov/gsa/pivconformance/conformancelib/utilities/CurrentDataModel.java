@@ -111,6 +111,17 @@ public final class CurrentDataModel {
                 rule, "disallowed UUID version");
     }
 
+    public static byte[] chuidField(byte[] bytes,int tag) {
+        chuid(bytes);
+        Map<Integer,byte[]> f=fields(bytes,"73-CHUID-FIELDS",new int[]{0x30,0x34,0x35,0x36,0x3e,0xfe},Set.of(0x36));
+        require(f.containsKey(tag),"73-CHUID-FIELDS","requested field missing");
+        return f.get(tag).clone();
+    }
+
+    public static byte[] biometricValue(byte[] bytes) {
+        return fields(bytes,"76-CBEFF-HEADER",new int[]{0xbc,0xfe},Set.of()).get(0xbc);
+    }
+
     /** Tables 11,16-18,21-40. 1856 is a recommendation, not a maximum. */
     public static void certificateObject(byte[] bytes) {
         String rule = "73-CERT-FIELDS";
@@ -150,7 +161,7 @@ public final class CurrentDataModel {
             byte[] raw = f.get(0xf3);
             require(raw.length <= 118,rule,"URL exceeds 118 bytes");
             String url = new String(raw,StandardCharsets.US_ASCII);
-            require(url.matches("http://[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?/[A-Fa-f0-9]{64}"),
+            require(url.matches("(?i)http://[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*\\.?/[a-f0-9]{64}"),
                     rule,"URL must contain DNS name and SHA-256 hex digest");
         }
     }

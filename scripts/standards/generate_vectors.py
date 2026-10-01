@@ -74,8 +74,9 @@ url=b'http://example.invalid/'+b'a'*64
 for on,off,has_url,ok in [(0,0,False,True),(0,0,True,False),(1,0,False,True),(1,0,True,True),(0,1,False,False),(0,1,True,True),(20,0,False,True),(20,1,True,False),(0,20,True,True),(255,0,False,False)]:
     f=[(0xc1,bytes([on])),(0xc2,bytes([off]))]+([(0xf3,url)] if has_url else [])+[(0xfe,b'')]
     add(f'history-{on}-{off}-{has_url}','keyHistory',f,'PASS' if ok else '73-KEY-HISTORY','conditional',['73-KEY-HISTORY'])
-for name,value in [('https',url.replace(b'http:',b'https:')),('short-hash',url[:-1]),('non-hex',url[:-1]+b'z'),('long',b'http://'+b'a'*48+b'/'+b'0'*64)]:
+for name,value in [('https',url.replace(b'http:',b'https:')),('short-hash',url[:-1]),('non-hex',url[:-1]+b'z'),('long',b'http://'+b'a'*48+b'/'+b'0'*64),('empty-label',url.replace(b'example.invalid',b'example..invalid')),('hyphen-label',url.replace(b'example.invalid',b'example-.invalid'))]:
     add('history-url-'+name,'keyHistory',[(0xc1,b'\0'),(0xc2,b'\1'),(0xf3,value),(0xfe,b'')],'73-KEY-HISTORY','boundary')
+add('history-absolute-dns','keyHistory',[(0xc1,b'\0'),(0xc2,b'\1'),(0xf3,url.replace(b'example.invalid/',b'example.invalid./')),(0xfe,b'')],requirements=['73-KEY-HISTORY'])
 
 for method,f,rule in [('ccc',ccc,'73-CCC-FIELDS'),('chuid',chuid,'73-CHUID-FIELDS'),('certificateObject',cert,'73-CERT-FIELDS'),('securityObject',so,'73-SECURITY-FIELDS'),('keyHistory',[(0xc1,b'\0'),(0xc2,b'\0'),(0xfe,b'')],'73-KEY-HISTORY')]:
     add(method+'-missing-mandatory',method,f[1:],rule,'negative')
