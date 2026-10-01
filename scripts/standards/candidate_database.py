@@ -22,7 +22,7 @@ groups={}
 for rule in manifest['requirements']:
     if rule.get('java_method') and rule.get('implementation_status') in ('IMPLEMENTED','PARTIAL'):
         groups.setdefault((rule['java_method'],rule['container']),[]).append(rule['rule_id'])
-for method in ('certificateObject','cardKey','certificateSignature'):
+for method in ('certificateObject','cardKey','certificateSignature','cardUuid'):
     key=(method,'X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID')
     if key in groups:
         groups[(method,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID')]=groups[key]

@@ -174,7 +174,7 @@
       ],
       "hardware_scope": false,
       "implementation_status": "IMPLEMENTED",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "CCC mandatory fields and lengths; registered data model 0x10; removed E3/B4 excluded",
         "FAIL": "Violation of 73-CCC-FIELDS",
@@ -189,7 +189,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-CHUID-FIELDS",
@@ -577,7 +579,7 @@
       ],
       "hardware_scope": false,
       "implementation_status": "IMPLEMENTED",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "CHUID mandatory fields and lengths; removed EE/32/33 and authentication key map excluded",
         "FAIL": "Violation of 73-CHUID-FIELDS",
@@ -592,7 +594,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-CARD-UUID",
@@ -982,7 +986,7 @@
       "malformed_vector": [],
       "hardware_scope": false,
       "implementation_status": "IMPLEMENTED",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "GUID is 16-byte RFC4122 variant UUID version 1, 4 or 5",
         "FAIL": "Violation of 73-CARD-UUID",
@@ -997,7 +1001,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-HOLDER-UUID",
@@ -1367,7 +1373,7 @@
       "malformed_vector": [],
       "hardware_scope": false,
       "implementation_status": "IMPLEMENTED",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "If present, cardholder UUID is 16-byte RFC4122 variant version 4",
         "FAIL": "Violation of 73-HOLDER-UUID",
@@ -1382,7 +1388,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-CHUID-DATE",
@@ -1749,7 +1757,7 @@
       "malformed_vector": [],
       "hardware_scope": false,
       "implementation_status": "IMPLEMENTED",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "CHUID expiration is an eight-byte ASCII YYYYMMDD calendar date",
         "FAIL": "Violation of 73-CHUID-DATE",
@@ -1764,7 +1772,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-CERT-FIELDS",
@@ -3921,7 +3931,7 @@
       ],
       "hardware_scope": false,
       "implementation_status": "IMPLEMENTED",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "Certificate object has 70/71/FE; MSCUID absent; certificate-info encoding valid",
         "FAIL": "Violation of 73-CERT-FIELDS",
@@ -3936,7 +3946,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-CERT-SIZE",
@@ -6056,7 +6068,7 @@
       "malformed_vector": [],
       "hardware_scope": false,
       "implementation_status": "IMPLEMENTED",
-      "test_quality": 1,
+      "test_quality": 2,
       "expected_result": {
         "PASS": "Certificate lengths above 1856 are permitted; no conformance maximum inferred from recommended size",
         "FAIL": "Violation of 73-CERT-SIZE",
@@ -6071,7 +6083,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-SECURITY-FIELDS",
@@ -6215,7 +6229,7 @@
       ],
       "hardware_scope": false,
       "implementation_status": "PARTIAL",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "Security Object BA/BB/FE lengths and mapping triple structure",
         "FAIL": "Violation of 73-SECURITY-FIELDS",
@@ -6230,7 +6244,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "73-KEY-HISTORY",
@@ -6244,7 +6260,7 @@
       "applicability": "Present KEY_HISTORY_OBJECT_OID object; candidate PIV only",
       "requirement": "Key History counts and conditional URL presence, format, and length",
       "historical_behavior": "No dedicated Key History atom",
-      "delta": "NEW",
+      "delta": "UNCHANGED",
       "historical_cct_test_ids": [],
       "affected_db_rows": [],
       "java_class": "gov.gsa.pivconformance.conformancelib.tests.CurrentCandidateTests",
@@ -6265,6 +6281,9 @@
         "history-url-short-hash",
         "history-url-non-hex",
         "history-url-long",
+        "history-url-empty-label",
+        "history-url-hyphen-label",
+        "history-absolute-dns",
         "keyHistory-missing-mandatory",
         "keyHistory-duplicate",
         "keyHistory-wrong-order",
@@ -6280,7 +6299,8 @@
         "history-1-0-True",
         "history-0-1-True",
         "history-20-0-False",
-        "history-0-20-True"
+        "history-0-20-True",
+        "history-absolute-dns"
       ],
       "negative_vector": [
         "history-0-0-True",
@@ -6291,6 +6311,8 @@
         "history-url-short-hash",
         "history-url-non-hex",
         "history-url-long",
+        "history-url-empty-label",
+        "history-url-hyphen-label",
         "keyHistory-missing-mandatory",
         "keyHistory-duplicate",
         "keyHistory-wrong-order",
@@ -6304,7 +6326,9 @@
         "history-url-https",
         "history-url-short-hash",
         "history-url-non-hex",
-        "history-url-long"
+        "history-url-long",
+        "history-url-empty-label",
+        "history-url-hyphen-label"
       ],
       "malformed_vector": [
         "keyHistory-truncated",
@@ -6315,13 +6339,13 @@
       ],
       "hardware_scope": false,
       "implementation_status": "PARTIAL",
-      "test_quality": 1,
+      "test_quality": 3,
       "expected_result": {
         "PASS": "Key History counts and conditional URL presence, format, and length",
         "FAIL": "Violation of 73-KEY-HISTORY",
         "setup_error": "Not normative evidence"
       },
-      "notes": "Object presence and actual key/certificate count reconciliation require card-level evidence; URL is never fetched.",
+      "notes": "Object presence and actual key/certificate count reconciliation require card-level evidence; URL is never fetched. New candidate assertions for existing requirements; NEW implementation is not a NEW normative requirement.",
       "nist_decision_required": false,
       "atomic_requirement": false,
       "required_regressions": [
@@ -6330,7 +6354,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "78-CARD-KEY",
@@ -6663,7 +6689,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "78-RSA-EXPONENT",
@@ -6677,7 +6705,7 @@
       "applicability": "Present X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID object; candidate PIV only",
       "requirement": "PIV RSA public exponent equals 65537",
       "historical_behavior": "78.1 does not check exponent",
-      "delta": "NEW",
+      "delta": "UNCHANGED",
       "historical_cct_test_ids": [
         "11.1.1.1",
         "11.1.1.2",
@@ -6941,19 +6969,12 @@
       "java_method": "cardKey",
       "container": "X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID",
       "fixture_ids": [
-        "rsa-bits-1024",
-        "rsa-bits-2047",
         "rsa-bits-2048",
-        "rsa-bits-2049",
-        "rsa-bits-3071",
         "rsa-bits-3072",
-        "rsa-bits-3073",
-        "rsa-bits-4096",
         "rsa-exponent-3",
         "rsa-exponent-65536",
         "rsa-exponent-65537",
-        "rsa-exponent-65539",
-        "rsa-exponent--1"
+        "rsa-exponent-65539"
       ],
       "positive_vector": [
         "rsa-bits-2048",
@@ -6961,31 +6982,17 @@
         "rsa-exponent-65537"
       ],
       "negative_vector": [
-        "rsa-bits-1024",
-        "rsa-bits-2047",
-        "rsa-bits-2049",
-        "rsa-bits-3071",
-        "rsa-bits-3073",
-        "rsa-bits-4096",
         "rsa-exponent-3",
         "rsa-exponent-65536",
-        "rsa-exponent-65539",
-        "rsa-exponent--1"
+        "rsa-exponent-65539"
       ],
       "boundary_vector": [
-        "rsa-bits-1024",
-        "rsa-bits-2047",
         "rsa-bits-2048",
-        "rsa-bits-2049",
-        "rsa-bits-3071",
         "rsa-bits-3072",
-        "rsa-bits-3073",
-        "rsa-bits-4096",
         "rsa-exponent-3",
         "rsa-exponent-65536",
         "rsa-exponent-65537",
-        "rsa-exponent-65539",
-        "rsa-exponent--1"
+        "rsa-exponent-65539"
       ],
       "malformed_vector": [],
       "hardware_scope": false,
@@ -6996,7 +7003,7 @@
         "FAIL": "Violation of 78-RSA-EXPONENT",
         "setup_error": "Not normative evidence"
       },
-      "notes": "",
+      "notes": " New candidate assertions for existing requirements; NEW implementation is not a NEW normative requirement.",
       "nist_decision_required": false,
       "atomic_requirement": false,
       "required_regressions": [
@@ -7005,7 +7012,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "78-SPKI",
@@ -7283,14 +7292,10 @@
       "java_method": "cardKey",
       "container": "X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID",
       "fixture_ids": [
-        "rsa-bits-1024",
-        "rsa-bits-2047",
         "rsa-bits-2048",
-        "rsa-bits-2049",
-        "rsa-bits-3071",
         "rsa-bits-3072",
-        "rsa-bits-3073",
-        "rsa-bits-4096",
+        "rsa-negative-exponent",
+        "rsa-negative-modulus",
         "rsa-absent-parameters",
         "rsa-integer-parameters",
         "p256",
@@ -7311,12 +7316,8 @@
         "p384"
       ],
       "negative_vector": [
-        "rsa-bits-1024",
-        "rsa-bits-2047",
-        "rsa-bits-2049",
-        "rsa-bits-3071",
-        "rsa-bits-3073",
-        "rsa-bits-4096",
+        "rsa-negative-exponent",
+        "rsa-negative-modulus",
         "rsa-absent-parameters",
         "rsa-integer-parameters",
         "ec-explicit-parameters",
@@ -7329,16 +7330,12 @@
         "cardKey-bad-length"
       ],
       "boundary_vector": [
-        "rsa-bits-1024",
-        "rsa-bits-2047",
         "rsa-bits-2048",
-        "rsa-bits-2049",
-        "rsa-bits-3071",
-        "rsa-bits-3072",
-        "rsa-bits-3073",
-        "rsa-bits-4096"
+        "rsa-bits-3072"
       ],
       "malformed_vector": [
+        "rsa-negative-exponent",
+        "rsa-negative-modulus",
         "ec-invalid-point",
         "cardKey-empty",
         "cardKey-truncated",
@@ -7362,7 +7359,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "78-CERT-SIGNATURE",
@@ -7657,6 +7656,7 @@
         "pss-duplicate-hash",
         "pss-negative-salt",
         "pss-invalid-trailer",
+        "pss-unknown-mgf-hash",
         "signature-sha1",
         "signature-sha512",
         "signature-unknown",
@@ -7685,6 +7685,7 @@
         "pss-duplicate-hash",
         "pss-negative-salt",
         "pss-invalid-trailer",
+        "pss-unknown-mgf-hash",
         "signature-sha1",
         "signature-sha512",
         "signature-unknown",
@@ -7721,7 +7722,9 @@
         "malformed where encoded",
         "boundary where length defined",
         "all three engineering lanes"
-      ]
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     },
     {
       "rule_id": "GAP-UUID-LINKS",
@@ -7832,6 +7835,1516 @@
       "test_quality": 0,
       "atomic_requirement": false,
       "nist_decision_required": false
+    },
+    {
+      "rule_id": "73-UUID-CERT-LINK",
+      "profile": "CURRENT_2026_CANDIDATE",
+      "card_profile": "PIV",
+      "normative_document": "SP 800-73-5 Part 1",
+      "document_revision": "July 2024",
+      "section": "3.4.1 item 4",
+      "table_or_row": "SAN URI",
+      "normative_strength": "SHALL",
+      "applicability": "PIV Authentication and Card Authentication certificates; CHUID card UUID present",
+      "requirement": "PIV and Card Authentication certificate SAN URI contains the exact CHUID GUID as RFC4122 UUID URN",
+      "historical_behavior": "PKIX matchUuid compares URI bytes with themselves; ignores expected GUID",
+      "delta": "UNCHANGED",
+      "historical_cct_test_ids": [
+        "11.1.2.6.2",
+        "11.4.2.7.2"
+      ],
+      "affected_db_rows": [
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 369
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 451
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 369
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 451
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 369
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 451
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 369
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 451
+        }
+      ],
+      "java_class": "gov.gsa.pivconformance.conformancelib.tests.CurrentCandidateTests",
+      "java_method": "cardUuid",
+      "container": "X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID",
+      "fixture_ids": [
+        "uuid-link-correct",
+        "uuid-link-upper",
+        "uuid-link-multiple",
+        "uuid-link-mismatch",
+        "uuid-link-wrong-prefix",
+        "uuid-link-short-groups",
+        "uuid-link-no-hyphens",
+        "uuid-link-trailing",
+        "uuid-link-empty",
+        "uuid-link-truncated"
+      ],
+      "positive_vector": [
+        "uuid-link-correct",
+        "uuid-link-upper",
+        "uuid-link-multiple"
+      ],
+      "negative_vector": [
+        "uuid-link-mismatch",
+        "uuid-link-wrong-prefix",
+        "uuid-link-short-groups",
+        "uuid-link-no-hyphens",
+        "uuid-link-trailing",
+        "uuid-link-empty",
+        "uuid-link-truncated"
+      ],
+      "boundary_vector": [],
+      "malformed_vector": [
+        "uuid-link-truncated"
+      ],
+      "hardware_scope": false,
+      "implementation_status": "IMPLEMENTED",
+      "test_quality": 3,
+      "expected_result": {
+        "PASS": "PIV and Card Authentication certificate SAN URI contains the exact CHUID GUID as RFC4122 UUID URN",
+        "FAIL": "Violation of 73-UUID-CERT-LINK",
+        "setup_error": "Not normative evidence"
+      },
+      "notes": "Selected assertions only. Does not prove CMS signature, biometric payload or physical enrollment/quality. FASC-N bytes in synthetic vectors are artificial.",
+      "nist_decision_required": false,
+      "atomic_requirement": false,
+      "required_regressions": [
+        "positive",
+        "negative failure with rule identifier",
+        "malformed where encoded",
+        "boundary where length defined",
+        "all three engineering lanes"
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "historical_mapping_precision": "Family association; not atomic behavior equivalence",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+    },
+    {
+      "rule_id": "76-CBEFF-HEADER",
+      "profile": "CURRENT_2026_CANDIDATE",
+      "card_profile": "PIV",
+      "normative_document": "SP 800-76-2",
+      "document_revision": "July 2013",
+      "section": "9.1-9.2",
+      "table_or_row": "Tables 13-15 and normative notes 1,2,4,5a,6,7",
+      "normative_strength": "SHALL",
+      "applicability": "Mandatory on-card fingerprint CBEFF; does not cover enrollment images, face, iris or OCC",
+      "requirement": "On-card fingerprint CBEFF header fields, lengths, encoding, fingerprint modality, dates, creator and FASC-N link",
+      "historical_behavior": "SP800_76_Tests has assertions guarded by header length >8 and optional early returns; malformed behavior unproven",
+      "delta": "UNCHANGED",
+      "historical_cct_test_ids": [
+        "9.1.1.1",
+        "9.1.1.2",
+        "9.1.1.3",
+        "9.1.1.4",
+        "9.1.1.5",
+        "9.1.2.1",
+        "9.1.2.10",
+        "9.1.2.11",
+        "9.1.2.12",
+        "9.1.2.2",
+        "9.1.2.3",
+        "9.1.2.4",
+        "9.1.2.5",
+        "9.1.2.6",
+        "9.1.2.7",
+        "9.1.2.8",
+        "9.1.2.9",
+        "9.2.1.1",
+        "9.2.1.2",
+        "9.2.1.3",
+        "9.2.1.4",
+        "9.2.2.1",
+        "9.2.2.10",
+        "9.2.2.11",
+        "9.2.2.12",
+        "9.2.2.2",
+        "9.2.2.3",
+        "9.2.2.4",
+        "9.2.2.5",
+        "9.2.2.6",
+        "9.2.2.7",
+        "9.2.2.8",
+        "9.2.2.9",
+        "9.3.1.1",
+        "9.3.1.2",
+        "9.3.1.3",
+        "9.3.1.4",
+        "9.3.2.1",
+        "9.3.2.10",
+        "9.3.2.11",
+        "9.3.2.12",
+        "9.3.2.2",
+        "9.3.2.3",
+        "9.3.2.4",
+        "9.3.2.5",
+        "9.3.2.6",
+        "9.3.2.7",
+        "9.3.2.8",
+        "9.3.2.9",
+        "9.4.1.1",
+        "9.4.1.10",
+        "9.4.1.12",
+        "9.4.1.13",
+        "9.4.1.2",
+        "9.4.1.3",
+        "9.4.1.4",
+        "9.4.1.5",
+        "9.4.1.6",
+        "9.4.1.7",
+        "9.4.2.0.1",
+        "9.4.2.0.2",
+        "9.4.2.1",
+        "9.4.2.2",
+        "9.4.2.3",
+        "9.4.2.4",
+        "9.4.2.5",
+        "9.4.2.6",
+        "9.4.2.7",
+        "9.4.2.8",
+        "9.4.2.9",
+        "9.4.3.1",
+        "9.4.3.2",
+        "9.6.1.1",
+        "9.6.1.2",
+        "9.6.1.3",
+        "9.6.1.4"
+      ],
+      "affected_db_rows": [
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 157
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 158
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 159
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 160
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 161
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 163
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 164
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 165
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 166
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 167
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 168
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 169
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 170
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 171
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 172
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 174
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 177
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 178
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 179
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 180
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 182
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 183
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 184
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 185
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 186
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 187
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 188
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 189
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 190
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 191
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 193
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 196
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 197
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 198
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 199
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 201
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 202
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 203
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 204
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 205
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 206
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 207
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 208
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 209
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 210
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 212
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 215
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 216
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 217
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 218
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 219
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 220
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 221
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 224
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 225
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 226
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 228
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 229
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 230
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 231
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 232
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 233
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 234
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 235
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 236
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 237
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 238
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 240
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 241
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 246
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 247
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 248
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db",
+          "row_id": 249
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 157
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 158
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 159
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 160
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 161
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 163
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 164
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 165
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 166
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 167
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 168
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 169
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 170
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 171
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 172
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 174
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 177
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 178
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 179
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 180
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 182
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 183
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 184
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 185
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 186
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 187
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 188
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 189
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 190
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 191
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 193
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 196
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 197
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 198
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 199
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 201
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 202
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 203
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 204
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 205
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 206
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 207
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 208
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 209
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 210
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 212
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 215
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 216
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 217
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 218
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 219
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 220
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 221
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 224
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 225
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 226
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 228
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 229
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 230
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 231
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 232
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 233
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 234
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 235
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 236
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 237
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 238
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 240
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 241
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 246
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 247
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 248
+        },
+        {
+          "database": "conformancelib/testdata/PIV-I_Production_Cards.db",
+          "row_id": 249
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 157
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 158
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 159
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 160
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 161
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 163
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 164
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 165
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 166
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 167
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 168
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 169
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 170
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 171
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 172
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 173
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 174
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 177
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 178
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 179
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 180
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 182
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 183
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 184
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 185
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 186
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 187
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 188
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 189
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 190
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 191
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 192
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 193
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 196
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 197
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 198
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 199
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 201
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 202
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 203
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 204
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 205
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 206
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 207
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 208
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 209
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 210
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 211
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 212
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 215
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 216
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 217
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 218
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 219
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 220
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 221
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 224
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 225
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 226
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 228
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 229
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 230
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 231
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 232
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 233
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 234
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 235
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 236
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 237
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 238
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 240
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 241
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 246
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 247
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 248
+        },
+        {
+          "database": "conformancelib/testdata/PIV_ICAM_Test_Cards.db",
+          "row_id": 249
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 157
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 158
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 159
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 160
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 161
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 163
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 164
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 165
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 166
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 167
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 168
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 169
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 170
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 171
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 172
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 173
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 174
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 177
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 178
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 179
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 180
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 182
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 183
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 184
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 185
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 186
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 187
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 188
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 189
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 190
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 191
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 192
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 193
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 196
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 197
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 198
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 199
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 201
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 202
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 203
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 204
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 205
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 206
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 207
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 208
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 209
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 210
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 211
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 212
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 215
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 216
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 217
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 218
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 219
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 220
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 221
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 224
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 225
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 226
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 228
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 229
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 230
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 231
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 232
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 233
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 234
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 235
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 236
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 237
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 238
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 240
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 241
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 246
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 247
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 248
+        },
+        {
+          "database": "conformancelib/testdata/PIV_Production_Cards.db",
+          "row_id": 249
+        }
+      ],
+      "java_class": "gov.gsa.pivconformance.conformancelib.tests.CurrentCandidateTests",
+      "java_method": "fingerprintHeader",
+      "container": "CARDHOLDER_FINGERPRINTS_OID",
+      "fixture_ids": [
+        "cbeff-header-valid",
+        "cbeff-version",
+        "cbeff-encrypted",
+        "cbeff-owner",
+        "cbeff-format",
+        "cbeff-modality",
+        "cbeff-processing",
+        "cbeff-quality-high",
+        "cbeff-quality-low",
+        "cbeff-rfu",
+        "cbeff-fascn-link",
+        "cbeff-year-pair",
+        "cbeff-month",
+        "cbeff-calendar",
+        "cbeff-hour",
+        "cbeff-utc",
+        "cbeff-start-before-creation",
+        "cbeff-creator-control",
+        "cbeff-quality--2",
+        "cbeff-quality--1",
+        "cbeff-quality-0",
+        "cbeff-quality-100",
+        "cbeff-bdb-0",
+        "cbeff-bdb-1",
+        "cbeff-bdb-4294967295",
+        "cbeff-empty-signature",
+        "cbeff-no-creator-terminator",
+        "cbeff-creator-17",
+        "cbeff-truncated-0",
+        "cbeff-truncated-8",
+        "cbeff-truncated-87",
+        "cbeff-truncated-88",
+        "cbeff-truncated-89"
+      ],
+      "positive_vector": [
+        "cbeff-header-valid",
+        "cbeff-quality--2",
+        "cbeff-quality--1",
+        "cbeff-quality-0",
+        "cbeff-quality-100",
+        "cbeff-bdb-1",
+        "cbeff-creator-17"
+      ],
+      "negative_vector": [
+        "cbeff-version",
+        "cbeff-encrypted",
+        "cbeff-owner",
+        "cbeff-format",
+        "cbeff-modality",
+        "cbeff-processing",
+        "cbeff-quality-high",
+        "cbeff-quality-low",
+        "cbeff-rfu",
+        "cbeff-fascn-link",
+        "cbeff-year-pair",
+        "cbeff-month",
+        "cbeff-calendar",
+        "cbeff-hour",
+        "cbeff-utc",
+        "cbeff-start-before-creation",
+        "cbeff-creator-control",
+        "cbeff-bdb-0",
+        "cbeff-bdb-4294967295",
+        "cbeff-empty-signature",
+        "cbeff-no-creator-terminator",
+        "cbeff-truncated-0",
+        "cbeff-truncated-8",
+        "cbeff-truncated-87",
+        "cbeff-truncated-88",
+        "cbeff-truncated-89"
+      ],
+      "boundary_vector": [
+        "cbeff-quality-high",
+        "cbeff-quality-low",
+        "cbeff-year-pair",
+        "cbeff-calendar",
+        "cbeff-hour",
+        "cbeff-quality--2",
+        "cbeff-quality--1",
+        "cbeff-quality-0",
+        "cbeff-quality-100",
+        "cbeff-bdb-0",
+        "cbeff-bdb-1",
+        "cbeff-bdb-4294967295",
+        "cbeff-creator-17"
+      ],
+      "malformed_vector": [
+        "cbeff-truncated-0",
+        "cbeff-truncated-8",
+        "cbeff-truncated-87",
+        "cbeff-truncated-88",
+        "cbeff-truncated-89"
+      ],
+      "hardware_scope": false,
+      "implementation_status": "IMPLEMENTED",
+      "test_quality": 3,
+      "expected_result": {
+        "PASS": "On-card fingerprint CBEFF header fields, lengths, encoding, fingerprint modality, dates, creator and FASC-N link",
+        "FAIL": "Violation of 76-CBEFF-HEADER",
+        "setup_error": "Not normative evidence"
+      },
+      "notes": "Selected assertions only. Does not prove CMS signature, biometric payload or physical enrollment/quality. FASC-N bytes in synthetic vectors are artificial.",
+      "nist_decision_required": false,
+      "atomic_requirement": false,
+      "required_regressions": [
+        "positive",
+        "negative failure with rule identifier",
+        "malformed where encoded",
+        "boundary where length defined",
+        "all three engineering lanes"
+      ],
+      "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
+      "historical_mapping_precision": "Family association; not atomic behavior equivalence",
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
     }
   ]
 }

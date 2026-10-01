@@ -5,6 +5,10 @@ import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgument
 import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.conformancelib.utilities.CurrentDataModel;
 import gov.gsa.pivconformance.conformancelib.utilities.CurrentCrypto;
+import gov.gsa.pivconformance.conformancelib.utilities.CurrentIdentity;
+import gov.gsa.pivconformance.conformancelib.utilities.CurrentBiometrics;
+import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.TestReporter;
@@ -54,5 +58,18 @@ public class CurrentCandidateTests {
         CurrentCrypto.signatureAlgorithm(cert.getSignatureAlgorithm().getEncoded());
         CurrentDataModel.require(cert.getSignatureAlgorithm().equals(cert.toASN1Structure().getTBSCertificate().getSignature()),
                 "78-CERT-SIGNATURE", "inner and outer certificate algorithm identifiers differ (RFC5280 4.1.1.2)");
+    }
+
+    @ParameterizedTest @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void cardUuid(String oid,TestReporter reporter) {
+        byte[] guid=CurrentDataModel.chuidField(required(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID),0x34);
+        Extension san=certificate(oid).getExtension(Extension.subjectAlternativeName);
+        CurrentIdentity.cardUuid(san==null ? null : san.getExtnValue().getOctets(),guid);
+    }
+
+    @ParameterizedTest @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void fingerprintHeader(String oid,TestReporter reporter) {
+        byte[] fascn=CurrentDataModel.chuidField(required(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID),0x30);
+        CurrentBiometrics.fingerprintHeader(CurrentDataModel.biometricValue(required(oid)),fascn);
     }
 }
