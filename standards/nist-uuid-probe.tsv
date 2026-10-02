@@ -1,0 +1,5 @@
+fixture_id	reference_helper_result
+uuid-link-correct	true
+uuid-link-mismatch	false
+uuid-link-no-hyphens	true
+uuid-link-bare	true

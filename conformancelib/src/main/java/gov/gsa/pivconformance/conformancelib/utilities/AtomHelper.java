@@ -35,6 +35,15 @@ public class AtomHelper {
     * @return MiddlewareStatus value indicating the result of the function call
     */
 	public static PIVDataObject getDataObject(String oid) {
+        return getDataObject(oid, true);
+    }
+
+    /** Current-profile validators must see original bytes before historical decoding. */
+    public static PIVDataObject getRawDataObject(String oid) {
+        return getDataObject(oid, false);
+    }
+
+    private static PIVDataObject getDataObject(String oid, boolean historicalDecode) {
 				
 		//Check that the oid passed in is not null
 		if (oid == null) {
@@ -135,12 +144,12 @@ public class AtomHelper {
 		if (o == null) {
 			ConformanceTestException e  = new ConformanceTestException("Object for OID " + oid + " is null");
 			fail(e);
-		} else if (o.decode() != true) {
+		} else if (historicalDecode && o.decode() != true) {
 			ConformanceTestException e  = new ConformanceTestException("Failed to decode object for OID " + oid);
 			fail(e);
 		}
 
-		if ((o instanceof SignedPIVDataObject) && ((SignedPIVDataObject) o).getCertCount() > 1) {
+		if (historicalDecode && (o instanceof SignedPIVDataObject) && ((SignedPIVDataObject) o).getCertCount() > 1) {
 			ConformanceTestException e  = new ConformanceTestException("More than one cert found in " + APDUConstants.oidNameMap.get(oid) + " container");
 			fail(e);
 		}

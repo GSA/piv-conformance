@@ -1,0 +1,55 @@
+{
+  "source_commit": "90f754d785f7fe4ca9fb19e1c66102da0608447d",
+  "databases": {
+    "conformancelib/testdata/PIV-I_ICAM_Test_Cards.db": {
+      "rows": 489,
+      "enabled": 274,
+      "executable_rows": 371,
+      "outline_rows": 118,
+      "step_definitions": 175,
+      "referenced_steps": 135,
+      "unique_referenced_methods": 135
+    },
+    "conformancelib/testdata/PIV-I_Production_Cards.db": {
+      "rows": 489,
+      "enabled": 489,
+      "executable_rows": 371,
+      "outline_rows": 118,
+      "step_definitions": 175,
+      "referenced_steps": 135,
+      "unique_referenced_methods": 135
+    },
+    "conformancelib/testdata/PIV_ICAM_Test_Cards.db": {
+      "rows": 489,
+      "enabled": 489,
+      "executable_rows": 382,
+      "outline_rows": 107,
+      "step_definitions": 175,
+      "referenced_steps": 140,
+      "unique_referenced_methods": 140
+    },
+    "conformancelib/testdata/PIV_Production_Cards.db": {
+      "rows": 489,
+      "enabled": 489,
+      "executable_rows": 382,
+      "outline_rows": 107,
+      "step_definitions": 175,
+      "referenced_steps": 140,
+      "unique_referenced_methods": 140
+    }
+  },
+  "source_methods": 187,
+  "unique_referenced_methods": 140,
+  "dispositions": {
+    "PARTIAL": 176,
+    "DESCRIPTION_CODE_MISMATCH": 5,
+    "PLACEHOLDER": 5,
+    "UNCONDITIONAL_PASS": 1
+  },
+  "quality": {
+    "1": 181,
+    "0": 6
+  },
+  "semantic_review_complete": false,
+  "normative_coverage_denominator": null
+}
