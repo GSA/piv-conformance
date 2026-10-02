@@ -5,9 +5,11 @@ import java.security.cert.*;
 import java.time.Instant;
 import java.util.*;
 
-/** Offline candidate PKIX path/policy evidence, RFC5280 section 6.
+/** Candidate PKIX path/policy evidence, RFC5280 section 6.
  * Explicit trust, policy and time are required; revocation is NOT evaluated.
  * Historical Validator behavior and the installed trust store are untouched.
+ * Synthetic fixtures have no network locations. For other inputs, provider-wide
+ * AIA settings can affect path building; this API is not a network sandbox.
  */
 public final class CandidatePathValidation {
     private CandidatePathValidation() { }
