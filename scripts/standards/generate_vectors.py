@@ -70,6 +70,41 @@ add('certificate-removed-mscuid','certificateObject',cert[:-1]+[(0x72,b'')]+cert
 so=[(0xba,b'\x01\xdb\x00'),(0xbb,b'\x01'),(0xfe,b'')]
 add('security-mapping-triple','securityObject',so,requirements=['73-SECURITY-FIELDS'])
 add('security-short-mapping','securityObject',[(0xba,b'\x01\xdb')]+so[1:],'73-SECURITY-FIELDS','malformed')
+for size in (27,30,33):
+    add(f'security-mapping-{size}','securityObject',[(0xba,b'\x01\xdb\x00'*(size//3))]+so[1:],
+        'PASS' if size<=30 else '73-SECURITY-FIELDS','boundary',['73-SECURITY-FIELDS'])
+for size in (1297,1298,1299):
+    add(f'security-value-{size}','securityObject',[so[0],(0xbb,b'\x01'*size),so[2]],
+        'PASS' if size<=1298 else '73-SECURITY-FIELDS','boundary',['73-SECURITY-FIELDS'])
+retired=[(0x70,b'\x01'),(0x71,b'\0'),(0xfe,b'')]
+add('retired-no-mscuid','retiredCertificateObject',retired,requirements=['73-RETIRED-CERT-FIELDS'])
+for size in (0,37,38,39):
+    add(f'retired-mscuid-{size}','retiredCertificateObject',retired[:-1]+[(0x72,b'A'*size)]+retired[-1:],
+        'PASS' if size<=38 else '73-RETIRED-CERT-FIELDS','boundary',['73-RETIRED-CERT-FIELDS'])
+for value in (1,2,255):
+    add(f'retired-certinfo-{value}','retiredCertificateObject',[retired[0],(0x71,bytes([value])),retired[2]],
+        'PASS' if value==1 else '73-RETIRED-CERT-FIELDS','negative' if value!=1 else 'positive',['73-RETIRED-CERT-FIELDS'])
+printed=[(1,b'Synthetic'),(2,b'Test'),(4,b'2028FEB29'),(5,b'0000'),(6,b'TESTONLY'+b' '*7),(0xfe,b'')]
+add('printed-valid','printedInformation',printed,requirements=['73-PRINTED-FIELDS'])
+add('printed-optional-lines','printedInformation',printed[:-1]+[(7,b'Test'),(8,b'Test')]+printed[-1:],requirements=['73-PRINTED-FIELDS'])
+for tag,limit in ((1,125),(2,20),(5,20),(6,15)):
+    for size in (limit,limit+1):
+        add(f'printed-length-{tag}-{size}','printedInformation',[(t,b'A'*size if t==tag else v) for t,v in printed],
+            'PASS' if size==limit else '73-PRINTED-FIELDS','boundary',['73-PRINTED-FIELDS'])
+for date in (b'2027FEB29',b'2028XYZ29',b'2028FEB2'):
+    add('printed-date-'+date.decode(),'printedInformation',[(t,date if t==4 else v) for t,v in printed],'73-PRINTED-FIELDS','boundary')
+add('printed-non-ascii','printedInformation',[(t,b'\xff' if t==1 else v) for t,v in printed],'73-PRINTED-FIELDS','negative')
+add('printed-issuer-short','printedInformation',[(t,b'A'*14 if t==6 else v) for t,v in printed],'73-PRINTED-FIELDS','boundary')
+pairing=[(0x99,b'01234567'),(0xfe,b'')]
+add('pairing-valid','pairingCode',pairing,requirements=['73-PAIRING-FIELDS'])
+for value,name in ((b'0123456','short'),(b'012345678','long'),(b'0123456a','letter'),(b'0123456\xff','non-ascii')):
+    add('pairing-'+name,'pairingCode',[(0x99,value),(0xfe,b'')],'73-PAIRING-FIELDS','boundary' if name in ('short','long') else 'negative')
+for method,f,rule in [('retiredCertificateObject',retired,'73-RETIRED-CERT-FIELDS'),('printedInformation',printed,'73-PRINTED-FIELDS'),('pairingCode',pairing,'73-PAIRING-FIELDS')]:
+    add(method+'-missing',method,f[1:],rule,'negative')
+    add(method+'-duplicate',method,f[:1]+f,rule,'negative')
+    add(method+'-wrong-order',method,list(reversed(f)),rule,'negative')
+    add(method+'-truncated',method,obj(f)[:-1],rule,'malformed')
+    add(method+'-indefinite',method,b'\x53\x80\x00\x00',rule,'malformed')
 url=b'http://example.invalid/'+b'a'*64
 for on,off,has_url,ok in [(0,0,False,True),(0,0,True,False),(1,0,False,True),(1,0,True,True),(0,1,False,False),(0,1,True,True),(20,0,False,True),(20,1,True,False),(0,20,True,True),(255,0,False,False)]:
     f=[(0xc1,bytes([on])),(0xc2,bytes([off]))]+([(0xf3,url)] if has_url else [])+[(0xfe,b'')]

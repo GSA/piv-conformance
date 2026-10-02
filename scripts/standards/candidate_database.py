@@ -26,6 +26,10 @@ for method in ('certificateObject','cardKey','certificateSignature','cardUuid'):
     key=(method,'X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID')
     if key in groups:
         groups[(method,'X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID')]=groups[key]
+key=('retiredCertificateObject','RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID')
+if key in groups:
+    for slot in range(2,21):
+        groups[(key[0],f'RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_{slot}_OID')]=groups[key]
 for index,((method,container),rules) in enumerate(sorted(groups.items()),1):
     description='CURRENT_2026_CANDIDATE / PARTIAL SCOPE: '+', '.join(rules)
     db.execute('INSERT INTO TestCases (Id,TestCaseIdentifier,TestCaseDescription,TestCaseContainer,Status,ExpectedStatus,Enabled) VALUES (?,?,?,?,NULL,1,1)',(index,'CANDIDATE.'+str(index),description,container))

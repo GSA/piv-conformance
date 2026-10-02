@@ -122,7 +122,7 @@ public final class CurrentDataModel {
         return fields(bytes,"76-CBEFF-HEADER",new int[]{0xbc,0xfe},Set.of()).get(0xbc);
     }
 
-    /** Tables 11,16-18,21-40. 1856 is a recommendation, not a maximum. */
+    /** Active certificates only: Tables 11,16-18. 1856 is a recommendation, not a maximum. */
     public static void certificateObject(byte[] bytes) {
         String rule = "73-CERT-FIELDS";
         Map<Integer, byte[]> f = fields(bytes,rule,new int[]{0x70,0x71,0xfe},Set.of());
@@ -141,11 +141,47 @@ public final class CurrentDataModel {
         } catch (java.io.IOException e) { throw new AssertionError("73-CERT-FIELDS: malformed GZIP certificate",e); }
     }
 
-    /** Section 3.1.7 structure only. Table 13 size interpretation awaits NIST review. */
+    /** Section 3.1.7 and Table 13; CMS and hash relationships are separate assertions. */
     public static void securityObject(byte[] bytes) {
         String rule = "73-SECURITY-FIELDS";
         Map<Integer, byte[]> f = fields(bytes,rule,new int[]{0xba,0xbb,0xfe},Set.of());
         require(f.get(0xba).length % 3 == 0,rule,"mapping must contain complete three-byte entries");
+        require(f.get(0xba).length <= 30,rule,"mapping exceeds Table 13 maximum of 30 bytes");
+        require(f.get(0xbb).length <= 1298,rule,"Security Object value exceeds Table 13 maximum of 1298 bytes");
+    }
+
+    /** Tables 21-40 explicitly retain optional MSCUID for historic retired certificates. */
+    public static void retiredCertificateObject(byte[] bytes) {
+        String rule = "73-RETIRED-CERT-FIELDS";
+        Map<Integer, byte[]> f = fields(bytes,rule,new int[]{0x70,0x71,0x72,0xfe},Set.of(0x72));
+        length(f,0x71,rule,1);
+        require(f.get(0x71)[0] == 0 || f.get(0x71)[0] == 1,rule,"CertInfo must be 00 or 01");
+        if (f.containsKey(0x72)) require(f.get(0x72).length <= 38,rule,"MSCUID exceeds 38 bytes");
+    }
+
+    /** Table 15 local representation only; does not compare the physical card printing. */
+    public static void printedInformation(byte[] bytes) {
+        String rule = "73-PRINTED-FIELDS";
+        Map<Integer, byte[]> f = fields(bytes,rule,new int[]{1,2,4,5,6,7,8,0xfe},Set.of(7,8));
+        for (var e : f.entrySet()) {
+            int tag=e.getKey(), maximum=tag==1 ? 125 : tag==4 ? 9 : tag==6 ? 15 : tag==0xfe ? 0 : 20;
+            require(e.getValue().length <= maximum,rule,"text exceeds Table 15 maximum");
+            for (byte b : e.getValue()) require(b>=0,rule,"text must be ASCII");
+        }
+        length(f,6,rule,15); length(f,4,rule,9);
+        try {
+            LocalDate.parse(new String(f.get(4),StandardCharsets.US_ASCII),
+                    new java.time.format.DateTimeFormatterBuilder().parseCaseInsensitive()
+                    .appendPattern("uuuuMMMdd").toFormatter(Locale.ENGLISH).withResolverStyle(ResolverStyle.STRICT));
+        } catch (DateTimeParseException e) { throw new AssertionError(rule+": invalid YYYYMMMDD date",e); }
+    }
+
+    /** Sections 3.3.8, 5.1.3 and Table 44. VCI applicability is evaluated separately. */
+    public static void pairingCode(byte[] bytes) {
+        String rule = "73-PAIRING-FIELDS";
+        Map<Integer, byte[]> f = fields(bytes,rule,new int[]{0x99,0xfe},Set.of());
+        length(f,0x99,rule,8);
+        for (byte b : f.get(0x99)) require(b>='0' && b<='9',rule,"pairing code must contain eight decimal ASCII digits");
     }
 
     /** Section 3.3.3 and Table 20, local structure only; does not access the URL. */

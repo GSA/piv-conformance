@@ -42,6 +42,21 @@ public class CurrentCandidateTests {
         CurrentDataModel.keyHistory(object.getBytes());
     }
 
+    private byte[] conditional(String oid) {
+        PIVDataObject object = AtomHelper.getRawDataObject(oid);
+        Assumptions.assumeTrue(object != null, "Conditional object absent; applicability not established");
+        return object.getBytes();
+    }
+
+    @ParameterizedTest @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void retiredCertificateObject(String oid, TestReporter reporter) { CurrentDataModel.retiredCertificateObject(conditional(oid)); }
+
+    @ParameterizedTest @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void printedInformation(String oid, TestReporter reporter) { CurrentDataModel.printedInformation(conditional(oid)); }
+
+    @ParameterizedTest @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void pairingCode(String oid, TestReporter reporter) { CurrentDataModel.pairingCode(conditional(oid)); }
+
     private X509CertificateHolder certificate(String oid) {
         try { return new X509CertificateHolder(CurrentDataModel.certificateBytes(required(oid))); }
         catch (Exception e) { throw new AssertionError("CANDIDATE-INPUT: invalid certificate encoding", e); }

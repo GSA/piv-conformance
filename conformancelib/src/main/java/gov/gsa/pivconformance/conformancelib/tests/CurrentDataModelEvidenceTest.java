@@ -33,6 +33,9 @@ public class CurrentDataModelEvidenceTest {
                 case "certificateObject" -> CurrentDataModel.certificateObject(bytes);
                 case "securityObject" -> CurrentDataModel.securityObject(bytes);
                 case "keyHistory" -> CurrentDataModel.keyHistory(bytes);
+                case "retiredCertificateObject" -> CurrentDataModel.retiredCertificateObject(bytes);
+                case "printedInformation" -> CurrentDataModel.printedInformation(bytes);
+                case "pairingCode" -> CurrentDataModel.pairingCode(bytes);
                 default -> throw new IllegalArgumentException("Unknown vector method: " + method);
             }
         };

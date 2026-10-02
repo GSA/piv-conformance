@@ -37,7 +37,7 @@ public class CurrentExecutionEvidenceTest {
             try (var result = db.createStatement().executeQuery("SELECT c.TestCaseIdentifier,s.Class,s.Method,c.TestCaseContainer FROM TestCases c JOIN TestsToSteps l ON l.TestId=c.Id JOIN TestSteps s ON s.Id=l.TestStepId WHERE c.Enabled=1 ORDER BY c.Id")) {
                 while (result.next()) rows.add(new Row(result.getString(1),result.getString(2),result.getString(3),result.getString(4)));
             }
-            assertEquals(13, rows.size(), "Update execution evidence when candidate scope changes");
+            assertEquals(35, rows.size(), "Update execution evidence when candidate scope changes");
             return rows;
         }
     }
@@ -109,7 +109,8 @@ public class CurrentExecutionEvidenceTest {
     @ParameterizedTest(name="absent object: {0}") @MethodSource("missingRows")
     void absenceNeverBecomesPass(String id, Row row) {
         var result = execute(row, Map.of());
-        if (row.method.equals("keyHistory")) assertEquals(TestExecutionResult.Status.ABORTED, result.getStatus());
+        if (Set.of("keyHistory","retiredCertificateObject","printedInformation","pairingCode").contains(row.method))
+            assertEquals(TestExecutionResult.Status.ABORTED, result.getStatus());
         else assertResult(result,"CANDIDATE-INPUT");
     }
 }

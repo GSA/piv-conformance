@@ -13,15 +13,16 @@
   },
   {
     "id": "NIST-SO-LIMIT",
-    "status": "NIST_DECISION_REQUIRED",
+    "status": "RESOLVED_BY_FINAL_TEXT",
     "source": "SP800-73-5 Part1 3.1.7 and Appendix A Table13",
     "requirement": "Security Object mapping 30 bytes and BB 1298 vs all present unsigned objects",
     "historical_behavior": "Size check disabled, issue90; hashes implementation present",
     "interpretation_a": "Table13 limits apply strictly",
     "interpretation_b": "Larger signed objects may be needed for allowed optional data/stronger algorithms; clarification needed",
-    "implementation_impact": "Candidate currently checks table widths only and must not be released until reviewed",
-    "test_result_impact": "A structurally valid oversized SO could fail the table check",
-    "question": "Are Table13 limits BA=30 and BB=1298 strict for all allowed optional-object/algorithm combinations, or are larger values permitted?"
+    "implementation_impact": "Enforce BA<=30, BB<=1298 and mapping triples.",
+    "test_result_impact": "Over-limit values fail 73-SECURITY-FIELDS.",
+    "question": null,
+    "resolution": "Table 13 explicitly labels maxima; unlike certificate entries, BA/BB have no exception footnote. Enforce maxima; interoperability concerns do not authorize relaxation."
   },
   {
     "id": "NIST-PIV-I",
@@ -34,5 +35,17 @@
     "implementation_impact": "Keep PIV-I historical until policy is specified",
     "test_result_impact": "No current PIV-I verdict",
     "question": "Which exact final PIV-I policy/profile and exceptions should the current CCT candidate evaluate?"
+  },
+  {
+    "id": "NIST-DISCOVERY-AID",
+    "status": "NIST_DECISION_REQUIRED",
+    "source": "SP800-73-5 Part1 3.3.2 encoding example vs Appendix A Table19",
+    "requirement": "Discovery Object AID length",
+    "historical_behavior": "Legacy decoder/test not yet semantically validated for this conflict",
+    "interpretation_a": "The 4F 0B example requires 11 AID bytes",
+    "interpretation_b": "Table19 Fixed 12 is a requirement for 12 value bytes",
+    "implementation_impact": "Do not add an AID-length pass/fail until reconciled; other Discovery fields can be audited separately",
+    "test_result_impact": "A conforming 11-byte AID per example could fail a literal table-based test",
+    "question": "Does Table19 Fixed 12 for the PIV Card Application AID contain an error, given the 4F 0B eleven-byte encoding in section 3.3.2; which exact value lengths should pass?"
   }
 ]

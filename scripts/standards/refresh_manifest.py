@@ -15,6 +15,16 @@ vectors = [v for name in ('data-model', 'crypto', 'linked')
 cases = json.loads((ROOT / 'standards/historical-cases.json').read_text())
 for rule in manifest['requirements']:
     if not rule.get('java_method'):
+        # Missing fields stay explicitly unknown; an aggregate gap is not an atom.
+        for field in ('java_class','java_method','container','table_or_row','normative_strength',
+                      'document_revision','expected_result'):
+            rule.setdefault(field,None)
+        for field in ('historical_cct_test_ids','affected_db_rows','fixture_ids','positive_vector',
+                      'negative_vector','boundary_vector','malformed_vector'):
+            rule.setdefault(field,[])
+        rule.setdefault('applicability','Aggregate scope/gap record; atomic applicability review pending')
+        rule.setdefault('hardware_scope',rule['implementation_status']=='HARDWARE_OWNED')
+        rule.setdefault('notes','Excluded from any claim of an atomic denominator or measured normative coverage')
         continue
     selected = [v for v in vectors if rule['rule_id'] in v['requirements']
                 and v['expected'] in ('PASS', rule['rule_id'])]
