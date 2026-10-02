@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-10-02T02:42:24.440445+00:00",
+  "recorded_utc": "2026-10-02T03:01:12.254859+00:00",
   "profile": "CURRENT_2026_CANDIDATE",
   "verdict": "NOT_YET_READY",
   "java_runtime": "openjdk 17.0.20.1 2026-08-18\nOpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)\nOpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)",
@@ -321,35 +321,35 @@
       "reports": [
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.BiometricDataObjectTests.xml",
-          "sha256": "4f6daa57d5d62a05ab64278121792fdeef326ff1eb5058c083af63d0336b2b3b"
+          "sha256": "a5754ad8638aa190aca59a13fcdcc1029a49adbe5dc5cccf4e2e8716118900cd"
         },
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.CCCDataObjectTests.xml",
-          "sha256": "e47d1e4ef06e3f6f8ccf928076f5812968d18e17f9c510f3da56b2a05fb81015"
+          "sha256": "d4cddb391dc29a27dd3be9c9180de61b308c21e287349044f408a9e0853a8e81"
         },
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.CHUIDDataObjectTests.xml",
-          "sha256": "60cb6df4fc140b8fcfeb367ac3b0700418157b78d724f325f766489d20e6da8b"
+          "sha256": "9383a49cc85b2d0146a79c8023dd9fd166d36d323e3eb30bfece66fa122004ce"
         },
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.DODataObjectTests.xml",
-          "sha256": "3cfbb1eb5187578cdc6db58c84202650bce7de4c90adbf0f997ab19ad588f09a"
+          "sha256": "7d39835ccc9cc195ab67736e78447baaa63ed2c58a1f3ad6f98c7e8caddaa6c7"
         },
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.PIVMiddlewareTests.xml",
-          "sha256": "d15e88a527ffd94a48f1cd69153539cd03e5fb57128488bdb4d8b92ddae2bc92"
+          "sha256": "7a12b119f579257de6bcb9285096f644429685241c0cb71be34b6dea8f69448a"
         },
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.PrintedInformationDataObjectTests.xml",
-          "sha256": "b69047fa43608bf847a7d3fc7ed89f5efb7d9900ef59130fab50f1c9da2a1360"
+          "sha256": "273b2422c649f9d046b249cf88b4b275cd8154582b3b8326355f6ea107edd867"
         },
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.SecurityObjectDataObjectTests.xml",
-          "sha256": "38b3ec9fa1ebb7a7eeee78dc0326f5d3dbe1b822d3d96900dd3c4eea0f797bc3"
+          "sha256": "f227c11331eda8a0710173ea952cd410ec3933e17feaaa6e95e970a7d6cc9bc0"
         },
         {
           "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.X509DataObjectTests.xml",
-          "sha256": "1ed4d22bba4e7dd9c2fc87315d7fa215e1012bae32475037560ae98313779c28"
+          "sha256": "50e41452e64b5c32479dd0543fbaa8660a3bcb26c77213f05db67e5f1a00a828"
         }
       ]
     },
@@ -361,23 +361,27 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.tests.ValidatorTest.xml",
-          "sha256": "623cb9a31299601a90c35724e410cf2b3a5efbb1cfb6841581ae6e54aa32e855"
+          "sha256": "d3d158ce2f3a36c667aa7b8c842fe44960f057a4fc410aa4a1748abb7ae6260f"
         }
       ]
     },
     "engineering_swing": {
-      "tests": 8,
+      "tests": 12,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
       "reports": [
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.utilities.TestRunLogControllerLifecycleTest.xml",
-          "sha256": "6bb313246fa30da2ec25c5d5ecae2aa436ce5d8f430b1a6715c6601f0b6455b0"
+          "sha256": "2e38292573be5937ffc6fe4deefe4e9edb30dd7a77fdecb55ee3aee34a46d941"
+        },
+        {
+          "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.gui.GuiCandidateResultTest.xml",
+          "sha256": "97b35d6dc6cf16bc4dbb11f15a255ced23b07579e75d9d0bf2030f4a908b23a8"
         },
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.gui.ReviewPackageBuilderTest.xml",
-          "sha256": "670baf292c14ff331ea27f6eb5d010cfcadf3c9d0930a42a4ecc18f049935adf"
+          "sha256": "23f026d24f5adddef755885a40b281412dd45cb0034fd9643f3d768c3b85aed7"
         }
       ]
     },
@@ -389,19 +393,19 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentCryptoEvidenceTest.xml",
-          "sha256": "cb1eff6d42f50f12580ebcb409db3260a9d9b7aab9c07fc66f8e2b98a64e6e52"
+          "sha256": "eb4466a5ddda4b9d2dd21c0b696ef82a183c45baa42766a042fb959d36974b5e"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentDataModelEvidenceTest.xml",
-          "sha256": "af1cafe6d7fc089a8cfec4299aff590b5ad971ded36bffeac98058fdff77fe19"
+          "sha256": "9ac89b0c1d1453b840b789fb0ccf2a876349489f9641aa879352171b69085c67"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentExecutionEvidenceTest.xml",
-          "sha256": "a83aca6f9e481e97212d5787dfb5dd3f2dd1b77baf7bb8cd4fe7f87ee4859121"
+          "sha256": "de7c2572f16997171c62356b006e5296bc3b89d0d98979412233408c95c2384c"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentLinkedEvidenceTest.xml",
-          "sha256": "82512f8a9eea2565a570c0f392c1bb3d24838572cb2665acfd6235c22b0224bb"
+          "sha256": "8c806f76af8e86c2809d6d00789b86c8423b686595d67e9f009383bd8a0af504"
         }
       ]
     },
@@ -413,7 +417,7 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/certificateFixtureTest/TEST-gov.gsa.pivconformance.conformancelib.tests.SyntheticCertificateEvidenceTest.xml",
-          "sha256": "e09aaa94028ee2ca4b5d23be82d5eb8549464fda3fb9f9e1cdc7c323cfc5beb3"
+          "sha256": "8614e80529f97bc330713a0645a3e1b02915e3a3d68cf312e67fba9446ef16ad"
         }
       ]
     },

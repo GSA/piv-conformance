@@ -74,7 +74,7 @@ with sqlite3.connect('file:'+str(db_path)+'?mode=ro',uri=True) as db:
 
 lanes = {}
 lane_specs = [('engineering_cardlib','cardlib','test',446,0),('engineering_conformance','conformancelib','test',8,0),
-              ('engineering_swing','tools/85b-swing-gui','test',8,0),
+              ('engineering_swing','tools/85b-swing-gui','test',12,0),
               ('current_candidate','conformancelib','currentCandidateTest',len(vectors)+len(read('data-model-vectors.json'))+db_rows,0),
               ('synthetic_certificates','conformancelib','certificateFixtureTest',75,0),
               ('historical_external_certificates','conformancelib','historicalCertificateFixtureTest',24,24)]

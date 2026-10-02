@@ -58,7 +58,7 @@ The candidate adds:
 
 Historical atoms and databases were preserved rather than relabeled as current. A fresh database is generated at `conformancelib/build/standards/CURRENT_2026_CANDIDATE.db`, using the historical schema with **35 candidate rows**, explicit PARTIAL SCOPE descriptions and `NOT_YET_READY` metadata. Repeated containers do not create new requirements. No dual-profile UI redesign was introduced.
 
-**The generated database is an execution/review artifact, not a card-verdict product.** Absent conditional objects abort in JUnit because applicability is unknown. The existing Swing listener renders aborts as FAIL; candidate result presentation must distinguish this before live use. Legacy retired-key OID aliases also require reconciliation with the normative OIDs and wire-tag mapping.
+**The generated database is an execution/review artifact, not a complete card-verdict product.** Absent conditional objects abort in JUnit because applicability is unknown. The Swing listener now reports these candidate aborts as SKIP while preserving historical abort behavior. Legacy retired-key OID aliases still require reconciliation with the normative OIDs and wire-tag mapping.
 
 ## Evidence and measurement
 
@@ -79,14 +79,14 @@ There are **264 distinct deterministic synthetic inputs**: 167 data-model, 53 cr
 |---|---:|---|
 | Engineering: Cardlib | 446 passed | Preserved engineering regression |
 | Engineering: Conformancelib | 8 passed | Preserved engineering regression |
-| Engineering: Swing/#326 | 8 passed | Verified against newly staged candidate library |
+| Engineering: Swing/#326 | 12 passed | Eight protected tests plus four candidate result-status regressions |
 | Current candidate | 466 passed | 264 direct inputs + 167 repeated through DB/JUnit/acquisition + 35 absence checks |
 | Synthetic certificate evidence | 75 passed | Separate SUN/BC path/policy and malformed/boundary evidence |
 | Historical external certificates | 24 missing-file failures | Preserved unresolved original corpus lane |
 | Historical card-profile conformance | Not run | Not inferred from engineering tests |
 | Physical hardware/PIN | Not run | Separate qualification |
 
-The engineering total is **462/462**, separate from standards evidence. The 35 absence checks prove 12 required-object failures and 23 conditional-object aborts; these are successful evidence tests, not 35 card PASS verdicts.
+The protected engineering total is **462/462**, with four additional Swing status tests, separate from standards evidence. The 35 absence checks prove 12 required-object failures and 23 conditional-object aborts; these are successful evidence tests, not 35 card PASS verdicts.
 
 ## Certificate recovery and reference comparison
 
