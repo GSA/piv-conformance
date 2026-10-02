@@ -3,4 +3,5 @@
 #
 # These are explicitly windows files and should use crlf
 *.bat           text eol=crlf
-
+# Empty hexadecimal inputs are intentional final TSV fields (a trailing tab).
+conformancelib/src/main/resources/standards/*.tsv whitespace=-blank-at-eol
