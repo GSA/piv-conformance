@@ -1,91 +1,33 @@
-import javax.smartcardio.CardTerminal
-import javax.smartcardio.TerminalFactory
-
 // conformancelib/build.gradle
-
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
-    }
-}
 
 plugins {
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
-    id "de.jjohannes.extra-java-module-info" version "0.1"
+    id 'eclipse'
+    id 'org.gradlex.extra-java-module-info' version '1.14.2'
 }
 
 java {
-    modularity.inferModulePath.set(true)
-}
-
-apply plugin: 'java-library'
-apply plugin: 'eclipse'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'de.jjohannes.extra-java-module-info'
-
-logger.warn("target java version: " + targetCompatibility)
-logger.warn("source java version: " + sourceCompatibility)
-
-eclipse {
-    classpath {
-        file {
-        }
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
+    modularity.inferModulePath.set(true)
+    withSourcesJar()
 }
 
 repositories {
-    jcenter()
     mavenCentral()
-    maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
         dirs '../libs', 'build/libs'
     }
 }
 
 def getVersion = { ->
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
-    File versionFile = new File(resourcesDir, 'build.version')
-    if(!versionFile.exists()) {
-        resourcesDir.mkdirs()
-        versionFile.createNewFile()
-        println 'Initializing build.version file'
-        versionFile.text = '0.0-changeme'
+    File versionFile = file('src/main/resources/build.version')
+    if (!versionFile.exists()) {
+        throw new GradleException("Missing required version file: ${versionFile}")
     }
-    return versionFile.text.replaceAll("[\\n\\r\\t ]", "")
+    versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
-
-def cardTerminalPresent = { ->
-    try {
-        TerminalFactory factory = TerminalFactory.getDefault()
-        List<CardTerminal> terminals = factory.terminals().list()
-        if (terminals.size() == 0) {
-            println '**** No smartcard readers connected1, proceeding with tests'
-            return false
-        } else {
-            println '**** Cannot run JUnit tests with smartcard reader connected'
-            return true
-        }
-    } catch (Exception ex) {
-        println '**** No smartcard readers connected2, proceeding with tests'
-        println 'Exception ' + '\n' + ex.getStackTrace()
-        return false
-    }
-}
-
-// custom task from
-// https://stackoverflow.com/questions/39444908/how-to-create-an-html-report-for-junit-5-tests
-// to get readable output for passing tests
-configurations {
-    junitXmlToHtml
-}
-
-//sourceSets.main.java.srcDirs = ['src']
 
 dependencies {
     api 'org.bouncycastle:bcpkix-jdk15on:1.66'
@@ -103,201 +45,114 @@ dependencies {
     api 'junit:junit:4.13'
     api 'info.picocli:picocli:3.6.0'
 
-    testCompile 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
-    testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
-
     implementation 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
+    runtimeOnly 'org.xerial:sqlite-jdbc:3.34.0'
+}
 
-    runtime 'gov.gsa:gov.gsa.pivconformance.cardlib:' + getVersion()
-    runtime 'org.junit.jupiter:junit-jupiter:5.7.0'
-    runtime 'info.picocli:picocli:3.6.0'
-    runtime 'org.xerial:sqlite-jdbc:3.34.0'
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.debugOptions.debugLevel = 'source,lines,vars'
+    options.compilerArgs += [
+        '--add-exports',
+        'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
+    ]
+}
 
-    junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
+test {
+    testClassesDirs = sourceSets.main.output.classesDirs
+    classpath = sourceSets.main.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'Sun'
+        excludeTags 'PIN', 'Card', 'BC', 'ExternalCertificateFixture'
+    }
+    jvmArgs '--add-exports=org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+tasks.withType(Test).configureEach {
+    def isolatedWorkingDirectory = layout.buildDirectory.dir("test-work/${name}")
+    workingDir isolatedWorkingDirectory
+    doFirst {
+        File directory = isolatedWorkingDirectory.get().asFile
+        directory.deleteDir()
+        if (!directory.mkdirs() && !directory.isDirectory()) {
+            throw new GradleException("Unable to create isolated test working directory: ${directory}")
+        }
+    }
+}
+
+tasks.register('certificateFixtureTest', Test) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = 'Runs certificate-path validation tests that require the external certificate fixture set.'
+    testClassesDirs = sourceSets.main.output.classesDirs
+    classpath = sourceSets.main.runtimeClasspath
+    systemProperty 'cct.certificateFixtureDir',
+            layout.projectDirectory.dir('src/main/resources/x509-certs/valid').asFile.absolutePath
+    useJUnitPlatform {
+        includeTags 'ExternalCertificateFixture'
+    }
+    jvmArgs '--add-exports=org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
+    shouldRunAfter test
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
 }
 
 jar {
+    version = getVersion()
     manifest {
-         attributes(
- 		'Manifest-Version': getVersion(),
- 		'Created-By': 'General Services Administration',
- 		'Automatic-Module-Name': 'gov.gsa.pivconformance.conformancelib',
- 		'Multi-Release': 'false',
- 		'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
- 		'Implementation-Title': 'gov.gsa.pivconformance.conformancelib',
- 		'Implementation-Version': getVersion(),
- 		'Implementation-Vendor': 'General Services Administration',
- 		'Bundle-ManifestVersion' : '1',
- 		'Bundle-SymbolicName': 'gov.gsa.pivconformance.conformancelib',
- 		'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
- 		'Bundle-Vendor': 'gov.gsa',
- 		'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
-        'Export-Package':'gov.gsa.pivconformance.conformancelib;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.configuration;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tests;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tools.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.utilities;version=' + getVersion(),
-        'Import-Package': '*',
- 		'Specification-Title': 'gov.gsa.pivconformance.conformancelib',
- 		'Specification-Version': getVersion(),
- 		'Specification-Vendor': 'General Services Administration',
- 		'Sealed': 'false'
-         )
-    }
-    doLast {
-        configurations.testRuntimeClasspath.each { println it }
+        attributes(
+            'Manifest-Version': '1.0',
+            'Created-By': 'General Services Administration',
+            'Automatic-Module-Name': 'gov.gsa.pivconformance.conformancelib',
+            'Multi-Release': 'false',
+            'Implementation-Title': 'gov.gsa.pivconformance.conformancelib',
+            'Implementation-Version': getVersion(),
+            'Implementation-Vendor': 'General Services Administration',
+            'Bundle-ManifestVersion': '1',
+            'Bundle-SymbolicName': 'gov.gsa.pivconformance.conformancelib',
+            'Bundle-Name': 'gov.gsa.pivconformance.conformancelib',
+            'Bundle-Vendor': 'gov.gsa',
+            'Bundle-RequiredExecutionEnvironment': 'JavaSE-17',
+            'Export-Package': 'gov.gsa.pivconformance.conformancelib;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.configuration;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tests;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.tools.junitoptions;version=' + getVersion() + ', gov.gsa.pivconformance.conformancelib.utilities;version=' + getVersion(),
+            'Import-Package': '*',
+            'Specification-Title': 'gov.gsa.pivconformance.conformancelib',
+            'Specification-Version': getVersion(),
+            'Specification-Vendor': 'General Services Administration',
+            'Sealed': 'false'
+        )
     }
 }
 
 extraJavaModuleInfo {
-    automaticModule("ber-tlv-1.0-11.jar","com.payneteasy")
-    automaticModule("slf4j-api-2.0.0-alpha1.jar", "org.slf4j")
-    automaticModule("hamcrest-core-1.3.jar","org.hamcrest")
-    automaticModule("commons-cli-1.4.jar","org.apache.commons.cli")
-    automaticModule("commons-codec-1.15.jar","org.apache.commons.codec")
-    automaticModule("commons-csv-1.8.jar","org.apache.commons.csv")
-    automaticModule("ibatis-core-3.0.jar","org.apache.ibatis")
-    automaticModule("logback-classic-1.3.0-alpha5.jar", "ch.qos.logback")
-    automaticModule("logback-core-1.3.0-alpha5.jar", "ch.qos.logback")
-    automaticModule("junit-4.13.jar", "junit")
-    automaticModule("sqlite-jdbc-3.34.0.jar", "org.xerial") 
-    automaticModule("activation-1.1.jar","javax.activation")
-    automaticModule("checker-framework-1.7.0.jar","edu.washington.cs.types.checker")
+    automaticModule('com.payneteasy:ber-tlv', 'com.payneteasy')
+    automaticModule('org.hamcrest:hamcrest-core', 'org.hamcrest')
+    automaticModule('commons-cli:commons-cli', 'org.apache.commons.cli')
+    automaticModule('org.apache.commons:commons-csv', 'org.apache.commons.csv')
+    automaticModule('org.apache.ibatis:ibatis-core', 'org.apache.ibatis')
+    automaticModule('org.xerial:sqlite-jdbc', 'org.xerial')
+    automaticModule('javax.activation:activation', 'javax.activation')
+    automaticModule('edu.washington.cs.types.checker:checker-framework', 'edu.washington.cs.types.checker')
 }
 
-sourceSets {
-    allResources {
-        resources {
-            srcDirs "src/main/resources"
-        }
-    }
-    main {
-        resources {
-            source allResources.resources
-        }
-        java { "src/main/java" }
-    }
-    test {
-        resources {
-            srcDir "src/main/resources"
-        }
-        java {
-            srcDir "src/main/java"
+tasks.register('installSource') {
+    dependsOn sourcesJar
+    doLast {
+        copy {
+            from sourcesJar
+            into '../libs'
         }
     }
 }
 
-compileJava {
-    options.debugOptions.debugLevel = "source,lines,vars"
-    def moduleName = 'gov.gsa.pivconformance.conformancelib'
-    if(JavaVersion.current().isJava9Compatible()) {
-        inputs.property("moduleName", moduleName)
-        println 'compileJava.moduleName and version: ' + moduleName + ', version ' + getVersion()
-    }
-
-    options.compilerArgs = [
-        '--module-path', classpath.asPath,
-        '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=$moduleName",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=$moduleName",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED"
-    ]
-    List<String> argumentList = options.getAllCompilerArgs()
-    println 'Compiler args:'
-    argumentList.each { println '  [' + it +']' }
-    //println 'Classpath: ' + classpath.toString()
-}
-
-compileTestJava {
-    options.debugOptions.debugLevel = "source,lines,vars"
-    def moduleName = 'gov.gsa.pivconformance.conformancelib'
-    if(JavaVersion.current().isJava9Compatible()) {
-        version = getVersion()
-        inputs.property("moduleName", moduleName)
-        println 'compileTestJava.moduleName and version: ' + moduleName + ', version ' + getVersion()
-    }
-
-    options.compilerArgs = [
-        '--module-path', classpath.asPath,
-        '--add-exports', "java.base/com.sun.crypto.provider=$moduleName",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=$moduleName",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=$moduleName",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED",
-        '--add-exports', "org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED"
-    ]
-    List<String> argumentList = options.getAllCompilerArgs()
-    println 'Compiler args:'
-    argumentList.each { println '  [' + it +']' }
-    //println 'Classpath: ' + classpath.toString()
-}
-
-task installTest (type: Copy) {
-    println "Test Resources:"
-    sourceSets.test.resources.each { println '  [' + it + ']' }
-    from sourceSets.test.resources
-    into 'build/classes/java/main'
-}
-
-task installTestIDE (type: Copy) {
-    println "TestIDE Resources:"
-    sourceSets.test.resources.each { println '  [' + it + ']' }
-    from (sourceSets.test.resources) {
-        include '**/x509-certs/cacerts.jks'
-        include '**/x509-certs/valid/**'
-    }
-    into './'
-}
-
-test {
-    dependsOn installTest
-    allJvmArgs += '-Djava.security.debug=certpath,pkcs11,provider'
-    allJvmArgs += '--add-exports org.junit.platform.commons/org.junit.platform.commons.util=ALL-UNNAMED"'
-    allJvmArgs += '--add-exports org.junit.platform.commons/org.junit.platform.commons.logging=ALL-UNNAMED"'
-    println 'JVM args: '
-    allJvmArgs.each { println '  [' + it +']' }
-    if (!cardTerminalPresent()) {
-        version = getVersion()
-        List<String> argumentList = test.getAllJvmArgs()
-        println 'Args:'
-        argumentList.each { println '  [' + it +']' }
-        useJUnitPlatform { includeTags "PKI" }
-        testLogging {
-            events "passed", "skipped", "failed"
-        }
-    }
-}
-
-junitPlatform {
-    filters {
-        tags {
-            exclude "PIN"
-            exclude "Card"
-            include "Sun"
-            exclude "BC"
-        }
-    }
-    enableStandardTestTask true
-}
-
-task sourceJar(type: Jar, dependsOn: classes) {
-    classifier 'sources'
-    from sourceSets.main.allSource
-}
-
-task copyShadowLibs(type: Copy) {
-    from configurations.shadow
-    into '../libs'
-}
-
-task installSource(type: Copy) {
-    dependsOn copyShadowLibs
-    dependsOn sourceJar
-    from sourceJar
-    into '../libs' 
-}
-
-task install(type: Copy) {
-    version = getVersion()
+tasks.register('install') {
     dependsOn build
-    dependsOn jar
-    dependsOn shadowJar
-    from jar
-    into '../libs' 
+    doLast {
+        copy {
+            from jar
+            into '../libs'
+        }
+    }
 }

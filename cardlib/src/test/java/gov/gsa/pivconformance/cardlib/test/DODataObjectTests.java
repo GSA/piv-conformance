@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.cardlib.test;
 
 import gov.gsa.pivconformance.cardlib.card.client.DiscoveryObject;
+import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObjectFactory;
 import org.junit.jupiter.api.DisplayName;
@@ -9,38 +10,25 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static gov.gsa.pivconformance.cardlib.card.client.APDUConstants.DISCOVERY_OBJECT_OID;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class DODataObjectTests {
-	private static String resDir = null;
-	static {
-        try {
-            URI uri = ClassLoader.getSystemResource("").toURI();
-            resDir = Paths.get(uri).toString();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-	    System.out.println("Looking in: " + resDir);
-	}
-
     @DisplayName("Test discovery object parsing")
     @ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-    //@MethodSource("dataObjectTestProvider")
+    @MethodSource("dataObjectTestProvider")
     void dataObjectTest(String oid, String file, TestReporter reporter) {
         assertNotNull(oid);
         assertNotNull(file);
-        Path filePath = Paths.get(resDir + File.separator + file);
+        Path filePath = TestResourceUtils.path(file);
         byte[] fileData = null;
         try {
             fileData = Files.readAllBytes(filePath);
@@ -49,11 +37,16 @@ public class DODataObjectTests {
         }
         PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
         assertNotNull(o);
+        o.setContainerName(APDUConstants.getFileNameForOid(oid));
         reporter.publishEntry(oid, o.getClass().getSimpleName());
         o.setOID(oid);
         o.setBytes(fileData);
         boolean decoded = o.decode();
-        assert(decoded);
+        if (file.contains("/25_Disco_Object_Not_Present/")) {
+            assertFalse(decoded, "A deliberately absent Discovery Object must not decode successfully");
+            return;
+        }
+        assertTrue(decoded);
 
         assertNotNull(((DiscoveryObject) o).getSignedContent());
     }

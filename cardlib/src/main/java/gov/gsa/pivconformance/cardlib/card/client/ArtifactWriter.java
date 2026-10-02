@@ -26,7 +26,9 @@ import org.slf4j.LoggerFactory;
 
 public class ArtifactWriter {
 	private static final Logger s_logger = LoggerFactory.getLogger(ArtifactWriter.class);
-	private static final String m_artifactDir = Paths.get(".").toAbsolutePath().normalize().toString();
+	private static final String m_artifactDir = Paths.get(
+			System.getProperty("cct.data.dir", System.getProperty("user.dir")))
+			.toAbsolutePath().normalize().toString();
 	static HashMap<String, ArrayList<String>> m_artifactCache = new HashMap<String, ArrayList<String>>();
 	
 	public ArtifactWriter(String subDir) {

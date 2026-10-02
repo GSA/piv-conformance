@@ -1,118 +1,31 @@
 // cardlib/build.gradle
 
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
-    }
-}
-
 plugins {
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '4.0.4'
-    id 'de.jjohannes.extra-java-module-info' version '0.1'
+    id 'org.gradlex.extra-java-module-info' version '1.14.2'
 }
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
     modularity.inferModulePath.set(true)
+    withSourcesJar()
 }
 
-apply plugin: 'java-library'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'org.junit.platform.gradle.plugin'
-apply plugin: 'de.jjohannes.extra-java-module-info'
-
-logger.warn("target java version: " + targetCompatibility)
-logger.warn("source java version: " + sourceCompatibility)
-
-import javax.smartcardio.CardTerminal
-import javax.smartcardio.TerminalFactory
-import java.lang.management.ManagementFactory
-import java.lang.management.RuntimeMXBean
-
 repositories {
-    jcenter()
     mavenCentral()
-    maven { url 'https://repository.apache.org/snapshots' }
     flatDir {
-        dirs 'build/libs','../libs'
+        dirs 'build/libs', '../libs'
     }
 }
 
 def getVersion = { ->
-    File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
-    File versionFile = new File(resourcesDir, 'build.version')
-    if(!versionFile.exists()) {
-        resourcesDir.mkdirs()
-        versionFile.createNewFile()
-        println 'Initializing build.version file'
-        versionFile.text = '0.0-changeme'
+    File versionFile = file('src/main/resources/build.version')
+    if (!versionFile.exists()) {
+        throw new GradleException("Missing required version file: ${versionFile}")
     }
-    String version = versionFile.text.replaceAll("[\\n\\r\\t ]", "")
-}
-
-String killJavaPid() {
-    try {
-        RuntimeMXBean runtimeBean = ManagementFactory.getRuntimeMXBean()
-        String name = runtimeBean.getName()
-        int k = name.indexOf('@')
-        if (k > 0) {
-            Runtime rt = Runtime.getRuntime()
-            rt.exec("taskkill /F /IM java.exe")
-        }
-        return name.substring(0, k)
-    } catch (Exception ex) {
-       System.out.println 'Couldn\'t kill java.exe'
-    }
-    return null
-}
-
-def deleteCardsDir = { String directory ->
-    def cardsDir = new File(project.getRootDir(), directory)
-    def count = 0
-    while (count < 5 && cardsDir.exists()) {
-        try {
-            System.out.println 'Attempting to delete ' + cardsDir.getAbsolutePath()
-            delete cardsDir
-            System.out.println 'Deleted ' + cardsDir.getAbsolutePath()
-            Thread.sleep(1000)
-            count++
-        } catch (Exception e) {
-            System.out.println e.getMessage()
-            Thread.sleep(1000)
-            count++ 
-        }
-    }
-}
-
-def cardTerminalPresent = { ->
-    boolean terminalPresent = true // default to 'true' to prevent accidents
-    try {
-        TerminalFactory factory = TerminalFactory.getDefault()
-        List<CardTerminal> terminals = factory.terminals().list()
-        if (terminals.size() == 0) {
-            println '**** No smartcard readers connected1, proceeding with tests'
-            terminalPresent = false
-        } else {
-            println '**** Cannot run JUnit tests with smartcard reader connected'
-            terminalPresent = true
-        }
-    } catch (Exception ex) {
-        println '**** No smartcard readers connected2, proceeding with tests'
-        println 'Exception ' + '\n' + ex.getStackTrace()
-        terminalPresent = false
-    }
-    return terminalPresent
-}
-
-// custom task from
-// https://stackoverflow.com/questions/39444908/how-to-create-an-html-report-for-junit-5-tests
-// to get readable output for passing tests
-configurations {
-    junitXmlToHtml
+    versionFile.text.replaceAll("[\\n\\r\\t ]", "")
 }
 
 dependencies {
@@ -136,217 +49,152 @@ dependencies {
     api 'org.opentest4j:opentest4j:1.2.0'
     api 'org.slf4j:slf4j-api:2.0.0-alpha1'
     api 'org.xerial:sqlite-jdbc:3.32.3.2'
-    junitXmlToHtml 'org.apache.ant:ant-junit:1.10.8'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.debugOptions.debugLevel = 'source,lines,vars'
 }
 
 test {
-    if (cardTerminalPresent() == false) {
-        deleteCardsDir('build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
-        // Exclude tests that require a PIN
-        useJUnitPlatform {
-            excludeTags 'PIN'
-        }
-        testLogging {
-            events "passed", "skipped", "failed"
-        }
+    useJUnitPlatform {
+        excludeTags 'Hardware'
+    }
+    testLogging {
+        events 'passed', 'skipped', 'failed'
     }
 }
 
-// a place to configure junit platform plugin... not currently necessary, but it is very likely desirable
-// to filter tests by tag
+tasks.register('hardwareTest', Test) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = 'Runs tests that require a PC/SC reader and physical PIV card.'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'Hardware'
+        excludeTags 'PIN'
+    }
+    shouldRunAfter test
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
 
-junitPlatformTest {
+tasks.register('pinHardwareTest', Test) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = 'Runs explicitly opted-in PIN interaction tests against an approved lab/test card.'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'PIN'
+    }
+    shouldRunAfter hardwareTest
+    // Do not persist or fingerprint the PIN as a Gradle input; always execute
+    // this opt-in lane so a prior skipped/run result cannot be reused.
+    outputs.upToDateWhen { false }
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+tasks.withType(Test).configureEach {
+    def isolatedWorkingDirectory = layout.buildDirectory.dir("test-work/${name}")
+    workingDir isolatedWorkingDirectory
     doFirst {
-        println 'Cloning, please wait...'
-        File cardsDir = new File(project.getRootDir(), 'build/classes/java/test/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder')
-        if (!cardsDir.exists()) {
-            project.exec {
-                commandLine 'git', 'clone', '--branch', 'master', '--single-branch',
-                        'https://github.com/GSA/gsa-icam-card-builder', cardsDir
-            }
-            System.out.println 'Cloned ' + cardsDir.getName()
-        } else {
-            System.out.println cardsDir.getName() + ' exists, reusing'
+        File directory = isolatedWorkingDirectory.get().asFile
+        directory.deleteDir()
+        if (!directory.mkdirs() && !directory.isDirectory()) {
+            throw new GradleException("Unable to create isolated test working directory: ${directory}")
         }
     }
 }
+
+def generatedVersionResources = layout.buildDirectory.dir('generated/version-resources')
+
+tasks.register('generateVersionProperties') {
+    def outputFile = generatedVersionResources.map {
+        it.file('gov/gsa/pivconformance/cardlib/utils/version.properties')
+    }
+    outputs.file(outputFile)
+    doLast {
+        def repositoryDir = project.rootDir.parentFile
+        def commitId = System.getenv('CCT_GIT_COMMIT') ?:
+                ['git', 'rev-parse', '--short', 'HEAD'].execute(null, repositoryDir).text.trim()
+        def commitDateText = System.getenv('CCT_GIT_COMMIT_EPOCH') ?:
+                ['git', 'show', '-s', '--format=%ct', 'HEAD'].execute(null, repositoryDir).text.trim()
+        def propertiesFile = outputFile.get().asFile
+        propertiesFile.parentFile.mkdirs()
+
+        Properties versionProperties = new Properties()
+        versionProperties.setProperty('git.commit.time',
+                new Date(Long.parseLong(commitDateText) * 1000L).format('dd.MM.yy HH.mm.ss'))
+        versionProperties.setProperty('build.time', new Date().format('dd.MM.yy HH.mm.ss'))
+        versionProperties.setProperty('git.commit.id', commitId)
+        versionProperties.setProperty('build.version', getVersion())
+        propertiesFile.withWriter { writer -> versionProperties.store(writer, null) }
+    }
+}
+
+sourceSets.main.resources {
+    srcDir(generatedVersionResources)
+    exclude { details -> details.relativePath.pathString == 'version.properties' }
+}
+processResources.dependsOn generateVersionProperties
+sourcesJar.dependsOn generateVersionProperties
 
 jar {
-    doFirst {
-        version = getVersion()
-    }
+    version = getVersion()
     manifest {
         attributes(
-            'Manifest-Version': getVersion(),
+            'Manifest-Version': '1.0',
             'Created-By': 'General Services Administration',
             'Automatic-Module-Name': 'gov.gsa.pivconformance.cardlib',
             'Multi-Release': 'false',
-            'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
             'Implementation-Title': 'gov.gsa.pivconformance.cardlib',
             'Implementation-Version': getVersion(),
             'Implementation-Vendor': 'General Services Administration',
-            'Bundle-ManifestVersion' : '1',
+            'Bundle-ManifestVersion': '1',
             'Bundle-SymbolicName': 'gov.gsa.pivconformance.cardlib',
             'Bundle-Name': 'gov.gsa.pivconformance.cardlib',
             'Bundle-Vendor': 'gov.gsa',
-            'Bundle-RequiredExecutionEnvironment': 'JavaSE-11',
-            'Export-Package':'gov.gsa.pivconformance.cardlib;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.card.client;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.tlv;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.tools;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.utils;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.utilities;version=' + getVersion(),
+            'Bundle-RequiredExecutionEnvironment': 'JavaSE-17',
+            'Export-Package': 'gov.gsa.pivconformance.cardlib;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.card.client;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.tlv;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.tools;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.utils;version=' + getVersion() + ', gov.gsa.pivconformance.cardlib.utilities;version=' + getVersion(),
             'Import-Package': '*',
             'Specification-Title': 'gov.gsa.pivconformance.cardlib',
             'Specification-Version': getVersion(),
             'Specification-Vendor': 'General Services Administration',
             'Sealed': 'false'
         )
-     }
-    doLast {
-        configurations.runtime.each { println it }
     }
-}
-
-compileJava {
-    doFirst {
-        version = getVersion()    
-
-        def repositoryDir = project.rootDir.parentFile
-        def commitId = System.getenv('CCT_GIT_COMMIT') ?:
-                ['git', 'rev-parse', '--short', 'HEAD'].execute(null, repositoryDir).text.trim()
-        def commitDateText = System.getenv('CCT_GIT_COMMIT_EPOCH') ?:
-                ['git', 'show', '-s', '--format=%ct', 'HEAD'].execute(null, repositoryDir).text.trim()
-        def commitDate = new Date(Long.parseLong(commitDateText) * 1000L)
-        def buildDate = new Date()
-        File resourcesDir = new File(project.getProjectDir(), 'src/main/resources/')
-        File propertiesFile = new File(resourcesDir, 'version.properties')
-
-        // The project may not have any resources, so create the directories and file
-        if(!propertiesFile.exists()) {
-            resourcesDir.mkdirs()
-            propertiesFile.createNewFile()
-            println 'Creating properties files'
-        }
-        Properties versionProperties = new Properties()
-        versionProperties.setProperty('git.commit.time', commitDate.format('dd.MM.yy HH.mm.ss'))
-        versionProperties.setProperty('build.time', buildDate.format('dd.MM.yy HH.mm.ss'))
-        versionProperties.setProperty('git.commit.id', commitId.toString())
-        versionProperties.setProperty('build.version', getVersion())
-        versionProperties.store(propertiesFile.newWriter(), null)
-
-        def moduleName = 'gov.gsa.pivconformance.cardlib'
-        options.debugOptions.debugLevel = "source,lines,vars"
-        if(JavaVersion.current().isJava9Compatible()) {
-            options.compilerArgs = [
-                    '--module-path', classpath.asPath,
-                    '--add-modules', 'java.smartcardio',
-                    '--add-modules', 'org.junit.jupiter.api',
-                    '--add-modules', 'org.slf4j'
-            ]
-        }
-        version = getVersion()
-        List<String> argumentList = options.getAllCompilerArgs()
-        println 'Compiler args:'
-        argumentList.each { println '  [' + it +']' }
-        classpath = files()
-    }
-}
-
-compileTestJava {
-    doFirst {
-        def moduleName = 'gov.gsa.pivconformance.cardlib.test'
-        options.debugOptions.debugLevel = "source,lines,vars"
-        if(JavaVersion.current().isJava9Compatible()) {
-            options.compilerArgs = [
-                    '--module-path', classpath.asPath,
-                    '--add-modules', 'java.smartcardio',
-                    '--add-modules', 'org.junit.jupiter.api',
-                    '--add-modules', 'org.slf4j',
-                    '--add-reads', "$moduleName=gov.gsa.pivconformance.cardlib"
-            ]
-        }
-        version = getVersion()
-        List<String> argumentList = options.getAllCompilerArgs()
-        println 'Compiler args:'
-        argumentList.each { println '  [' + it +']' }
-        classpath = files()
-    }
-}
-
-// get readable test reports since gradle eats the summary unless there's a failure
-task generateHtmlTestReports {
-    doLast {
-        def reportsDir = new File(buildDir, 'test-reports')
-        reportsDir.mkdirs()
-
-        ant.taskdef(
-            name: 'junitReport',
-            classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
-            classpath: configurations.junitXmlToHtml.asPath
-        )
-
-        ant.junitReport(todir: "$buildDir/test-results/junit-platform", tofile: "aggregated-test-results.xml") {
-            fileset(dir: "$buildDir/test-results/junit-platform")
-            report(format: 'frames', todir: reportsDir)
-        }
-    }
-}
-
-// make gradle check generate the reports
-afterEvaluate {
-    def junitPlatformTestTask = tasks.getByName('junitPlatformTest')
-    generateHtmlTestReports.dependsOn(junitPlatformTestTask)
-    if (junitPlatformTest.getEnabled() == true)
-        check.dependsOn(generateHtmlTestReports)
 }
 
 extraJavaModuleInfo {
-    module("ber-tlv-1.0-11.jar", "com.payneteasy", "1.0-11") {
-        exports("ber.tlv")
-    }
-    module("hamcrest-core-1.3.jar", "org.hamcrest", "1.3") {
-        exports("hamcrest.core")
-    }
-    module("sqlite-jdbc-3.32.3.2.jar", "org.xerial", "3.32.3.2") {
-        exports("sqlite.jdbc")
-    }
-    module("commons-cli-1.4.jar", "org.apache.commons.cli", "1.4") {
-        exports("org.apache.commons.cli")
-    }
-    module("commons-codec-1.15.jar", "org.apache.commons.codec", "1.15") {
-        exports("org.apache.commons.codec.binary")
-        exports("org.apache.commons.codec")
-    }
-    module("commons-csv-1.8.jar", "org.apache.commons.csv", "1.8") {
-        exports("org.apache.commons.csv")
-    }
-    automaticModule("sqlite-jdbc-3.32.3.2.jar", "org.xerial")
-    automaticModule("activation-1.1.jar", "javax.activation")
-    automaticModule("checker-framework-1.7.0.jar", "edu.washington.cs.types.checker")
-    automaticModule("ibatis-core-3.0.jar", "org.apache.ibatis")
+    automaticModule('com.payneteasy:ber-tlv', 'com.payneteasy')
+    automaticModule('org.hamcrest:hamcrest-core', 'org.hamcrest')
+    automaticModule('org.xerial:sqlite-jdbc', 'org.xerial')
+    automaticModule('commons-cli:commons-cli', 'org.apache.commons.cli')
+    automaticModule('org.apache.commons:commons-csv', 'org.apache.commons.csv')
+    automaticModule('javax.activation:activation', 'javax.activation')
+    automaticModule('edu.washington.cs.types.checker:checker-framework', 'edu.washington.cs.types.checker')
+    automaticModule('org.apache.ibatis:ibatis-core', 'org.apache.ibatis')
 }
 
-shadowJar.doFirst {
-    version = getVersion()
-    dependencies { sourceJar }
+tasks.register('installSource') {
+    dependsOn sourcesJar
+    doLast {
+        copy {
+            from sourcesJar
+            into '../libs'
+        }
+    }
 }
 
-task sourceJar(type: Jar, dependsOn: classes) {
-    classifier 'sources'
-    from sourceSets.main.allSource
-}
-
-task copyShadowLibs(type: Copy) {
-    from configurations.shadow
-    into '../libs'
-}
-
-task installSource(type: Copy) {
-    dependsOn copyShadowLibs
-    dependsOn sourceJar
-    from sourceJar
-    into '../libs' 
-}
-
-task install(type: Copy) {
-    version = getVersion()
+tasks.register('install') {
     dependsOn jar
-    from jar
-    into '../libs' 
+    doLast {
+        copy {
+            from jar
+            into '../libs'
+        }
+    }
 }

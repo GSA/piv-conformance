@@ -3,8 +3,6 @@ package gov.gsa.pivconformance.cardlib.test;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObjectFactory;
-import gov.gsa.pivconformance.cardlib.utils.OSUtils;
-
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMParser;
@@ -14,15 +12,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Provider;
 import java.security.Security;
 import java.security.cert.CertificateEncodingException;
@@ -32,20 +25,10 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class X509DataObjectTests {
-	private static String resDir = null;
-	static {
-		try {
-			URI uri = ClassLoader.getSystemResource("").toURI();
-			resDir = Paths.get(uri).toString();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-		System.out.println("Looking in: " + resDir);
-	}
-
 	// [53 82 06 19 [70 82 06 10 [30 82 .. ]] [71 01 00] [FE 00]
 	private byte[] insertOuterTag(byte[] databytes) {
 		byte[] rv = null;
@@ -70,12 +53,12 @@ public class X509DataObjectTests {
 
 	@DisplayName("Test X.509 Data Object parsing")
 	@ParameterizedTest(name = "{index} => oid = {0}, file = {1}")
-	//@MethodSource("dataObjectTestProvider")
+	@MethodSource("dataObjectTestProvider")
 
 	void dataObjectTest(String oid, String file, TestReporter reporter) {
 		assertNotNull(oid);
 		assertNotNull(file);
-		Path filePath = Paths.get(resDir + File.separator + file);
+		Path filePath = TestResourceUtils.path(file);
 		List<String> lines = null;
 		try {
 
@@ -88,6 +71,7 @@ public class X509DataObjectTests {
 			StringReader sr = new StringReader(sb.toString());
 			PIVDataObject o = PIVDataObjectFactory.createDataObjectForOid(oid);
 			assertNotNull(o);
+			o.setContainerName(APDUConstants.getFileNameForOid(oid));
 			reporter.publishEntry(oid, o.getClass().getSimpleName());
 			byte[] certBuf = convertPemFileToBytes(sr).getEncoded();
 			o.setBytes(insertOuterTag(certBuf));
@@ -97,7 +81,7 @@ public class X509DataObjectTests {
 			o.setOID(oid);
 
 			boolean decoded = o.decode();
-			assert(decoded);
+			assertTrue(decoded);
 		} catch (IOException | CertificateEncodingException e) {
 			fail(e);
 		}
