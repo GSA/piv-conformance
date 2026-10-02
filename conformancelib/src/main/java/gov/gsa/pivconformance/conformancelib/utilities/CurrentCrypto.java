@@ -42,7 +42,7 @@ public final class CurrentCrypto {
             String oid = algorithm.getAlgorithm().getId();
             if (RSA.equals(oid)) {
                 require(algorithm.getParameters() instanceof ASN1Null,"78-SPKI","rsaEncryption parameters must be NULL (RFC3279 2.3.1)");
-                ASN1Sequence rsa=ASN1Sequence.getInstance(spki.parsePublicKey());
+                ASN1Sequence rsa=ASN1Sequence.getInstance(der(spki.getPublicKeyData().getBytes(),"78-SPKI"));
                 require(rsa.size()==2 && ASN1Integer.getInstance(rsa.getObjectAt(0)).getValue().signum()>0
                         && ASN1Integer.getInstance(rsa.getObjectAt(1)).getValue().signum()>0,"78-SPKI","RSA integers must be positive");
                 org.bouncycastle.asn1.pkcs.RSAPublicKey key = org.bouncycastle.asn1.pkcs.RSAPublicKey.getInstance(rsa);

@@ -37,6 +37,7 @@ for n in [1024,2047,2048,2049,3071,3072,3073,4096]:add('rsa-bits-'+str(n),'cardK
 for e in [3,65536,65537,65539]:add('rsa-exponent-'+str(e),'cardKey',rsa(2048,e),'PASS' if e==65537 else '78-RSA-EXPONENT','boundary',['78-RSA-EXPONENT'])
 add('rsa-negative-exponent','cardKey',rsa(2048,-1),'78-SPKI','malformed')
 add('rsa-negative-modulus','cardKey',seq(alg(RSA,NULL),der(3,b'\0'+seq(integer(-1),integer(65537)))),'78-SPKI','malformed')
+add('rsa-inner-indefinite','cardKey',seq(alg(RSA,NULL),der(3,b'\0\x30\x80'+integer((1<<2047)+1)+integer(65537)+b'\0\0')),'78-SPKI','malformed')
 add('rsa-absent-parameters','cardKey',rsa(2048,p=b''),'78-SPKI','negative')
 add('rsa-integer-parameters','cardKey',rsa(2048,p=integer(1)),'78-SPKI','negative')
 p256=bytes.fromhex('04'+'6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296'+'4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5')
