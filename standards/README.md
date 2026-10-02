@@ -2,15 +2,17 @@
 
 **NOT YET READY.** This profile provides selected PIV data-model assertions and reproducible evidence. It does not provide a complete current-standard card verdict. The complete atomic requirement denominator, semantic historical audit, CMS/integrity checks, certificate profiles, biometric payload checks and conditional applicability remain unfinished. See [readiness.json](readiness.json) for specific technical gaps.
 
+**Start with [reviewed-deltas.md](reviewed-deltas.md).** It separates actual revision changes, existing bugs, missing evidence and unchanged requirements, and maps applicable FIPS 201-3 parents. It supersedes earlier broad delta labels and directs the reduction of this package.
+
 This directory is maintained product traceability. Counts below describe this snapshot, not percentages of NIST conformance. Final publications control behavior; reference-runner behavior and SP 800-85B methodology do not override them. Draft SP 800-85B-4 was discontinued and is historical provenance only. No draft SP 800-73-6 or SP 800-78-6 requirement is used as a gate.
 
 ## Baseline and scope
 
 The protected starting commit is `90f754d785f7fe4ca9fb19e1c66102da0608447d`, initially on `modernization/01-hermetic-test-baseline`. The local safety ref is `safety/pre-nist-2026-09-30`; standards work is on `feature/nist-current-standards-candidate`. The frozen engineering baseline tag is `cct-modernization-baseline-2026-09-11`. [baseline.json](baseline.json) records versions, hashes, the four commits above that tag, original test results and the separate packaging commit.
 
-Java 17, Gradle 8.14.5, BC 1.66 and build.version 1.0.7 are preserved. All four production databases, the historical parser-fixture manifest and protected packaging files are unchanged. Standards commits remain separate from Windows packaging. Nothing has been pushed.
+Java 17, Gradle 8.14.5, BC 1.66 and build.version 1.0.7 are preserved. All four production databases, the historical parser-fixture manifest and protected packaging files are unchanged. Standards commits remain separate from Windows packaging. The candidate is published as [PR #328](https://github.com/GSA/piv-conformance/pull/328), based on the separate [engineering PR #329](https://github.com/GSA/piv-conformance/pull/329). It is being narrowed before external submission.
 
-The primary target is the PIV data model in SP 800-73-5 Part 1. Selected SP 800-78-5 active-key assertions use the **through-2030** column. They do not apply active-key restrictions to archived/retired signatures. SP 800-76-2 supplies selected fingerprint CBEFF fields. FIPS 201-3 cross-cutting applicability is not yet fully mapped. PIV-I databases retain historical behavior; no current PIV-I verdict is offered.
+The primary target is the PIV data model in SP 800-73-5 Part 1. Selected SP 800-78-5 active-key assertions use the **through-2030** column. They do not apply active-key restrictions to archived/retired signatures. SP 800-76-2 supplies selected fingerprint CBEFF fields. The reviewed delta list maps selected FIPS 201-3 requirements to their supporting SP checks; full cross-cutting applicability remains incomplete. PIV-I databases retain historical behavior; no current PIV-I verdict is offered.
 
 Part 2 APDU, activation/access-control and physical behavior are identified as hardware scope. Part 3 middleware qualification is out of scope. Reading card bytes in a data-model atom is an acquisition dependency, not evidence of card-edge qualification.
 
@@ -34,17 +36,17 @@ Incorporated PKIX/crypto assertions identify RFC 5280, RFC 3279, RFC 4055, RFC 5
 | PIV-I Production | 489 | 371 | 118 | 489 | 135 |
 | PIV-I ICAM | 489 | 371 | 118 | 274 | 135 |
 
-There are 187 indexed source methods, including 140 unique database-referenced methods. All referenced methods resolve. Source dispositions are 176 partial, five description/code mismatches, five placeholders and one unconditional pass. Source-only quality is Q0=6 and Q1=181; it is not fixture-proven standards coverage.
+There are 187 indexed source methods, including 140 unique database-referenced methods. All referenced methods resolve. The generated index labels 176 methods partial, five description/code mismatches, five placeholders and one unconditional pass. Its default PARTIAL label is an assertion-count heuristic, not a reviewed semantic finding; these labels must not be used to assess how far the historical CCT was from conformance. Source-only quality is Q0=6 and Q1=181; it is not fixture-proven standards coverage.
 
-Known problems include a UUID helper that ignores its expected identifier, an unconditional placeholder, BER/APDU proxy assertions, optional early returns, conditional biometric assertion guards, EKU presence without criticality, contradictory RSA size checks, provider-string curve matching and an inverted RSA NULL-parameter assertion. Full assertion-dominance and semantic review remains incomplete.
+Known problems include a UUID helper that ignores its expected identifier, an unconditional placeholder, BER/APDU proxy assertions, optional early returns, conditional biometric assertion guards, EKU presence without criticality, provider-string curve matching and an inverted RSA signature NULL-parameter assertion. The old on-card RSA2048 restriction follows the old standard; its relaxation is a revision change, not an old-standard defect. Full assertion-dominance and semantic review remains incomplete.
 
-The candidate manifest contains nine CHANGED groups, eight UNCHANGED groups with new evidence, one CONDITIONAL group and ten aggregate gap/scope records awaiting atomic classification. These are not counts of every normative delta. Removed fields are represented within changed groups, rather than counted again as separate coverage. New Java code for an existing requirement is not labeled a NEW normative requirement.
+The corrected candidate manifest contains six groups with a CHANGED portion, twelve UNCHANGED groups and ten aggregate gap/scope records awaiting atomic classification. Optional applicability is recorded separately from normative change. These are not counts of every normative delta. Removed fields are represented within changed groups, rather than counted again as separate coverage. New Java code for an existing requirement is not labeled a NEW normative requirement.
 
 ## Implemented assertions and traceability
 
 [current-manifest.json](current-manifest.json) maps source sections/tables to candidate methods, historical associations, fixture IDs, expected outcomes, quality and limitations. Historical associations may be family-level; they are not assertions of behavioral equivalence.
 
-The candidate adds:
+The existing candidate implements the following selected assertions. This describes the current code, not a decision to retain every helper; the reviewed delta list governs consolidation into existing CCT paths:
 
 - CCC field order/length/data-model rules and rejection of removed E3/B4 fields.
 - CHUID field structure, removed fields, calendar date, permitted card UUID variants/versions and optional version-4 cardholder UUID.
@@ -69,7 +71,7 @@ Historical atoms and databases were preserved rather than relabeled as current. 
 | SP 800-73-5 Part 1 | 13 | 4 | Unresolved |
 | SP 800-78-5 | 4 | 2 | Unresolved |
 | SP 800-76-2 | 1 | 1 | Unresolved |
-| FIPS 201-3 | 0 | 2 | Unresolved |
+| FIPS 201-3 | 0 direct groups; selected parent mappings in reviewed delta list | 2 | Unresolved |
 
 One additional record marks Part 3 out of scope. The **28 group/gap records are not a denominator**. Their quality distribution is Q0=10, Q1=0, Q2=1, Q3=17, Q4=0, Q5=0. Boundary and malformed evidence exists, but comprehensive atomic coverage and independent validation are not established. [source-locators.json](source-locators.json) contains 1318 modal-text locators for audit; those are not deduplicated requirements.
 

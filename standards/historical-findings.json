@@ -82,10 +82,10 @@
     ],
     "implementation_status": "DESCRIPTION_CODE_MISMATCH",
     "false_fail_risk": [
-      "RSA3072 passes the first size check then fails a later RSA2048-only assertion",
-      "EC curve identification depends on provider text and prime384v1 rather than named-curve OID"
+      "EC curve identification depends on provider text and prime384v1 rather than named-curve OID; provider-specific false verdict needs a reproducer"
     ],
-    "candidate_disposition": "78-CARD-KEY / 78-SPKI use ASN.1 and actual curve points; through-2030 active-key scope"
+    "candidate_disposition": "78-CARD-KEY / 78-SPKI use ASN.1 and actual curve points; through-2030 active-key scope",
+    "review_correction": "The later RSA2048-only assertion matches SP800-78-4 Table 3-1 for active on-card RSA keys. Accepting RSA3072 is a revision-5 change, not evidence that the old-standard verdict was wrong. See reviewed-deltas.md N5."
   },
   {
     "id": "H-RSA-NULL",
@@ -97,7 +97,7 @@
     "false_fail_risk": [
       "RSA AlgorithmIdentifier NULL parameter check is inverted"
     ],
-    "candidate_disposition": "78-SPKI explicitly requires rsaEncryption NULL parameters per RFC3279 2.3.1"
+    "candidate_disposition": "78-CERT-SIGNATURE accepts NULL or absent RSA SHA2 signature parameters per RFC4055 section 5. This is distinct from the 78-SPKI public-key encoding rule. Original atom remains unfixed; see reviewed-deltas.md B2."
   },
   {
     "id": "H-CERT-POLICY",

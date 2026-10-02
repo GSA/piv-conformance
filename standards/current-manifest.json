@@ -191,7 +191,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: N1"
     },
     {
       "rule_id": "73-CHUID-FIELDS",
@@ -596,7 +597,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: N2"
     },
     {
       "rule_id": "73-CARD-UUID",
@@ -610,7 +612,7 @@
       "applicability": "Present CARD_HOLDER_UNIQUE_IDENTIFIER_OID object; candidate PIV only",
       "requirement": "GUID is 16-byte RFC4122 variant UUID version 1, 4 or 5",
       "historical_behavior": "Historical tests include variant/version heuristics",
-      "delta": "CHANGED",
+      "delta": "UNCHANGED",
       "historical_cct_test_ids": [
         "8.2.2.1",
         "8.2.2.10",
@@ -1003,7 +1005,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U1"
     },
     {
       "rule_id": "73-HOLDER-UUID",
@@ -1017,7 +1020,7 @@
       "applicability": "Present CARD_HOLDER_UNIQUE_IDENTIFIER_OID object; candidate PIV only",
       "requirement": "If present, cardholder UUID is 16-byte RFC4122 variant version 4",
       "historical_behavior": "Historical optional UUID checks",
-      "delta": "CONDITIONAL",
+      "delta": "CHANGED",
       "historical_cct_test_ids": [
         "8.2.2.1",
         "8.2.2.10",
@@ -1390,7 +1393,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: N3"
     },
     {
       "rule_id": "73-CHUID-DATE",
@@ -1774,7 +1778,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U2"
     },
     {
       "rule_id": "73-CERT-FIELDS",
@@ -3948,7 +3953,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: N4"
     },
     {
       "rule_id": "73-CERT-SIZE",
@@ -3961,8 +3967,8 @@
       "normative_strength": "MAY",
       "applicability": "Present X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID object; candidate PIV only",
       "requirement": "Certificate lengths above 1856 are permitted; no conformance maximum inferred from recommended size",
-      "historical_behavior": "Historical inBounds maximum can reject permitted larger certificates",
-      "delta": "CHANGED",
+      "historical_behavior": "Old standard already permits larger certificates. Existing inBounds path needs a reproducer before claiming a hard-limit bug.",
+      "delta": "UNCHANGED",
       "historical_cct_test_ids": [
         "11.1.1.1",
         "11.1.1.2",
@@ -6085,7 +6091,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U3"
     },
     {
       "rule_id": "73-SECURITY-FIELDS",
@@ -6098,8 +6105,8 @@
       "normative_strength": "SHALL",
       "applicability": "Present SECURITY_OBJECT_OID object; candidate PIV only",
       "requirement": "Security Object BA/BB/FE lengths and mapping triple structure",
-      "historical_behavior": "Historical table 12 and disabled size assertion",
-      "delta": "CHANGED",
+      "historical_behavior": "Historical .33 calls inBounds and .35 checks fields/order. A commented whole-object size assertion does not prove table-value bounds are absent.",
+      "delta": "UNCHANGED",
       "historical_cct_test_ids": [
         "10.4.1.1",
         "8.10.1.2",
@@ -6265,7 +6272,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U4"
     },
     {
       "rule_id": "73-KEY-HISTORY",
@@ -6375,7 +6383,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U5"
     },
     {
       "rule_id": "78-CARD-KEY",
@@ -6388,7 +6397,7 @@
       "normative_strength": "MUST",
       "applicability": "Present X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID object; candidate PIV only",
       "requirement": "Active asymmetric card keys use RSA 2048/3072 or named P-256/P-384",
-      "historical_behavior": "78.1 rejects RSA3072 and authentication P384",
+      "historical_behavior": "78.1 rejects RSA3072 and authentication P384 under the older key-use rules; revision 5 expands these permissions.",
       "delta": "CHANGED",
       "historical_cct_test_ids": [
         "11.1.1.1",
@@ -6710,7 +6719,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: N5"
     },
     {
       "rule_id": "78-RSA-EXPONENT",
@@ -7033,7 +7043,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U6"
     },
     {
       "rule_id": "78-SPKI",
@@ -7047,7 +7058,7 @@
       "applicability": "Present X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID object; candidate PIV only",
       "requirement": "SPKI algorithm is rsaEncryption or id-ecPublicKey; EC parameters identify P256/P384 by OID",
       "historical_behavior": "Provider-string curve matching and missing SPKI parameter validation",
-      "delta": "CHANGED",
+      "delta": "UNCHANGED",
       "historical_cct_test_ids": [
         "11.1.1.1",
         "11.1.1.2",
@@ -7383,7 +7394,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U7"
     },
     {
       "rule_id": "78-CERT-SIGNATURE",
@@ -7746,7 +7758,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: N6; B2"
     },
     {
       "rule_id": "GAP-UUID-LINKS",
@@ -8134,7 +8147,8 @@
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
       "historical_mapping_precision": "Family association; not atomic behavior equivalence",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: B1"
     },
     {
       "rule_id": "76-CBEFF-HEADER",
@@ -9538,7 +9552,8 @@
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
       "historical_mapping_precision": "Family association; not atomic behavior equivalence",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U8"
     },
     {
       "rule_id": "73-RETIRED-CERT-FIELDS",
@@ -9619,7 +9634,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U9"
     },
     {
       "rule_id": "73-PRINTED-FIELDS",
@@ -9722,7 +9738,8 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U10"
     },
     {
       "rule_id": "73-PAIRING-FIELDS",
@@ -9795,7 +9812,9 @@
         "all three engineering lanes"
       ],
       "quality_notes": "Conservative rule-group score. Partial boundary/malformed evidence exists; no complete atomic coverage or independent external validation claimed.",
-      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not."
+      "negative_evidence_policy": "Only failures reporting this exact rule ID count; setup/parser failures with other IDs do not.",
+      "delta_review": "reviewed-deltas.md: U11"
     }
-  ]
+  ],
+  "delta_review": "reviewed-deltas.md; CHANGED means the group contains a revision change, not that every assertion changed. Conditional applicability is separate."
 }

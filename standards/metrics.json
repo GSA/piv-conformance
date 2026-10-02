@@ -80,9 +80,8 @@
     "3": 17
   },
   "delta_rule_groups": {
-    "CHANGED": 9,
-    "CONDITIONAL": 1,
-    "UNCHANGED": 8,
+    "CHANGED": 6,
+    "UNCHANGED": 12,
     "UNREVIEWED_AGGREGATE": 10
   },
   "distinct_synthetic_vectors": 264,
@@ -442,7 +441,7 @@
   "evidence_inputs": [
     {
       "path": "standards/current-manifest.json",
-      "sha256": "2801728b6fea7e85334d6c1c5c70f325756d4440502cfe152aff04ea85afd7ac"
+      "sha256": "d3384d669523991e5314ed97f63401eaf37d930b4928ae5ff8e03fc5d533eb87"
     },
     {
       "path": "conformancelib/build.gradle",
@@ -489,5 +488,6 @@
     "Rule groups, source locators, DB rows and JUnit invocations are different units",
     "Only the direct distinct-vector count is 264; entry-point tests repeat data vectors and separately check absence",
     "No complete atomic normative denominator or standards-coverage percentage is established"
-  ]
+  ],
+  "delta_review": "2026-10-02: classification and manifest hash updated from reviewed-deltas.md; existing execution results retained, no test rerun. Full verify.py requires restoring Java 17."
 }
