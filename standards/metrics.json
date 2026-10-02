@@ -1,0 +1,489 @@
+{
+  "recorded_utc": "2026-10-02T02:42:24.440445+00:00",
+  "profile": "CURRENT_2026_CANDIDATE",
+  "verdict": "NOT_YET_READY",
+  "java_runtime": "openjdk 17.0.20.1 2026-08-18\nOpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)\nOpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)",
+  "atomic_denominator": null,
+  "denominator_reason": "UNRESOLVED: rule groups and source locators must be decomposed, deduplicated and applicability reviewed",
+  "by_publication": {
+    "FIPS 201-3": {
+      "atomic_applicable_denominator": null,
+      "rule_groups_with_assertions": 0,
+      "aggregate_gap_or_scope_records": 2,
+      "disposition": {
+        "MISSING": 1,
+        "PROFILE_SPECIFIC": 1
+      },
+      "quality": {
+        "0": 2
+      }
+    },
+    "SP 800-73-5 Part 1": {
+      "atomic_applicable_denominator": null,
+      "rule_groups_with_assertions": 13,
+      "aggregate_gap_or_scope_records": 4,
+      "disposition": {
+        "HARDWARE_OWNED": 1,
+        "IMPLEMENTED": 8,
+        "MISSING": 3,
+        "PARTIAL": 5
+      },
+      "quality": {
+        "0": 4,
+        "2": 1,
+        "3": 12
+      }
+    },
+    "SP 800-73-5 Part 3": {
+      "atomic_applicable_denominator": null,
+      "rule_groups_with_assertions": 0,
+      "aggregate_gap_or_scope_records": 1,
+      "disposition": {
+        "OUT_OF_SCOPE": 1
+      },
+      "quality": {
+        "0": 1
+      }
+    },
+    "SP 800-76-2": {
+      "atomic_applicable_denominator": null,
+      "rule_groups_with_assertions": 1,
+      "aggregate_gap_or_scope_records": 1,
+      "disposition": {
+        "IMPLEMENTED": 1,
+        "MISSING": 1
+      },
+      "quality": {
+        "0": 1,
+        "3": 1
+      }
+    },
+    "SP 800-78-5": {
+      "atomic_applicable_denominator": null,
+      "rule_groups_with_assertions": 4,
+      "aggregate_gap_or_scope_records": 2,
+      "disposition": {
+        "HARDWARE_OWNED": 1,
+        "IMPLEMENTED": 3,
+        "MISSING": 1,
+        "PARTIAL": 1
+      },
+      "quality": {
+        "0": 2,
+        "3": 4
+      }
+    }
+  },
+  "quality_rule_groups_including_gap_records": {
+    "0": 10,
+    "2": 1,
+    "3": 17
+  },
+  "delta_rule_groups": {
+    "CHANGED": 9,
+    "CONDITIONAL": 1,
+    "UNCHANGED": 8,
+    "UNREVIEWED_AGGREGATE": 10
+  },
+  "distinct_synthetic_vectors": 264,
+  "vector_families": {
+    "data-model": {
+      "distinct_vectors": 167,
+      "expected_outcomes": {
+        "FAIL": 127,
+        "PASS": 40
+      },
+      "kinds": {
+        "boundary": 61,
+        "conditional": 10,
+        "malformed": 32,
+        "negative": 49,
+        "positive": 15
+      },
+      "tsv_sha256": "9115b772bd45133939433062c3001cb49229fa46ba0b17055516309d9b724f38"
+    },
+    "crypto": {
+      "distinct_vectors": 53,
+      "expected_outcomes": {
+        "FAIL": 40,
+        "PASS": 13
+      },
+      "kinds": {
+        "boundary": 13,
+        "malformed": 14,
+        "negative": 16,
+        "positive": 10
+      },
+      "tsv_sha256": "6e67ac5331c36ce497984e32cb82bd44cf20b55e4a10eeeb62bc3383f739cb2e"
+    },
+    "linked": {
+      "distinct_vectors": 44,
+      "expected_outcomes": {
+        "FAIL": 34,
+        "PASS": 10
+      },
+      "kinds": {
+        "boundary": 13,
+        "malformed": 6,
+        "negative": 21,
+        "positive": 4
+      },
+      "tsv_sha256": "bfcfed00e95c8ebc67f7820de320d764c5265d8670756e2f1e78140e891f9aaa"
+    }
+  },
+  "candidate_database": {
+    "rows": 35,
+    "sha256": "2afb18ab96246a45ca80b36b265cfe7268a88b1b1e8b27d533fe3d0db5ad2d5f",
+    "mappings": [
+      {
+        "case_id": "CANDIDATE.1",
+        "method": "cardKey",
+        "container": "X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.2",
+        "method": "cardKey",
+        "container": "X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.3",
+        "method": "cardUuid",
+        "container": "X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.4",
+        "method": "cardUuid",
+        "container": "X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.5",
+        "method": "ccc",
+        "container": "CARD_CAPABILITY_CONTAINER_OID"
+      },
+      {
+        "case_id": "CANDIDATE.6",
+        "method": "certificateObject",
+        "container": "X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.7",
+        "method": "certificateObject",
+        "container": "X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.8",
+        "method": "certificateSignature",
+        "container": "X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.9",
+        "method": "certificateSignature",
+        "container": "X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.10",
+        "method": "chuid",
+        "container": "CARD_HOLDER_UNIQUE_IDENTIFIER_OID"
+      },
+      {
+        "case_id": "CANDIDATE.11",
+        "method": "fingerprintHeader",
+        "container": "CARDHOLDER_FINGERPRINTS_OID"
+      },
+      {
+        "case_id": "CANDIDATE.12",
+        "method": "keyHistory",
+        "container": "KEY_HISTORY_OBJECT_OID"
+      },
+      {
+        "case_id": "CANDIDATE.13",
+        "method": "pairingCode",
+        "container": "PAIRING_CODE_REFERENCE_DATA_CONTAINER_OID"
+      },
+      {
+        "case_id": "CANDIDATE.14",
+        "method": "printedInformation",
+        "container": "PRINTED_INFORMATION_OID"
+      },
+      {
+        "case_id": "CANDIDATE.15",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_10_OID"
+      },
+      {
+        "case_id": "CANDIDATE.16",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_11_OID"
+      },
+      {
+        "case_id": "CANDIDATE.17",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_12_OID"
+      },
+      {
+        "case_id": "CANDIDATE.18",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_13_OID"
+      },
+      {
+        "case_id": "CANDIDATE.19",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_14_OID"
+      },
+      {
+        "case_id": "CANDIDATE.20",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_15_OID"
+      },
+      {
+        "case_id": "CANDIDATE.21",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_16_OID"
+      },
+      {
+        "case_id": "CANDIDATE.22",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_17_OID"
+      },
+      {
+        "case_id": "CANDIDATE.23",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_18_OID"
+      },
+      {
+        "case_id": "CANDIDATE.24",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_19_OID"
+      },
+      {
+        "case_id": "CANDIDATE.25",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_1_OID"
+      },
+      {
+        "case_id": "CANDIDATE.26",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_20_OID"
+      },
+      {
+        "case_id": "CANDIDATE.27",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_2_OID"
+      },
+      {
+        "case_id": "CANDIDATE.28",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_3_OID"
+      },
+      {
+        "case_id": "CANDIDATE.29",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_4_OID"
+      },
+      {
+        "case_id": "CANDIDATE.30",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_5_OID"
+      },
+      {
+        "case_id": "CANDIDATE.31",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_6_OID"
+      },
+      {
+        "case_id": "CANDIDATE.32",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_7_OID"
+      },
+      {
+        "case_id": "CANDIDATE.33",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_8_OID"
+      },
+      {
+        "case_id": "CANDIDATE.34",
+        "method": "retiredCertificateObject",
+        "container": "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_9_OID"
+      },
+      {
+        "case_id": "CANDIDATE.35",
+        "method": "securityObject",
+        "container": "SECURITY_OBJECT_OID"
+      }
+    ]
+  },
+  "lanes": {
+    "engineering_cardlib": {
+      "tests": 446,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.BiometricDataObjectTests.xml",
+          "sha256": "4f6daa57d5d62a05ab64278121792fdeef326ff1eb5058c083af63d0336b2b3b"
+        },
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.CCCDataObjectTests.xml",
+          "sha256": "e47d1e4ef06e3f6f8ccf928076f5812968d18e17f9c510f3da56b2a05fb81015"
+        },
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.CHUIDDataObjectTests.xml",
+          "sha256": "60cb6df4fc140b8fcfeb367ac3b0700418157b78d724f325f766489d20e6da8b"
+        },
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.DODataObjectTests.xml",
+          "sha256": "3cfbb1eb5187578cdc6db58c84202650bce7de4c90adbf0f997ab19ad588f09a"
+        },
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.PIVMiddlewareTests.xml",
+          "sha256": "d15e88a527ffd94a48f1cd69153539cd03e5fb57128488bdb4d8b92ddae2bc92"
+        },
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.PrintedInformationDataObjectTests.xml",
+          "sha256": "b69047fa43608bf847a7d3fc7ed89f5efb7d9900ef59130fab50f1c9da2a1360"
+        },
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.SecurityObjectDataObjectTests.xml",
+          "sha256": "38b3ec9fa1ebb7a7eeee78dc0326f5d3dbe1b822d3d96900dd3c4eea0f797bc3"
+        },
+        {
+          "path": "cardlib/build/test-results/test/TEST-gov.gsa.pivconformance.cardlib.test.X509DataObjectTests.xml",
+          "sha256": "1ed4d22bba4e7dd9c2fc87315d7fa215e1012bae32475037560ae98313779c28"
+        }
+      ]
+    },
+    "engineering_conformance": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "conformancelib/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.tests.ValidatorTest.xml",
+          "sha256": "623cb9a31299601a90c35724e410cf2b3a5efbb1cfb6841581ae6e54aa32e855"
+        }
+      ]
+    },
+    "engineering_swing": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.utilities.TestRunLogControllerLifecycleTest.xml",
+          "sha256": "6bb313246fa30da2ec25c5d5ecae2aa436ce5d8f430b1a6715c6601f0b6455b0"
+        },
+        {
+          "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.gui.ReviewPackageBuilderTest.xml",
+          "sha256": "670baf292c14ff331ea27f6eb5d010cfcadf3c9d0930a42a4ecc18f049935adf"
+        }
+      ]
+    },
+    "current_candidate": {
+      "tests": 466,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentCryptoEvidenceTest.xml",
+          "sha256": "cb1eff6d42f50f12580ebcb409db3260a9d9b7aab9c07fc66f8e2b98a64e6e52"
+        },
+        {
+          "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentDataModelEvidenceTest.xml",
+          "sha256": "af1cafe6d7fc089a8cfec4299aff590b5ad971ded36bffeac98058fdff77fe19"
+        },
+        {
+          "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentExecutionEvidenceTest.xml",
+          "sha256": "a83aca6f9e481e97212d5787dfb5dd3f2dd1b77baf7bb8cd4fe7f87ee4859121"
+        },
+        {
+          "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentLinkedEvidenceTest.xml",
+          "sha256": "82512f8a9eea2565a570c0f392c1bb3d24838572cb2665acfd6235c22b0224bb"
+        }
+      ]
+    },
+    "synthetic_certificates": {
+      "tests": 75,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "conformancelib/build/test-results/certificateFixtureTest/TEST-gov.gsa.pivconformance.conformancelib.tests.SyntheticCertificateEvidenceTest.xml",
+          "sha256": "e09aaa94028ee2ca4b5d23be82d5eb8549464fda3fb9f9e1cdc7c323cfc5beb3"
+        }
+      ]
+    },
+    "historical_external_certificates": {
+      "tests": 24,
+      "failures": 24,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "conformancelib/build/test-results/historicalCertificateFixtureTest/TEST-gov.gsa.pivconformance.conformancelib.tests.ValidatorTest.xml",
+          "sha256": "39e65cc54a1ae8fa64741821670013641e7002426e70f81450da37ab37c24235"
+        }
+      ]
+    }
+  },
+  "historical_conformance_execution": "NOT_RUN (hardware/profile-level atoms are not the 462 engineering tests)",
+  "physical_hardware": "NOT_RUN",
+  "piv_i_current_applicability": "UNRESOLVED; historical databases preserved",
+  "protected_databases_and_fixture_manifest": "UNCHANGED",
+  "packaging_files": "UNCHANGED",
+  "evidence_inputs": [
+    {
+      "path": "standards/current-manifest.json",
+      "sha256": "2801728b6fea7e85334d6c1c5c70f325756d4440502cfe152aff04ea85afd7ac"
+    },
+    {
+      "path": "conformancelib/build.gradle",
+      "sha256": "52c84e26818886849f62a253a78e63d130322e463b437c6eb981d46e558b7055"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/utilities/CurrentBiometrics.java",
+      "sha256": "ef926327672ac6dabdb779df710290c1d21015ed23bb4968ea4c36afc83e65e3"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/utilities/CurrentCrypto.java",
+      "sha256": "de7cba285d353db6fca4559a99bb8042939c1425b1a1c461a71e2b4ae23ab2ab"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/utilities/CurrentDataModel.java",
+      "sha256": "7f7deb6146548fd3c3df665a962e0dc5435c8354955989923a5549126ce3d500"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/utilities/CurrentIdentity.java",
+      "sha256": "05438efa4956dea1839f02c1f07d4326ef229c531d0404eca673a015c03488d8"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/CurrentCandidateTests.java",
+      "sha256": "8b529de3591e3174ff7fc0aee28d9dcc348da558bd34363d0e8a90049d00a3e0"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/CurrentCryptoEvidenceTest.java",
+      "sha256": "841f8ae95749faeec1eab4f2cdddb78120a81edf1f991aa0509d5d23d63e0f8c"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/CurrentDataModelEvidenceTest.java",
+      "sha256": "c35207b4845f8cfe51233171303ec674ffaf95a3d36f239aa336f8f944a2635d"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/CurrentExecutionEvidenceTest.java",
+      "sha256": "0f95a4f7ce823d9f942bbf998bbcb9be4ad1603426ee34cfa97d194bf5fcb40f"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/CurrentLinkedEvidenceTest.java",
+      "sha256": "155840e76884e8ae5dca7d19f1b848c5a611f70508222f686c4f60a3a8fc7d53"
+    }
+  ],
+  "warnings": [
+    "Rule groups, source locators, DB rows and JUnit invocations are different units",
+    "Only the direct distinct-vector count is 264; entry-point tests repeat data vectors and separately check absence",
+    "No complete atomic normative denominator or standards-coverage percentage is established"
+  ]
+}
