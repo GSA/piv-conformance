@@ -15,6 +15,7 @@ def names(*uris):return der(0x30,b''.join(der(0x86,u.encode('ascii')) for u in u
 uuid='00112233-4455-4677-8899-aabbccddeeff'
 add('uuid-link-correct','cardUuid',names('urn:uuid:'+uuid))
 add('uuid-link-upper','cardUuid',names('URN:UUID:'+uuid.upper()))
+add('uuid-link-bare','cardUuid',names(uuid),'FAIL','negative')
 add('uuid-link-multiple','cardUuid',names('https://example.invalid','urn:uuid:'+uuid,'urn:uuid:11223344-5566-4778-8899-aabbccddeeff'))
 for name,text in [('mismatch','urn:uuid:11223344-5566-4778-8899-aabbccddeeff'),('wrong-prefix','https://'+uuid),('short-groups','urn:uuid:1-2-3-4-5'),('no-hyphens','urn:uuid:'+uuid.replace('-','')),('trailing','urn:uuid:'+uuid+'x')]:add('uuid-link-'+name,'cardUuid',names(text),'FAIL','negative')
 add('uuid-link-empty','cardUuid',names(),'FAIL','negative')
