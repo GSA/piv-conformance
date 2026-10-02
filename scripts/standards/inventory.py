@@ -14,7 +14,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'standards'
-BASE = 'safety/pre-nist-2026-09-30'
+BASE = '90f754d785f7fe4ca9fb19e1c66102da0608447d'
 
 
 def historical(path):
@@ -66,8 +66,8 @@ def methods(path, source):
                           pass_without_requirement_evaluation=True if state == 'UNCONDITIONAL_PASS' else None,
                           false_pass_risk=risks or ['Semantic review and independent negative evidence pending'],
                           false_fail_risk=['Semantic review and independent positive evidence pending'],
-                          physical_hardware_dependency=bool(re.search(r'APDU|transmit|CardChannel|selectApplication', body)),
-                          certificate_fixture_dependency=bool(re.search(r'Certificate|CMS|Signer', body)),
+                          physical_hardware_dependency=True if re.search(r'APDU|transmit|CardChannel|selectApplication|AtomHelper\.(getDataObject|isOptionalAndAbsent)|CardInfoController', body) else None,
+                          certificate_fixture_dependency='EXTERNAL_CORPUS' if path.stem == 'ValidatorTest' and 'testIsValid' in match[1] else 'CARD_CERTIFICATE_OR_CMS' if re.search(r'Certificate|CMS|Signer', body) else None,
                           nist_interpretation_needed=None))
     return found
 
@@ -80,6 +80,17 @@ def main():
         if '/tests/' in path and path.endswith('.java'):
             atoms.extend(methods(Path(path), historical(path).decode()))
     lookup = {(m['java_class'],m['java_method']): m for m in atoms}
+    findings = json.loads((OUT/'historical-findings.json').read_text())
+    for finding in findings:
+        for atom in atoms:
+            if atom['java_class'].endswith('.'+finding.get('java_class','')) and atom['java_method'] in finding.get('java_methods',[]):
+                atom.setdefault('review_findings',[]).append(finding['id'])
+                atom['implementation_status'] = finding.get('implementation_status', atom['implementation_status'])
+                atom['false_pass_risk'].extend(finding.get('false_pass_risk',[]))
+                atom['false_fail_risk'].extend(finding.get('false_fail_risk',[]))
+                atom['normative_scope'] = finding.get('scope','PART_1_DATA_MODEL')
+                if 'pass_without_requirement_evaluation' in finding:
+                    atom['pass_without_requirement_evaluation'] = finding['pass_without_requirement_evaluation']
     inventory, steps, summaries = [], [], {}
     for path in sorted((ROOT/'conformancelib/testdata').glob('*.db')):
         rel = str(path.relative_to(ROOT))
@@ -119,6 +130,18 @@ def main():
                 implementation_status='OUTLINE_ONLY' if not links else 'PARTIAL',
                 test_quality=min((i['test_quality'] for i in implementations), default=0),
                 nist_interpretation_needed=None))
+            record = inventory[-1]
+            mapped = [lookup[(i['java_class'],i['java_method'])] for i in implementations if (i['java_class'],i['java_method']) in lookup]
+            record['actual_assertions'] = [a for m in mapped for a in m['actual_assertions']]
+            record['review_findings'] = sorted({f for m in mapped for f in m.get('review_findings',[])})
+            record['physical_hardware_dependency'] = True if any(m['physical_hardware_dependency'] is True for m in mapped) else None
+            record['certificate_fixture_dependency'] = sorted({m['certificate_fixture_dependency'] for m in mapped if m['certificate_fixture_dependency']})
+            record['false_pass_risk'] = sorted({s for m in mapped for s in m['false_pass_risk']})
+            record['false_fail_risk'] = sorted({s for m in mapped for s in m['false_fail_risk']})
+            record['pass_without_requirement_evaluation'] = True if mapped and all(m['pass_without_requirement_evaluation'] is True for m in mapped) else None
+            record['normative_scope'] = sorted({m.get('normative_scope','REVIEW_PENDING') for m in mapped})
+            if mapped and len({m['implementation_status'] for m in mapped}) == 1:
+                record['implementation_status'] = mapped[0]['implementation_status']
         for s in step_rows.values():
             steps.append(dict(database=rel, database_step=s, referenced_by_case=s['Id'] in used,
                               method_resolved=(s['Class'],s['Method']) in lookup))
