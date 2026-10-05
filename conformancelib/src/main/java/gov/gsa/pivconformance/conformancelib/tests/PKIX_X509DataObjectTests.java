@@ -1006,7 +1006,7 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
 
-		assertTrue(matchUuid(cert, guid), "Certificate doesn't contain " + Hex.encodeHexString(guid));
+		assertTrue(matchUuid(cert, guid), "PKIX.27: Certificate URI does not match CHUID GUID " + Hex.encodeHexString(guid));
 	}
 	
 	//No other name forms appear in the subjectAltName extension.
@@ -1040,7 +1040,7 @@ public class PKIX_X509DataObjectTests {
 		}
 
 		ArrayList<Integer> types = new ArrayList<Integer>(Arrays.asList(0, 6));
-		assertTrue(onlyMatchesTypes(cert, types) , "Certificate doesn't contain " + Hex.encodeHexString(guid));
+		assertTrue(onlyMatchesTypes(cert, types) , "PKIX.27: Certificate URI does not match CHUID GUID " + Hex.encodeHexString(guid));
     }
 	
 	private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {
@@ -1354,41 +1354,27 @@ public class PKIX_X509DataObjectTests {
 	 */
     
     private boolean matchUuid(X509Certificate certificate, byte[] identifier) {
-		boolean result = false;
-		byte[] sanEncoded = certificate.getExtensionValue(Extension.subjectAlternativeName.getId());
-
-		if (sanEncoded != null) {
-			ASN1Primitive sanBytes;
-			try {
-				sanBytes = JcaX509ExtensionUtils.parseExtensionValue(sanEncoded);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-			try {
-				GeneralNames sans = GeneralNames.getInstance(sanBytes);
-				GeneralName[] sanArray = sans.getNames();
-				for (GeneralName gn : sanArray) {
-					if (gn.getTagNo() == 6) {
-						DERIA5String encodedUuid = DERIA5String.getInstance(gn.getName());
-						byte[] urnUuid = encodedUuid.getString().getBytes();
-						byte[] uuid = Arrays.copyOfRange(urnUuid, "urn:uuid:".length(), urnUuid.length); 
-						s_logger.debug("UUID: {}", new String(uuid));
-						
-						byte[] test = new String(uuid).getBytes();
-						result = Arrays.equals(uuid, test);
-					}
-				}
-			} catch (Exception e) {
-				s_logger.error("Exception while matching UUID: ", e.getMessage());
-			}
-		} else {
-			String message = "Subject alternative name extension is null";
-			s_logger.error(message);
-		}
-
-		return result;
-	}
+        if (identifier == null || identifier.length != 16) return false;
+        // SP 800-73 Part 1 section 3.4.1(4), in both revisions 4 and 5.
+        // Comparing the canonical URN also enforces RFC 4122 section 3's widths
+        // without UUID.fromString accepting abbreviated groups.
+        java.nio.ByteBuffer bytes = java.nio.ByteBuffer.wrap(identifier);
+        String expected = "urn:uuid:" + new UUID(bytes.getLong(), bytes.getLong());
+        byte[] encoded = certificate.getExtensionValue(Extension.subjectAlternativeName.getId());
+        if (encoded == null) return false;
+        try {
+            GeneralNames names = GeneralNames.getInstance(JcaX509ExtensionUtils.parseExtensionValue(encoded));
+            for (GeneralName name : names.getNames()) {
+                if (name.getTagNo() == GeneralName.uniformResourceIdentifier
+                        && expected.equalsIgnoreCase(DERIA5String.getInstance(name.getName()).getString())) {
+                    return true; // Another SAN, including a holder UUID, cannot undo this match.
+                }
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            s_logger.debug("Unable to decode UUID subjectAltName", e);
+        }
+        return false;
+    }
     
 	/**
 	 * Attempts to match the FASC-N in the GeneralNames in the Subject Alternative Name extension in 

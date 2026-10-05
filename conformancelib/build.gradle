@@ -120,6 +120,20 @@ tasks.register('currentCandidateTest', Test) {
     jvmArgs '--add-exports=org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
 }
 
+['existingCctRegressionTest': false, 'existingCctRegressionBcTest': true].each { taskName, useBc ->
+    tasks.register(taskName, Test) {
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        description = 'Regressions through existing production DB rows, atoms and decoders.'
+        testClassesDirs = sourceSets.main.output.classesDirs
+        classpath = sourceSets.main.runtimeClasspath
+        systemProperty 'cct.repository', file('..').absolutePath
+        systemProperty 'cct.regressionBC', useBc.toString()
+        useJUnitPlatform { includeTags 'ExistingCctRegression' }
+        jvmArgs '--add-exports=org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
+    }
+    tasks.named('check') { dependsOn taskName }
+}
+
 tasks.register('candidateDatabase', Exec) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = 'Generate the explicitly incomplete current candidate database (requires Python 3).'

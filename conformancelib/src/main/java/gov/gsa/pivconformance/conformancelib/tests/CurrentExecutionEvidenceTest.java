@@ -43,6 +43,12 @@ public class CurrentExecutionEvidenceTest {
     }
 
     private static TestExecutionResult execute(Row row, Map<String,byte[]> objects) {
+        String method = row.className + "#" + row.method + "(java.lang.String, org.junit.jupiter.api.TestReporter)";
+        return execute(method, row.container, null, objects);
+    }
+
+    static TestExecutionResult execute(String method, String container, List<String> arguments,
+                                       Map<String,byte[]> objects) {
         CardSettingsSingleton card = CardSettingsSingleton.getInstance();
         ParameterProviderSingleton parameters = ParameterProviderSingleton.getInstance();
         card.reset(); parameters.reset();
@@ -59,12 +65,14 @@ public class CurrentExecutionEvidenceTest {
             @Override public MiddlewareStatus pivGetData(CardHandle handle, String oid, PIVDataObject object) {
                 byte[] raw = objects.get(oid);
                 if (raw == null) return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+                object.setOID(oid);
+                object.setContainerName(APDUConstants.getFileNameForOid(oid));
                 object.setBytes(raw.clone());
                 return MiddlewareStatus.PIV_OK;
             }
         });
-        String method = row.className + "#" + row.method + "(java.lang.String, org.junit.jupiter.api.TestReporter)";
-        parameters.addContainer(method, row.container);
+        parameters.addContainer(method, container);
+        parameters.addNamedParameter(method, arguments);
         List<TestExecutionResult> results = new ArrayList<>();
         try {
             LauncherFactory.create().execute(LauncherDiscoveryRequestBuilder.request()

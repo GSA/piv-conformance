@@ -22,7 +22,8 @@
     "false_pass_risk": [
       "matchUuid ignores the expected identifier and compares URI text with its own byte/string round trip; it does not prove CHUID equality"
     ],
-    "candidate_disposition": "73-UUID-CERT-LINK compares decoded UUID bytes with the CHUID GUID; other SAN obligations remain separate"
+    "candidate_disposition": "73-UUID-CERT-LINK compares decoded UUID bytes with the CHUID GUID; other SAN obligations remain separate",
+    "delivered_fix": "2026-10-05: original CCT atom fixed; ExistingCctRegressionTest exercises production database rows under SUN and BC. See reviewed-deltas.md B1/B2."
   },
   {
     "id": "H-EKU-CRITICAL",
@@ -97,7 +98,8 @@
     "false_fail_risk": [
       "RSA AlgorithmIdentifier NULL parameter check is inverted"
     ],
-    "candidate_disposition": "78-CERT-SIGNATURE accepts NULL or absent RSA SHA2 signature parameters per RFC4055 section 5. This is distinct from the 78-SPKI public-key encoding rule. Original atom remains unfixed; see reviewed-deltas.md B2."
+    "candidate_disposition": "78-CERT-SIGNATURE accepts NULL or absent RSA SHA2 signature parameters per RFC4055 section 5. This is distinct from the 78-SPKI public-key encoding rule. Original atom now fixed; see reviewed-deltas.md B2.",
+    "delivered_fix": "2026-10-05: original CCT atom fixed; ExistingCctRegressionTest exercises production database rows under SUN and BC. See reviewed-deltas.md B1/B2."
   },
   {
     "id": "H-CERT-POLICY",

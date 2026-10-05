@@ -58,7 +58,7 @@ The existing candidate implements the following selected assertions. This descri
 - RSA SHA256/SHA384, ECDSA SHA256/SHA384 and PSS AlgorithmIdentifier checks, with malformed parameters rejected. Issuer keys, key-use relationships and cryptographic signature verification remain separate gaps.
 - CHUID-to-certificate card UUID equality, and selected mandatory fingerprint CBEFF header fields, unsigned lengths, binary dates, creator/quality fields, FASC-N link and reserved bytes.
 
-Historical atoms and databases were preserved rather than relabeled as current. A fresh database is generated at `conformancelib/build/standards/CURRENT_2026_CANDIDATE.db`, using the historical schema with **35 candidate rows**, explicit PARTIAL SCOPE descriptions and `NOT_YET_READY` metadata. Repeated containers do not create new requirements. No dual-profile UI redesign was introduced.
+Historical databases retain their mappings. Two existing atoms now contain documented bug fixes (review entries B1/B2): UUID equality and RSA SHA-256 signature parameters. These requirements apply to both old and current standards; they need no revision switch. A fresh database is generated at `conformancelib/build/standards/CURRENT_2026_CANDIDATE.db`, using the historical schema with **35 candidate rows**, explicit PARTIAL SCOPE descriptions and `NOT_YET_READY` metadata. Repeated containers do not create new requirements. No dual-profile UI redesign was introduced.
 
 **The generated database is an execution/review artifact, not a complete card-verdict product.** Absent conditional objects abort in JUnit because applicability is unknown. The Swing listener now reports these candidate aborts as SKIP while preserving historical abort behavior. Legacy retired-key OID aliases still require reconciliation with the normative OIDs and wire-tag mapping.
 
@@ -83,10 +83,13 @@ There are **264 distinct deterministic synthetic inputs**: 167 data-model, 53 cr
 | Engineering: Conformancelib | 8 passed | Preserved engineering regression |
 | Engineering: Swing/#326 | 12 passed | Eight protected tests plus four candidate result-status regressions |
 | Current candidate | 466 passed | 264 direct inputs + 167 repeated through DB/JUnit/acquisition + 35 absence checks |
+| Existing CCT regression: SUN / BC | 36 passed per provider | Original production rows, parameter binding, atoms and cardlib decoding; B1/B2 |
 | Synthetic certificate evidence | 75 passed | Separate SUN/BC path/policy and malformed/boundary evidence |
 | Historical external certificates | 24 missing-file failures | Preserved unresolved original corpus lane |
 | Historical card-profile conformance | Not run | Not inferred from engineering tests |
 | Physical hardware/PIN | Not run | Separate qualification |
+
+The 72 existing-CCT regression invocations are separate from the candidate and engineering totals. Both provider tasks run as part of `conformancelib:check`; positive fixtures and intended failures are counted as successful regression tests.
 
 The protected engineering total is **462/462**, with four additional Swing status tests, separate from standards evidence. The 35 absence checks prove 12 required-object failures and 23 conditional-object aborts; these are successful evidence tests, not 35 card PASS verdicts.
 
@@ -122,6 +125,7 @@ python3 scripts/standards/generate_linked_vectors.py
 python3 scripts/standards/refresh_manifest.py
 (cd cardlib && ./gradlew install --offline)
 (cd conformancelib && ./gradlew install currentCandidateTest certificateFixtureTest --offline)
+# install/check includes existingCctRegressionTest and existingCctRegressionBcTest
 (cd tools/85b-swing-gui && ./gradlew test --offline)
 JAVA_HOME="$JAVA_HOME" python3 scripts/standards/generate_certificates.py
 # Expected nonzero until the original external corpus is resolved:

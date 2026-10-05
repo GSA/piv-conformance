@@ -77,6 +77,8 @@ lane_specs = [('engineering_cardlib','cardlib','test',446,0),('engineering_confo
               ('engineering_swing','tools/85b-swing-gui','test',12,0),
               ('current_candidate','conformancelib','currentCandidateTest',len(vectors)+len(read('data-model-vectors.json'))+db_rows,0),
               ('synthetic_certificates','conformancelib','certificateFixtureTest',75,0),
+              ('existing_cct_sun','conformancelib','existingCctRegressionTest',36,0),
+              ('existing_cct_bc','conformancelib','existingCctRegressionBcTest',36,0),
               ('historical_external_certificates','conformancelib','historicalCertificateFixtureTest',24,24)]
 for name,module,task,expected_tests,expected_failures in lane_specs:
     files=sorted((ROOT/module/'build/test-results'/task).glob('TEST-*.xml'))
@@ -99,6 +101,8 @@ for document in sorted({r['normative_document'] for r in rules.values()}):
 inputs=[ROOT/'standards/current-manifest.json',ROOT/'conformancelib/build.gradle']
 inputs+=sorted((ROOT/'conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/utilities').glob('Current*.java'))
 inputs+=sorted((ROOT/'conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests').glob('Current*.java'))
+inputs += [ROOT/'conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests'/name for name in
+           ('ExistingCctRegressionTest.java','PKIX_X509DataObjectTests.java','SP800_78_X509DataObjectTests.java')]
 metrics=dict(recorded_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),profile='CURRENT_2026_CANDIDATE',
     verdict='NOT_YET_READY',java_runtime=java.strip(),atomic_denominator=None,
     denominator_reason=manifest['denominator_status'],by_publication=by_publication,

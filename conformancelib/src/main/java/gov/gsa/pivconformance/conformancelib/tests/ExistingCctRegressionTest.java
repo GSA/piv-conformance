@@ -1,0 +1,158 @@
+package gov.gsa.pivconformance.conformancelib.tests;
+
+import gov.gsa.pivconformance.cardlib.card.client.*;
+import gov.gsa.pivconformance.conformancelib.configuration.*;
+import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.*;
+import org.junit.platform.engine.TestExecutionResult;
+import java.nio.ByteBuffer;
+import java.nio.file.*;
+import java.sql.*;
+import java.security.Security;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import java.util.*;
+import java.util.stream.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+/** Existing production rows -> TestCaseModel/TestStepModel -> argument provider ->
+ * JUnit atom -> AtomHelper -> actual cardlib decoder. Only card acquisition is simulated.
+ * Certificate field mutations isolate these checks; they do not prove signature validity.
+ */
+@Tag("ExistingCctRegression")
+public class ExistingCctRegressionTest {
+    private static byte[] chuid;
+    private static String cardUrn;
+    private static X509CertificateHolder certificate;
+    private static boolean addedProvider;
+
+    @BeforeAll static void fixtures() throws Exception {
+        // BC exposes encoded NULL parameters; SUN normalizes them to null.
+        if (Boolean.getBoolean("cct.regressionBC")) {
+            assertNull(Security.getProvider("BC"), "Run in an isolated test worker");
+            Security.insertProviderAt(new BouncyCastleProvider(), 1);
+            addedProvider = true;
+        }
+        Path root = Path.of(System.getProperty("cct.repository"));
+        Path golden = root.resolve("cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/"
+                + "gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/8 - CHUID Object");
+        chuid = APDUUtils.getTLV(APDUConstants.DATA, Files.readAllBytes(golden));
+        CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
+        decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+        decoded.setBytes(chuid);
+        assertTrue(decoded.decode(), "Existing golden CHUID must decode before testing UUID equality");
+        ByteBuffer guid = ByteBuffer.wrap(decoded.getgUID());
+        cardUrn = "urn:uuid:" + new UUID(guid.getLong(), guid.getLong());
+        try (var in = ExistingCctRegressionTest.class.getClassLoader().getResourceAsStream("standards/synthetic-certificates/policy-01.der")) {
+            assertNotNull(in);
+            certificate = new X509CertificateHolder(in.readAllBytes());
+        }
+    }
+
+    @AfterAll static void restoreProvider() { if (addedProvider) Security.removeProvider("BC"); }
+
+    static Stream<Arguments> uuidCases() {
+        return IntStream.of(369, 451).boxed().flatMap(row -> Stream.of(
+                "match", "uppercase", "mismatch", "missing", "bare", "short", "wrong-name-type",
+                "holder-before-card", "holder-after-card", "unrelated-uri-before-card")
+                .map(kind -> Arguments.of(row, kind)));
+    }
+
+    @ParameterizedTest(name="production row {0}: UUID {1}") @MethodSource("uuidCases")
+    void uuidThroughExistingAtom(int row, String kind) throws Exception {
+        GeneralName match = new GeneralName(GeneralName.uniformResourceIdentifier, cardUrn);
+        GeneralName holder = new GeneralName(GeneralName.uniformResourceIdentifier,
+                "urn:uuid:aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee");
+        GeneralName[] names = switch (kind) {
+            case "match" -> new GeneralName[]{match};
+            case "uppercase" -> new GeneralName[]{new GeneralName(6, cardUrn.toUpperCase(Locale.ROOT))};
+            case "mismatch" -> new GeneralName[]{holder};
+            case "missing" -> null;
+            case "bare" -> new GeneralName[]{new GeneralName(6, cardUrn.substring(9))};
+            case "short" -> new GeneralName[]{new GeneralName(6, "urn:uuid:1-2-3-4-5")};
+            case "wrong-name-type" -> new GeneralName[]{new GeneralName(GeneralName.dNSName, cardUrn)};
+            case "holder-before-card" -> new GeneralName[]{holder, match};
+            case "holder-after-card" -> new GeneralName[]{match, holder};
+            case "unrelated-uri-before-card" -> new GeneralName[]{new GeneralName(6, "https://example.invalid/"), match};
+            default -> throw new AssertionError(kind);
+        };
+        boolean pass = Set.of("match", "uppercase", "holder-before-card", "holder-after-card",
+                "unrelated-uri-before-card").contains(kind);
+        run(row, "PKIX_Test_27", encodedCertificate(names, certificate.getSignatureAlgorithm()),
+                pass, "PKIX.27:");
+    }
+
+    static Stream<Arguments> signatureCases() {
+        return IntStream.of(350, 383, 406, 429).boxed().flatMap(row ->
+                Stream.of("null", "absent", "integer", "octets").map(kind -> Arguments.of(row, kind)));
+    }
+
+    @ParameterizedTest(name="production row {0}: RSA parameters {1}") @MethodSource("signatureCases")
+    void signatureThroughExistingAtom(int row, String kind) throws Exception {
+        ASN1ObjectIdentifier rsaSha256 = new ASN1ObjectIdentifier("1.2.840.113549.1.1.11");
+        AlgorithmIdentifier algorithm = switch (kind) {
+            case "null" -> new AlgorithmIdentifier(rsaSha256, DERNull.INSTANCE);
+            case "absent" -> new AlgorithmIdentifier(rsaSha256);
+            case "integer" -> new AlgorithmIdentifier(rsaSha256, new ASN1Integer(0));
+            case "octets" -> new AlgorithmIdentifier(rsaSha256, new DEROctetString(new byte[0]));
+            default -> throw new AssertionError(kind);
+        };
+        run(row, "sp800_78_Test_3", encodedCertificate(null, algorithm),
+                kind.equals("null") || kind.equals("absent"), "SP800-78.3:");
+    }
+
+    private static byte[] encodedCertificate(GeneralName[] names, AlgorithmIdentifier algorithm) throws Exception {
+        var original = certificate.toASN1Structure();
+        ASN1Sequence tbs = ASN1Sequence.getInstance(original.getTBSCertificate().toASN1Primitive());
+        ASN1EncodableVector fields = new ASN1EncodableVector();
+        for (int i = 0; i < tbs.size(); i++) {
+            ASN1Encodable field = tbs.getObjectAt(i);
+            if (i == 2) field = algorithm; // v3 TBSCertificate.signature
+            if (field instanceof ASN1TaggedObject && ((ASN1TaggedObject) field).getTagNo() == 3) {
+                ExtensionsGenerator extensions = new ExtensionsGenerator();
+                for (ASN1ObjectIdentifier oid : certificate.getExtensions().getExtensionOIDs())
+                    if (!oid.equals(Extension.subjectAlternativeName)) extensions.addExtension(certificate.getExtension(oid));
+                if (names != null) extensions.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
+                field = new DERTaggedObject(true, 3, extensions.generate());
+            }
+            fields.add(field);
+        }
+        byte[] der = new DERSequence(new ASN1Encodable[]{new DERSequence(fields), algorithm,
+                original.getSignature()}).getEncoded();
+        return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, der), new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+    }
+
+    private static byte[] concat(byte[] a, byte[] b) {
+        byte[] result = Arrays.copyOf(a, a.length + b.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
+    }
+
+    private static void run(int id, String expectedMethod, byte[] raw, boolean pass, String failurePrefix) throws Exception {
+        Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata/PIV_Production_Cards.db");
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro")) {
+            TestCaseModel row = new TestCaseModel(new ConformanceTestDatabase(connection));
+            row.retrieveForId(id);
+            TestStepModel step = row.getSteps().stream().filter(s -> expectedMethod.equals(s.getTestMethodName()))
+                    .reduce((a,b) -> { throw new AssertionError("Duplicate database step"); }).orElseThrow();
+            var method = Arrays.stream(Class.forName(step.getTestClassName()).getDeclaredMethods())
+                    .filter(m -> m.getName().equals(step.getTestMethodName())).findFirst().orElseThrow();
+            String selector = step.getTestClassName() + "#" + method.getName() + "("
+                    + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ")";
+            Map<String,byte[]> objects = Map.of(APDUConstants.getStringForFieldNamed(row.getContainer()), raw,
+                    APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, chuid);
+            var result = CurrentExecutionEvidenceTest.execute(selector, row.getContainer(), step.getParameters(), objects);
+            assertEquals(pass ? TestExecutionResult.Status.SUCCESSFUL : TestExecutionResult.Status.FAILED,
+                    result.getStatus(), row.getIdentifier() + ": " + result);
+            if (!pass) {
+                Throwable failure = result.getThrowable().orElseThrow();
+                assertTrue(failure instanceof AssertionError, "Setup/decode errors do not prove the intended failure: " + failure);
+                assertTrue(failure.getMessage().startsWith(failurePrefix), "Wrong assertion: " + failure);
+            }
+        }
+    }
+}

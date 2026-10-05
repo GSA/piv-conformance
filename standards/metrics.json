@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-10-02T03:01:12.254859+00:00",
+  "recorded_utc": "2026-10-05T14:20:13.119396+00:00",
   "profile": "CURRENT_2026_CANDIDATE",
   "verdict": "NOT_YET_READY",
   "java_runtime": "openjdk 17.0.20.1 2026-08-18\nOpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)\nOpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)",
@@ -360,7 +360,7 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.tests.ValidatorTest.xml",
-          "sha256": "d3d158ce2f3a36c667aa7b8c842fe44960f057a4fc410aa4a1748abb7ae6260f"
+          "sha256": "540c3d2507800d59752e77e2111172f2720547d9c1c877f5b2489596cd7a7a85"
         }
       ]
     },
@@ -372,15 +372,15 @@
       "reports": [
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.utilities.TestRunLogControllerLifecycleTest.xml",
-          "sha256": "2e38292573be5937ffc6fe4deefe4e9edb30dd7a77fdecb55ee3aee34a46d941"
+          "sha256": "b9b82af7040600d95556b2d4ec62399f41c8efe7e4a48894a945d4336ddf5f7d"
         },
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.gui.GuiCandidateResultTest.xml",
-          "sha256": "97b35d6dc6cf16bc4dbb11f15a255ced23b07579e75d9d0bf2030f4a908b23a8"
+          "sha256": "f6ea1ca02a58bb92031b6c3f39bf191cce2f80a7bcd63a5f338acb0a69bf9ac3"
         },
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.gui.ReviewPackageBuilderTest.xml",
-          "sha256": "23f026d24f5adddef755885a40b281412dd45cb0034fd9643f3d768c3b85aed7"
+          "sha256": "6925531d864aec1c4421c0d5af1592434e00fe3960bc4017bebf25bfb8058606"
         }
       ]
     },
@@ -392,19 +392,19 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentCryptoEvidenceTest.xml",
-          "sha256": "eb4466a5ddda4b9d2dd21c0b696ef82a183c45baa42766a042fb959d36974b5e"
+          "sha256": "5cac01584982f471ab17377ca97e5c5f516c44710d23bbe923a6dc04e2320946"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentDataModelEvidenceTest.xml",
-          "sha256": "9ac89b0c1d1453b840b789fb0ccf2a876349489f9641aa879352171b69085c67"
+          "sha256": "0b73ee60d7a8e279292107bb0ae9464d7057402cdb6165074283b0cab1d61fc9"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentExecutionEvidenceTest.xml",
-          "sha256": "de7c2572f16997171c62356b006e5296bc3b89d0d98979412233408c95c2384c"
+          "sha256": "2e283d836e21f05b4ed1b91fa253f91045f6f4db234f385ca7bc95c936cbff47"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentLinkedEvidenceTest.xml",
-          "sha256": "8c806f76af8e86c2809d6d00789b86c8423b686595d67e9f009383bd8a0af504"
+          "sha256": "dc932d1d0bc9380aaebab9d48cd7cd4233ae2ecb5a1c65e7b518ec8888e57967"
         }
       ]
     },
@@ -416,7 +416,31 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/certificateFixtureTest/TEST-gov.gsa.pivconformance.conformancelib.tests.SyntheticCertificateEvidenceTest.xml",
-          "sha256": "8614e80529f97bc330713a0645a3e1b02915e3a3d68cf312e67fba9446ef16ad"
+          "sha256": "09422cb591a4eb427e6e49feb541b3e07d94ca42ab3893d801fc1a128cce49cf"
+        }
+      ]
+    },
+    "existing_cct_sun": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "conformancelib/build/test-results/existingCctRegressionTest/TEST-gov.gsa.pivconformance.conformancelib.tests.ExistingCctRegressionTest.xml",
+          "sha256": "a11b190b8e38fb0db2dd2792f5e0f7bb8599da2b938b74775afcf9bd2ee48ff1"
+        }
+      ]
+    },
+    "existing_cct_bc": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "reports": [
+        {
+          "path": "conformancelib/build/test-results/existingCctRegressionBcTest/TEST-gov.gsa.pivconformance.conformancelib.tests.ExistingCctRegressionTest.xml",
+          "sha256": "2040ebb634f81b7ab59585fc9d7a427d201e75d22f438deb60dc22458b69973f"
         }
       ]
     },
@@ -445,7 +469,7 @@
     },
     {
       "path": "conformancelib/build.gradle",
-      "sha256": "52c84e26818886849f62a253a78e63d130322e463b437c6eb981d46e558b7055"
+      "sha256": "a85d9090eedfb472ee8b88bc598db83d6240f27ff41a8f8063be28703fd562a7"
     },
     {
       "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/utilities/CurrentBiometrics.java",
@@ -477,17 +501,28 @@
     },
     {
       "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/CurrentExecutionEvidenceTest.java",
-      "sha256": "0f95a4f7ce823d9f942bbf998bbcb9be4ad1603426ee34cfa97d194bf5fcb40f"
+      "sha256": "b073a493f48f00992010d33c3c84d2345c8b4a9657d85a3caa50b1279080fff9"
     },
     {
       "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/CurrentLinkedEvidenceTest.java",
       "sha256": "155840e76884e8ae5dca7d19f1b848c5a611f70508222f686c4f60a3a8fc7d53"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/ExistingCctRegressionTest.java",
+      "sha256": "3b8f2aadc8d6d578078eff7b39ff77c4fa12850d4ef9770059fb3219afce964f"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/PKIX_X509DataObjectTests.java",
+      "sha256": "75e8c024f2fd4abd10825dc767ec7bf0eddbf40815bd81cf7f0f6adfbbae503b"
+    },
+    {
+      "path": "conformancelib/src/main/java/gov/gsa/pivconformance/conformancelib/tests/SP800_78_X509DataObjectTests.java",
+      "sha256": "c8eb64fa006ec2fa087216e66f21f2c528ac31f01fd09efd187880485c966a32"
     }
   ],
   "warnings": [
     "Rule groups, source locators, DB rows and JUnit invocations are different units",
     "Only the direct distinct-vector count is 264; entry-point tests repeat data vectors and separately check absence",
     "No complete atomic normative denominator or standards-coverage percentage is established"
-  ],
-  "delta_review": "2026-10-02: classification and manifest hash updated from reviewed-deltas.md; existing execution results retained, no test rerun. Full verify.py requires restoring Java 17."
+  ]
 }
