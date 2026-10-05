@@ -12,14 +12,16 @@ path = ROOT / 'standards/current-manifest.json'
 manifest = json.loads(path.read_text())
 vectors = [v for name in ('data-model', 'crypto', 'linked')
            for v in json.loads((ROOT / f'standards/{name}-vectors.json').read_text())]
-cases = json.loads((ROOT / 'standards/historical-cases.json').read_text())
+cases = json.loads((ROOT / 'build/standards/historical-cases.json').read_text())
 for rule in manifest['requirements']:
+    # Detailed database rows belong to the generated historical inventory.
+    rule.pop('affected_db_rows', None)
     if not rule.get('java_method'):
         # Missing fields stay explicitly unknown; an aggregate gap is not an atom.
         for field in ('java_class','java_method','container','table_or_row','normative_strength',
                       'document_revision','expected_result'):
             rule.setdefault(field,None)
-        for field in ('historical_cct_test_ids','affected_db_rows','fixture_ids','positive_vector',
+        for field in ('historical_cct_test_ids','fixture_ids','positive_vector',
                       'negative_vector','boundary_vector','malformed_vector'):
             rule.setdefault(field,[])
         rule.setdefault('applicability','Aggregate scope/gap record; atomic applicability review pending')
@@ -43,7 +45,6 @@ for rule in manifest['requirements']:
             if 'SP800_76' in i['java_class']}
         linked = [c for c in cases if any(i['java_method'] in methods for i in c['implementations'])]
         rule['historical_cct_test_ids'] = sorted({c['cct_test_id'] for c in linked})
-        rule['affected_db_rows'] = [dict(database=c['database'], row_id=c['database_row_id']) for c in linked]
         rule['historical_mapping_precision'] = 'Family association; not atomic behavior equivalence'
     if rule['rule_id'] == '73-UUID-CERT-LINK':
         rule['applicability'] = 'PIV Authentication and Card Authentication certificates; CHUID card UUID present'

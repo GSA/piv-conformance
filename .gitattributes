@@ -6,11 +6,5 @@
 # Empty hexadecimal inputs are intentional final TSV fields (a trailing tab).
 conformancelib/src/main/resources/standards/*.tsv whitespace=-blank-at-eol
 
-# Script-generated inventory snapshots are available for inspection but collapsed
-# by default in GitHub reviews; keep the maintained manifest and review notes visible.
-standards/historical-cases.json linguist-generated
-standards/historical-steps.json linguist-generated
-standards/historical-methods.json linguist-generated
-standards/source-locators.json linguist-generated
+# Generated historical inventories live in ignored build/standards.
 standards/certificate-corpus.json linguist-generated
-standards/nist-comparison.json linguist-generated

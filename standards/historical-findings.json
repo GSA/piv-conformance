@@ -81,7 +81,7 @@
     "java_methods": [
       "sp800_78_Test_1"
     ],
-    "implementation_status": "DESCRIPTION_CODE_MISMATCH",
+    "implementation_status": "REVIEW_REQUIRED",
     "false_fail_risk": [
       "EC curve identification depends on provider text and prime384v1 rather than named-curve OID; provider-specific false verdict needs a reproducer"
     ],

@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-10-05T14:20:13.119396+00:00",
+  "recorded_utc": "2026-10-05T14:21:51.389184+00:00",
   "profile": "CURRENT_2026_CANDIDATE",
   "verdict": "NOT_YET_READY",
   "java_runtime": "openjdk 17.0.20.1 2026-08-18\nOpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)\nOpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)",
@@ -465,7 +465,7 @@
   "evidence_inputs": [
     {
       "path": "standards/current-manifest.json",
-      "sha256": "d3384d669523991e5314ed97f63401eaf37d930b4928ae5ff8e03fc5d533eb87"
+      "sha256": "595afafe2b94c61e26cd17743659254fb1a597b2249f4000047288757c86280a"
     },
     {
       "path": "conformancelib/build.gradle",

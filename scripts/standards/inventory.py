@@ -13,7 +13,7 @@ import sqlite3
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / 'standards'
+OUT = ROOT / 'build' / 'standards'
 BASE = '90f754d785f7fe4ca9fb19e1c66102da0608447d'
 
 
@@ -51,7 +51,7 @@ def methods(path, source):
                 level += (structure[i] == '(') - (structure[i] == ')')
                 i += 1
             assertions.append(' '.join(body[a.start():i].split()))
-        state = 'PARTIAL' if assertions else 'PLACEHOLDER'
+        state = 'UNREVIEWED'  # Assertion counts do not establish semantic coverage.
         if re.fullmatch(r'\s*(?:return\s*;)?\s*', body): state = 'UNCONDITIONAL_PASS'
         if 'not implemented' in body: state = 'PLACEHOLDER'
         risks = []
@@ -73,6 +73,7 @@ def methods(path, source):
 
 
 def main():
+    OUT.mkdir(parents=True, exist_ok=True)
     paths = subprocess.check_output(['git', 'ls-tree', '-r', '--name-only', BASE,
                                     'conformancelib/src/main/java'], cwd=ROOT, text=True).splitlines()
     atoms = []
@@ -80,7 +81,7 @@ def main():
         if '/tests/' in path and path.endswith('.java'):
             atoms.extend(methods(Path(path), historical(path).decode()))
     lookup = {(m['java_class'],m['java_method']): m for m in atoms}
-    findings = json.loads((OUT/'historical-findings.json').read_text())
+    findings = json.loads((ROOT/'standards/historical-findings.json').read_text())
     for finding in findings:
         for atom in atoms:
             if atom['java_class'].endswith('.'+finding.get('java_class','')) and atom['java_method'] in finding.get('java_methods',[]):

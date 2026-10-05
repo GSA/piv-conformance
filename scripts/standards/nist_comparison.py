@@ -69,5 +69,6 @@ probe=ROOT/'standards/nist-uuid-probe.tsv'
 data['uuid_helper_probe']=dict(path=str(probe.relative_to(ROOT)),sha256=hashlib.sha256(probe.read_bytes()).hexdigest(),
     results=list(csv.DictReader(probe.open(),delimiter='\t')),generator='scripts/standards/NistUuidProbe.java',
     runtime='Java17 with original reference bytecode and BC1.66; only compareUuid(String,String) is invoked')
-(ROOT/'standards/nist-comparison.json').write_text(json.dumps(data,indent=2)+'\n')
+(ROOT/'build/standards').mkdir(parents=True, exist_ok=True)
+(ROOT/'build/standards/nist-comparison.json').write_text(json.dumps(data,indent=2)+'\n')
 print(len(rows),'historical reference rows;',len(differences),'reviewed behavioral differences')

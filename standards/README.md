@@ -27,7 +27,7 @@ Incorporated PKIX/crypto assertions identify RFC 5280, RFC 3279, RFC 4055, RFC 5
 
 ## Historical inventory and delta
 
-[historical-cases.json](historical-cases.json), [historical-steps.json](historical-steps.json) and [historical-methods.json](historical-methods.json) preserve the baseline database-to-code paths, source bodies and actual assertion calls. Unknown semantic bindings remain explicit. [historical-findings.json](historical-findings.json) records reviewed defects; [historical-summary.json](historical-summary.json) records totals.
+Run `python3 scripts/standards/inventory.py` to generate `build/standards/historical-{cases,steps,methods,summary}.json`. These ignored artifacts preserve baseline database-to-code paths, source bodies and assertion calls. [historical-findings.json](historical-findings.json) retains compact reviewed findings. Archive `build/standards/` with review evidence when needed; it is not part of the source diff.
 
 | Database | Rows | Executable rows | Outline rows | Enabled rows | Referenced methods |
 |---|---:|---:|---:|---:|---:|
@@ -36,7 +36,7 @@ Incorporated PKIX/crypto assertions identify RFC 5280, RFC 3279, RFC 4055, RFC 5
 | PIV-I Production | 489 | 371 | 118 | 489 | 135 |
 | PIV-I ICAM | 489 | 371 | 118 | 274 | 135 |
 
-There are 187 indexed source methods, including 140 unique database-referenced methods. All referenced methods resolve. The generated index labels 176 methods partial, five description/code mismatches, five placeholders and one unconditional pass. Its default PARTIAL label is an assertion-count heuristic, not a reviewed semantic finding; these labels must not be used to assess how far the historical CCT was from conformance. Source-only quality is Q0=6 and Q1=181; it is not fixture-proven standards coverage.
+There are 187 indexed source methods, including 140 unique database-referenced methods. All referenced methods resolve. The generator now defaults to UNREVIEWED instead of inferring PARTIAL coverage from assertion counts. Only explicitly reviewed findings override that label. Generated summary counts are source-index metadata, not fixture-proven standards coverage.
 
 Known problems include a UUID helper that ignores its expected identifier, an unconditional placeholder, BER/APDU proxy assertions, optional early returns, conditional biometric assertion guards, EKU presence without criticality, provider-string curve matching and an inverted RSA signature NULL-parameter assertion. The old on-card RSA2048 restriction follows the old standard; its relaxation is a revision change, not an old-standard defect. Full assertion-dominance and semantic review remains incomplete.
 
@@ -73,7 +73,7 @@ Historical databases retain their mappings. Two existing atoms now contain docum
 | SP 800-76-2 | 1 | 1 | Unresolved |
 | FIPS 201-3 | 0 direct groups; selected parent mappings in reviewed delta list | 2 | Unresolved |
 
-One additional record marks Part 3 out of scope. The **28 group/gap records are not a denominator**. Their quality distribution is Q0=10, Q1=0, Q2=1, Q3=17, Q4=0, Q5=0. Boundary and malformed evidence exists, but comprehensive atomic coverage and independent validation are not established. [source-locators.json](source-locators.json) contains 1318 modal-text locators for audit; those are not deduplicated requirements.
+One additional record marks Part 3 out of scope. The **28 group/gap records are not a denominator**. Their quality distribution is Q0=10, Q1=0, Q2=1, Q3=17, Q4=0, Q5=0. Boundary and malformed evidence exists, but comprehensive atomic coverage and independent validation are not established. The former modal-text locator dump was removed: it was an unreviewed text index, not a requirement inventory. Final-publication section references are retained in the reviewed list and manifest.
 
 There are **264 distinct deterministic synthetic inputs**: 167 data-model, 53 crypto and 44 linkage/header vectors. Expected outcomes are 63 passes and 201 intended failures. Input-kind counts are 29 positive, 86 negative, 87 boundary, 52 malformed and 10 conditional; these labels and outcome counts are different dimensions. No real cardholder or biometric data is used. Structural fixture payloads are deliberately placeholders and do not prove entire credentials valid.
 
@@ -99,7 +99,7 @@ The protected engineering total is **462/462**, with four additional Swing statu
 
 The 17-file synthetic public corpus is generated with a documented public seed under Java17/BC1.66; no private keys are written. Regeneration matches every committed byte. SUN and BC validate at fixed `2026-09-30T12:00:00Z`. Tests cover 12 policy-positive paths per provider, wrong/missing policies, validity boundaries, expiration, bad signatures, malformed DER and fixture hashes. Equivalence is limited to generic path/policy intention; original federal chains, policies, AIA and revocation are not reproduced. Synthetic fixtures have no network locations; the generic builder API is not a network sandbox for arbitrary future inputs.
 
-[nist-comparison.json](nist-comparison.json) records NIST PIV Test Runner 5.0.1 (20200212-0308), source/bytecode hashes and 140 historical reference rows. Of these, 87 are different scope. The prior historical crosswalk identifies 37 overlaps (including two with placeholders), seven placeholder-only and nine unimplemented data-model entries; these are not current behavioral equivalence counts.
+The generated `build/standards/nist-comparison.json` artifact records NIST PIV Test Runner 5.0.1 (20200212-0308), source/bytecode hashes and 140 historical reference rows. Of these, 87 are different scope. The prior historical crosswalk identifies 37 overlaps (including two with placeholders), seven placeholder-only and nine unimplemented data-model entries; these are not current behavioral equivalence counts.
 
 Six reviewed differences cover RSA3072, RSA SHA384, PSS SHA384, historical SHA1 cutoff, the old CCT UUID comparison defect and UUID encoding strictness. Four synthetic inputs were executed against the original runner's pure UUID comparison helper: it accepts no-hyphen and bare UUID forms that the candidate rejects. The full NIST runner was not executed. Complete comparison of the 53 data-model rows remains unfinished. No reference implementation source was copied into candidate assertions.
 
@@ -135,3 +135,5 @@ git diff --check
 ```
 
 `currentCandidateTest` automatically regenerates the candidate DB. Verification checks preserved hashes, fixture bytes, rule-specific failure links and lane counts. It requires the historical lane's failures to be the documented missing-file failures. The local NIST comparison additionally requires the separately held reference analysis tree; `nist_comparison.py` and `NistUuidProbe.java` document that path-independent workflow. Release-search metadata and asset hashes are preserved; downloaded archives are not committed.
+
+For the optional reference-runner artifact, run `python3 scripts/standards/nist_comparison.py "/path/to/PIV Project Central"` against the separately held research tree. The generated inventory and comparison files are intentionally excluded from Git; source hashes and review findings remain available.
