@@ -6,7 +6,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -843,41 +842,13 @@ public class Validator {
         // Use the scheme to switch between HTTPS and FILE protocol
         if (caPathString != null && caPathString.toLowerCase().startsWith("https:")) {
             try {
-                //setMonitorUrl(new URL(caPathString));
-                TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-                    // Stubs to accept all offered certs
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }};
-                // Install the all-trusting trust manager
-                final SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                // Create all-trusting host name verifier
-                HostnameVerifier allHostsValid = new HostnameVerifier() {
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
-                };
-
-                HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+                // Use the JVM's configured trust store and HTTPS hostname validation.
+                // Never change global TLS defaults while retrieving CA material.
                 URLConnection con = new URL(caPathString).openConnection();
-                byte[] buf = con.getInputStream().readAllBytes();
-                OutputStream outStream = new FileOutputStream(v_caFileName);
-                outStream.write(buf, 0, buf.length);
-                outStream.flush();
-                outStream.close();
-            } catch (NoSuchAlgorithmException | KeyManagementException e) {
-                String msg = "Crypto failure connecting to " + caPathString + ": " + e.getMessage();
-                s_logger.error(msg);
-                throw new ConformanceTestException(msg);
+                try (InputStream input = con.getInputStream();
+                     OutputStream output = new FileOutputStream(v_caFileName)) {
+                    input.transferTo(output);
+                }
             } catch (Exception e) {
                 String msg = "IO problem connecting to " + caPathString + ": " + e.getMessage();
                 s_logger.error(msg);
