@@ -8,6 +8,8 @@ Normative change and implementation quality are separate questions. An existing 
 
 ## Sources and applicability
 
+**Original testing guidance:** SP 800-85B, specifically the August 2014 draft SP 800-85B-4 linked by the repository README. The profile workbooks are described as 85B requirements, and production SQL retains 85B case identifiers. [NIST discontinued the draft in March 2023](https://csrc.nist.gov/pubs/sp/800/85/b/4/ipd). This is provenance; final supporting requirements below control changed behavior. Exact per-case historical coverage still needs semantic review. The [active plan](../CCT_TEST_MODERNIZATION_PLAN.md) now places that baseline review before further implementation; this 18-group list is not the full baseline.
+
 Section and table references below use these editions, including the footnotes:
 
 - [73-4, Part 1 (2015)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73-4.pdf) → [73-5, Part 1 (final July 2024)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf).
@@ -96,4 +98,4 @@ At audit start, compared with the reviewed foundation, the standards diff had 60
 
 Fresh Java 17 confidence run: Cardlib 446, Conformancelib 11, Swing 12, original-path SUN/BC 36 each, candidate 466 and synthetic certificate 75: **1,082 passing test invocations**, zero failures/skips in those suites. This is regression evidence, not 1,082 distinct requirements. Historical external certificate recovery and physical-card/PIN qualification remain unresolved. The audit is a self-review, not independent certification.
 
-Confidence is high in the three bounded fixes (UUID equality, RSA NULL handling, HTTPS trust/hostname validation) because failures were reproduced and corrected through the affected paths. Confidence in complete standards coverage or the necessity of the parallel candidate architecture is insufficient for submission. Next work should consolidate existing paths and remove peripheral scope, not expand the candidate framework. No new runtime files were introduced by this audit.
+Confidence is high in the three bounded fixes (UUID equality, RSA NULL handling, HTTPS trust/hostname validation) because failures were reproduced and corrected through the affected paths. Confidence in complete standards coverage or the necessity of the parallel candidate architecture is insufficient for submission. Next work should verify the original 85B case lineage and final-requirement applicability, then consolidate existing paths and remove peripheral scope as described in the active plan. Do not expand the candidate framework. No new runtime files were introduced by this audit.

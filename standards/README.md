@@ -2,7 +2,7 @@
 
 **NOT YET READY.** This profile provides selected PIV data-model assertions and reproducible evidence. It does not provide a complete current-standard card verdict. The complete atomic requirement denominator, semantic historical audit, CMS/integrity checks, certificate profiles, biometric payload checks and conditional applicability remain unfinished. See [readiness.json](readiness.json) for specific technical gaps.
 
-**Start with [reviewed-deltas.md](reviewed-deltas.md), including the 2026-10-06 confidence audit.** It separates actual revision changes, existing bugs, missing evidence and unchanged requirements, and maps applicable FIPS 201-3 parents. It supersedes earlier broad delta labels and directs the reduction of this package.
+**Start with the [active plan and checkpoint](../CCT_TEST_MODERNIZATION_PLAN.md), then [reviewed-deltas.md](reviewed-deltas.md), including the 2026-10-06 confidence audit.** It separates actual revision changes, existing bugs, missing evidence and unchanged requirements, and maps applicable FIPS 201-3 parents. It supersedes earlier broad delta labels and directs the reduction of this package.
 
 This directory is maintained product traceability. Counts below describe this snapshot, not percentages of NIST conformance. Final publications control behavior; reference-runner behavior and SP 800-85B methodology do not override them. Draft SP 800-85B-4 was discontinued and is historical provenance only. No draft SP 800-73-6 or SP 800-78-6 requirement is used as a gate.
 
