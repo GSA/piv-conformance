@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-10-05T14:21:51.389184+00:00",
+  "recorded_utc": "2026-10-06T14:15:23.892542+00:00",
   "profile": "CURRENT_2026_CANDIDATE",
   "verdict": "NOT_YET_READY",
   "java_runtime": "openjdk 17.0.20.1 2026-08-18\nOpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)\nOpenJDK 64-Bit Server VM Temurin-17.0.20.1+1 (build 17.0.20.1+1, mixed mode, sharing)",
@@ -353,14 +353,18 @@
       ]
     },
     "engineering_conformance": {
-      "tests": 8,
+      "tests": 11,
       "failures": 0,
       "errors": 0,
       "skipped": 0,
       "reports": [
         {
           "path": "conformancelib/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.tests.ValidatorTest.xml",
-          "sha256": "540c3d2507800d59752e77e2111172f2720547d9c1c877f5b2489596cd7a7a85"
+          "sha256": "f98c36b685e84b601d6b65abc27e98c95c647833592bcf91cb325c0c517aae2f"
+        },
+        {
+          "path": "conformancelib/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.tests.ValidatorTlsTest.xml",
+          "sha256": "b777f847b76bacef001c2eb9ea48726e9f1da3946622a585eddfa7a9dde47916"
         }
       ]
     },
@@ -372,15 +376,15 @@
       "reports": [
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.conformancelib.utilities.TestRunLogControllerLifecycleTest.xml",
-          "sha256": "b9b82af7040600d95556b2d4ec62399f41c8efe7e4a48894a945d4336ddf5f7d"
+          "sha256": "a4b0186c515377a5c9a41070eecbc9a82f842737b2b1f3fb03911b68aac156a5"
         },
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.gui.GuiCandidateResultTest.xml",
-          "sha256": "f6ea1ca02a58bb92031b6c3f39bf191cce2f80a7bcd63a5f338acb0a69bf9ac3"
+          "sha256": "5d6d45bd338fa6a4eb18a071cbb38367c78b045e2c203881e3038a509eb34615"
         },
         {
           "path": "tools/85b-swing-gui/build/test-results/test/TEST-gov.gsa.pivconformance.gui.ReviewPackageBuilderTest.xml",
-          "sha256": "6925531d864aec1c4421c0d5af1592434e00fe3960bc4017bebf25bfb8058606"
+          "sha256": "fdedabd23b8674a9cb1011f56a119b0385a0833d36c8b20834e2d5cd2a4324f2"
         }
       ]
     },
@@ -392,19 +396,19 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentCryptoEvidenceTest.xml",
-          "sha256": "5cac01584982f471ab17377ca97e5c5f516c44710d23bbe923a6dc04e2320946"
+          "sha256": "6a586c71f076567acb6f60d056db2cb8161bdad0e718735cf12a56f17795ea64"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentDataModelEvidenceTest.xml",
-          "sha256": "0b73ee60d7a8e279292107bb0ae9464d7057402cdb6165074283b0cab1d61fc9"
+          "sha256": "56b883f1596edc1387c8505cc4ec845f9ec9f20109133a154cfe534c12548348"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentExecutionEvidenceTest.xml",
-          "sha256": "2e283d836e21f05b4ed1b91fa253f91045f6f4db234f385ca7bc95c936cbff47"
+          "sha256": "30facbde0974175d63eb8e1e539c0a069d484335194198af3bc5e6209fa67285"
         },
         {
           "path": "conformancelib/build/test-results/currentCandidateTest/TEST-gov.gsa.pivconformance.conformancelib.tests.CurrentLinkedEvidenceTest.xml",
-          "sha256": "dc932d1d0bc9380aaebab9d48cd7cd4233ae2ecb5a1c65e7b518ec8888e57967"
+          "sha256": "99f7028386e8010bb9fb797e926348e2e922b83de038e4572d7844ec3c8ac0d8"
         }
       ]
     },
@@ -416,7 +420,7 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/certificateFixtureTest/TEST-gov.gsa.pivconformance.conformancelib.tests.SyntheticCertificateEvidenceTest.xml",
-          "sha256": "09422cb591a4eb427e6e49feb541b3e07d94ca42ab3893d801fc1a128cce49cf"
+          "sha256": "87972fe780bf97c2d046a04a888db3024992b790d8a55693981359b3ffa43052"
         }
       ]
     },
@@ -428,7 +432,7 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/existingCctRegressionTest/TEST-gov.gsa.pivconformance.conformancelib.tests.ExistingCctRegressionTest.xml",
-          "sha256": "a11b190b8e38fb0db2dd2792f5e0f7bb8599da2b938b74775afcf9bd2ee48ff1"
+          "sha256": "35725d0d5f2206d3d4fcf0b757f1fc6d71d125ef7c78910c40a32fad76eaf15a"
         }
       ]
     },
@@ -440,7 +444,7 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/existingCctRegressionBcTest/TEST-gov.gsa.pivconformance.conformancelib.tests.ExistingCctRegressionTest.xml",
-          "sha256": "2040ebb634f81b7ab59585fc9d7a427d201e75d22f438deb60dc22458b69973f"
+          "sha256": "7a9cb67e9846679f7d4176513108f099ea8647acb4725511671a97689fa355b4"
         }
       ]
     },
@@ -452,7 +456,7 @@
       "reports": [
         {
           "path": "conformancelib/build/test-results/historicalCertificateFixtureTest/TEST-gov.gsa.pivconformance.conformancelib.tests.ValidatorTest.xml",
-          "sha256": "39e65cc54a1ae8fa64741821670013641e7002426e70f81450da37ab37c24235"
+          "sha256": "ab9a93d5fc9812e29cee18ba582d160ee66fd70866c72a5cac3c59f648e0812b"
         }
       ]
     }
@@ -461,7 +465,7 @@
   "physical_hardware": "NOT_RUN",
   "piv_i_current_applicability": "UNRESOLVED; historical databases preserved",
   "protected_databases_and_fixture_manifest": "UNCHANGED",
-  "packaging_files": "UNCHANGED",
+  "packaging_files": "UNCHANGED relative to reviewed engineering_pr_head",
   "evidence_inputs": [
     {
       "path": "standards/current-manifest.json",

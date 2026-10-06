@@ -2,7 +2,7 @@
 
 **NOT YET READY.** This profile provides selected PIV data-model assertions and reproducible evidence. It does not provide a complete current-standard card verdict. The complete atomic requirement denominator, semantic historical audit, CMS/integrity checks, certificate profiles, biometric payload checks and conditional applicability remain unfinished. See [readiness.json](readiness.json) for specific technical gaps.
 
-**Start with [reviewed-deltas.md](reviewed-deltas.md).** It separates actual revision changes, existing bugs, missing evidence and unchanged requirements, and maps applicable FIPS 201-3 parents. It supersedes earlier broad delta labels and directs the reduction of this package.
+**Start with [reviewed-deltas.md](reviewed-deltas.md), including the 2026-10-06 confidence audit.** It separates actual revision changes, existing bugs, missing evidence and unchanged requirements, and maps applicable FIPS 201-3 parents. It supersedes earlier broad delta labels and directs the reduction of this package.
 
 This directory is maintained product traceability. Counts below describe this snapshot, not percentages of NIST conformance. Final publications control behavior; reference-runner behavior and SP 800-85B methodology do not override them. Draft SP 800-85B-4 was discontinued and is historical provenance only. No draft SP 800-73-6 or SP 800-78-6 requirement is used as a gate.
 
@@ -10,7 +10,7 @@ This directory is maintained product traceability. Counts below describe this sn
 
 The protected starting commit is `90f754d785f7fe4ca9fb19e1c66102da0608447d`, initially on `modernization/01-hermetic-test-baseline`. The local safety ref is `safety/pre-nist-2026-09-30`; standards work is on `feature/nist-current-standards-candidate`. The frozen engineering baseline tag is `cct-modernization-baseline-2026-09-11`. [baseline.json](baseline.json) records versions, hashes, the four commits above that tag, original test results and the separate packaging commit.
 
-Java 17, Gradle 8.14.5, BC 1.66 and build.version 1.0.7 are preserved. All four production databases, the historical parser-fixture manifest and protected packaging files are unchanged. Standards commits remain separate from Windows packaging. The candidate is published as [PR #328](https://github.com/GSA/piv-conformance/pull/328), based on the separate [engineering PR #329](https://github.com/GSA/piv-conformance/pull/329). It is being narrowed before external submission.
+Java 17, Gradle 8.14.5, BC 1.66 and build.version 1.0.7 are preserved. All four production databases and the historical parser-fixture manifest are unchanged. Standards work preserves packaging relative to the reviewed foundation commit; that foundation separately fixes TLS validation in Validator.java. Standards commits remain separate from Windows packaging. The candidate is published as [PR #328](https://github.com/GSA/piv-conformance/pull/328), based on the separate [engineering PR #329](https://github.com/GSA/piv-conformance/pull/329). It is being narrowed before external submission.
 
 The primary target is the PIV data model in SP 800-73-5 Part 1. Selected SP 800-78-5 active-key assertions use the **through-2030** column. They do not apply active-key restrictions to archived/retired signatures. SP 800-76-2 supplies selected fingerprint CBEFF fields. The reviewed delta list maps selected FIPS 201-3 requirements to their supporting SP checks; full cross-cutting applicability remains incomplete. PIV-I databases retain historical behavior; no current PIV-I verdict is offered.
 
@@ -80,7 +80,7 @@ There are **264 distinct deterministic synthetic inputs**: 167 data-model, 53 cr
 | Lane | Result | Meaning |
 |---|---:|---|
 | Engineering: Cardlib | 446 passed | Preserved engineering regression |
-| Engineering: Conformancelib | 8 passed | Preserved engineering regression |
+| Engineering: Conformancelib | 11 passed | Eight original engineering tests plus three TLS security regressions |
 | Engineering: Swing/#326 | 12 passed | Eight protected tests plus four candidate result-status regressions |
 | Current candidate | 466 passed | 264 direct inputs + 167 repeated through DB/JUnit/acquisition + 35 absence checks |
 | Existing CCT regression: SUN / BC | 36 passed per provider | Original production rows, parameter binding, atoms and cardlib decoding; B1/B2 |
@@ -91,7 +91,7 @@ There are **264 distinct deterministic synthetic inputs**: 167 data-model, 53 cr
 
 The 72 existing-CCT regression invocations are separate from the candidate and engineering totals. Both provider tasks run as part of `conformancelib:check`; positive fixtures and intended failures are counted as successful regression tests.
 
-The protected engineering total is **462/462**, with four additional Swing status tests, separate from standards evidence. The 35 absence checks prove 12 required-object failures and 23 conditional-object aborts; these are successful evidence tests, not 35 card PASS verdicts.
+The protected engineering total is **462/462**, with four additional Swing status tests and three TLS security regressions, separate from standards evidence. The 35 absence checks prove 12 required-object failures and 23 conditional-object aborts; these are successful evidence tests, not 35 card PASS verdicts.
 
 ## Certificate recovery and reference comparison
 

@@ -76,5 +76,7 @@
     "tools/85b-swing-gui/src/main/java/gov/gsa/pivconformance/gui/OpenDefaultPIVIDatabaseAction.java"
   ],
   "hardware_tests": "NOT RUN",
-  "push": "NOT AUTHORIZED"
+  "push": "NOT AUTHORIZED",
+  "engineering_pr_head": "9a30742576ed9ac2bfeb58725d3939f0d9ad6781",
+  "engineering_update": "PR #329 TLS security fix, 2026-10-05. Packaging isolation is compared against this reviewed foundation commit; original database and fixture hashes remain pinned to initial_head."
 }
