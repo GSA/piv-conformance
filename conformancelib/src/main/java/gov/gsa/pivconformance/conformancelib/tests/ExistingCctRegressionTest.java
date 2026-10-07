@@ -3,8 +3,12 @@ package gov.gsa.pivconformance.conformancelib.tests;
 import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.*;
 import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
@@ -18,6 +22,12 @@ import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.sql.*;
 import java.security.Security;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.RSAKeyGenParameterSpec;
+import java.math.BigInteger;
+import java.security.cert.X509Certificate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.util.*;
 import java.util.stream.*;
@@ -25,13 +35,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Existing production rows -> TestCaseModel/TestStepModel -> argument provider ->
  * JUnit atom -> AtomHelper -> actual cardlib decoder. Only card acquisition is simulated.
- * Certificate field mutations isolate these checks; they do not prove signature validity.
+ * Certificate field mutations isolate the legacy checks. Current key-profile
+ * evidence uses valid self-signed certificates generated for each key boundary.
  */
 @Tag("ExistingCctRegression")
 public class ExistingCctRegressionTest {
     private static byte[] chuid;
     private static String cardUrn;
     private static X509CertificateHolder certificate;
+    private static final Map<String, byte[]> keyProfileCertificates = new HashMap<>();
     private static boolean addedProvider;
 
     @BeforeAll static void fixtures() throws Exception {
@@ -55,6 +67,13 @@ public class ExistingCctRegressionTest {
             certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
                     .generateCertificate(in).getEncoded());
         }
+        keyProfileCertificates.put("rsa2048", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4)));
+        keyProfileCertificates.put("rsa3072", currentCertificate(rsa(3072, RSAKeyGenParameterSpec.F4)));
+        keyProfileCertificates.put("rsa1024", currentCertificate(rsa(1024, RSAKeyGenParameterSpec.F4)));
+        keyProfileCertificates.put("rsaExponent3", currentCertificate(rsa(2048, BigInteger.valueOf(3))));
+        keyProfileCertificates.put("p256", currentCertificate(ec("secp256r1")));
+        keyProfileCertificates.put("p384", currentCertificate(ec("secp384r1")));
+        keyProfileCertificates.put("p521", currentCertificate(ec("secp521r1")));
     }
 
     @AfterAll static void restoreProvider() { if (addedProvider) Security.removeProvider("BC"); }
@@ -107,6 +126,48 @@ public class ExistingCctRegressionTest {
         };
         run(row, "sp800_78_Test_3", encodedCertificate(null, algorithm),
                 kind.equals("null") || kind.equals("absent"), "SP800-78.3:");
+    }
+
+    static Stream<Arguments> currentKeyProfileCases() {
+        return IntStream.of(351, 352, 384, 385, 407, 408, 430, 431).boxed().flatMap(row -> Stream.of(
+                "rsa2048", "rsa3072", "p256", "p384", "rsa1024", "rsaExponent3", "p521")
+                .map(kind -> Arguments.of(row, kind)));
+    }
+
+    @ParameterizedTest(name="production row {0}: current PIV key {1}")
+    @MethodSource("currentKeyProfileCases")
+    void currentKeyProfileThroughExistingAtom(int row, String kind) throws Exception {
+        boolean pass = Set.of("rsa2048", "rsa3072", "p256", "p384").contains(kind);
+        run(row, "sp800_78_Test_1_current", keyProfileCertificates.get(kind),
+                pass, "SP800-78.1:");
+    }
+
+    private static KeyPair rsa(int bits, BigInteger exponent) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(new RSAKeyGenParameterSpec(bits, exponent));
+        return generator.generateKeyPair();
+    }
+
+    private static KeyPair ec(String curve) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
+        generator.initialize(new ECGenParameterSpec(curve));
+        return generator.generateKeyPair();
+    }
+
+    private static byte[] currentCertificate(KeyPair keyPair) throws Exception {
+        X500Name name = new X500Name("CN=CCT SP800-78-5 regression");
+        java.util.Date notBefore = new java.util.Date(1704067200000L);
+        java.util.Date notAfter = new java.util.Date(1893456000000L);
+        String signature = keyPair.getPrivate().getAlgorithm().equals("RSA")
+                ? "SHA256withRSA" : "SHA384withECDSA";
+        var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(
+                keyProfileCertificates.size() + 1L), notBefore, notAfter, name, keyPair.getPublic());
+        X509Certificate generated = new JcaX509CertificateConverter().getCertificate(
+                builder.build(new JcaContentSignerBuilder(signature).build(keyPair.getPrivate())));
+        generated.verify(keyPair.getPublic());
+        return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, generated.getEncoded()),
+                new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
     }
 
     private static byte[] encodedCertificate(GeneralName[] names, AlgorithmIdentifier algorithm) throws Exception {

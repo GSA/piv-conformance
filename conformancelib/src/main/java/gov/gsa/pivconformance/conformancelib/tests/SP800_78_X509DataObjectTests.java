@@ -21,6 +21,7 @@ import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.RSASSAPSSparams;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.X9ECParameters;
@@ -223,6 +224,55 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			// Let's for now assume this is a content signing cert. 
 			// TODO: Make special block to handle content signing cert and SMCS (CVC)
 		}
+    }
+
+    /**
+     * Validates active PIV certificate public keys against SP 800-78-5 Section
+     * 3.1, Table 1 (requirements through 2030). FIPS 201-3 Sections 4.2.2.1
+     * through 4.2.2.5 define the corresponding PIV key uses. The legacy atom
+     * above remains mapped to PIV-I and content-signing cases whose applicability
+     * has not been changed by this PIV profile update.
+     */
+    @DisplayName("SP800-78.1 current PIV test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_78_Test_1_current(String oid, TestReporter reporter) {
+        Set<String> activePivCertificateOids = Set.of(
+                APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID,
+                APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID,
+                APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID,
+                APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+        assertTrue(activePivCertificateOids.contains(oid),
+                "SP800-78.1: unsupported container for the current PIV key profile: " + oid);
+
+        PIVDataObject object = AtomHelper.getDataObject(oid);
+        X509Certificate certificate = AtomHelper.getCertificateForContainer(object);
+        assertNotNull(certificate, "SP800-78.1: certificate could not be decoded");
+        PublicKey publicKey = certificate.getPublicKey();
+        assertNotNull(publicKey, "SP800-78.1: certificate public key is missing");
+
+        if (publicKey instanceof RSAPublicKey) {
+            RSAPublicKey rsa = (RSAPublicKey) publicKey;
+            int modulusBits = rsa.getModulus().bitLength();
+            assertTrue(modulusBits == 2048 || modulusBits == 3072,
+                    "SP800-78.1: RSA modulus must be 2048 or 3072 bits through 2030; found "
+                            + modulusBits);
+            assertEquals(java.math.BigInteger.valueOf(65537), rsa.getPublicExponent(),
+                    "SP800-78.1: RSA public exponent must be 65537");
+            return;
+        }
+
+        if (publicKey instanceof ECPublicKey) {
+            AlgorithmIdentifier algorithm = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded()).getAlgorithm();
+            assertEquals("1.2.840.10045.2.1", algorithm.getAlgorithm().getId(),
+                    "SP800-78.1: EC public key algorithm identifier must be id-ecPublicKey");
+            ASN1ObjectIdentifier curve = ASN1ObjectIdentifier.getInstance(algorithm.getParameters());
+            assertTrue(curve.getId().equals("1.2.840.10045.3.1.7") || curve.getId().equals("1.3.132.0.34"),
+                    "SP800-78.1: EC key must use named curve P-256 or P-384; found " + curve.getId());
+            return;
+        }
+
+        fail("SP800-78.1: public key algorithm must be RSA or EC; found " + publicKey.getAlgorithm());
     }
 
     //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
