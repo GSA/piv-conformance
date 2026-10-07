@@ -76,7 +76,14 @@ public class ExistingCctRegressionTest {
         }
         keyProfileCertificates.put("rsa2048", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4)));
         keyProfileCertificates.put("rsa3072", currentCertificate(rsa(3072, RSAKeyGenParameterSpec.F4)));
-        keyProfileCertificates.put("rsa1024", currentCertificate(rsa(1024, RSAKeyGenParameterSpec.F4)));
+        // A fixed, self-signed weak-key certificate is the intentional negative
+        // input; the regression suite never generates or uses a weak private key.
+        byte[] weakDer = Files.readAllBytes(root.resolve("conformancelib/testdata/weak-rsa1024-test-only.der"));
+        X509Certificate weakCertificate = (X509Certificate) CertificateFactory.getInstance("X.509")
+                .generateCertificate(new java.io.ByteArrayInputStream(weakDer));
+        weakCertificate.verify(weakCertificate.getPublicKey());
+        keyProfileCertificates.put("rsa1024", APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, weakDer), new byte[]{0x71, 1, 0, (byte) 0xfe, 0})));
         keyProfileCertificates.put("rsaExponent3", currentCertificate(rsa(2048, BigInteger.valueOf(3))));
         keyProfileCertificates.put("p256", currentCertificate(ec("secp256r1")));
         keyProfileCertificates.put("p384", currentCertificate(ec("secp384r1")));
