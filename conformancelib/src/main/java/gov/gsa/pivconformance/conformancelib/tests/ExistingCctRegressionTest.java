@@ -9,6 +9,11 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.launcher.*;
+import org.junit.platform.launcher.core.*;
+import javax.smartcardio.*;
+import java.security.cert.CertificateFactory;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.sql.*;
@@ -46,9 +51,9 @@ public class ExistingCctRegressionTest {
         assertTrue(decoded.decode(), "Existing golden CHUID must decode before testing UUID equality");
         ByteBuffer guid = ByteBuffer.wrap(decoded.getgUID());
         cardUrn = "urn:uuid:" + new UUID(guid.getLong(), guid.getLong());
-        try (var in = ExistingCctRegressionTest.class.getClassLoader().getResourceAsStream("standards/synthetic-certificates/policy-01.der")) {
-            assertNotNull(in);
-            certificate = new X509CertificateHolder(in.readAllBytes());
+        try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
+            certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
+                    .generateCertificate(in).getEncoded());
         }
     }
 
@@ -145,7 +150,7 @@ public class ExistingCctRegressionTest {
                     + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ")";
             Map<String,byte[]> objects = Map.of(APDUConstants.getStringForFieldNamed(row.getContainer()), raw,
                     APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, chuid);
-            var result = CurrentExecutionEvidenceTest.execute(selector, row.getContainer(), step.getParameters(), objects);
+            var result = execute(selector, row.getContainer(), step.getParameters(), objects);
             assertEquals(pass ? TestExecutionResult.Status.SUCCESSFUL : TestExecutionResult.Status.FAILED,
                     result.getStatus(), row.getIdentifier() + ": " + result);
             if (!pass) {
@@ -155,4 +160,46 @@ public class ExistingCctRegressionTest {
             }
         }
     }
+
+    private static TestExecutionResult execute(String method, String container, List<String> arguments,
+                                       Map<String,byte[]> objects) {
+        CardSettingsSingleton card = CardSettingsSingleton.getInstance();
+        ParameterProviderSingleton parameters = ParameterProviderSingleton.getInstance();
+        card.reset(); parameters.reset();
+        card.setTerminal(new CardTerminal() {
+            public String getName() { return "Synthetic evidence only"; }
+            public Card connect(String protocol) { throw new AssertionError("Physical connection forbidden"); }
+            public boolean isCardPresent() { return true; }
+            public boolean waitForCardPresent(long timeout) { throw new AssertionError("Physical wait forbidden"); }
+            public boolean waitForCardAbsent(long timeout) { throw new AssertionError("Physical wait forbidden"); }
+        });
+        card.setCardHandle(new CardHandle());
+        card.setLastLoginStatus(CardSettingsSingleton.LOGIN_STATUS.LOGIN_SUCCESS);
+        card.setPivHandle(new DefaultPIVApplication() {
+            @Override public MiddlewareStatus pivGetData(CardHandle handle, String oid, PIVDataObject object) {
+                byte[] raw = objects.get(oid);
+                if (raw == null) return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
+                object.setOID(oid);
+                object.setContainerName(APDUConstants.getFileNameForOid(oid));
+                object.setBytes(raw.clone());
+                return MiddlewareStatus.PIV_OK;
+            }
+        });
+        parameters.addContainer(method, container);
+        parameters.addNamedParameter(method, arguments);
+        List<TestExecutionResult> results = new ArrayList<>();
+        try {
+            LauncherFactory.create().execute(LauncherDiscoveryRequestBuilder.request()
+                    .selectors(DiscoverySelectors.selectMethod(method)).build(), new TestExecutionListener() {
+                @Override public void executionFinished(TestIdentifier id, TestExecutionResult result) {
+                    if (id.isTest()) results.add(result);
+                    else assertNotEquals(TestExecutionResult.Status.FAILED, result.getStatus(),
+                            "JUnit container/setup failure: " + result.getThrowable());
+                }
+            });
+            assertEquals(1, results.size(), "Exactly one database atom must execute");
+            return results.get(0);
+        } finally { card.reset(); parameters.reset(); }
+    }
+
 }

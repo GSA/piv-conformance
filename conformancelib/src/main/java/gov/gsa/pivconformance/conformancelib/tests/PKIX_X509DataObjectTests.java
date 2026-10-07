@@ -1040,7 +1040,7 @@ public class PKIX_X509DataObjectTests {
 		}
 
 		ArrayList<Integer> types = new ArrayList<Integer>(Arrays.asList(0, 6));
-		assertTrue(onlyMatchesTypes(cert, types) , "PKIX.27: Certificate URI does not match CHUID GUID " + Hex.encodeHexString(guid));
+		assertTrue(onlyMatchesTypes(cert, types) , "Certificate doesn't contain " + Hex.encodeHexString(guid));
     }
 	
 	private static Map<String, X509Certificate> getCertificatesForOids(List<String> oids) {

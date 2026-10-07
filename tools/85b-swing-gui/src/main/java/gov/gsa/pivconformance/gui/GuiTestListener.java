@@ -65,15 +65,14 @@ public class GuiTestListener implements TestExecutionListener {
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
 
-		TestStatus result = resultStatus();
 		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription.replaceAll("\"", "'"),
 				m_testCaseExpectedResult ? "Pass" : "Fail",
-				result == TestStatus.SKIP ? "Skip" : result == TestStatus.FAIL ? "Fail" : "Pass");
+				(m_atomAborted || m_atomFailed) ? "Fail" : "Pass"); 
 		GuiTestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
 		if(tcNode != null) {
 			TestCaseModel tcModel = tcNode.getTestCase();
 			if(tcModel != null) {
-				tcModel.setTestStatus(result);
+				tcModel.setTestStatus(m_atomAborted || m_atomFailed ? TestStatus.FAIL : TestStatus.PASS);
 			}
 		}
 		DefaultTreeModel model = GuiRunnerAppController.getInstance().getApp().getTreePanel().getTreeModel();
@@ -86,16 +85,6 @@ public class GuiTestListener implements TestExecutionListener {
 		} catch (InterruptedException | InvocationTargetException e) {
 			s_logger.error("Failed to update progress bar on secondary thread", e);
 		}
-	}
-
-	/** An absent conditional candidate object is undetermined, not a card failure. */
-	TestStatus resultStatus() {
-		if (m_atomFailed) return TestStatus.FAIL;
-		if (m_atomAborted) {
-			return m_testCaseIdentifier != null && m_testCaseIdentifier.startsWith("CANDIDATE.")
-					? TestStatus.SKIP : TestStatus.FAIL;
-		}
-		return TestStatus.PASS;
 	}
 
 	@Override
