@@ -1,10 +1,12 @@
 package gov.gsa.pivconformance.gui;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 
 /** Resolves installed resources separately from writable CCT run data. */
 final class CctApplicationPaths {
@@ -36,16 +38,15 @@ final class CctApplicationPaths {
 
 		s_dataDirectory = configuredDirectory(DATA_DIRECTORY_PROPERTY);
 		if (s_dataDirectory == null) {
-			s_dataDirectory = Boolean.getBoolean(PACKAGED_PROPERTY)
-					? windowsDataDirectory()
-					: workingDirectory();
+			s_dataDirectory = defaultDataDirectory();
 		}
+		s_dataDirectory = s_dataDirectory.toAbsolutePath().normalize();
 
 		try {
 			Files.createDirectories(s_dataDirectory);
 			System.setProperty(DATA_DIRECTORY_PROPERTY, s_dataDirectory.toString());
 			System.setProperty(RESOURCE_DIRECTORY_PROPERTY, s_resourceDirectory.toString());
-			if (Boolean.getBoolean(PACKAGED_PROPERTY)) copyReviewResources();
+			copyReviewResources(s_resourceDirectory, s_dataDirectory);
 		} catch (IOException e) {
 			throw new IllegalStateException("Unable to prepare the writable CCT data directory "
 					+ s_dataDirectory, e);
@@ -111,18 +112,41 @@ final class CctApplicationPaths {
 		return base.resolve("GSA").resolve("CCT").toAbsolutePath().normalize();
 	}
 
-	private static void copyReviewResources() throws IOException {
+	private static Path defaultDataDirectory() {
+		String os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+		if (os.contains("win")) return windowsDataDirectory();
+		Path userHome = Path.of(System.getProperty("user.home"));
+		if (os.contains("mac")) return userHome.resolve("Library/Application Support/GSA/CCT");
+		String xdgDataHome = System.getenv("XDG_DATA_HOME");
+		Path dataHome = xdgDataHome == null || xdgDataHome.isBlank()
+				? userHome.resolve(".local/share") : Path.of(xdgDataHome);
+		return dataHome.resolve("GSA/CCT");
+	}
+
+	static void copyReviewResources(Path resourceDirectory, Path dataDirectory) throws IOException {
 		for (String relativeName : REVIEW_RESOURCES) {
-			Path source = s_resourceDirectory.resolve(relativeName).normalize();
-			if (!source.startsWith(s_resourceDirectory) || !Files.isRegularFile(source)) {
-				throw new IOException("Packaged CCT resource is missing: " + source);
-			}
-			Path target = s_dataDirectory.resolve(relativeName).normalize();
-			if (!target.startsWith(s_dataDirectory)) {
+			Path target = dataDirectory.resolve(relativeName).normalize();
+			if (!target.startsWith(dataDirectory)) {
 				throw new IOException("Invalid CCT data path: " + target);
 			}
+			if (Files.exists(target)) {
+				if (!Files.isRegularFile(target)) {
+					throw new IOException("CCT resource path is not a file: " + target);
+				}
+				continue;
+			}
 			Files.createDirectories(target.getParent());
-			if (!Files.exists(target)) Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
+			Path workingCopy = workingDirectory().resolve(relativeName).normalize();
+			Path installedCopy = resourceDirectory.resolve(relativeName).normalize();
+			Path source = Files.isRegularFile(workingCopy) ? workingCopy : installedCopy;
+			if (Files.isRegularFile(source)) {
+				Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
+				continue;
+			}
+			try (InputStream bundled = CctApplicationPaths.class.getClassLoader().getResourceAsStream(relativeName)) {
+				if (bundled == null) throw new IOException("Required CCT resource is missing: " + relativeName);
+				Files.copy(bundled, target);
+			}
 		}
 	}
 }

@@ -46,7 +46,7 @@ fips201-card-conformance-tool-<version>-windows-x64/
 
 At runtime, installed resources are read from `app`. Working files are written
 under `%LOCALAPPDATA%\GSA\CCT`, including `logs`, `piv-artifacts`,
-`x509-artifacts`, and generated `cct-results-*.zip` files. Validation defaults
+`x509-artifacts`, and uniquely named `runs\cct-results-*.zip` files. Validation defaults
 are copied there on first launch so downloaded certificate-path material also
 stays writable. Resource precedence is: an explicit working-directory copy,
 the per-user copy, the packaged resource, and finally the bundled class-path
