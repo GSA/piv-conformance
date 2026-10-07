@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("ExistingCctRegression")
 public class ExistingCctRegressionTest {
     private static byte[] chuid;
+    private static byte[] ccc;
     private static String cardUrn;
     private static X509CertificateHolder certificate;
     private static final Map<String, byte[]> keyProfileCertificates = new HashMap<>();
@@ -57,6 +58,12 @@ public class ExistingCctRegressionTest {
         Path golden = root.resolve("cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/"
                 + "gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/8 - CHUID Object");
         chuid = APDUUtils.getTLV(APDUConstants.DATA, Files.readAllBytes(golden));
+        ccc = Files.readAllBytes(golden.resolveSibling("7 - CCC"));
+        CardCapabilityContainer decodedCcc = new CardCapabilityContainer();
+        decodedCcc.setOID(APDUConstants.CARD_CAPABILITY_CONTAINER_OID);
+        decodedCcc.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.CARD_CAPABILITY_CONTAINER_OID));
+        decodedCcc.setBytes(APDUUtils.getTLV(APDUConstants.DATA, ccc));
+        assertTrue(decodedCcc.decode(), "Existing golden CCC must decode before testing current fields");
         CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
         decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         decoded.setBytes(chuid);
@@ -142,6 +149,27 @@ public class ExistingCctRegressionTest {
                 pass, "SP800-78.1:");
     }
 
+    @ParameterizedTest(name="current CCC: {0}")
+    @ValueSource(strings={"plain", "E3", "B4"})
+    void currentCccThroughExistingAtom(String kind) throws Exception {
+        run(11, "sp800_73_5_Test_4", cccWithOptional(kind), kind.equals("plain"),
+                "SP800-73-5 CCC:");
+    }
+
+    @Test void historicalCccStillPermitsDeprecatedOptionalFields() throws Exception {
+        run("PIV-I_Production_Cards.db", 11, "sp800_73_4_Test_4",
+                cccWithOptional("both"), true, "");
+    }
+
+    private static byte[] cccWithOptional(String kind) {
+        byte[] body = Arrays.copyOf(ccc, ccc.length - 2); // Replace final FE 00 after optional fields.
+        if (kind.equals("E3") || kind.equals("both"))
+            body = concat(body, APDUUtils.getTLV(new byte[]{(byte) 0xe3}, new byte[48]));
+        if (kind.equals("B4") || kind.equals("both"))
+            body = concat(body, APDUUtils.getTLV(new byte[]{(byte) 0xb4}, new byte[48]));
+        return APDUUtils.getTLV(APDUConstants.DATA, concat(body, new byte[]{(byte) 0xfe, 0}));
+    }
+
     private static KeyPair rsa(int bits, BigInteger exponent) throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(new RSAKeyGenParameterSpec(bits, exponent));
@@ -199,7 +227,12 @@ public class ExistingCctRegressionTest {
     }
 
     private static void run(int id, String expectedMethod, byte[] raw, boolean pass, String failurePrefix) throws Exception {
-        Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata/PIV_Production_Cards.db");
+        run("PIV_Production_Cards.db", id, expectedMethod, raw, pass, failurePrefix);
+    }
+
+    private static void run(String database, int id, String expectedMethod, byte[] raw,
+                            boolean pass, String failurePrefix) throws Exception {
+        Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro")) {
             TestCaseModel row = new TestCaseModel(new ConformanceTestDatabase(connection));
             row.retrieveForId(id);

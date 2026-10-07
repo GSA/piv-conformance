@@ -136,6 +136,21 @@ public class SP800_73_4CCCTests {
 			assertTrue(Arrays.equals(tagList.get(13).bytes,TagConstants.SECURITY_OBJECT_BUFFER_TAG));
 		}
 	}
+
+	// SP 800-73-5 Part 1, Appendix A, Table 9 eliminates the two formerly
+	// optional CCC elements. Keep the 73-4 atom for historical/PIV-I profiles.
+	@DisplayName("SP800-73-5 CCC eliminated optional elements")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_4(String oid, TestReporter reporter) {
+		List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
+		assertTrue(tags.stream().noneMatch(tag -> Arrays.equals(tag.bytes,
+				TagConstants.EXTENDED_APPLICATION_CARDURL_TAG)),
+				"SP800-73-5 CCC: eliminated tag E3 is present");
+		assertTrue(tags.stream().noneMatch(tag -> Arrays.equals(tag.bytes,
+				TagConstants.SECURITY_OBJECT_BUFFER_TAG)),
+				"SP800-73-5 CCC: eliminated tag B4 is present");
+	}
 	
 	//CCC Tag 0xFE present and after any tags from 73-4.3 and 73-4.4
 	@DisplayName("SP800-73-4.5 test")

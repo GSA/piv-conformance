@@ -238,6 +238,7 @@ INSERT INTO "TestSteps" VALUES(173,'PlaceholderTest.1','gov.gsa.pivconformance.c
 INSERT INTO "TestSteps" VALUES(174,'PlaceholderTest.2','gov.gsa.pivconformance.conformancelib.tests.PlaceholderTests','PlaceholderTest_2',NULL);
 INSERT INTO "TestSteps" VALUES(175,'PlaceholderTest.3','gov.gsa.pivconformance.conformancelib.tests.PlaceholderTests','PlaceholderTest_3',NULL);
 INSERT INTO "TestSteps" VALUES(176,'78.1.current','gov.gsa.pivconformance.conformancelib.tests.SP800_78_X509DataObjectTests','sp800_78_Test_1_current',NULL);
+INSERT INTO "TestSteps" VALUES(177,'73-5.4.current','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CCCTests','sp800_73_5_Test_4',NULL);
 INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'15',0);
 INSERT INTO "TestStepParameters" VALUES(2, 99,NULL,'CARDHOLDER_FINGERPRINTS_OID:513',0);
 INSERT INTO "TestStepParameters" VALUES(3, 99,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:1281',1);
@@ -286,7 +287,7 @@ INSERT INTO "TestCases" VALUES(7, NULL,'8.1.0.4','If a variable length field has
 INSERT INTO "TestCases" VALUES(8, NULL,'8.1.1','CCC Registered data model element is present and has a value of 0x10.','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(9, NULL,'8.1.2','CCC BERTLV tag is 5FC107','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(10, NULL,'8.1.3','CCC Tags 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xFA, 0xFB, 0xFC, 0xFD present in that order','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(11, NULL,'8.1.8','CCC Optional Tags 0xE3 and 0xB4 may be present or absent; if present are after tags listed in and are in that order','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(11, NULL,'8.1.8','CCC eliminated optional tags E3 and B4 are absent under SP 800-73-5 Part 1 Appendix A Table 9.','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(12, NULL,'8.1.9','CCC Tag 0xFE present and after any tags from 73-4.3 and 73-4.4','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(13, NULL,'8.1.10','Confirm that tag 0xFE has length of 0','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(14, NULL,'8.1.11','CCC tag order and value lengths comply with Table 8 of SP 800-73-4','CARD_CAPABILITY_CONTAINER_OID',NULL, 1, 1);
@@ -772,7 +773,7 @@ INSERT INTO "TestsToSteps" VALUES(4, 4,7,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(5, 6,8,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(6, 7,9,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(7, 8,10,0,NULL);
-INSERT INTO "TestsToSteps" VALUES(8, 9,11,0,NULL);
+INSERT INTO "TestsToSteps" VALUES(8, 177,11,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(9, 10,12,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(10, 28,13,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(11, 60,14,0,NULL);
