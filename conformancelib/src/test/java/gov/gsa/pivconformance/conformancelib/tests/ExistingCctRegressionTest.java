@@ -55,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ExistingCctRegressionTest {
     private static byte[] chuid;
     private static byte[] ccc;
+    private static byte[] facialImage;
     private static String cardUrn;
     private static String holderUrn;
     private static KeyPair sanSigningKey;
@@ -75,6 +76,8 @@ public class ExistingCctRegressionTest {
                 + "gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/8 - CHUID Object");
         chuid = APDUUtils.getTLV(APDUConstants.DATA, Files.readAllBytes(golden));
         ccc = Files.readAllBytes(golden.resolveSibling("7 - CCC"));
+        facialImage = APDUUtils.getTLV(APDUConstants.DATA,
+                Files.readAllBytes(golden.resolveSibling("10 - Face Object")));
         CardCapabilityContainer decodedCcc = new CardCapabilityContainer();
         decodedCcc.setOID(APDUConstants.CARD_CAPABILITY_CONTAINER_OID);
         decodedCcc.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.CARD_CAPABILITY_CONTAINER_OID));
@@ -496,6 +499,32 @@ public class ExistingCctRegressionTest {
 
     private static void run(int id, String expectedMethod, byte[] raw, boolean pass, String failurePrefix) throws Exception {
         run("PIV_Production_Cards.db", id, expectedMethod, raw, pass, failurePrefix);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void facialImageFieldsUseExistingAtoms(String database) throws Exception {
+        byte[] header = new byte[]{0x46, 0x41, 0x43, 0x00, 0x30, 0x31, 0x30, 0x00};
+        int record = -1;
+        for (int i = 0; i <= facialImage.length - header.length; i++) {
+            if (Arrays.equals(Arrays.copyOfRange(facialImage, i, i + header.length), header)) {
+                assertEquals(-1, record, "Expected one FAC record");
+                record = i;
+            }
+        }
+        assertTrue(record >= 0, "Golden face object must contain a FAC record");
+        int[] ids = {251, 252, 253, 254};
+        int[] offsets = {34, 35, 40, 41};
+        int[] invalid = {0, 2, 0, 3};
+        String[] messages = {"Facial image type is not 1", "Facial image data type is not 1 or 0",
+                "Image color space is not 1", "Facial image source type is not 2 or 6"};
+        for (int i = 0; i < ids.length; i++) {
+            String method = "sp800_76Test_" + (34 + i);
+            run(database, ids[i], method, facialImage, true, "");
+            byte[] changed = facialImage.clone();
+            changed[record + offsets[i]] = (byte) invalid[i];
+            run(database, ids[i], method, changed, false, messages[i]);
+        }
     }
 
     private static void run(String database, int id, String expectedMethod, byte[] raw,
