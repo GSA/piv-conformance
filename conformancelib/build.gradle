@@ -52,10 +52,12 @@ dependencies {
 tasks.withType(JavaCompile).configureEach {
     options.release = 17
     options.debugOptions.debugLevel = 'source,lines,vars'
-    options.compilerArgs += [
-        '--add-exports',
-        'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
-    ]
+    if (name == 'compileJava') {
+        options.compilerArgs += [
+            '--add-exports',
+            'org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
+        ]
+    }
 }
 
 test {
@@ -104,12 +106,11 @@ tasks.register('certificateFixtureTest', Test) {
     tasks.register(taskName, Test) {
         group = LifecycleBasePlugin.VERIFICATION_GROUP
         description = 'Regressions through existing production DB rows, atoms and decoders.'
-        testClassesDirs = sourceSets.main.output.classesDirs
-        classpath = sourceSets.main.runtimeClasspath
+        testClassesDirs = sourceSets.test.output.classesDirs
+        classpath = sourceSets.test.runtimeClasspath
         systemProperty 'cct.repository', file('..').absolutePath
         systemProperty 'cct.regressionBC', useBc.toString()
         useJUnitPlatform { includeTags 'ExistingCctRegression' }
-        jvmArgs '--add-exports=org.junit.platform.commons/org.junit.platform.commons.util=gov.gsa.pivconformance.conformancelib'
     }
     tasks.named('check') { dependsOn taskName }
 }
