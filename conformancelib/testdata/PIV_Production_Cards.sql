@@ -79,7 +79,7 @@ INSERT INTO "TestSteps" VALUES(14,'73-5.9','gov.gsa.pivconformance.conformanceli
 INSERT INTO "TestSteps" VALUES(15,'73-4.10','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_4_Test_10',NULL);
 INSERT INTO "TestSteps" VALUES(16,'73-5.11','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_5_Test_11',NULL);
 INSERT INTO "TestSteps" VALUES(17,'73-4.12','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_4_Test_12',NULL);
-INSERT INTO "TestSteps" VALUES(18,'73-4.13','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_4_Test_13',NULL);
+INSERT INTO "TestSteps" VALUES(18,'73-5.13','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_5_Test_13',NULL);
 INSERT INTO "TestSteps" VALUES(19,'73-4.14','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_4_Test_14',NULL);
 INSERT INTO "TestSteps" VALUES(20,'73-4.15','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_4_Test_15',NULL);
 INSERT INTO "TestSteps" VALUES(21,'73-4.16','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CHUIDTests','sp800_73_4_Test_16',NULL);
@@ -305,7 +305,7 @@ INSERT INTO "TestCases" VALUES(25, NULL,'8.2.2.4','Tag 0x34 is present','CARD_HO
 INSERT INTO "TestCases" VALUES(26, NULL,'8.2.2.5','CHUID tag 0x34 immediately follows tag 0x30','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(27, NULL,'8.2.2.6','Tag 0x35 is present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(28, NULL,'8.2.2.7','Tag 0x35 follows Tag 0x34','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(29, NULL,'8.2.2.8','Tag 0x36 is optionally present and follows Tag  0x35','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(29, NULL,'8.2.2.8','Optional CHUID tag 0x36 follows tag 0x35 and contains a version 4 Cardholder UUID','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(30, NULL,'8.2.2.9','Tags 0x3E and 0xFE are present and follow tags  in that order','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(31, NULL,'8.2.2.10','Tag 0x3E is present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(32, NULL,'8.2.2.11','Tag 0x3E follows Tag 0x35 or 0x36','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
@@ -316,7 +316,7 @@ INSERT INTO "TestCases" VALUES(36, NULL,'8.2.2.15','No CHUID tags other than (0x
 INSERT INTO "TestCases" VALUES(37, NULL,'8.2.2.16','The Agency Code, System Code, and Credential Number of the FASC-N are present. The credential series, individual credential issue, person identifier, organizational category, organizational identifier, and person/organization association category of the FASC-N are populated','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(38, NULL,'8.2.3','Expiration Date is formatted YYYYMMDD','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(39, NULL,'8.2.4','Expiration Date is within the next 15 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(40, NULL,'8.2.5','If the CHUID contains the optional Cardholder UUID, then the data element shall be in accordance with 800 73-4 Part 1 Section 3.4.2.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(40, NULL,'8.2.5','Optional CHUID Cardholder UUID is a 16-byte RFC 4122 version 4 value','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(41, NULL,'8.2.6','The retired key map is not present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(42, NULL,'8.2.7','Tag 0xFE has length of 0','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(43, NULL,'8.3 PIV Auth Cert','X.509 Certificate for PIV Authentication','',NULL, 1, 1);

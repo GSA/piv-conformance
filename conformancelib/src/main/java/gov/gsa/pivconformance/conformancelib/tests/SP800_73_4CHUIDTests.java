@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+import java.nio.ByteBuffer;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.Hex;
@@ -253,6 +255,26 @@ public class SP800_73_4CHUIDTests {
 
 			}
 		}
+	}
+
+	// FIPS 201-3 Section 4.2.1 and SP 800-73-5 Part 1 Sections 3.1.2,
+	// 3.4.2: the optional CHUID Cardholder UUID is a version 4 UUID.
+	@DisplayName("SP800-73-5 optional CHUID Cardholder UUID")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_13(String oid, TestReporter reporter) {
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
+		byte[] value = chuid.getCardholderUUID();
+		if (value == null) return;
+		assertTrue(value.length == 16, "SP800-73-5 CHUID: Cardholder UUID must contain 16 bytes");
+		ByteBuffer bytes = ByteBuffer.wrap(value);
+		UUID uuid = new UUID(bytes.getLong(), bytes.getLong());
+		assertTrue(uuid.variant() == 2, "SP800-73-5 CHUID: Cardholder UUID must use RFC 4122 variant");
+		assertTrue(uuid.version() == 4, "SP800-73-5 CHUID: Cardholder UUID must be version 4");
+		List<BerTag> tags = chuid.getTagList();
+		assertTrue(tags.indexOf(new BerTag(TagConstants.CARDHOLDER_UUID_TAG))
+				== tags.indexOf(new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG)) + 1,
+				"SP800-73-5 CHUID: tag 36 must immediately follow tag 35");
 	}
 
 	// Tags 0x3E and 0xFE are present

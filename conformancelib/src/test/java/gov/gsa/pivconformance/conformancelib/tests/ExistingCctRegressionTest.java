@@ -75,7 +75,8 @@ public class ExistingCctRegressionTest {
         assertTrue(decoded.decode(), "Existing golden CHUID must decode before testing UUID equality");
         ByteBuffer guid = ByteBuffer.wrap(decoded.getgUID());
         cardUrn = "urn:uuid:" + new UUID(guid.getLong(), guid.getLong());
-        for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first"))
+        for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first",
+                "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
         try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
             certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
@@ -207,12 +208,41 @@ public class ExistingCctRegressionTest {
         run("PIV-I_Production_Cards.db", 24, "sp800_73_4_Test_11", currentChuidObjects.get("33"), true, "");
     }
 
+    static Stream<Arguments> currentHolderUuidCases() {
+        return IntStream.of(29, 40).boxed().flatMap(row -> Stream.of(
+                Arguments.of(row, "plain", true),
+                Arguments.of(row, "holder-absent", true),
+                Arguments.of(row, "holder-v1", false),
+                Arguments.of(row, "holder-v5", false),
+                Arguments.of(row, "holder-variant", false),
+                Arguments.of(row, "holder-short", false),
+                Arguments.of(row, "holder-before-date", false)));
+    }
+
+    @ParameterizedTest(name="production holder UUID row {0}: {1}") @MethodSource("currentHolderUuidCases")
+    void currentHolderUuidThroughExistingAtom(int row, String kind, boolean pass) throws Exception {
+        run(row, "sp800_73_5_Test_13", currentChuidObjects.get(kind), pass, "SP800-73-5 CHUID:");
+    }
+
+    @Test void historicalHolderUuidStillPermitsOlderVersions() throws Exception {
+        run("PIV-I_Production_Cards.db", 40, "sp800_73_4_Test_13",
+                currentChuidObjects.get("holder-v1"), true, "");
+        run("PIV-I_Production_Cards.db", 40, "sp800_73_4_Test_13",
+                currentChuidObjects.get("holder-v5"), true, "");
+    }
+
     private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier golden, String kind) throws Exception {
         byte[] fascn = APDUUtils.getTLV(new byte[]{0x30}, golden.getfASCN());
         byte[] guid = APDUUtils.getTLV(new byte[]{0x34}, golden.getgUID());
         byte[] date = APDUUtils.getTLV(new byte[]{0x35}, "20321202".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
-        byte[] holder = golden.getCardholderUUID() == null ? new byte[0]
-                : APDUUtils.getTLV(new byte[]{0x36}, golden.getCardholderUUID());
+        byte[] holderValue = golden.getCardholderUUID();
+        if (holderValue != null) holderValue = holderValue.clone();
+        if (kind.equals("holder-v1")) holderValue[6] = (byte) ((holderValue[6] & 0x0f) | 0x10);
+        if (kind.equals("holder-v5")) holderValue[6] = (byte) ((holderValue[6] & 0x0f) | 0x50);
+        if (kind.equals("holder-variant")) holderValue[8] = (byte) (holderValue[8] & 0x3f);
+        if (kind.equals("holder-short")) holderValue = Arrays.copyOf(holderValue, 15);
+        byte[] holder = kind.equals("holder-absent") || holderValue == null ? new byte[0]
+                : APDUUtils.getTLV(new byte[]{0x36}, holderValue);
         byte[] before = kind.equals("EE") ? APDUUtils.getTLV(new byte[]{(byte) 0xee}, new byte[2]) : new byte[0];
         byte[] between = switch (kind) {
             case "32" -> APDUUtils.getTLV(new byte[]{0x32}, new byte[4]);
@@ -221,7 +251,8 @@ public class ExistingCctRegressionTest {
             default -> new byte[0];
         };
         byte[] fields = kind.equals("guid-first") ? concat(guid, fascn) : concat(fascn, concat(between, guid));
-        byte[] signedContent = concat(concat(fields, concat(date, holder)), new byte[]{(byte) 0xfe, 0});
+        byte[] datedFields = kind.equals("holder-before-date") ? concat(holder, date) : concat(date, holder);
+        byte[] signedContent = concat(concat(fields, datedFields), new byte[]{(byte) 0xfe, 0});
 
         KeyPair key = rsa(2048, RSAKeyGenParameterSpec.F4);
         X500Name name = new X500Name("CN=CCT CHUID regression signer");
@@ -235,7 +266,7 @@ public class ExistingCctRegressionTest {
         generator.addCertificates(new JcaCertStore(List.of(signer)));
         byte[] cms = generator.generate(new CMSProcessableByteArray(signedContent), false).getEncoded();
         byte[] raw = APDUUtils.getTLV(APDUConstants.DATA, concat(concat(before, fields),
-                concat(concat(date, holder), concat(APDUUtils.getTLV(new byte[]{0x3e}, cms), new byte[]{(byte) 0xfe, 0}))));
+                concat(datedFields, concat(APDUUtils.getTLV(new byte[]{0x3e}, cms), new byte[]{(byte) 0xfe, 0}))));
         CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
         decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         decoded.setBytes(raw);
