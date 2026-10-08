@@ -10,6 +10,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.stream.Stream;
@@ -19,6 +20,8 @@ import gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.asn1.pkcs.RSASSAPSSparams;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
@@ -42,6 +45,7 @@ import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
+import gov.gsa.pivconformance.cardlib.card.client.SignedPIVDataObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -350,6 +354,105 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			String msg = e.getMessage();
 			s_logger.error(msg);
 			fail(msg);
+		}
+	}
+
+	// FIPS 201-3 Section 4.2 and SP 800-78-5 Section 3.2.1, Tables 2-3.
+	// The current PIV case also covers CHUID: its CMS SignerInfo algorithm is
+	// the object signature, whereas the embedded certificate has its own signature.
+	@DisplayName("SP800-78.3 current PIV signature algorithm test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_78_Test_3_current(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+		PIVDataObject object = AtomHelper.getDataObject(oid);
+		if (object instanceof SignedPIVDataObject) {
+			SignedPIVDataObject signed = (SignedPIVDataObject) object;
+			CMSSignedData cms = AtomHelper.getSignedDataForObject(signed);
+			assertNotNull(cms, "SP800-78.3 current: CMS signature is missing");
+			assertEquals(1, cms.getSignerInfos().size(), "SP800-78.3 current: exactly one CMS signer is required");
+			SignerInformation signer = cms.getSignerInfos().getSigners().iterator().next();
+			String algorithm = signer.getEncryptionAlgOID();
+			String digest = signer.getDigestAlgOID();
+			byte[] parameters = signer.getEncryptionAlgParams();
+			if (algorithm.equals("1.2.840.113549.1.1.1")) {
+				assertTrue(digest.equals("2.16.840.1.101.3.4.2.1")
+						|| digest.equals("2.16.840.1.101.3.4.2.2"),
+						"SP800-78.3 current: RSA CMS digest must be SHA-256 or SHA-384");
+				assertTrue(parameters == null || Arrays.equals(parameters, new byte[]{5, 0}),
+						"SP800-78.3 current: RSA CMS signature parameters must be NULL or absent");
+			} else if (algorithm.equals("1.2.840.113549.1.1.10")) {
+				assertEquals(digest, pssDigest(parameters),
+						"SP800-78.3 current: CMS PSS digest and parameters differ");
+			} else if (algorithm.equals("1.2.840.10045.4.3.2")
+						|| algorithm.equals("1.2.840.10045.4.3.3")) {
+				assertEquals(algorithm.equals("1.2.840.10045.4.3.2")
+							? "2.16.840.1.101.3.4.2.1" : "2.16.840.1.101.3.4.2.2", digest,
+							"SP800-78.3 current: CMS ECDSA signature and digest differ");
+				assertNull(parameters, "SP800-78.3 current: ECDSA CMS signature parameters must be absent");
+			} else {
+				fail("SP800-78.3 current: unsupported CMS signature algorithm " + algorithm);
+			}
+			X509Certificate signerCertificate = AtomHelper.getCertificateForContainer(object);
+			assertNotNull(signerCertificate, "SP800-78.3 current: CMS signer certificate is missing");
+			PublicKey signerKey = signerCertificate.getPublicKey();
+			if (algorithm.equals("1.2.840.113549.1.1.1")
+					|| algorithm.equals("1.2.840.113549.1.1.10")) {
+				assertTrue(signerKey instanceof RSAPublicKey,
+						"SP800-78.3 current: RSA CMS signature requires an RSA signer key");
+				int bits = ((RSAPublicKey) signerKey).getModulus().bitLength();
+				assertTrue(bits == 2048 || bits == 3072 || bits == 4096,
+						"SP800-78.3 current: RSA CMS signer key must be 2048, 3072 or 4096 bits through 2030");
+			} else {
+				assertTrue(signerKey instanceof ECPublicKey,
+						"SP800-78.3 current: ECDSA CMS signature requires an EC signer key");
+				int bits = ((ECPublicKey) signerKey).getParams().getCurve().getField().getFieldSize();
+				int required = algorithm.equals("1.2.840.10045.4.3.2") ? 256 : 384;
+				assertEquals(required, bits,
+						"SP800-78.3 current: ECDSA CMS signer curve and digest must match Table 2");
+			}
+			assertTrue(signed.verifySignature(), "SP800-78.3 current: CMS signature does not verify");
+			return;
+		}
+
+		X509Certificate cert = AtomHelper.getCertificateForContainer(object);
+		assertNotNull(cert, "SP800-78.3 current: certificate could not be decoded");
+		String algorithm = cert.getSigAlgOID();
+		byte[] parameters = cert.getSigAlgParams();
+		if (algorithm.equals("1.2.840.113549.1.1.11")
+				|| algorithm.equals("1.2.840.113549.1.1.12")) {
+			assertTrue(parameters == null || Arrays.equals(parameters, new byte[]{5, 0}),
+					"SP800-78.3 current: RSA SHA-256/384 parameters must be NULL or absent");
+		} else if (algorithm.equals("1.2.840.113549.1.1.10")) {
+			pssDigest(parameters);
+		} else if (algorithm.equals("1.2.840.10045.4.3.2")
+				|| algorithm.equals("1.2.840.10045.4.3.3")) {
+			assertNull(parameters, "SP800-78.3 current: ECDSA parameters must be absent");
+		} else {
+			fail("SP800-78.3 current: unsupported certificate signature algorithm " + algorithm);
+		}
+	}
+
+	private static String pssDigest(byte[] parameters) {
+		assertNotNull(parameters, "SP800-78.3 current: RSA-PSS parameters are required");
+		try {
+			AlgorithmParameters parsed = AlgorithmParameters.getInstance("RSASSA-PSS");
+			parsed.init(parameters);
+			PSSParameterSpec spec = parsed.getParameterSpec(PSSParameterSpec.class);
+			String hash = spec.getDigestAlgorithm().toUpperCase(Locale.ROOT).replace("-", "");
+			assertTrue(hash.equals("SHA256") || hash.equals("SHA384"),
+					"SP800-78.3 current: RSA-PSS digest must be SHA-256 or SHA-384");
+			assertEquals("MGF1", spec.getMGFAlgorithm(),
+					"SP800-78.3 current: RSA-PSS mask generation must use MGF1");
+			assertTrue(spec.getMGFParameters() instanceof MGF1ParameterSpec,
+					"SP800-78.3 current: RSA-PSS MGF1 digest is missing");
+			String mgfHash = ((MGF1ParameterSpec) spec.getMGFParameters())
+					.getDigestAlgorithm().toUpperCase(Locale.ROOT).replace("-", "");
+			assertEquals(hash, mgfHash, "SP800-78.3 current: RSA-PSS and MGF1 digests differ");
+			return hash.equals("SHA256") ? "2.16.840.1.101.3.4.2.1" : "2.16.840.1.101.3.4.2.2";
+		} catch (Exception e) {
+			fail("SP800-78.3 current: malformed RSA-PSS parameters", e);
+			return null;
 		}
 	}
 

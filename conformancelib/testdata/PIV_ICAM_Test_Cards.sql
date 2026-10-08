@@ -202,7 +202,7 @@ INSERT INTO "TestSteps" VALUES(137,'CMS.29','gov.gsa.pivconformance.conformancel
 INSERT INTO "TestSteps" VALUES(138,'CMS.30','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_30',NULL);
 INSERT INTO "TestSteps" VALUES(139,'78.1','gov.gsa.pivconformance.conformancelib.tests.SP800_78_X509DataObjectTests','sp800_78_Test_1',NULL);
 INSERT INTO "TestSteps" VALUES(140,'78.2','gov.gsa.pivconformance.conformancelib.tests.SP800_78_X509DataObjectTests','sp800_78_Test_2',NULL);
-INSERT INTO "TestSteps" VALUES(141,'78.3','gov.gsa.pivconformance.conformancelib.tests.SP800_78_X509DataObjectTests','sp800_78_Test_3',NULL);
+INSERT INTO "TestSteps" VALUES(141,'78.3.current','gov.gsa.pivconformance.conformancelib.tests.SP800_78_X509DataObjectTests','sp800_78_Test_3_current',NULL);
 INSERT INTO "TestSteps" VALUES(142,'PKIX.1','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_1',NULL);
 INSERT INTO "TestSteps" VALUES(143,'PKIX.2','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_2',NULL);
 INSERT INTO "TestSteps" VALUES(144,'PKIX.3','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_3',NULL);
@@ -626,7 +626,7 @@ INSERT INTO "TestCases" VALUES(346, NULL,'10.5.1.14','The signed attribute entry
 INSERT INTO "TestCases" VALUES(347, NULL,'11 X.509 Certificate Profiles','PKI Certificate Profile Test Assertions','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(348, NULL,'11.1 PIV Auth Cert','PIV Authentication Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(349, NULL,'11.1.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(350, NULL,'11.1.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(350, NULL,'11.1.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(351, NULL,'11.1.1.2','The PIV authentication key uses an allowed asymmetric algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(352, NULL,'11.1.1.3','The PIV authentication key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(353, NULL,'11.1.2','Data Integrity Checks','',NULL, 1, 1);
@@ -659,7 +659,7 @@ INSERT INTO "TestCases" VALUES(379, NULL,'11.1.2.10.4','The URI scheme for id-ad
 INSERT INTO "TestCases" VALUES(380, NULL,'11.1.2.10.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(381, NULL,'11.2 Digital Signature Cert','Digital Signature Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(382, NULL,'11.2.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(383, NULL,'11.2.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent.','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(383, NULL,'11.2.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(384, NULL,'11.2.1.2','The digital signature key uses an allowed asymmetric algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(385, NULL,'11.2.1.3','The digital signature key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(386, NULL,'11.2.2','Data Integrity Checks','',NULL, 1, 1);
@@ -682,7 +682,7 @@ INSERT INTO "TestCases" VALUES(402, NULL,'11.2.2.7.4','The URI scheme for id-ad-
 INSERT INTO "TestCases" VALUES(403, NULL,'11.2.2.7.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(404, NULL,'11.3 Key Management Cert','Key Management Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(405, NULL,'11.3.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(406, NULL,'11.3.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent.','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(406, NULL,'11.3.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(407, NULL,'11.3.1.2','The key management key uses an allowed asymmetric algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(408, NULL,'11.3.1.3','The key management key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(409, NULL,'11.3.2','Data Integrity Checks','',NULL, 1, 1);
@@ -705,7 +705,7 @@ INSERT INTO "TestCases" VALUES(425, NULL,'11.3.2.6.4','The URI scheme for id-ad-
 INSERT INTO "TestCases" VALUES(426, NULL,'11.3.2.6.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(427, NULL,'11.4 Card Auth Cert','Card Authentication Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(428, NULL,'11.4.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(429, NULL,'11.4.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent.','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(429, NULL,'11.4.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(430, NULL,'11.4.1.2','The asymmetric card authentication key uses an allowed algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(431, NULL,'11.4.1.3','The asymmetric card authentication key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(432, NULL,'11.4.2','Data Integrity Checks','',NULL, 1, 1);
@@ -744,7 +744,7 @@ INSERT INTO "TestCases" VALUES(464, NULL,'11.6.1','Intermediate CVC Profile Conf
 INSERT INTO "TestCases" VALUES(465, NULL,'11.6.2','Algorithm Conformance','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(466, NULL,'11.7 Content Signing Cert','X.509 Certificate for Content Signing','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(467, NULL,'11.7.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(468, NULL,'11.7.1.1','The signatureAlgorithm value is in accordance with Table 3-3 of SP80078. If the algorithm value is id-RSASSA-PSS, verify that the signature->parameters field is populated with SHA-256 (OID = 2.16.840.1.101.3.4.2.1). For the other RSA algorithms, the parameters field is populated with NULL. For ECDSA, the parameters field is absent.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(468, NULL,'11.7.1.1','CHUID CMS SignerInfo algorithm and digest use SP 800-78-5 Section 3.2.1 Tables 2-3 and the signature verifies','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(469, NULL,'11.7.1.2','The card authentication key is generated using the allowed asymmetric key algorithm.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(470, NULL,'11.7.1.3','The key sizes used are in accordance with Table 3-1 of SP80078.','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(471, NULL,'11.7.2','Data Integrity Checks','',NULL, 1, 1);

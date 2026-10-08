@@ -4,6 +4,9 @@ import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.*;
 import gov.gsa.pivconformance.cardlib.tlv.*;
 import org.bouncycastle.asn1.*;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -12,8 +15,13 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
-import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoGeneratorBuilder;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSSignatureEncryptionAlgorithmFinder;
+import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
+import org.bouncycastle.cms.SignerInfoGeneratorBuilder;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
@@ -82,7 +90,8 @@ public class ExistingCctRegressionTest {
         holderUrn = "urn:uuid:" + new UUID(holderBytes.getLong(), holderBytes.getLong());
         sanSigningKey = rsa(2048, RSAKeyGenParameterSpec.F4);
         for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first",
-                "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date"))
+                "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date",
+                "cms-sha384", "cms-rsa4096-sha384", "cms-sha1"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
         try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
             certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
@@ -102,6 +111,9 @@ public class ExistingCctRegressionTest {
         keyProfileCertificates.put("p256", currentCertificate(ec("secp256r1")));
         keyProfileCertificates.put("p384", currentCertificate(ec("secp384r1")));
         keyProfileCertificates.put("p521", currentCertificate(ec("secp521r1")));
+        keyProfileCertificates.put("rsaSha384Signature", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4), "SHA384withRSA"));
+        keyProfileCertificates.put("rsaSha1Signature", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4), "SHA1withRSA"));
+        keyProfileCertificates.put("rsaPssSha384Signature", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4), "SHA384withRSAandMGF1"));
     }
 
     @AfterAll static void restoreProvider() { if (addedProvider) Security.removeProvider("BC"); }
@@ -209,8 +221,31 @@ public class ExistingCctRegressionTest {
             case "octets" -> new AlgorithmIdentifier(rsaSha256, new DEROctetString(new byte[0]));
             default -> throw new AssertionError(kind);
         };
-        run(row, "sp800_78_Test_3", encodedCertificate(null, algorithm),
-                kind.equals("null") || kind.equals("absent"), "SP800-78.3:");
+        run(row, "sp800_78_Test_3_current", encodedCertificate(null, algorithm),
+                kind.equals("null") || kind.equals("absent"), "SP800-78.3 current:");
+    }
+
+    static Stream<Arguments> currentSignatureAlgorithmCases() {
+        return IntStream.of(350, 383, 406, 429).boxed().flatMap(row -> Stream.of(
+                Arguments.of(row, "rsa2048", true),
+                Arguments.of(row, "rsaSha384Signature", true),
+                Arguments.of(row, "rsaPssSha384Signature", true),
+                Arguments.of(row, "p384", true),
+                Arguments.of(row, "rsaSha1Signature", false)));
+    }
+
+    @ParameterizedTest(name="production certificate signature row {0}: {1}")
+    @MethodSource("currentSignatureAlgorithmCases")
+    void currentSignatureAlgorithmThroughExistingAtom(int row, String kind, boolean pass) throws Exception {
+        run(row, "sp800_78_Test_3_current", keyProfileCertificates.get(kind),
+                pass, "SP800-78.3 current:");
+    }
+
+    @ParameterizedTest(name="production CHUID CMS signature: {0}")
+    @ValueSource(strings={"plain", "cms-sha384", "cms-rsa4096-sha384", "cms-sha1"})
+    void currentChuidSignatureAlgorithmThroughExistingAtom(String kind) throws Exception {
+        run(468, "sp800_78_Test_3_current", currentChuidObjects.get(kind),
+                !kind.equals("cms-sha1"), "SP800-78.3 current:");
     }
 
     static Stream<Arguments> currentKeyProfileCases() {
@@ -354,24 +389,39 @@ public class ExistingCctRegressionTest {
         byte[] datedFields = kind.equals("holder-before-date") ? concat(holder, date) : concat(date, holder);
         byte[] signedContent = concat(concat(fields, datedFields), new byte[]{(byte) 0xfe, 0});
 
-        KeyPair key = rsa(2048, RSAKeyGenParameterSpec.F4);
+        KeyPair key = rsa(kind.equals("cms-rsa4096-sha384") ? 4096 : 2048, RSAKeyGenParameterSpec.F4);
         X500Name name = new X500Name("CN=CCT CHUID regression signer");
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(100),
                 new java.util.Date(1704067200000L), new java.util.Date(1893456000000L), name, key.getPublic());
         X509Certificate signer = new JcaX509CertificateConverter().getCertificate(
                 builder.build(new JcaContentSignerBuilder("SHA256withRSA").build(key.getPrivate())));
         CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
-        generator.addSignerInfoGenerator(new JcaSimpleSignerInfoGeneratorBuilder()
-                .build("SHA256withRSA", key.getPrivate(), signer));
+        ASN1ObjectIdentifier pivSignerDn = new ASN1ObjectIdentifier("2.16.840.1.101.3.6.5");
+        String algorithm = kind.equals("cms-sha384") || kind.equals("cms-rsa4096-sha384") ? "SHA384withRSA"
+                : kind.equals("cms-sha1") ? "SHA1withRSA" : "SHA256withRSA";
+        CMSSignatureEncryptionAlgorithmFinder rsaPkcs1 = signatureAlgorithm ->
+                new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
+        generator.addSignerInfoGenerator(new SignerInfoGeneratorBuilder(
+                new JcaDigestCalculatorProviderBuilder().build(), rsaPkcs1)
+                .setSignedAttributeGenerator(new DefaultSignedAttributeTableGenerator(
+                        new AttributeTable(new Attribute(pivSignerDn, new DERSet(name)))))
+                .build(new JcaContentSignerBuilder(algorithm).build(key.getPrivate()),
+                        new X509CertificateHolder(signer.getEncoded())));
         generator.addCertificates(new JcaCertStore(List.of(signer)));
-        byte[] cms = generator.generate(new CMSProcessableByteArray(signedContent), false).getEncoded();
+        byte[] cms = generator.generate(new CMSProcessableByteArray(
+                new ASN1ObjectIdentifier("2.16.840.1.101.3.6.1"), signedContent), false).getEncoded();
+        CMSSignedData detached = new CMSSignedData(new CMSProcessableByteArray(signedContent), cms);
+        assertTrue(detached.getSignerInfos().getSigners().iterator().next()
+                .verify(new JcaSimpleSignerInfoVerifierBuilder().build(signer)),
+                "Synthetic CHUID CMS signature must be cryptographically valid: " + kind);
         byte[] raw = APDUUtils.getTLV(APDUConstants.DATA, concat(concat(before, fields),
                 concat(datedFields, concat(APDUUtils.getTLV(new byte[]{0x3e}, cms), new byte[]{(byte) 0xfe, 0}))));
         CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
         decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         decoded.setBytes(raw);
         assertTrue(decoded.decode(), "CHUID vector must decode before testing current fields: " + kind);
-        assertTrue(decoded.verifySignature(), "CHUID vector must retain a valid CMS signature: " + kind);
+        if (!kind.equals("cms-sha1"))
+            assertTrue(decoded.verifySignature(), "CHUID vector must retain a valid CMS signature: " + kind);
         return raw;
     }
 
@@ -397,11 +447,15 @@ public class ExistingCctRegressionTest {
     }
 
     private static byte[] currentCertificate(KeyPair keyPair) throws Exception {
+        String signature = keyPair.getPrivate().getAlgorithm().equals("RSA")
+                ? "SHA256withRSA" : "SHA384withECDSA";
+        return currentCertificate(keyPair, signature);
+    }
+
+    private static byte[] currentCertificate(KeyPair keyPair, String signature) throws Exception {
         X500Name name = new X500Name("CN=CCT SP800-78-5 regression");
         java.util.Date notBefore = new java.util.Date(1704067200000L);
         java.util.Date notAfter = new java.util.Date(1893456000000L);
-        String signature = keyPair.getPrivate().getAlgorithm().equals("RSA")
-                ? "SHA256withRSA" : "SHA384withECDSA";
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(
                 keyProfileCertificates.size() + 1L), notBefore, notAfter, name, keyPair.getPublic());
         X509Certificate generated = new JcaX509CertificateConverter().getCertificate(
