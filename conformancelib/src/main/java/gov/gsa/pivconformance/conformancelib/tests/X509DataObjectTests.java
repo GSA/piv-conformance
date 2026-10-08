@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -88,6 +89,21 @@ public class X509DataObjectTests {
 		}		       
         
     }
+
+    // SP 800-73-5 Part 1 Appendix A Tables 11 and 16-18 remove MSCUID
+    // from the four active PIV certificate containers. Retired containers
+    // remain governed by Tables 21-40 and the historical atom above.
+    @DisplayName("SP800-73-5 active certificate MSCUID test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_73_5_Test_20(String oid, TestReporter reporter) {
+        if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+            return;
+        }
+        List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
+        assertFalse(tags.contains(new BerTag(TagConstants.MSCUID_TAG)),
+                "SP800-73-5 X509: MSCUID tag 0x72 is not permitted in an active certificate container");
+    }
     
 	//Tag 0xFE is present and follows tags from 73-4.19, 73-4.20
     @DisplayName("SP800-73-4.21 test")
@@ -124,6 +140,20 @@ public class X509DataObjectTests {
 		}
         
     }
+
+    @DisplayName("SP800-73-5 active certificate FE order test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_73_5_Test_21(String oid, TestReporter reporter) {
+        if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+            return;
+        }
+        List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
+        int certInfo = tags.indexOf(new BerTag(TagConstants.CERTINFO_TAG));
+        assertTrue(certInfo >= 0 && certInfo + 1 < tags.size()
+                && tags.get(certInfo + 1).equals(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG)),
+                "SP800-73-5 X509: tag 0xFE must immediately follow tag 0x71");
+    }
     
 	//No tags other than (0x70, 0x71, 0x72, 0xFE) are present
     @DisplayName("SP800-73-4.22 test")
@@ -151,6 +181,22 @@ public class X509DataObjectTests {
 			}
 			assertTrue(present);
 		}
+    }
+
+    @DisplayName("SP800-73-5 active certificate allowed tags test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_73_5_Test_22(String oid, TestReporter reporter) {
+        if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+            return;
+        }
+        List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
+        for (BerTag tag : tags) {
+            assertTrue(tag.equals(new BerTag(TagConstants.CERTIFICATE_TAG))
+                    || tag.equals(new BerTag(TagConstants.CERTINFO_TAG))
+                    || tag.equals(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG)),
+                    "SP800-73-5 X509: only tags 0x70, 0x71, and 0xFE are permitted");
+        }
     }
 
     

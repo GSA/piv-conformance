@@ -2,6 +2,7 @@ package gov.gsa.pivconformance.conformancelib.tests;
 
 import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.*;
+import gov.gsa.pivconformance.cardlib.tlv.*;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.*;
@@ -229,6 +230,43 @@ public class ExistingCctRegressionTest {
                 currentChuidObjects.get("holder-v1"), true, "");
         run("PIV-I_Production_Cards.db", 40, "sp800_73_4_Test_13",
                 currentChuidObjects.get("holder-v5"), true, "");
+    }
+
+    static Stream<Arguments> currentCertificateContainerCases() {
+        return Stream.of(
+                Arguments.of(51, "sp800_73_5_Test_20"), Arguments.of(95, "sp800_73_5_Test_20"),
+                Arguments.of(107, "sp800_73_5_Test_20"), Arguments.of(119, "sp800_73_5_Test_20"),
+                Arguments.of(52, "sp800_73_5_Test_21"), Arguments.of(97, "sp800_73_5_Test_21"),
+                Arguments.of(108, "sp800_73_5_Test_21"), Arguments.of(120, "sp800_73_5_Test_21"),
+                Arguments.of(53, "sp800_73_5_Test_22"), Arguments.of(96, "sp800_73_5_Test_22"),
+                Arguments.of(109, "sp800_73_5_Test_22"), Arguments.of(121, "sp800_73_5_Test_22"));
+    }
+
+    @ParameterizedTest(name="production active certificate row {0}: {1}")
+    @MethodSource("currentCertificateContainerCases")
+    void currentCertificateContainerThroughExistingAtom(int row, String method) throws Exception {
+        run(row, method, certificateContainerWithField(null), true, "");
+        run(row, method, certificateContainerWithField((byte) 0x72), false, "SP800-73-5 X509:");
+        if (method.endsWith("22"))
+            run(row, method, certificateContainerWithField((byte) 0x73), false, "SP800-73-5 X509:");
+    }
+
+    @Test void historicalCertificateContainerStillPermitsMscuid() throws Exception {
+        byte[] withMscuid = certificateContainerWithField((byte) 0x72);
+        run("PIV-I_Production_Cards.db", 51, "sp800_73_4_Test_20", withMscuid, true, "");
+        run("PIV-I_Production_Cards.db", 52, "sp800_73_4_Test_21", withMscuid, true, "");
+        run("PIV-I_Production_Cards.db", 53, "sp800_73_4_Test_22", withMscuid, true, "");
+    }
+
+    private static byte[] certificateContainerWithField(Byte field) {
+        byte[] valid = keyProfileCertificates.get("rsa2048");
+        BerTlvs outer = new BerTlvParser(new CCTTlvLogger(ExistingCctRegressionTest.class)).parse(valid);
+        byte[] body = outer.getList().get(0).getBytesValue();
+        assertEquals((byte) 0xfe, body[body.length - 2]);
+        assertEquals(0, body[body.length - 1]);
+        byte[] added = field == null ? new byte[0] : APDUUtils.getTLV(new byte[]{field}, new byte[]{1});
+        return APDUUtils.getTLV(APDUConstants.DATA,
+                concat(concat(Arrays.copyOf(body, body.length - 2), added), new byte[]{(byte) 0xfe, 0}));
     }
 
     private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier golden, String kind) throws Exception {
