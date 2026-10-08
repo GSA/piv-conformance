@@ -229,7 +229,7 @@ INSERT INTO "TestSteps" VALUES(164,'PKIX.23','gov.gsa.pivconformance.conformance
 INSERT INTO "TestSteps" VALUES(165,'PKIX.24','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_24',NULL);
 INSERT INTO "TestSteps" VALUES(166,'PKIX.25','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_25',NULL);
 INSERT INTO "TestSteps" VALUES(167,'PKIX.26','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_26',NULL);
-INSERT INTO "TestSteps" VALUES(168,'PKIX.27','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_27',NULL);
+INSERT INTO "TestSteps" VALUES(168,'PKIX.27.current','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_27_current',NULL);
 INSERT INTO "TestSteps" VALUES(169,'PKIX.28','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_28',NULL);
 INSERT INTO "TestSteps" VALUES(170,'PKIX.29','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_29',NULL);
 INSERT INTO "TestSteps" VALUES(171,'PKIX.30','gov.gsa.pivconformance.conformancelib.tests.PKIX_X509DataObjectTests','PKIX_Test_30',NULL);
@@ -645,7 +645,7 @@ INSERT INTO "TestCases" VALUES(365, NULL,'11.1.2.4','PIV interim extension is pr
 INSERT INTO "TestCases" VALUES(366, NULL,'11.1.2.5','Private key corresponds to the public key contained in the certificate as the signature verification succeeds.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(367, NULL,'11.1.2.6','Subject Alternate Name','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(368, NULL,'11.1.2.6.1','GeneralName field exists that contains an otherName with a type-id asserting the pivFASC-N OID. The value field of this otherName contains the FASC-N for the cardholder which matches the FASC-N obtained from parsing the CHUID.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(369, NULL,'11.1.2.6.2','GeneralName field exists that contain a URI asserting a Card UUID as specified by [RFC4122, Section 3] that matches the GUID value in the CHUID.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(369, NULL,'11.1.2.6.2','PIV Authentication certificate SAN contains the CHUID Card UUID and, if present, a version 4 Cardholder UUID matching CHUID tag 0x36 (SP 800-73-5 Sections 3.4.1-3.4.2)','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(370, NULL,'11.1.2.7','Expiration date of the PIV authentication certificate is not beyond the expiration date of the CHUID i.e. the PIV card.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(371, NULL,'11.1.2.8','Exponent of the RSA asymmetric key for PIV authentication is equal to 65,537.','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(372, NULL,'11.1.2.9','CRL Distribution Point','',NULL, 1, 1);

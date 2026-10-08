@@ -48,6 +48,8 @@ public class ExistingCctRegressionTest {
     private static byte[] chuid;
     private static byte[] ccc;
     private static String cardUrn;
+    private static String holderUrn;
+    private static KeyPair sanSigningKey;
     private static X509CertificateHolder certificate;
     private static final Map<String, byte[]> keyProfileCertificates = new HashMap<>();
     private static final Map<String, byte[]> currentChuidObjects = new HashMap<>();
@@ -76,6 +78,9 @@ public class ExistingCctRegressionTest {
         assertTrue(decoded.decode(), "Existing golden CHUID must decode before testing UUID equality");
         ByteBuffer guid = ByteBuffer.wrap(decoded.getgUID());
         cardUrn = "urn:uuid:" + new UUID(guid.getLong(), guid.getLong());
+        ByteBuffer holderBytes = ByteBuffer.wrap(decoded.getCardholderUUID());
+        holderUrn = "urn:uuid:" + new UUID(holderBytes.getLong(), holderBytes.getLong());
+        sanSigningKey = rsa(2048, RSAKeyGenParameterSpec.F4);
         for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first",
                 "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
@@ -126,10 +131,67 @@ public class ExistingCctRegressionTest {
             case "unrelated-uri-before-card" -> new GeneralName[]{new GeneralName(6, "https://example.invalid/"), match};
             default -> throw new AssertionError(kind);
         };
-        boolean pass = Set.of("match", "uppercase", "holder-before-card", "holder-after-card",
-                "unrelated-uri-before-card").contains(kind);
-        run(row, "PKIX_Test_27", encodedCertificate(names, certificate.getSignatureAlgorithm()),
-                pass, "PKIX.27:");
+        boolean pass = Set.of("match", "uppercase", "unrelated-uri-before-card").contains(kind)
+                || (row == 451 && Set.of("holder-before-card", "holder-after-card").contains(kind));
+        String failure = row == 369 && Set.of("holder-before-card", "holder-after-card").contains(kind)
+                ? "PKIX.27 current:" : "PKIX.27:";
+        run(row, "PKIX_Test_27_current", encodedCertificate(names, certificate.getSignatureAlgorithm()),
+                pass, failure);
+    }
+
+    static Stream<Arguments> currentSanHolderCases() {
+        return Stream.of(
+                Arguments.of("absent", true), Arguments.of("match", true),
+                Arguments.of("v1", false), Arguments.of("v5", false),
+                Arguments.of("variant", false), Arguments.of("short", false),
+                Arguments.of("mismatch", false), Arguments.of("unrelated", true));
+    }
+
+    @ParameterizedTest(name="production PIV Authentication SAN holder UUID: {0}")
+    @MethodSource("currentSanHolderCases")
+    void currentSanHolderThroughExistingAtom(String kind, boolean pass) throws Exception {
+        List<GeneralName> names = new ArrayList<>();
+        names.add(new GeneralName(GeneralName.uniformResourceIdentifier, cardUrn));
+        String candidate = switch (kind) {
+            case "absent", "unrelated" -> null;
+            case "match" -> holderUrn;
+            case "v1" -> uuidUrnWithByte(holderUrn, 6, 0x10);
+            case "v5" -> uuidUrnWithByte(holderUrn, 6, 0x50);
+            case "variant" -> uuidUrnWithByte(holderUrn, 8, 0x00);
+            case "short" -> "urn:uuid:1-2-3-4-5";
+            case "mismatch" -> "urn:uuid:aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+            default -> throw new AssertionError(kind);
+        };
+        if (candidate != null) names.add(new GeneralName(GeneralName.uniformResourceIdentifier, candidate));
+        if (kind.equals("unrelated"))
+            names.add(new GeneralName(GeneralName.uniformResourceIdentifier, "https://example.invalid/"));
+        byte[] signed = signedCertificateWithSan(names.toArray(new GeneralName[0]));
+        run(369, "PKIX_Test_27_current", signed, pass, "PKIX.27 current:");
+        if (kind.equals("v1") || kind.equals("mismatch"))
+            run("PIV-I_Production_Cards.db", 369, "PKIX_Test_27", signed, true, "");
+    }
+
+    private static String uuidUrnWithByte(String urn, int index, int highBits) {
+        UUID uuid = UUID.fromString(urn.substring(9));
+        ByteBuffer bytes = ByteBuffer.allocate(16).putLong(uuid.getMostSignificantBits()).putLong(uuid.getLeastSignificantBits());
+        byte[] value = bytes.array();
+        value[index] = (byte) ((value[index] & 0x0f) | highBits);
+        ByteBuffer changed = ByteBuffer.wrap(value);
+        return "urn:uuid:" + new UUID(changed.getLong(), changed.getLong());
+    }
+
+    private static byte[] signedCertificateWithSan(GeneralName[] names) throws Exception {
+        X500Name name = new X500Name("CN=CCT PIV Authentication SAN regression");
+        var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(4242),
+                new java.util.Date(1704067200000L), new java.util.Date(1893456000000L),
+                name, sanSigningKey.getPublic());
+        builder.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
+        X509Certificate signed = new JcaX509CertificateConverter().getCertificate(
+                builder.build(new JcaContentSignerBuilder("SHA256withRSA").build(sanSigningKey.getPrivate())));
+        signed.verify(sanSigningKey.getPublic());
+        return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, signed.getEncoded()),
+                new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
     }
 
     static Stream<Arguments> signatureCases() {
