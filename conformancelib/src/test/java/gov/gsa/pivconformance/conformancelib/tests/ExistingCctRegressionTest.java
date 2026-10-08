@@ -8,6 +8,10 @@ import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaCertStore;
+import org.bouncycastle.cms.CMSProcessableByteArray;
+import org.bouncycastle.cms.CMSSignedDataGenerator;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoGeneratorBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,6 +49,7 @@ public class ExistingCctRegressionTest {
     private static String cardUrn;
     private static X509CertificateHolder certificate;
     private static final Map<String, byte[]> keyProfileCertificates = new HashMap<>();
+    private static final Map<String, byte[]> currentChuidObjects = new HashMap<>();
     private static boolean addedProvider;
 
     @BeforeAll static void fixtures() throws Exception {
@@ -70,6 +75,8 @@ public class ExistingCctRegressionTest {
         assertTrue(decoded.decode(), "Existing golden CHUID must decode before testing UUID equality");
         ByteBuffer guid = ByteBuffer.wrap(decoded.getgUID());
         cardUrn = "urn:uuid:" + new UUID(guid.getLong(), guid.getLong());
+        for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first"))
+            currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
         try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
             certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
                     .generateCertificate(in).getEncoded());
@@ -168,6 +175,75 @@ public class ExistingCctRegressionTest {
                 cccWithOptional("both"), true, "");
     }
 
+    static Stream<Arguments> currentChuidCases() {
+        return Stream.of(
+                Arguments.of(23, "sp800_73_5_Test_43", "plain", true, ""),
+                Arguments.of(23, "sp800_73_5_Test_43", "EE", false, "SP800-73-5 CHUID:"),
+                Arguments.of(23, "sp800_73_5_Test_43", "guid-first", false, "SP800-73-5 CHUID:"),
+                Arguments.of(24, "sp800_73_5_Test_11", "plain", true, ""),
+                Arguments.of(24, "sp800_73_5_Test_11", "32", false, "SP800-73-5 CHUID:"),
+                Arguments.of(24, "sp800_73_5_Test_11", "33", false, "SP800-73-5 CHUID:"),
+                Arguments.of(26, "sp800_73_5_Test_45", "plain", true, ""),
+                Arguments.of(26, "sp800_73_5_Test_45", "32", false, "SP800-73-5 CHUID:"),
+                Arguments.of(26, "sp800_73_5_Test_45", "33", false, "SP800-73-5 CHUID:"),
+                Arguments.of(35, "sp800_73_5_Test_9", "plain", true, ""),
+                Arguments.of(35, "sp800_73_5_Test_9", "EE", false, "SP800-73-5 CHUID:"),
+                Arguments.of(36, "sp800_73_5_Test_17", "plain", true, ""),
+                Arguments.of(36, "sp800_73_5_Test_17", "EE", false, "SP800-73-5 CHUID:"),
+                Arguments.of(36, "sp800_73_5_Test_17", "32", false, "SP800-73-5 CHUID:"),
+                Arguments.of(36, "sp800_73_5_Test_17", "33", false, "SP800-73-5 CHUID:"),
+                Arguments.of(36, "sp800_73_5_Test_17", "unknown", false, "SP800-73-5 CHUID:"));
+    }
+
+    @ParameterizedTest(name="production CHUID row {0}: {2}") @MethodSource("currentChuidCases")
+    void currentChuidThroughExistingAtom(int row, String method, String kind, boolean pass,
+                                         String failurePrefix) throws Exception {
+        run(row, method, currentChuidObjects.get(kind), pass, failurePrefix);
+    }
+
+    @Test void historicalChuidStillPermitsDeprecatedFields() throws Exception {
+        run("PIV-I_Production_Cards.db", 35, "sp800_73_4_Test_9", currentChuidObjects.get("EE"), true, "");
+        run("PIV-I_Production_Cards.db", 24, "sp800_73_4_Test_11", currentChuidObjects.get("32"), true, "");
+        run("PIV-I_Production_Cards.db", 24, "sp800_73_4_Test_11", currentChuidObjects.get("33"), true, "");
+    }
+
+    private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier golden, String kind) throws Exception {
+        byte[] fascn = APDUUtils.getTLV(new byte[]{0x30}, golden.getfASCN());
+        byte[] guid = APDUUtils.getTLV(new byte[]{0x34}, golden.getgUID());
+        byte[] date = APDUUtils.getTLV(new byte[]{0x35}, "20321202".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        byte[] holder = golden.getCardholderUUID() == null ? new byte[0]
+                : APDUUtils.getTLV(new byte[]{0x36}, golden.getCardholderUUID());
+        byte[] before = kind.equals("EE") ? APDUUtils.getTLV(new byte[]{(byte) 0xee}, new byte[2]) : new byte[0];
+        byte[] between = switch (kind) {
+            case "32" -> APDUUtils.getTLV(new byte[]{0x32}, new byte[4]);
+            case "33" -> APDUUtils.getTLV(new byte[]{0x33}, new byte[9]);
+            case "unknown" -> APDUUtils.getTLV(new byte[]{0x37}, new byte[1]);
+            default -> new byte[0];
+        };
+        byte[] fields = kind.equals("guid-first") ? concat(guid, fascn) : concat(fascn, concat(between, guid));
+        byte[] signedContent = concat(concat(fields, concat(date, holder)), new byte[]{(byte) 0xfe, 0});
+
+        KeyPair key = rsa(2048, RSAKeyGenParameterSpec.F4);
+        X500Name name = new X500Name("CN=CCT CHUID regression signer");
+        var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(100),
+                new java.util.Date(1704067200000L), new java.util.Date(1893456000000L), name, key.getPublic());
+        X509Certificate signer = new JcaX509CertificateConverter().getCertificate(
+                builder.build(new JcaContentSignerBuilder("SHA256withRSA").build(key.getPrivate())));
+        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+        generator.addSignerInfoGenerator(new JcaSimpleSignerInfoGeneratorBuilder()
+                .build("SHA256withRSA", key.getPrivate(), signer));
+        generator.addCertificates(new JcaCertStore(List.of(signer)));
+        byte[] cms = generator.generate(new CMSProcessableByteArray(signedContent), false).getEncoded();
+        byte[] raw = APDUUtils.getTLV(APDUConstants.DATA, concat(concat(before, fields),
+                concat(concat(date, holder), concat(APDUUtils.getTLV(new byte[]{0x3e}, cms), new byte[]{(byte) 0xfe, 0}))));
+        CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
+        decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+        decoded.setBytes(raw);
+        assertTrue(decoded.decode(), "CHUID vector must decode before testing current fields: " + kind);
+        assertTrue(decoded.verifySignature(), "CHUID vector must retain a valid CMS signature: " + kind);
+        return raw;
+    }
+
     private static byte[] cccWithOptional(String kind) {
         byte[] body = Arrays.copyOf(ccc, ccc.length - 2); // Replace final FE 00 after optional fields.
         if (kind.equals("E3") || kind.equals("both"))
@@ -249,8 +325,9 @@ public class ExistingCctRegressionTest {
                     .filter(m -> m.getName().equals(step.getTestMethodName())).findFirst().orElseThrow();
             String selector = step.getTestClassName() + "#" + method.getName() + "("
                     + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ")";
-            Map<String,byte[]> objects = Map.of(APDUConstants.getStringForFieldNamed(row.getContainer()), raw,
-                    APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, chuid);
+            Map<String,byte[]> objects = new HashMap<>();
+            objects.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, chuid);
+            objects.put(APDUConstants.getStringForFieldNamed(row.getContainer()), raw);
             var result = execute(selector, row.getContainer(), step.getParameters(), objects);
             assertEquals(pass ? TestExecutionResult.Status.SUCCESSFUL : TestExecutionResult.Status.FAILED,
                     result.getStatus(), row.getIdentifier() + ": " + result);
