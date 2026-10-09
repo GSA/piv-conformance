@@ -199,6 +199,12 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 		return m_expirationDate;
 	}
 
+	/** Returns the encoded CHUID expiration date without the decoder's date normalization. */
+	public byte[] getExpirationDateBytes() {
+		byte[] value = m_content.get(new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG));
+		return value == null ? null : value.clone();
+	}
+
 	/**
 	 *
 	 * Sets Expiration Date value

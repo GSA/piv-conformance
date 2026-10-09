@@ -1,15 +1,20 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.nio.ByteBuffer;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.Hex;
@@ -302,12 +307,12 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_15(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		Date expirationDate = ((CardHolderUniqueIdentifier) o).getExpirationDate();
-
-		// Decode for CardHolderUniqueIdentifier class parses the date in YYYYMMDD
-		// format.
-		assertNotNull(expirationDate);
+		byte[] encodedDate = ((CardHolderUniqueIdentifier) o).getExpirationDateBytes();
+		String message = "CHUID expiration date must be an eight-digit valid YYYYMMDD date";
+		assertNotNull(encodedDate, message);
+		assertEquals(8, encodedDate.length, message);
+		assertDoesNotThrow(() -> LocalDate.parse(new String(encodedDate, StandardCharsets.US_ASCII),
+				DateTimeFormatter.BASIC_ISO_DATE), message);
 
 	}
 

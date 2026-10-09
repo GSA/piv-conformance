@@ -94,7 +94,8 @@ public class ExistingCctRegressionTest {
         sanSigningKey = rsa(2048, RSAKeyGenParameterSpec.F4);
         for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first",
                 "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date",
-                "cms-sha384", "cms-rsa4096-sha384", "cms-sha1"))
+                "cms-sha384", "cms-rsa4096-sha384", "cms-sha1", "date-month-13", "date-nonleap",
+                "date-short", "date-leap"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
         try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
             certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
@@ -120,6 +121,19 @@ public class ExistingCctRegressionTest {
     }
 
     @AfterAll static void restoreProvider() { if (addedProvider) Security.removeProvider("BC"); }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"PIV_Production_Cards.db", "PIV-I_Production_Cards.db"})
+    void chuidExpirationFormatThroughExistingAtom(String database) throws Exception {
+        run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get("plain"), true, "");
+        run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get("date-leap"), true, "");
+        run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get("date-month-13"),
+                false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
+        run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get("date-nonleap"),
+                false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
+        run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get("date-short"),
+                false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
+    }
 
     static Stream<Arguments> uuidCases() {
         return IntStream.of(369, 451).boxed().flatMap(row -> Stream.of(
@@ -380,7 +394,14 @@ public class ExistingCctRegressionTest {
     private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier golden, String kind) throws Exception {
         byte[] fascn = APDUUtils.getTLV(new byte[]{0x30}, golden.getfASCN());
         byte[] guid = APDUUtils.getTLV(new byte[]{0x34}, golden.getgUID());
-        byte[] date = APDUUtils.getTLV(new byte[]{0x35}, "20321202".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        String dateText = switch (kind) {
+            case "date-month-13" -> "20321302";
+            case "date-nonleap" -> "20330229";
+            case "date-short" -> "2032122";
+            case "date-leap" -> "20320229";
+            default -> "20321202";
+        };
+        byte[] date = APDUUtils.getTLV(new byte[]{0x35}, dateText.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
         byte[] holderValue = golden.getCardholderUUID();
         if (holderValue != null) holderValue = holderValue.clone();
         if (kind.equals("holder-v1")) holderValue[6] = (byte) ((holderValue[6] & 0x0f) | 0x10);
