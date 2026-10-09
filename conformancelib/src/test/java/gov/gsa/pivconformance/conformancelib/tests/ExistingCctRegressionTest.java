@@ -527,8 +527,35 @@ public class ExistingCctRegressionTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void enabledPlaceholdersCannotPass(String database) throws Exception {
+        Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
+        int checked = 0;
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro");
+             Statement statement = connection.createStatement();
+             ResultSet rows = statement.executeQuery("SELECT tc.Id FROM TestCases tc "
+                     + "JOIN TestsToSteps ts ON ts.TestId = tc.Id "
+                     + "JOIN TestSteps step ON step.Id = ts.TestStepId "
+                     + "WHERE tc.Enabled = 1 AND step.Method = 'PlaceholderTest_1' ORDER BY tc.Id")) {
+            while (rows.next()) {
+                run(database, rows.getInt(1), "PlaceholderTest_1", chuid,
+                        TestExecutionResult.Status.ABORTED, PlaceholderTests.UNSUPPORTED_MESSAGE);
+                checked++;
+            }
+        }
+        assertTrue(checked > 0, "The profile must exercise at least one unresolved placeholder");
+    }
+
     private static void run(String database, int id, String expectedMethod, byte[] raw,
                             boolean pass, String failurePrefix) throws Exception {
+        run(database, id, expectedMethod, raw,
+                pass ? TestExecutionResult.Status.SUCCESSFUL : TestExecutionResult.Status.FAILED, failurePrefix);
+    }
+
+    private static void run(String database, int id, String expectedMethod, byte[] raw,
+                            TestExecutionResult.Status expectedStatus, String failurePrefix) throws Exception {
         Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro")) {
             TestCaseModel row = new TestCaseModel(new ConformanceTestDatabase(connection));
@@ -543,12 +570,16 @@ public class ExistingCctRegressionTest {
             objects.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, chuid);
             objects.put(APDUConstants.getStringForFieldNamed(row.getContainer()), raw);
             var result = execute(selector, row.getContainer(), step.getParameters(), objects);
-            assertEquals(pass ? TestExecutionResult.Status.SUCCESSFUL : TestExecutionResult.Status.FAILED,
-                    result.getStatus(), row.getIdentifier() + ": " + result);
-            if (!pass) {
+            assertEquals(expectedStatus, result.getStatus(), row.getIdentifier() + ": " + result);
+            if (expectedStatus != TestExecutionResult.Status.SUCCESSFUL) {
                 Throwable failure = result.getThrowable().orElseThrow();
-                assertTrue(failure instanceof AssertionError, "Setup/decode errors do not prove the intended failure: " + failure);
-                assertTrue(failure.getMessage().startsWith(failurePrefix), "Wrong assertion: " + failure);
+                if (expectedStatus == TestExecutionResult.Status.FAILED)
+                    assertTrue(failure instanceof AssertionError,
+                            "Setup/decode errors do not prove the intended failure: " + failure);
+                assertTrue(expectedStatus == TestExecutionResult.Status.ABORTED
+                                ? failure.getMessage().contains(failurePrefix)
+                                : failure.getMessage().startsWith(failurePrefix),
+                        "Wrong assertion: " + failure);
             }
         }
     }
