@@ -1,12 +1,12 @@
 # piv-conformance
-Tool to verify conformance to the PIV data model on PIV cards per current releases of FIPS 201 and associated publications
+Tool for testing the PIV card data model. Its existing test cases derive from SP 800-85B guidance; selected checks have been updated for FIPS 201-3, SP 800-73-5 Part 1, SP 800-78-5, and SP 800-76-2. A passing run does not establish complete coverage of those publications.
 
 ## References ##
 
 ### FIPS Publications ###
 - [FIPS 140 Federal Information Processing Standards Publication FIPS 140-2, Security Requirements for
 Cryptographic Modules](https://doi.org/10.6028/NIST.FIPS.140-2)
-- [FIPS 201 Federal Information Processing Standard 201-2, Personal Identity Verification (PIV) of Federal Employees and Contractors](https://doi.org/10.6028/NIST.FIPS.201-2)                            
+- [FIPS 201-3 Personal Identity Verification (PIV) of Federal Employees and Contractors](https://doi.org/10.6028/NIST.FIPS.201-3)
 
 ### ISO/IEC Publications ###
 - ISO/IEC 17043, Conformity assessment – General requirements for proficiency testing, 2010
@@ -15,9 +15,9 @@ Cryptographic Modules](https://doi.org/10.6028/NIST.FIPS.140-2)
 - ISO/IEC 14443-1:2000, Identification Cards—Contactless Integrated Circuit(s) Cards—Proximity Cards, ISO, 2000
 
 ### NIST Special Publications ###
-- [SP800-73 Interfaces for Personal Identity Verification](https://doi.org/10.6028/NIST.SP.800-73-4)
+- [SP 800-73-5 Part 1, PIV Card Application Namespace, Data Model and Representation](https://doi.org/10.6028/NIST.SP.800-73pt1-5)
 - [SP800-76 Biometric Specifications for Personal Identity Verification](https://doi.org/10.6028/NIST.SP.800-76-2)
-- [SP800-78 Cryptographic Algorithms and Key Sizes for Personal Identity Verification](https://doi.org/10.6028/NIST.SP.800-78-4)
+- [SP 800-78-5 Cryptographic Algorithms and Key Sizes for Personal Identity Verification](https://doi.org/10.6028/NIST.SP.800-78-5)
 - [SP800-85A PIV Card Application and Middleware Interface Test Guidelines (SP 800-73-4 Compliance)](https://doi.org/10.6028/NIST.SP.800-85A-4)
 - [SP800-85B PIV Data Model Test Guidelines (DRAFT)](https://csrc.nist.gov/CSRC/media/Publications/sp/800-85b/4/draft/documents/sp800_85b-4_draft.pdf)
 - [SP800-96 PIV Card to Reader Interoperability Guidelines](https://doi.org/10.6028/NIST.SP.800-96)
