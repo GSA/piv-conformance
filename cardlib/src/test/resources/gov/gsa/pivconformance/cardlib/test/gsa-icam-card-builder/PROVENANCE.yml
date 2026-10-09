@@ -1,10 +1,10 @@
 source_repository: https://github.com/GSA/gsa-icam-card-builder.git
 exact_upstream_commit: 6d5a872547b96c48dff7fc7c14ae1d205438ae38
 license: CC0-1.0 / public domain
-selection: Exactly the 444 files referenced by active cases in the seven Cardlib dataObjectTestProvider methods.
-fixture_file_count: 444
+selection: Only the 18 Golden PIV and Golden PIV-I objects used by Cardlib parser smoke tests and the CCT regression baseline.
+fixture_file_count: 18
 manifest_algorithm: Lexicographically sort fixture-relative paths, then hash lines formatted as "sha256  path\\n".
-manifest_sha256: bb868fdc977f0adccda89685de9db98ce7928362dfdc46268ebb69e0d968ea32
+manifest_sha256: 306f88cb16a2c5360fe2402e0562fcfb4d19da3f5b97c0c537206bcf6178f80b
 detected_content_categories:
   - X.509 certificates
   - fingerprint objects
