@@ -199,6 +199,12 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 		return m_expirationDate;
 	}
 
+	/** Returns the encoded CHUID expiration date without the decoder's date normalization. */
+	public byte[] getExpirationDateBytes() {
+		byte[] value = m_content.get(new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG));
+		return value == null ? null : value.clone();
+	}
+
 	/**
 	 *
 	 * Sets Expiration Date value
@@ -380,9 +386,9 @@ public class CardHolderUniqueIdentifier extends SignedPIVDataObject {
 							// 2 deprecated tags that can't be part of the data model after we note them
 							// here
 
-							if (Arrays.equals(tag.bytes, TagConstants.BUFFER_LENGTH_TAG)) { // EE - Don't use in hash
-																							// (don't add to digest
-																							// input)
+							if (Arrays.equals(tag.bytes, TagConstants.BUFFER_LENGTH_TAG)) {
+								// EE is observed but excluded from the signed-content digest.
+								m_bufferLength = value;
 								s_logger.warn("Deprecated tag: {} with value: {}", Hex.encodeHexString(tag.bytes),
 										Hex.encodeHexString(value));
 							} else if (Arrays.equals(tag.bytes, TagConstants.DEPRECATED_AUTHENTICATION_KEY_MAP)) { // 3D - Dont' use in hash (don't add to digest input)

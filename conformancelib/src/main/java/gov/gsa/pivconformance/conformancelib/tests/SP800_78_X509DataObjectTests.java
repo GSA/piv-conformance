@@ -10,6 +10,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.PSSParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.stream.Stream;
@@ -19,8 +20,11 @@ import gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.asn1.pkcs.RSASSAPSSparams;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 //import org.bouncycastle.asn1.x9.X9ECParameters;
@@ -41,6 +45,7 @@ import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.X509CertificateDataObject;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
+import gov.gsa.pivconformance.cardlib.card.client.SignedPIVDataObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -225,6 +230,55 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 		}
     }
 
+    /**
+     * Validates active PIV certificate public keys against SP 800-78-5 Section
+     * 3.1, Table 1 (requirements through 2030). FIPS 201-3 Sections 4.2.2.1
+     * through 4.2.2.5 define the corresponding PIV key uses. The legacy atom
+     * above remains mapped to PIV-I and content-signing cases whose applicability
+     * has not been changed by this PIV profile update.
+     */
+    @DisplayName("SP800-78.1 current PIV test")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_78_Test_1_current(String oid, TestReporter reporter) {
+        Set<String> activePivCertificateOids = Set.of(
+                APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID,
+                APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID,
+                APDUConstants.X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID,
+                APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID);
+        assertTrue(activePivCertificateOids.contains(oid),
+                "SP800-78.1: unsupported container for the current PIV key profile: " + oid);
+
+        PIVDataObject object = AtomHelper.getDataObject(oid);
+        X509Certificate certificate = AtomHelper.getCertificateForContainer(object);
+        assertNotNull(certificate, "SP800-78.1: certificate could not be decoded");
+        PublicKey publicKey = certificate.getPublicKey();
+        assertNotNull(publicKey, "SP800-78.1: certificate public key is missing");
+
+        if (publicKey instanceof RSAPublicKey) {
+            RSAPublicKey rsa = (RSAPublicKey) publicKey;
+            int modulusBits = rsa.getModulus().bitLength();
+            assertTrue(modulusBits == 2048 || modulusBits == 3072,
+                    "SP800-78.1: RSA modulus must be 2048 or 3072 bits through 2030; found "
+                            + modulusBits);
+            assertEquals(java.math.BigInteger.valueOf(65537), rsa.getPublicExponent(),
+                    "SP800-78.1: RSA public exponent must be 65537");
+            return;
+        }
+
+        if (publicKey instanceof ECPublicKey) {
+            AlgorithmIdentifier algorithm = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded()).getAlgorithm();
+            assertEquals("1.2.840.10045.2.1", algorithm.getAlgorithm().getId(),
+                    "SP800-78.1: EC public key algorithm identifier must be id-ecPublicKey");
+            ASN1ObjectIdentifier curve = ASN1ObjectIdentifier.getInstance(algorithm.getParameters());
+            assertTrue(curve.getId().equals("1.2.840.10045.3.1.7") || curve.getId().equals("1.3.132.0.34"),
+                    "SP800-78.1: EC key must use named curve P-256 or P-384; found " + curve.getId());
+            return;
+        }
+
+        fail("SP800-78.1: public key algorithm must be RSA or EC; found " + publicKey.getAlgorithm());
+    }
+
     //Table 3-2 ECDSA Ensure that ECDSA key is curve P-256 or P-384
     // TODO: Refactor using Algorithm class
 	//Curve P-256: ansip256r1 1.2.840.10045.3.1.7
@@ -270,17 +324,9 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			String name = cert.getSigAlgName();
 			if (signatureAlgOID.compareTo(sha256WithRSAEncryption) == 0) {
 				byte[] params = cert.getSigAlgParams();
-				if (params != null) {
-					// RFC 4055: All implementations MUST accept both NULL and absent parameters as
-					// legal and equivalent encodings. Certs generated by BC end encode a NULL
-					// element which we manually decode and ignore if the bytes are { 5, 0 }
-					String errMsg = "Parameter must NOT be supplied for " + name + ".  Value of params " + Hex.encodeHexString(params);
-					assertTrue ((params[0] != 5 || params[1] != 0), errMsg);
-				} else {
-					s_logger.debug("Setting BC cert's params to null");
-					params = null;
-				}
-				assertTrue(params == null, "No such algorithm or parameters not available for (" + cert.getSigAlgName());
+                // RFC 4055 section 5: NULL and absent are equivalent for RSA SHA2 signatures.
+                assertTrue(params == null || Arrays.equals(params, new byte[]{5, 0}),
+                        "SP800-78.3: RSA SHA-256 signature parameters must be NULL or absent");
 			} else if (signatureAlgOID.compareTo(rSASSA_PSS) == 0) {
 				byte[] params = cert.getSigAlgParams();
 				assertNotNull(params, "Parameters are not specified");
@@ -308,6 +354,105 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			String msg = e.getMessage();
 			s_logger.error(msg);
 			fail(msg);
+		}
+	}
+
+	// FIPS 201-3 Section 4.2 and SP 800-78-5 Section 3.2.1, Tables 2-3.
+	// The current PIV case also covers CHUID: its CMS SignerInfo algorithm is
+	// the object signature, whereas the embedded certificate has its own signature.
+	@DisplayName("SP800-78.3 current PIV signature algorithm test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_78_Test_3_current(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid)) return;
+		PIVDataObject object = AtomHelper.getDataObject(oid);
+		if (object instanceof SignedPIVDataObject) {
+			SignedPIVDataObject signed = (SignedPIVDataObject) object;
+			CMSSignedData cms = AtomHelper.getSignedDataForObject(signed);
+			assertNotNull(cms, "SP800-78.3 current: CMS signature is missing");
+			assertEquals(1, cms.getSignerInfos().size(), "SP800-78.3 current: exactly one CMS signer is required");
+			SignerInformation signer = cms.getSignerInfos().getSigners().iterator().next();
+			String algorithm = signer.getEncryptionAlgOID();
+			String digest = signer.getDigestAlgOID();
+			byte[] parameters = signer.getEncryptionAlgParams();
+			if (algorithm.equals("1.2.840.113549.1.1.1")) {
+				assertTrue(digest.equals("2.16.840.1.101.3.4.2.1")
+						|| digest.equals("2.16.840.1.101.3.4.2.2"),
+						"SP800-78.3 current: RSA CMS digest must be SHA-256 or SHA-384");
+				assertTrue(parameters == null || Arrays.equals(parameters, new byte[]{5, 0}),
+						"SP800-78.3 current: RSA CMS signature parameters must be NULL or absent");
+			} else if (algorithm.equals("1.2.840.113549.1.1.10")) {
+				assertEquals(digest, pssDigest(parameters),
+						"SP800-78.3 current: CMS PSS digest and parameters differ");
+			} else if (algorithm.equals("1.2.840.10045.4.3.2")
+						|| algorithm.equals("1.2.840.10045.4.3.3")) {
+				assertEquals(algorithm.equals("1.2.840.10045.4.3.2")
+							? "2.16.840.1.101.3.4.2.1" : "2.16.840.1.101.3.4.2.2", digest,
+							"SP800-78.3 current: CMS ECDSA signature and digest differ");
+				assertNull(parameters, "SP800-78.3 current: ECDSA CMS signature parameters must be absent");
+			} else {
+				fail("SP800-78.3 current: unsupported CMS signature algorithm " + algorithm);
+			}
+			X509Certificate signerCertificate = AtomHelper.getCertificateForContainer(object);
+			assertNotNull(signerCertificate, "SP800-78.3 current: CMS signer certificate is missing");
+			PublicKey signerKey = signerCertificate.getPublicKey();
+			if (algorithm.equals("1.2.840.113549.1.1.1")
+					|| algorithm.equals("1.2.840.113549.1.1.10")) {
+				assertTrue(signerKey instanceof RSAPublicKey,
+						"SP800-78.3 current: RSA CMS signature requires an RSA signer key");
+				int bits = ((RSAPublicKey) signerKey).getModulus().bitLength();
+				assertTrue(bits == 2048 || bits == 3072 || bits == 4096,
+						"SP800-78.3 current: RSA CMS signer key must be 2048, 3072 or 4096 bits through 2030");
+			} else {
+				assertTrue(signerKey instanceof ECPublicKey,
+						"SP800-78.3 current: ECDSA CMS signature requires an EC signer key");
+				int bits = ((ECPublicKey) signerKey).getParams().getCurve().getField().getFieldSize();
+				int required = algorithm.equals("1.2.840.10045.4.3.2") ? 256 : 384;
+				assertEquals(required, bits,
+						"SP800-78.3 current: ECDSA CMS signer curve and digest must match Table 2");
+			}
+			assertTrue(signed.verifySignature(), "SP800-78.3 current: CMS signature does not verify");
+			return;
+		}
+
+		X509Certificate cert = AtomHelper.getCertificateForContainer(object);
+		assertNotNull(cert, "SP800-78.3 current: certificate could not be decoded");
+		String algorithm = cert.getSigAlgOID();
+		byte[] parameters = cert.getSigAlgParams();
+		if (algorithm.equals("1.2.840.113549.1.1.11")
+				|| algorithm.equals("1.2.840.113549.1.1.12")) {
+			assertTrue(parameters == null || Arrays.equals(parameters, new byte[]{5, 0}),
+					"SP800-78.3 current: RSA SHA-256/384 parameters must be NULL or absent");
+		} else if (algorithm.equals("1.2.840.113549.1.1.10")) {
+			pssDigest(parameters);
+		} else if (algorithm.equals("1.2.840.10045.4.3.2")
+				|| algorithm.equals("1.2.840.10045.4.3.3")) {
+			assertNull(parameters, "SP800-78.3 current: ECDSA parameters must be absent");
+		} else {
+			fail("SP800-78.3 current: unsupported certificate signature algorithm " + algorithm);
+		}
+	}
+
+	private static String pssDigest(byte[] parameters) {
+		assertNotNull(parameters, "SP800-78.3 current: RSA-PSS parameters are required");
+		try {
+			AlgorithmParameters parsed = AlgorithmParameters.getInstance("RSASSA-PSS");
+			parsed.init(parameters);
+			PSSParameterSpec spec = parsed.getParameterSpec(PSSParameterSpec.class);
+			String hash = spec.getDigestAlgorithm().toUpperCase(Locale.ROOT).replace("-", "");
+			assertTrue(hash.equals("SHA256") || hash.equals("SHA384"),
+					"SP800-78.3 current: RSA-PSS digest must be SHA-256 or SHA-384");
+			assertEquals("MGF1", spec.getMGFAlgorithm(),
+					"SP800-78.3 current: RSA-PSS mask generation must use MGF1");
+			assertTrue(spec.getMGFParameters() instanceof MGF1ParameterSpec,
+					"SP800-78.3 current: RSA-PSS MGF1 digest is missing");
+			String mgfHash = ((MGF1ParameterSpec) spec.getMGFParameters())
+					.getDigestAlgorithm().toUpperCase(Locale.ROOT).replace("-", "");
+			assertEquals(hash, mgfHash, "SP800-78.3 current: RSA-PSS and MGF1 digests differ");
+			return hash.equals("SHA256") ? "2.16.840.1.101.3.4.2.1" : "2.16.840.1.101.3.4.2.2";
+		} catch (Exception e) {
+			fail("SP800-78.3 current: malformed RSA-PSS parameters", e);
+			return null;
 		}
 	}
 

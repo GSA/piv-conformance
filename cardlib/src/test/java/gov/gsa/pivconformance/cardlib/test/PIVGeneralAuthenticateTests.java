@@ -9,6 +9,7 @@ import javax.smartcardio.TerminalFactory;
 import gov.gsa.pivconformance.cardlib.card.client.CardHandle;
 import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -24,6 +25,8 @@ import gov.gsa.pivconformance.cardlib.card.client.PIVMiddleware;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("Hardware")
+@Disabled("GENERAL AUTHENTICATE test is a placeholder with no implementation")
 public class PIVGeneralAuthenticateTests {
 
     List<CardTerminal> terminals = null;
@@ -48,14 +51,14 @@ public class PIVGeneralAuthenticateTests {
             }
             currentCardHandle = new CardHandle();
             MiddlewareStatus result = PIVMiddleware.pivConnect(true, currentConnection, currentCardHandle);
-            assert(result == MiddlewareStatus.PIV_OK);
+            assertEquals(MiddlewareStatus.PIV_OK, result);
             piv = new DefaultPIVApplication();
             ApplicationAID aid  = new ApplicationAID();
             ApplicationProperties cardAppProperties = new ApplicationProperties();
             result = piv.pivSelectCardApplication(currentCardHandle, aid, cardAppProperties);
 			assertEquals(MiddlewareStatus.PIV_OK, result);
 			PIVAuthenticators authenticators = new PIVAuthenticators();
-			authenticators.addApplicationPin("123456");
+			authenticators.addApplicationPin(HardwareTestCredentials.requirePinForApprovedTestCard());
 			result = piv.pivLogIntoCardApplication(currentCardHandle, authenticators.getBytes());
 			assertEquals(MiddlewareStatus.PIV_OK, result);
         } catch (CardException e) {

@@ -169,12 +169,17 @@ public class TestRunLogController {
 	public void bootStrapLogging(File logConfigFile) {
 		m_ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
-			if (logConfigFile.exists() && logConfigFile.canRead()) {
+			if (logConfigFile != null && logConfigFile.exists() && logConfigFile.canRead()) {
 				JoranConfigurator configurator = new JoranConfigurator();
-				// overriding the log directory property programmatically
-				m_ctx.putProperty("LOG_DIR", "logs");
+				Path dataDirectory = Path.of(System.getProperty("cct.data.dir", System.getProperty("user.dir")))
+						.toAbsolutePath().normalize();
+				Path logDirectory = dataDirectory.resolve("logs");
+				Files.createDirectories(logDirectory);
+				m_ctx.putProperty("LOG_DIR", logDirectory.toString());
 				configurator.setContext(m_ctx);
 				configurator.doConfigure(logConfigFile.getCanonicalPath());
+			} else {
+				throw new IOException("Logging configuration is unavailable: " + logConfigFile);
 			}
 		} catch (JoranException e) {
 			// handled by status printer
@@ -449,7 +454,9 @@ public class TestRunLogController {
 			appender.setFile(m_filenames.get(appender.getName()));
 			
 			if (appender.getName().equals("CONFORMANCELOG")) {
-				File f = new File(".lastlog" + "-" + appender.getName().toLowerCase());
+					Path dataDirectory = Path.of(System.getProperty("cct.data.dir", System.getProperty("user.dir")))
+							.toAbsolutePath().normalize();
+					File f = dataDirectory.resolve(".lastlog-" + appender.getName().toLowerCase()).toFile();
 				try {
 					PrintStream p = new PrintStream(f);
 					p.println(timeStampedLogPath);

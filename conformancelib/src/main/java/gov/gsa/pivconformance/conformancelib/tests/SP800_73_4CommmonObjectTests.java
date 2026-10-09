@@ -67,7 +67,7 @@ public class SP800_73_4CommmonObjectTests {
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
 			Assertions.assertTrue(o.inBounds(oid), "Tag in " + o.getFriendlyName() + " failed length check");
-			Assertions.assertTrue(o.isOrderCorrect(), "Order is incorrect");
+			Assertions.assertTrue(o.isOrderCorrect(), "Unlisted or out-of-order tag");
 		} catch (Exception e) {
 			s_logger.info(e.getMessage());
 			fail(e);

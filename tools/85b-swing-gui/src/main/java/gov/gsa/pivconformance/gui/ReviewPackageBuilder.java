@@ -53,7 +53,9 @@ final class ReviewPackageBuilder {
 		entries.add(new SourceEntry(database, database.getFileName().toString()));
 		entries.sort(Comparator.comparing(entry -> entry.name));
 
-		Path target = uniqueTarget(resultsDirectory);
+		Path packagesDirectory = resultsDirectory.resolve("runs");
+		Files.createDirectories(packagesDirectory);
+		Path target = uniqueTarget(packagesDirectory);
 		try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(target, StandardOpenOption.CREATE_NEW))) {
 			for (SourceEntry source : entries) {
 				zip.putNextEntry(new ZipEntry(source.name));

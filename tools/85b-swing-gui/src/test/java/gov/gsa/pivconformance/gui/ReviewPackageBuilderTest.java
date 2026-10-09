@@ -53,6 +53,7 @@ class ReviewPackageBuilderTest {
 
 		Path result = new ReviewPackageBuilder().build(completedRun(database));
 
+		assertEquals(tempDirectory.resolve("runs"), result.getParent());
 		assertTrue(result.getFileName().toString().startsWith("cct-results-"));
 		assertTrue(result.getFileName().toString().endsWith(".zip"));
 		assertEquals(Arrays.asList(
@@ -75,6 +76,27 @@ class ReviewPackageBuilderTest {
 		Path result = new ReviewPackageBuilder().build(completedRun(database));
 		assertArrayEquals(Files.readAllBytes(apdu),
 				zipEntry(result, "logs/apdu/" + apdu.getFileName()));
+	}
+
+	@Test
+	void packagesResultsWhenTrustFilesWereOnlyBundledWithTheApplication() throws Exception {
+		Path database = createEvidence("PIV_Production_Cards.db", "database");
+		write("logs/conformancelog/" + PREFIX + "-conformance_results.csv",
+				"Date,Test Id,Description,Expected Result,Actual Result\nnow,1,one,Pass,Pass\n");
+		Path missingInstalledResources = tempDirectory.resolve("not-installed");
+		CctApplicationPaths.copyReviewResources(missingInstalledResources, tempDirectory);
+
+		Path result = new ReviewPackageBuilder().build(completedRun(database));
+		assertTrue(zipEntries(result).contains("x509-certs/cacerts.jks"));
+		assertTrue(zipEntries(result).contains("x509-certs/valid/policy.xml"));
+		assertTrue(Files.isRegularFile(tempDirectory.resolve("x509-certs/valid/valid.zip")));
+	}
+
+	@Test
+	void preservesExistingTrustFilesWhenPreparingRunSpace() throws Exception {
+		Path customized = write("x509-certs/cacerts.jks", "operator trust store");
+		CctApplicationPaths.copyReviewResources(tempDirectory.resolve("not-installed"), tempDirectory);
+		assertEquals("operator trust store", Files.readString(customized));
 	}
 
 	@Test

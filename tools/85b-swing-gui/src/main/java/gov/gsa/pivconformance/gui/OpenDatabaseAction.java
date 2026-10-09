@@ -33,8 +33,7 @@ public class OpenDatabaseAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser fc = new JFileChooser();
-		File cwd = new File(System.getProperty("user.dir"));
-		fc.setCurrentDirectory(cwd);
+		fc.setCurrentDirectory(CctApplicationPaths.resourceDirectory().toFile());
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("PIV Card Conformance Tool databases (*.db)", "db");
 		fc.addChoosableFileFilter(filter);
 		fc.setAcceptAllFileFilterUsed(true);
