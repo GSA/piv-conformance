@@ -277,6 +277,14 @@ public class ExistingCctRegressionTest {
                 cccWithOptional("both"), true, "");
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"PIV_Production_Cards.db", "PIV-I_Production_Cards.db"})
+    void cccRejectsAnUnlistedLeadingTagThroughExistingCase(String database) throws Exception {
+        run(database, 14, "sp800_73_4_Test_56", cccWithOptional("plain"), true, "");
+        run(database, 14, "sp800_73_4_Test_56", cccWithOptional("F8-first"), false,
+                "Unlisted or out-of-order tag");
+    }
+
     static Stream<Arguments> currentChuidCases() {
         return Stream.of(
                 Arguments.of(23, "sp800_73_5_Test_43", "plain", true, ""),
@@ -434,6 +442,8 @@ public class ExistingCctRegressionTest {
             body = concat(body, APDUUtils.getTLV(new byte[]{(byte) 0xe3}, new byte[48]));
         if (kind.equals("B4") || kind.equals("both"))
             body = concat(body, APDUUtils.getTLV(new byte[]{(byte) 0xb4}, new byte[48]));
+        if (kind.equals("F8-first"))
+            body = concat(APDUUtils.getTLV(new byte[]{(byte) 0xf8}, new byte[]{1}), body);
         return APDUUtils.getTLV(APDUConstants.DATA, concat(body, new byte[]{(byte) 0xfe, 0}));
     }
 
