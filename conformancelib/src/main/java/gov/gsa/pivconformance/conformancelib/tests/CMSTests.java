@@ -739,6 +739,12 @@ public class CMSTests {
 			SignerInformation signer = (SignerInformation) it.next();
 			String digAlgOid = signer.getDigestAlgorithmID().getAlgorithm().getId();
 			assertTrue(dalgList.contains(digAlgOid), digAlgOid + " is not a supported digest algorithm");
+			if (pk instanceof ECPublicKey) {
+				// SP 800-78-5 Section 3.2.1/Table 2; the same pairings appear in 78-4 Table 3-2.
+				String requiredDigest = keylen == 256 ? "2.16.840.1.101.3.4.2.1" : "2.16.840.1.101.3.4.2.2";
+				assertTrue(requiredDigest.equals(digAlgOid),
+						"EC signer curve and digest are incompatible");
+			}
 		}
 	}	
 

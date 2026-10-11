@@ -94,7 +94,8 @@ public class ExistingCctRegressionTest {
         sanSigningKey = rsa(2048, RSAKeyGenParameterSpec.F4);
         for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first",
                 "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date",
-                "cms-sha384", "cms-rsa4096-sha384", "cms-p521-sha384", "cms-sha1", "date-month-13", "date-nonleap",
+                "cms-sha384", "cms-rsa4096-sha384", "cms-p256-sha256", "cms-p256-sha384",
+                "cms-p384-sha384", "cms-p384-sha256", "cms-p521-sha384", "cms-sha1", "date-month-13", "date-nonleap",
                 "date-short", "date-leap"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
         try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
@@ -266,11 +267,22 @@ public class ExistingCctRegressionTest {
     }
 
     @ParameterizedTest(name="production CMS digest/key row {0}: {1}")
-    @CsvSource({"269,plain,true", "269,cms-rsa4096-sha384,true", "269,cms-p521-sha384,false", "269,cms-sha1,false"})
+    @CsvSource({"269,plain,true", "269,cms-rsa4096-sha384,true", "269,cms-p256-sha256,true",
+            "269,cms-p384-sha384,true", "269,cms-p256-sha384,false", "269,cms-p384-sha256,false",
+            "269,cms-p521-sha384,false", "269,cms-sha1,false"})
     void currentCmsDigestAndSignerKeyThroughExistingAtom(int row, String kind, boolean pass) throws Exception {
         run(row, "CMS_Test_23", currentChuidObjects.get(kind), pass,
                 kind.equals("cms-sha1") ? "Unsupported digest algorithm" : kind.equals("cms-p521-sha384")
-                        ? "521 is an invalid key length" : "");
+                        ? "521 is an invalid key length" : kind.equals("cms-p256-sha384") || kind.equals("cms-p384-sha256")
+                        ? "EC signer curve and digest are incompatible" : "");
+    }
+
+    @ParameterizedTest(name="shared CMS row in {0}")
+    @ValueSource(strings={"PIV_ICAM_Test_Cards.db", "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void cmsCurveDigestPairingPreservesOtherProfiles(String database) throws Exception {
+        run(database, 269, "CMS_Test_23", currentChuidObjects.get("cms-p256-sha256"), true, "");
+        run(database, 269, "CMS_Test_23", currentChuidObjects.get("cms-p256-sha384"), false,
+                "EC signer curve and digest are incompatible");
     }
 
     static Stream<Arguments> currentKeyProfileCases() {
@@ -474,22 +486,26 @@ public class ExistingCctRegressionTest {
         byte[] datedFields = kind.equals("holder-before-date") ? concat(holder, date) : concat(date, holder);
         byte[] signedContent = concat(concat(fields, datedFields), new byte[]{(byte) 0xfe, 0});
 
-        KeyPair key = kind.equals("cms-p521-sha384") ? ec("secp521r1")
-                : rsa(kind.equals("cms-rsa4096-sha384") ? 4096 : 2048, RSAKeyGenParameterSpec.F4);
+        String ecCurve = kind.startsWith("cms-p256-") ? "secp256r1"
+                : kind.startsWith("cms-p384-") ? "secp384r1"
+                : kind.equals("cms-p521-sha384") ? "secp521r1" : null;
+        KeyPair key = ecCurve == null ? rsa(kind.equals("cms-rsa4096-sha384") ? 4096 : 2048,
+                RSAKeyGenParameterSpec.F4) : ec(ecCurve);
         X500Name name = new X500Name("CN=CCT CHUID regression signer");
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(100),
                 new java.util.Date(1704067200000L), new java.util.Date(1893456000000L), name, key.getPublic());
         X509Certificate signer = new JcaX509CertificateConverter().getCertificate(
-                builder.build(new JcaContentSignerBuilder(kind.equals("cms-p521-sha384")
-                        ? "SHA384withECDSA" : "SHA256withRSA").build(key.getPrivate())));
+                builder.build(new JcaContentSignerBuilder(ecCurve == null ? "SHA256withRSA"
+                        : ecCurve.equals("secp256r1") ? "SHA256withECDSA" : "SHA384withECDSA")
+                        .build(key.getPrivate())));
         CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
         ASN1ObjectIdentifier pivSignerDn = new ASN1ObjectIdentifier("2.16.840.1.101.3.6.5");
-        String algorithm = kind.equals("cms-p521-sha384") ? "SHA384withECDSA"
+        String algorithm = ecCurve != null ? (kind.endsWith("sha256") ? "SHA256withECDSA" : "SHA384withECDSA")
                 : kind.equals("cms-sha384") || kind.equals("cms-rsa4096-sha384") ? "SHA384withRSA"
                 : kind.equals("cms-sha1") ? "SHA1withRSA" : "SHA256withRSA";
         CMSSignatureEncryptionAlgorithmFinder rsaPkcs1 = signatureAlgorithm ->
                 new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
-        SignerInfoGeneratorBuilder signerBuilder = kind.equals("cms-p521-sha384")
+        SignerInfoGeneratorBuilder signerBuilder = ecCurve != null
                 ? new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build())
                 : new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build(), rsaPkcs1);
         generator.addSignerInfoGenerator(signerBuilder
