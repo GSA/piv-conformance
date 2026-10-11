@@ -127,8 +127,9 @@ public class AtomHelper {
 		case PIV_OK:
 			break;
 		default:
-			String errMsg = "Failed to retrieve data object for OID " + APDUConstants.oidNameMap.get(oid) + " container";
+			String errMsg = "Failed to retrieve data object for OID " + APDUConstants.oidNameMap.get(oid) + " container: " + result;
 			s_logger.error(errMsg);
+			fail(errMsg);
 			return null;
 		}
 

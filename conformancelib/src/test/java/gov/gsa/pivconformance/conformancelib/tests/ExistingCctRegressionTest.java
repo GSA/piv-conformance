@@ -422,6 +422,9 @@ public class ExistingCctRegressionTest {
                 "SP800-73 Key History: field length exceeds Table 20");
         run(database, 150, method, null, TestExecutionResult.Status.ABORTED,
                 PlaceholderTests.UNSUPPORTED_MESSAGE);
+        run(database, 150, method, keyHistory(0, 0, null, true),
+                TestExecutionResult.Status.FAILED, "Failed to retrieve data object",
+                MiddlewareStatus.PIV_CONNECTION_FAILURE);
     }
 
     private static byte[] keyHistory(int onCard, int offCard, String url, boolean includeFe) {
@@ -629,6 +632,12 @@ public class ExistingCctRegressionTest {
 
     private static void run(String database, int id, String expectedMethod, byte[] raw,
                             TestExecutionResult.Status expectedStatus, String failurePrefix) throws Exception {
+        run(database, id, expectedMethod, raw, expectedStatus, failurePrefix, null);
+    }
+
+    private static void run(String database, int id, String expectedMethod, byte[] raw,
+                            TestExecutionResult.Status expectedStatus, String failurePrefix,
+                            MiddlewareStatus retrievalFailure) throws Exception {
         Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro")) {
             TestCaseModel row = new TestCaseModel(new ConformanceTestDatabase(connection));
@@ -642,7 +651,7 @@ public class ExistingCctRegressionTest {
             Map<String,byte[]> objects = new HashMap<>();
             objects.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, chuid);
             objects.put(APDUConstants.getStringForFieldNamed(row.getContainer()), raw);
-            var result = execute(selector, row.getContainer(), step.getParameters(), objects);
+            var result = execute(selector, row.getContainer(), step.getParameters(), objects, retrievalFailure);
             assertEquals(expectedStatus, result.getStatus(), row.getIdentifier() + ": " + result);
             if (expectedStatus != TestExecutionResult.Status.SUCCESSFUL) {
                 Throwable failure = result.getThrowable().orElseThrow();
@@ -658,7 +667,7 @@ public class ExistingCctRegressionTest {
     }
 
     private static TestExecutionResult execute(String method, String container, List<String> arguments,
-                                       Map<String,byte[]> objects) {
+                                       Map<String,byte[]> objects, MiddlewareStatus retrievalFailure) {
         CardSettingsSingleton card = CardSettingsSingleton.getInstance();
         ParameterProviderSingleton parameters = ParameterProviderSingleton.getInstance();
         card.reset(); parameters.reset();
@@ -673,6 +682,8 @@ public class ExistingCctRegressionTest {
         card.setLastLoginStatus(CardSettingsSingleton.LOGIN_STATUS.LOGIN_SUCCESS);
         card.setPivHandle(new DefaultPIVApplication() {
             @Override public MiddlewareStatus pivGetData(CardHandle handle, String oid, PIVDataObject object) {
+                if (retrievalFailure != null && oid.equals(APDUConstants.getStringForFieldNamed(container)))
+                    return retrievalFailure;
                 byte[] raw = objects.get(oid);
                 if (raw == null) return MiddlewareStatus.PIV_DATA_OBJECT_NOT_FOUND;
                 object.setOID(oid);
