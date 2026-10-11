@@ -7,6 +7,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMParser;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -25,10 +26,35 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class X509DataObjectTests {
+	@Test
+	void retiredCertificateIdentifiersMatchPivNamespace() throws Exception {
+		// SP 800-73-5 Part 1, Table 3 and Tables 21-40. These values drive
+		// GET DATA selection and the original CCT retired-certificate cases.
+		for (int slot = 1; slot <= 20; slot++) {
+			String field = "RETIRED_X_509_CERTIFICATE_FOR_KEY_MANAGEMENT_" + slot;
+			String oid = "2.16.840.1.101.3.7.2.16." + slot;
+			int id = 0x1000 + slot;
+			byte[] tag = new byte[] {0x5F, (byte) 0xC1, (byte) (0x0C + slot)};
+			assertEquals(oid, APDUConstants.class.getField(field + "_OID").get(null));
+			assertEquals(id, APDUConstants.class.getField(field + "_ID").getInt(null));
+			assertArrayEquals(tag, (byte[]) APDUConstants.class.getField(field + "_TAG").get(null));
+			assertArrayEquals(tag, APDUConstants.oidMAP.get(oid));
+			assertEquals(oid, APDUConstants.idMAP.get(id));
+			assertEquals(field + "_OID", APDUConstants.containerOidToNameMap.get(oid));
+			assertEquals(oid, APDUConstants.containerNameToOidMap.get(field + "_OID"));
+			assertEquals(oid, APDUConstants.containerIdOidMap.get(0x81 + slot));
+			assertEquals(0x81 + slot, APDUConstants.oidToContainerIdMap.get(oid));
+		}
+		assertFalse(APDUConstants.oidMAP.containsKey("2.16.850.1.101.3.7.2.16.5"));
+		assertFalse(APDUConstants.idMAP.containsKey(0x10010));
+	}
 	// [53 82 06 19 [70 82 06 10 [30 82 .. ]] [71 01 00] [FE 00]
 	private byte[] insertOuterTag(byte[] databytes) {
 		byte[] rv = null;
