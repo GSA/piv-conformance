@@ -239,6 +239,7 @@ INSERT INTO "TestSteps" VALUES(174,'PlaceholderTest.2','gov.gsa.pivconformance.c
 INSERT INTO "TestSteps" VALUES(175,'PlaceholderTest.3','gov.gsa.pivconformance.conformancelib.tests.PlaceholderTests','PlaceholderTest_3',NULL);
 INSERT INTO "TestSteps" VALUES(176,'78.1.current','gov.gsa.pivconformance.conformancelib.tests.SP800_78_X509DataObjectTests','sp800_78_Test_1_current',NULL);
 INSERT INTO "TestSteps" VALUES(177,'73-5.4.current','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4CCCTests','sp800_73_5_Test_4',NULL);
+INSERT INTO "TestSteps" VALUES(178,'73-4.57','gov.gsa.pivconformance.conformancelib.tests.SP800_73_4KeyHistoryTests','sp800_73_4_Test_57',NULL);
 INSERT INTO "TestStepParameters" VALUES(1, 21,NULL,'15',0);
 INSERT INTO "TestStepParameters" VALUES(2, 99,NULL,'CARDHOLDER_FINGERPRINTS_OID:513',0);
 INSERT INTO "TestStepParameters" VALUES(3, 99,NULL,'CARDHOLDER_FACIAL_IMAGE_OID:1281',1);
@@ -890,7 +891,7 @@ INSERT INTO "TestsToSteps" VALUES(121, 46,144,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(122, 60,145,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(123, 173,148,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(124, 173,149,0,NULL);
-INSERT INTO "TestsToSteps" VALUES(125, 173,150,0,NULL);
+INSERT INTO "TestsToSteps" VALUES(125, 178,150,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(126, 61,157,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(127, 62,158,0,NULL);
 INSERT INTO "TestsToSteps" VALUES(128, 63,159,0,NULL);

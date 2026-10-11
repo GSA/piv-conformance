@@ -1,0 +1,60 @@
+package gov.gsa.pivconformance.conformancelib.tests;
+
+import gov.gsa.pivconformance.cardlib.card.client.KeyHistoryObject;
+import gov.gsa.pivconformance.cardlib.tlv.BerTag;
+import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
+import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgumentsProvider;
+import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.TestReporter;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/** SP 800-73-5 Part 1 section 3.3.3 and Table 20; the object also existed in 73-4. */
+public class SP800_73_4KeyHistoryTests {
+    @DisplayName("SP800-73 Key History object fields")
+    @ParameterizedTest(name = "{index} => oid = {0}")
+    @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    void sp800_73_4_Test_57(String oid, TestReporter reporter) throws Exception {
+        Assumptions.assumeTrue(AtomHelper.isDataObjectPresent(oid, false),
+                PlaceholderTests.UNSUPPORTED_MESSAGE + "absent optional Key History; "
+                        + "retired private-key presence cannot be established from card data");
+
+        KeyHistoryObject object = (KeyHistoryObject) AtomHelper.getDataObject(oid);
+        assertTrue(object.inBounds(oid), "SP800-73 Key History: field length exceeds Table 20");
+        int onCard = object.getKeysWithOnCardCerts();
+        int offCard = object.getKeysWithOffCardCerts();
+        assertTrue(onCard >= 0 && offCard >= 0 && onCard + offCard <= 20,
+                "SP800-73 Key History: retired key count must be no greater than 20");
+
+        byte[] url = object.getOffCardCertUrl();
+        List<BerTag> expected = new ArrayList<>(Arrays.asList(
+                new BerTag(TagConstants.KEYS_WITH_ON_CARD_CERTS_TAG),
+                new BerTag(TagConstants.KEYS_WITH_OFF_CARD_CERTS_TAG)));
+        if (url != null) expected.add(new BerTag(TagConstants.OFF_CARD_CERT_URL_TAG));
+        expected.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG));
+        assertEquals(expected, object.getTagList(),
+                "SP800-73 Key History: expected C1, C2, conditional F3, FE in order");
+
+        assertTrue(offCard == 0 || url != null,
+                "SP800-73 Key History: offCardCertURL is required when off-card count is nonzero");
+        assertTrue(onCard != 0 || offCard != 0 || url == null,
+                "SP800-73 Key History: offCardCertURL must be absent when both counts are zero");
+        if (url != null) {
+            String value = new String(url, StandardCharsets.US_ASCII);
+            String dnsLabel = "[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?";
+            assertTrue(Arrays.equals(url, value.getBytes(StandardCharsets.US_ASCII))
+                            && value.matches("http://" + dnsLabel + "(?:\\." + dnsLabel + ")*/[0-9A-Fa-f]{64}"),
+                    "SP800-73 Key History: offCardCertURL must be an HTTP DNS name and SHA-256 hex hash");
+        }
+    }
+}

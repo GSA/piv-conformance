@@ -391,6 +391,48 @@ public class ExistingCctRegressionTest {
                 concat(concat(Arrays.copyOf(body, body.length - 2), added), new byte[]{(byte) 0xfe, 0}));
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void keyHistoryConditionalFieldsUseOriginalCase(String database) throws Exception {
+        String method = "sp800_73_4_Test_57";
+        run(database, 150, method, keyHistory(0, 0, null, true), true, "");
+        String url = "http://example.com/" + "0".repeat(64);
+        run(database, 150, method, keyHistory(0, 1, url, true), true, "");
+        run(database, 150, method, keyHistory(1, 0, null, true), true, "");
+        run(database, 150, method, keyHistory(1, 0, url, true), true, "");
+        run(database, 150, method, keyHistory(0, 1, null, true), false,
+                "SP800-73 Key History: offCardCertURL is required");
+        run(database, 150, method, keyHistory(0, 0, url, true), false,
+                "SP800-73 Key History: offCardCertURL must be absent");
+        run(database, 150, method, keyHistory(21, 0, null, true), false,
+                "SP800-73 Key History: retired key count");
+        run(database, 150, method, keyHistory(10, 11, url, true), false,
+                "SP800-73 Key History: retired key count");
+        run(database, 150, method, keyHistory(0, 1, "https://example.com/" + "0".repeat(64), true),
+                false, "SP800-73 Key History: offCardCertURL must be an HTTP");
+        run(database, 150, method, keyHistory(0, 1, "http://bad..example/" + "0".repeat(64), true),
+                false, "SP800-73 Key History: offCardCertURL must be an HTTP");
+        run(database, 150, method, keyHistory(0, 0, null, false), false,
+                "SP800-73 Key History: expected C1, C2, conditional F3, FE");
+        byte[] longC1 = APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{(byte) 0xc1}, new byte[]{0, 0}),
+                concat(APDUUtils.getTLV(new byte[]{(byte) 0xc2}, new byte[]{0}),
+                        new byte[]{(byte) 0xfe, 0})));
+        run(database, 150, method, longC1, false,
+                "SP800-73 Key History: field length exceeds Table 20");
+        run(database, 150, method, null, TestExecutionResult.Status.ABORTED,
+                PlaceholderTests.UNSUPPORTED_MESSAGE);
+    }
+
+    private static byte[] keyHistory(int onCard, int offCard, String url, boolean includeFe) {
+        byte[] body = concat(APDUUtils.getTLV(new byte[]{(byte) 0xc1}, new byte[]{(byte) onCard}),
+                APDUUtils.getTLV(new byte[]{(byte) 0xc2}, new byte[]{(byte) offCard}));
+        if (url != null) body = concat(body, APDUUtils.getTLV(new byte[]{(byte) 0xf3},
+                url.getBytes(java.nio.charset.StandardCharsets.US_ASCII)));
+        if (includeFe) body = concat(body, new byte[]{(byte) 0xfe, 0});
+        return APDUUtils.getTLV(APDUConstants.DATA, body);
+    }
+
     private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier golden, String kind) throws Exception {
         byte[] fascn = APDUUtils.getTLV(new byte[]{0x30}, golden.getfASCN());
         byte[] guid = APDUUtils.getTLV(new byte[]{0x34}, golden.getgUID());
