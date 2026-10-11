@@ -10,6 +10,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +41,6 @@ import org.bouncycastle.cms.CMSTypedData;
 import org.bouncycastle.cms.SignerId;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 import org.bouncycastle.util.Store;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
@@ -705,14 +705,16 @@ public class CMSTests {
 
 		int keylen = 0;
 		PublicKey pk = cert.getPublicKey();
-		if (pk instanceof BCRSAPublicKey) {
-			BCRSAPublicKey rsaPk = (BCRSAPublicKey) pk;
+		if (pk instanceof RSAPublicKey) {
+			RSAPublicKey rsaPk = (RSAPublicKey) pk;
 			keylen = rsaPk.getModulus().bitLength();
-			assertTrue((keylen == 2048 || keylen == 3072), keylen + " is an invalid key length");
-		} else if (pk.getClass().toString().contains("EC")) {
+			assertTrue((keylen == 2048 || keylen == 3072 || keylen == 4096), keylen + " is an invalid key length");
+		} else if (pk instanceof ECPublicKey) {
 			ECPublicKey ec = (ECPublicKey) pk;
 			keylen = ec.getParams().getCurve().getField().getFieldSize();
 			assertTrue((keylen == 256 || keylen == 384), keylen + " is an invalid key length");
+		} else {
+			fail("Unsupported CMS signing public key algorithm: " + pk.getAlgorithm());
 		}
 		s_logger.debug("Public key length: {}", keylen);
 		
