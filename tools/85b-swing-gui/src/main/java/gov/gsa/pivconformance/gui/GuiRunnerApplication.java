@@ -164,6 +164,7 @@ public class GuiRunnerApplication {
 		s_logger.debug("Looking for resource:" + target);
 		java.nio.file.Path resource = CctApplicationPaths.findResource(target);
 		if (resource != null) return resource.toFile();
+		if (CctApplicationPaths.isPackaged()) return null;
 		return locateFile(new File("./"), target, excludePattern);
 	}
 

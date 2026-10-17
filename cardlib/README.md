@@ -1,9 +1,9 @@
 
 ### ContainerDump Utility Class
 
-To run the container dumper utility, run the ContainerDump class from the full jar:
+From the repository root, run the container dumper utility from the Java 17 GUI Shadow JAR:
 
-`java -cp 85b-swing-gui-all.jar gov.gsa.conformancelib.pivconformancetools.ContainerDump -l -o `(whatever directory you'd like to dump into)
+`java -cp tools/85b-swing-gui/build/libs/gov.gsa.pivconformance.gui-1.0.7-shadow.jar gov.gsa.pivconformance.conformancelib.tools.ContainerDump -h`
 ```
 usage: ContainerDump <options>
  -a,--appPin <arg>     PIV application PIN

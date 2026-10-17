@@ -1,6 +1,18 @@
 # piv-conformance
 Tool for testing the PIV card data model. Its existing test cases derive from SP 800-85B guidance; selected checks have been updated for FIPS 201-3, SP 800-73-5 Part 1, SP 800-78-5, and SP 800-76-2. A passing run does not establish complete coverage of those publications.
 
+## Build status
+
+The current source build requires Java 17. Build from the repository root in this order:
+
+```sh
+cd cardlib && ./gradlew check install && cd ..
+cd conformancelib && ./gradlew check install && cd ..
+cd tools/85b-swing-gui && ./gradlew test shadowJar
+```
+
+The GUI JAR is written to `tools/85b-swing-gui/build/libs/`. The legacy Windows instructions in `docs/README.md` and `tools/85b-swing-gui/make_zip.sh` do not describe a validated release package for this branch. A Windows distribution needs a build and run check on Windows before release.
+
 ## References ##
 
 ### FIPS Publications ###

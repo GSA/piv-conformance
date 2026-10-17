@@ -31,7 +31,7 @@ final class CctApplicationPaths {
 
 		s_resourceDirectory = configuredDirectory(RESOURCE_DIRECTORY_PROPERTY);
 		if (s_resourceDirectory == null) {
-			s_resourceDirectory = Boolean.getBoolean(PACKAGED_PROPERTY)
+			s_resourceDirectory = isPackaged()
 					? packagedResourceDirectory()
 					: workingDirectory();
 		}
@@ -65,14 +65,22 @@ final class CctApplicationPaths {
 
 	static Path findResource(String relativeName) {
 		initialize();
-		Path workingCopy = workingDirectory().resolve(relativeName).normalize();
-		if (Files.isReadable(workingCopy)) return workingCopy;
+		return selectResource(workingDirectory(), s_resourceDirectory, relativeName, isPackaged());
+	}
 
-		Path installedCopy = s_resourceDirectory.resolve(relativeName).normalize();
-		if (installedCopy.startsWith(s_resourceDirectory) && Files.isReadable(installedCopy)) {
-			return installedCopy;
-		}
-		return null;
+	static boolean isPackaged() {
+		return Boolean.getBoolean(PACKAGED_PROPERTY);
+	}
+
+	static Path selectResource(Path workingDirectory, Path resourceDirectory, String relativeName,
+			boolean packaged) {
+		Path installedCopy = resourceDirectory.resolve(relativeName).normalize();
+		if (!installedCopy.startsWith(resourceDirectory)) return null;
+		if (packaged) return Files.isRegularFile(installedCopy) && Files.isReadable(installedCopy)
+				? installedCopy : null;
+		Path workingCopy = workingDirectory.resolve(relativeName).normalize();
+		if (Files.isRegularFile(workingCopy) && Files.isReadable(workingCopy)) return workingCopy;
+		return Files.isRegularFile(installedCopy) && Files.isReadable(installedCopy) ? installedCopy : null;
 	}
 
 	static Path requireResource(String relativeName) {
@@ -136,10 +144,8 @@ final class CctApplicationPaths {
 				continue;
 			}
 			Files.createDirectories(target.getParent());
-			Path workingCopy = workingDirectory().resolve(relativeName).normalize();
-			Path installedCopy = resourceDirectory.resolve(relativeName).normalize();
-			Path source = Files.isRegularFile(workingCopy) ? workingCopy : installedCopy;
-			if (Files.isRegularFile(source)) {
+			Path source = selectResource(workingDirectory(), resourceDirectory, relativeName, isPackaged());
+			if (source != null) {
 				Files.copy(source, target, StandardCopyOption.COPY_ATTRIBUTES);
 				continue;
 			}

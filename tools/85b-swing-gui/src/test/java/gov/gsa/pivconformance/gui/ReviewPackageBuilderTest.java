@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -76,6 +77,24 @@ class ReviewPackageBuilderTest {
 		Path result = new ReviewPackageBuilder().build(completedRun(database));
 		assertArrayEquals(Files.readAllBytes(apdu),
 				zipEntry(result, "logs/apdu/" + apdu.getFileName()));
+	}
+
+	@Test
+	void packagedResourcesCannotBeShadowedByTheLaunchDirectory() throws Exception {
+		Path working = tempDirectory.resolve("working");
+		Path installed = tempDirectory.resolve("installed");
+		Files.createDirectories(working);
+		Files.createDirectories(installed);
+		Path workingDatabase = Files.writeString(working.resolve("PIV_Production_Cards.db"), "stale");
+		Path installedDatabase = Files.writeString(installed.resolve("PIV_Production_Cards.db"), "shipped");
+
+		assertEquals(installedDatabase, CctApplicationPaths.selectResource(working, installed,
+				"PIV_Production_Cards.db", true));
+		assertEquals(workingDatabase, CctApplicationPaths.selectResource(working, installed,
+				"PIV_Production_Cards.db", false));
+		Files.delete(installedDatabase);
+		assertNull(CctApplicationPaths.selectResource(working, installed,
+				"PIV_Production_Cards.db", true));
 	}
 
 	@Test
