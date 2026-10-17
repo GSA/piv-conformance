@@ -3,7 +3,7 @@
 
 From the repository root, run the container dumper utility from the Java 17 GUI Shadow JAR:
 
-`java -cp tools/85b-swing-gui/build/libs/gov.gsa.pivconformance.gui-1.0.7-shadow.jar gov.gsa.pivconformance.conformancelib.tools.ContainerDump -h`
+`java -cp tools/85b-swing-gui/build/libs/gov.gsa.pivconformance.gui-1.1.0-rc1-shadow.jar gov.gsa.pivconformance.conformancelib.tools.ContainerDump -h`
 ```
 usage: ContainerDump <options>
  -a,--appPin <arg>     PIV application PIN

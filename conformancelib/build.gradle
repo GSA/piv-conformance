@@ -116,6 +116,7 @@ tasks.register('certificateFixtureTest', Test) {
 }
 
 jar {
+    exclude '**/ValidatorTlsTest*.class'
     version = getVersion()
     manifest {
         attributes(

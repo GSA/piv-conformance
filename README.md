@@ -11,7 +11,13 @@ cd conformancelib && ./gradlew check install && cd ..
 cd tools/85b-swing-gui && ./gradlew test shadowJar
 ```
 
-The GUI JAR is written to `tools/85b-swing-gui/build/libs/`. The legacy Windows instructions in `docs/README.md` and `tools/85b-swing-gui/make_zip.sh` do not describe a validated release package for this branch. A Windows distribution needs a build and run check on Windows before release.
+The GUI JAR is written to `tools/85b-swing-gui/build/libs/`. The older Windows build page in `docs/README.md` is historical.
+
+## Unreleased flat-ZIP candidate
+
+With a Java 17 JDK in `JAVA_HOME` and `zip` installed, run `./doit.sh` from the repository root. It builds and tests Cardlib, Conformancelib and the GUI, then writes a flat ZIP and its SHA-256 under `build/releases/`. Extract the complete ZIP; use `run.bat` on Windows or `run.sh` on macOS/Linux with Java 17 on `PATH`. The included `README.txt` gives the run and results locations. The ZIP is a candidate until its extracted Windows/card workflow is validated.
+
+The packaged `x509-certs/cacerts.jks` is the exact 174-entry external trust store from the published [v1.0.9 release](https://github.com/GSA/piv-conformance/releases/tag/v1.0.9), whose ZIP SHA-256 is `2f5b82458b6c058c94eabb060ba1a9ad5e2610f777a1be3cdf87731496a656cb`. The JKS SHA-256 is `41496e64cb241c8f98bebee33ff2f1f98530d4febc2ab0b9d369910578628a10`; `doit.sh` checks it before packaging. Trust policy and existing per-user overrides need review before a public release.
 
 ## References ##
 
