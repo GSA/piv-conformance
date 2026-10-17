@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import gov.gsa.pivconformance.conformancelib.configuration.TestCaseModel;
 import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
+import gov.gsa.pivconformance.conformancelib.tests.PlaceholderTests;
 
 
 public class GuiTestListener implements TestExecutionListener {
@@ -36,6 +37,7 @@ public class GuiTestListener implements TestExecutionListener {
 	Map<TestIdentifier, TestExecutionResult> m_testStepResults;
 	boolean m_atomFailed;
 	boolean m_atomAborted;
+	boolean m_atomUnsupported;
 
 	@Override
 	public void testPlanExecutionStarted(TestPlan testPlan) {
@@ -46,6 +48,7 @@ public class GuiTestListener implements TestExecutionListener {
 		TestExecutionListener.super.testPlanExecutionStarted(testPlan);
 		m_atomAborted = false;
 		m_atomFailed = false;
+		m_atomUnsupported = false;
 		s_testProgressLogger.info("Test plan started for conformance test {}", m_testCaseIdentifier);
 		try {
 			SwingUtilities.invokeAndWait(() -> {
@@ -65,14 +68,15 @@ public class GuiTestListener implements TestExecutionListener {
 		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
 		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
 
+		TestStatus resultStatus = getResultStatus();
 		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription.replaceAll("\"", "'"),
 				m_testCaseExpectedResult ? "Pass" : "Fail",
-				(m_atomAborted || m_atomFailed) ? "Fail" : "Pass"); 
+				resultStatus == TestStatus.SKIP ? "Unsupported" : resultStatus == TestStatus.FAIL ? "Fail" : "Pass");
 		GuiTestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
 		if(tcNode != null) {
 			TestCaseModel tcModel = tcNode.getTestCase();
 			if(tcModel != null) {
-				tcModel.setTestStatus(m_atomAborted || m_atomFailed ? TestStatus.FAIL : TestStatus.PASS);
+				tcModel.setTestStatus(resultStatus);
 			}
 		}
 		DefaultTreeModel model = GuiRunnerAppController.getInstance().getApp().getTreePanel().getTreeModel();
@@ -119,13 +123,16 @@ public class GuiTestListener implements TestExecutionListener {
 		String displayName = testIdentifier.getDisplayName();
 		//if(!testIdentifier.isTest()) return;
 		m_testStepResults.put(testIdentifier, testExecutionResult);
+		recordOutcome(testExecutionResult);
 		if(testExecutionResult.getStatus() == TestExecutionResult.Status.FAILED) {
-			m_atomFailed = true;
 			s_testProgressLogger.error("Test atom {}:{} failed", m_testCaseIdentifier, displayName);
 		}
 		if(testExecutionResult.getStatus() == TestExecutionResult.Status.ABORTED) {
-			m_atomAborted = true;
-			s_testProgressLogger.error("Test atom {}:{} aborted", m_testCaseIdentifier, displayName);
+			if (isUnsupportedResult(testExecutionResult)) {
+				s_testProgressLogger.warn("Test atom {}:{} is unsupported", m_testCaseIdentifier, displayName);
+			} else {
+				s_testProgressLogger.error("Test atom {}:{} aborted", m_testCaseIdentifier, displayName);
+			}
 		}
 
 		Optional<Throwable> exception = testExecutionResult.getThrowable();
@@ -133,6 +140,25 @@ public class GuiTestListener implements TestExecutionListener {
 		if(displayName != "JUnit Jupiter") {
 			s_testProgressLogger.info("Finished {}:{}", m_testCaseIdentifier, displayName);
 		}
+	}
+
+	void recordOutcome(TestExecutionResult result) {
+		if (result.getStatus() == TestExecutionResult.Status.FAILED) m_atomFailed = true;
+		if (result.getStatus() == TestExecutionResult.Status.ABORTED) {
+			if (isUnsupportedResult(result)) m_atomUnsupported = true;
+			else m_atomAborted = true;
+		}
+	}
+
+	private boolean isUnsupportedResult(TestExecutionResult result) {
+		return result.getThrowable().map(Throwable::getMessage)
+				.filter(message -> message != null && message.contains(PlaceholderTests.UNSUPPORTED_MESSAGE))
+				.isPresent();
+	}
+
+	TestStatus getResultStatus() {
+		return m_atomAborted || m_atomFailed ? TestStatus.FAIL
+				: m_atomUnsupported ? TestStatus.SKIP : TestStatus.PASS;
 	}
 
 	@Override

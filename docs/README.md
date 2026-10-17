@@ -1,3 +1,5 @@
+> Historical instructions: the Java 8, Eclipse, and Windows packaging steps below describe the earlier CCT build. The current branch builds with Java 17; see the [root README](../README.md#build-status). Do not use these steps to create a release package.
+
 ### Building the Card Conformance Tool from GitHub
 #### Windows version
 

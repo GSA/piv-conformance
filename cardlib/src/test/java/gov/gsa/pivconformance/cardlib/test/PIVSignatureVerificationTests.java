@@ -17,8 +17,10 @@ import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
 import org.bouncycastle.cms.CMSSignedData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestReporter;
+import org.junit.jupiter.api.TestInfo;
 
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
@@ -28,13 +30,17 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@Tag("Hardware")
 public class PIVSignatureVerificationTests {
     List<CardTerminal> terminals = null;
     DefaultPIVApplication piv = null;
+    String applicationPin = null;
     @BeforeEach
-    void init() {
+    void init(TestInfo testInfo) {
+        applicationPin = HardwareTestCredentials.pinFor(testInfo);
         PCSCUtils.ConfigureUserProperties();
         TerminalFactory tf = TerminalFactory.getDefault();
         try {
@@ -42,33 +48,34 @@ public class PIVSignatureVerificationTests {
         } catch (CardException e) {
             fail("Unable to list readers");
         }
+        assertTrue(!terminals.isEmpty(), "No PC/SC reader is available");
     }
 
     @Test @DisplayName("Ensure readers")
     void testReaderList() {
-        assert(terminals.size() > 0);
+        assertTrue(!terminals.isEmpty(), "No PC/SC reader is available");
     }
 
 
-    @Test @DisplayName("Test signature verfication")
+    @Test @Tag("PIN") @DisplayName("Test signature verfication")
     void testPIVGetData(TestReporter reporter) {
         X509Certificate signingCertificate = null;
         ConnectionDescription cd = ConnectionDescription.createFromTerminal(terminals.get(0));
         try {
-            assert (terminals.get(0).isCardPresent());
+            assertTrue(terminals.get(0).isCardPresent(), "No card is inserted");
         }catch(CardException ce) {
             fail(ce);
         }
         CardHandle ch = new CardHandle();
         MiddlewareStatus result = PIVMiddleware.pivConnect(true, cd, ch);
-        assertEquals(result, MiddlewareStatus.PIV_OK);
+        assertEquals(MiddlewareStatus.PIV_OK, result);
         piv = new DefaultPIVApplication();
         ApplicationAID aid  = new ApplicationAID();
         ApplicationProperties cardAppProperties = new ApplicationProperties();
         result = piv.pivSelectCardApplication(ch, aid, cardAppProperties);
         assertEquals(MiddlewareStatus.PIV_OK, result);
         PIVAuthenticators authenticators = new PIVAuthenticators();
-        authenticators.addApplicationPin("123456");
+        authenticators.addApplicationPin(applicationPin);
         result = piv.pivLogIntoCardApplication(ch, authenticators.getBytes());
         assertEquals(MiddlewareStatus.PIV_OK, result);
 

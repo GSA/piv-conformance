@@ -440,7 +440,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 */
 
 	public boolean hasOwnSignerCert() {
-		return m_signerCertCount > 0;
+		return m_hasOwnSignerCert;
 	}
 
 	/**

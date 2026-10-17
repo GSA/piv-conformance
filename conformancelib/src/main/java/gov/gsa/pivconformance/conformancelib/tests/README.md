@@ -1,1 +1,4 @@
-##If these classes are run or debugged using JUnit, they will access the smart card reader with a default PIN of 123456.
+## Hardware-test safety
+
+Tests that interact with a PIN must receive it externally and must be limited to
+an explicitly approved lab/test card. There is no default PIN.

@@ -222,7 +222,8 @@ public class PIVDataObject {
 	}
 
 	/**
-	 * Compares the order of the tags received with the order specified in SP 800-73-4 Appendix A.
+	 * Rejects tags absent from the container rules and compares the order of the
+	 * remaining tags with the order specified in SP 800-73-4 Appendix A.
 	 * @return true if the order is correct and false otherwise.
 	 */
 
@@ -236,6 +237,10 @@ public class PIVDataObject {
 		int lastIndex = -1;
 		for (BerTag outer : gotTagList) {
 			int thisIndex = expectTagList.indexOf(outer);
+			if (thisIndex < 0) {
+				s_logger.error("Unexpected tag: " + outer);
+				return false;
+			}
 			if(thisIndex < lastIndex) {
 				s_logger.error("Tag is out of order: " + outer.toString());
 				rv = false;

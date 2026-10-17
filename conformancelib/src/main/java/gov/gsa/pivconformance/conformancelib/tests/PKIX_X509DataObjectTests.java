@@ -1006,7 +1006,51 @@ public class PKIX_X509DataObjectTests {
 			fail(e);
 		}
 
-		assertTrue(matchUuid(cert, guid), "Certificate doesn't contain " + Hex.encodeHexString(guid));
+		assertTrue(matchUuid(cert, guid), "PKIX.27: Certificate URI does not match CHUID GUID " + Hex.encodeHexString(guid));
+	}
+
+	// SP 800-73-5 Part 1 Sections 3.4.1(4) and 3.4.2. The optional
+	// Cardholder UUID SAN is permitted only in the PIV Authentication certificate.
+	@DisplayName("PKIX.27 current PIV UUID test")
+	@ParameterizedTest
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void PKIX_Test_27_current(String oid, String requiredOid, TestReporter reporter) {
+		PKIX_Test_27(oid, requiredOid, reporter);
+		if (!APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID.equals(oid)) return;
+
+		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier)
+				AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+		byte[] holderValue = chuid.getCardholderUUID();
+		String cardUrn = canonicalUuidUrn(chuid.getgUID());
+		String holderUrn = holderValue == null ? null : canonicalUuidUrn(holderValue);
+		byte[] encoded = cert.getExtensionValue(Extension.subjectAlternativeName.getId());
+		assertNotNull(encoded, "PKIX.27 current: subjectAltName is required for the Card UUID");
+		try {
+			GeneralNames names = GeneralNames.getInstance(JcaX509ExtensionUtils.parseExtensionValue(encoded));
+			for (GeneralName name : names.getNames()) {
+				if (name.getTagNo() != GeneralName.uniformResourceIdentifier) continue;
+				String uri = DERIA5String.getInstance(name.getName()).getString();
+				if (!uri.regionMatches(true, 0, "urn:uuid:", 0, 9) || uri.equalsIgnoreCase(cardUrn)) continue;
+				assertTrue(uri.matches("(?i)urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"),
+						"PKIX.27 current: Cardholder UUID SAN must be a canonical RFC 4122 URN");
+				UUID uuid = UUID.fromString(uri.substring(9));
+				assertTrue(uuid.variant() == 2 && uuid.version() == 4,
+						"PKIX.27 current: Cardholder UUID SAN must be RFC 4122 version 4");
+				if (holderUrn != null) {
+					assertTrue(uri.equalsIgnoreCase(holderUrn),
+							"PKIX.27 current: Cardholder UUID SAN differs from CHUID tag 0x36");
+				}
+			}
+		} catch (IOException | IllegalArgumentException e) {
+			fail("PKIX.27 current: cannot decode subjectAltName", e);
+		}
+	}
+
+	private static String canonicalUuidUrn(byte[] value) {
+		if (value == null || value.length != 16) return null;
+		java.nio.ByteBuffer bytes = java.nio.ByteBuffer.wrap(value);
+		return "urn:uuid:" + new UUID(bytes.getLong(), bytes.getLong());
 	}
 	
 	//No other name forms appear in the subjectAltName extension.
@@ -1354,41 +1398,26 @@ public class PKIX_X509DataObjectTests {
 	 */
     
     private boolean matchUuid(X509Certificate certificate, byte[] identifier) {
-		boolean result = false;
-		byte[] sanEncoded = certificate.getExtensionValue(Extension.subjectAlternativeName.getId());
-
-		if (sanEncoded != null) {
-			ASN1Primitive sanBytes;
-			try {
-				sanBytes = JcaX509ExtensionUtils.parseExtensionValue(sanEncoded);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-			try {
-				GeneralNames sans = GeneralNames.getInstance(sanBytes);
-				GeneralName[] sanArray = sans.getNames();
-				for (GeneralName gn : sanArray) {
-					if (gn.getTagNo() == 6) {
-						DERIA5String encodedUuid = DERIA5String.getInstance(gn.getName());
-						byte[] urnUuid = encodedUuid.getString().getBytes();
-						byte[] uuid = Arrays.copyOfRange(urnUuid, "urn:uuid:".length(), urnUuid.length); 
-						s_logger.debug("UUID: {}", new String(uuid));
-						
-						byte[] test = new String(uuid).getBytes();
-						result = Arrays.equals(uuid, test);
-					}
-				}
-			} catch (Exception e) {
-				s_logger.error("Exception while matching UUID: ", e.getMessage());
-			}
-		} else {
-			String message = "Subject alternative name extension is null";
-			s_logger.error(message);
-		}
-
-		return result;
-	}
+        // SP 800-73 Part 1 section 3.4.1(4), in both revisions 4 and 5.
+        // Comparing the canonical URN also enforces RFC 4122 section 3's widths
+        // without UUID.fromString accepting abbreviated groups.
+        String expected = canonicalUuidUrn(identifier);
+        if (expected == null) return false;
+        byte[] encoded = certificate.getExtensionValue(Extension.subjectAlternativeName.getId());
+        if (encoded == null) return false;
+        try {
+            GeneralNames names = GeneralNames.getInstance(JcaX509ExtensionUtils.parseExtensionValue(encoded));
+            for (GeneralName name : names.getNames()) {
+                if (name.getTagNo() == GeneralName.uniformResourceIdentifier
+                        && expected.equalsIgnoreCase(DERIA5String.getInstance(name.getName()).getString())) {
+                    return true; // Another SAN, including a holder UUID, cannot undo this match.
+                }
+            }
+        } catch (IOException | IllegalArgumentException e) {
+            s_logger.debug("Unable to decode UUID subjectAltName", e);
+        }
+        return false;
+    }
     
 	/**
 	 * Attempts to match the FASC-N in the GeneralNames in the Subject Alternative Name extension in 
