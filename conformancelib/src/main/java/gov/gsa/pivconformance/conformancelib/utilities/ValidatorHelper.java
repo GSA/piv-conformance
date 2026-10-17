@@ -154,14 +154,16 @@ public class ValidatorHelper {
 
     /**
 	 * The single external-versus-bundled default boundary: an existing,
-	 * readable path relative to the process working directory wins, followed by
-	 * configured writable and installed application resource directories.
+     * readable path relative to the process working directory wins for source
+     * runs, followed by configured writable and installed application resource
+     * directories. Packaged runs skip the process working directory.
 	 * Otherwise the same platform-independent classpath name is used. Explicit
 	 * operator paths must use {@link #openExternalFile(String)} instead.
      */
 	public static OpenedResource openDefaultResource(String resourceName) throws ConformanceTestException {
 		Path externalPath = Path.of(resourceName).toAbsolutePath().normalize();
-		if (Files.isRegularFile(externalPath) && Files.isReadable(externalPath)) {
+		if (!Boolean.getBoolean("cct.packaged")
+				&& Files.isRegularFile(externalPath) && Files.isReadable(externalPath)) {
 			return openExternalFile(externalPath.toString());
 		}
 		String[] configuredDirectories = {

@@ -143,7 +143,7 @@ public class ValidatorTest {
     @Test
     @Tag("Sun")
     @DisplayName("A readable external default takes precedence over the same-named bundled resource")
-    void testReadableExternalDefaultTakesPrecedenceOverBundledResource() throws Exception {
+    void testReadableExternalDefaultTakesPrecedenceOverBundledResource(@TempDir Path temporaryDirectory) throws Exception {
         String resourceName = "pdval.properties";
         String externalContents = "source=external-default\n";
         try (ValidatorHelper.OpenedResource bundledResource =
@@ -165,9 +165,38 @@ public class ValidatorTest {
                 assertEquals(externalContents,
                         new String(selectedResource.stream().readAllBytes(), StandardCharsets.UTF_8));
             }
+
+            Path installedDirectory = temporaryDirectory.resolve("installed");
+            Files.createDirectories(installedDirectory);
+            Path installedDefault = installedDirectory.resolve(resourceName);
+            Files.writeString(installedDefault, "source=installed\n", StandardCharsets.UTF_8);
+            String originalPackaged = System.getProperty("cct.packaged");
+            String originalDataDirectory = System.getProperty("cct.data.dir");
+            String originalResourceDirectory = System.getProperty("cct.resource.dir");
+            try {
+                System.setProperty("cct.packaged", "true");
+                System.setProperty("cct.data.dir", temporaryDirectory.resolve("data").toString());
+                System.setProperty("cct.resource.dir", installedDirectory.toString());
+                try (ValidatorHelper.OpenedResource selectedResource =
+                             ValidatorHelper.openDefaultResource(resourceName)) {
+                    assertEquals(ValidatorHelper.ResourceSource.EXTERNAL_FILE, selectedResource.source());
+                    assertEquals(installedDefault.toString(), selectedResource.location());
+                    assertEquals("source=installed\n",
+                            new String(selectedResource.stream().readAllBytes(), StandardCharsets.UTF_8));
+                }
+            } finally {
+                restoreProperty("cct.packaged", originalPackaged);
+                restoreProperty("cct.data.dir", originalDataDirectory);
+                restoreProperty("cct.resource.dir", originalResourceDirectory);
+            }
         } finally {
             Files.deleteIfExists(externalDefault);
         }
+    }
+
+    private static void restoreProperty(String name, String originalValue) {
+        if (originalValue == null) System.clearProperty(name);
+        else System.setProperty(name, originalValue);
     }
 
     @Test
