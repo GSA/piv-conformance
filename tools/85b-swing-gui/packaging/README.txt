@@ -1,11 +1,22 @@
 CCT __CCT_VERSION__ release candidate
 
-Extract the whole ZIP before running CCT. Keep the JAR, databases and x509-certs
-directory together. Install Java 17 if it is not already available on PATH.
+Compare the ZIP's SHA-256 with its .sha256 file and the release page. Use
+Get-FileHash "<zip-file>" -Algorithm SHA256 in Windows PowerShell,
+shasum -a 256 "<zip-file>" on macOS, or sha256sum "<zip-file>" on Linux.
+Extract the whole ZIP before running CCT. Keep the JAR, four databases,
+configuration files and x509-certs directory together.
 
-Windows: double-click run.bat. macOS/Linux: run ./run.sh from a terminal.
-Select the PIV or PIV-I profile in the toolbar, choose a card reader, then run
-the tests. Use View Results for the report and Package Results to create a ZIP.
+Install Java 17 and check java -version in the launch terminal. The scripts use
+java on PATH; JAVA_HOME alone does not select it. Windows: double-click run.bat.
+macOS/Linux: run ./run.sh from a terminal. If another Java is the default, run
+PATH="/path/to/jdk-17/bin:$PATH" ./run.sh using your Java 17 installation path.
+
+Choose PIV or PIV-I in the toolbar, or File > Open Database for another .db
+profile. Insert the card, click Refresh Readers, select its reader, and check
+Reader Status. Enter the PIV application PIN in the GUI and click Verify PIN
+and Execute Tests. After completion, use View Results for the HTML report and
+Package Results to create a ZIP for that run. The results ZIP includes the
+selected database, the completed run's logs and artifacts, and x509-certs.
 Unsupported means the card read did not establish that case's requirement; it
 is not a passing result.
 

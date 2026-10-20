@@ -3,11 +3,13 @@ Tool for testing the PIV card data model. Its case catalog derives from SP 800-8
 
 ## Run the release candidate
 
-Download the candidate ZIP and its `.sha256` file together, verify the ZIP's SHA-256, and extract the complete ZIP into one directory. Install Java 17. From that directory, run `run.bat` on Windows or `./run.sh` on macOS/Linux. Keep the JAR, four profile databases, configuration files, and `x509-certs` directory together.
+Download the candidate ZIP and its `.sha256` file together. Compare the ZIP's hash with the `.sha256` file and the release page: use `Get-FileHash "<zip-file>" -Algorithm SHA256` in Windows PowerShell, `shasum -a 256 "<zip-file>"` on macOS, or `sha256sum "<zip-file>"` on Linux. Extract the complete ZIP into one directory, keeping the JAR, four profile databases, configuration files, and `x509-certs` directory together.
 
-In the GUI, select the PIV or PIV-I profile, select the card reader, and run the tests. After a run, use **View Results** for the report or **Package Results** to create a ZIP. Some cases report **Unsupported** when the card read cannot establish the required condition; this is not a passing result.
+Install Java 17 and confirm that `java -version` resolves to Java 17 in the same terminal used to launch CCT. The launch scripts check the Java version on `PATH`; setting `JAVA_HOME` alone does not change which `java` they run. From the extracted directory, double-click `run.bat` on Windows or run `./run.sh` on macOS/Linux. On macOS/Linux, if another Java version is the default, use `PATH="/path/to/jdk-17/bin:$PATH" ./run.sh` with your Java 17 installation path.
 
-Logs and result packages are written under the per-user CCT data directory: `%LOCALAPPDATA%\GSA\CCT` on Windows, `~/Library/Application Support/GSA/CCT` on macOS, and `$XDG_DATA_HOME/GSA/CCT` (or `~/.local/share/GSA/CCT` when unset) on Linux. Packages are under its `runs` directory. CCT preserves an existing per-user `x509-certs/cacerts.jks`, which takes precedence over the copy in the ZIP; review and back up customized trust material before replacing it.
+In the GUI, choose the **PIV** or **PIV-I** toolbar button (or **File → Open Database** for another `.db` profile). Insert the card, click **Refresh Readers**, select its reader, and check **Reader Status**. Enter the PIV application PIN in the GUI and click **Verify PIN and Execute Tests**. After the run completes, use **View Results** for the HTML report or **Package Results** to create a ZIP for that run. Some cases report **Unsupported** when the card read cannot establish the required condition; this is not a passing result.
+
+Logs and result packages are written under the per-user CCT data directory: `%LOCALAPPDATA%\GSA\CCT` on Windows, `~/Library/Application Support/GSA/CCT` on macOS, and `$XDG_DATA_HOME/GSA/CCT` (or `~/.local/share/GSA/CCT` when unset) on Linux. Packages are under its `runs` directory and include the selected database, the completed run's logs and artifacts, and the `x509-certs` files used for validation. CCT preserves an existing per-user `x509-certs/cacerts.jks`, which takes precedence over the copy in the ZIP; review and back up customized trust material before replacing it.
 
 ## Build status
 
@@ -25,7 +27,7 @@ The GUI JAR is written to `tools/85b-swing-gui/build/libs/`. The older Windows b
 
 With a Java 17 JDK in `JAVA_HOME` and `zip` installed, run `./doit.sh` from the repository root. It builds and tests Cardlib, Conformancelib and the GUI, then writes a flat ZIP and its SHA-256 under `build/releases/`. Extract the complete ZIP; use `run.bat` on Windows or `run.sh` on macOS/Linux with Java 17 on `PATH`. The included `README.txt` gives the run and results locations. The ZIP is a candidate until its extracted Windows/card workflow is validated.
 
-The packaged `x509-certs/cacerts.jks` is the exact 174-entry external trust store from the published [v1.0.9 release](https://github.com/GSA/piv-conformance/releases/tag/v1.0.9), whose ZIP SHA-256 is `2f5b82458b6c058c94eabb060ba1a9ad5e2610f777a1be3cdf87731496a656cb`. The JKS SHA-256 is `41496e64cb241c8f98bebee33ff2f1f98530d4febc2ab0b9d369910578628a10`; `doit.sh` checks it before packaging. Trust policy and existing per-user overrides need review before a public release.
+The packaged `x509-certs/cacerts.jks` is the exact 174-entry external trust store from the published [v1.0.9 release](https://github.com/GSA/piv-conformance/releases/tag/v1.0.9), whose ZIP SHA-256 is `2f5b82458b6c058c94eabb060ba1a9ad5e2610f777a1be3cdf87731496a656cb`. The JKS SHA-256 is `41496e64cb241c8f98bebee33ff2f1f98530d4febc2ab0b9d369910578628a10`; `doit.sh` checks it before packaging.
 
 ## References ##
 
