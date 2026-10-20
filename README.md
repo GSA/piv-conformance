@@ -1,6 +1,10 @@
 # piv-conformance
 Tool for testing the PIV card data model. Its case catalog derives from SP 800-85B guidance. This `1.1.0-rc1` candidate updates selected checks for FIPS 201-3, SP 800-73-5 Part 1, and SP 800-78-5, and corrects selected checks under SP 800-76-2. A passing run does not establish complete coverage of those publications or certify a card.
 
+## How the checks are organized
+
+The four profile databases describe cases and select which Java JUnit test method (an *atom*) runs, with the card object and any parameters it needs. The assertion itself is Java code in `conformancelib`; `cardlib` decodes card data, and the GUI runs the selected cases and reports their results. The profile workbooks, SQL dumps, and SQLite databases are kept aligned. For example, PIV case 8.1.8 now routes to an atom that rejects CCC tags E3 and B4. The candidate covers selected SP 800-73-5 Part 1 changes to CCC, CHUID, and active certificate containers; it has not completed an exhaustive Part 1 requirements audit. PIV-I retains historical routes where applicability has not been established.
+
 ## Run the release candidate
 
 Download the candidate ZIP and its `.sha256` file together. Compare the ZIP's hash with the `.sha256` file and the release page: use `Get-FileHash "<zip-file>" -Algorithm SHA256` in Windows PowerShell, `shasum -a 256 "<zip-file>"` on macOS, or `sha256sum "<zip-file>"` on Linux. Extract the complete ZIP into one directory, keeping the JAR, four profile databases, configuration files, and `x509-certs` directory together.
