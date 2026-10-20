@@ -151,8 +151,9 @@ public class GuiTestListener implements TestExecutionListener {
 	}
 
 	private boolean isUnsupportedResult(TestExecutionResult result) {
-		return result.getThrowable().map(Throwable::getMessage)
-				.filter(message -> message != null && message.contains(PlaceholderTests.UNSUPPORTED_MESSAGE))
+		return result.getStatus() == TestExecutionResult.Status.ABORTED
+				&& result.getThrowable()
+				.filter(PlaceholderTests.UnsupportedConformanceException.class::isInstance)
 				.isPresent();
 	}
 

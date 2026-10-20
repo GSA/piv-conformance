@@ -627,7 +627,7 @@ INSERT INTO "TestCases" VALUES(346, NULL,'10.5.1.14','The signed attribute entry
 INSERT INTO "TestCases" VALUES(347, NULL,'11 X.509 Certificate Profiles','PKI Certificate Profile Test Assertions','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(348, NULL,'11.1 PIV Auth Cert','PIV Authentication Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(349, NULL,'11.1.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(350, NULL,'11.1.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(350, NULL,'11.1.1.1','Certificate signature OID and encoded parameter form match selected SP 800-78-5 Section 3.2.1 values; issuer key pairing and certificate signature verification are not checked by this case','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(351, NULL,'11.1.1.2','The PIV authentication key uses an allowed asymmetric algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(352, NULL,'11.1.1.3','The PIV authentication key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(353, NULL,'11.1.2','Data Integrity Checks','',NULL, 1, 1);
@@ -660,7 +660,7 @@ INSERT INTO "TestCases" VALUES(379, NULL,'11.1.2.10.4','The URI scheme for id-ad
 INSERT INTO "TestCases" VALUES(380, NULL,'11.1.2.10.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(381, NULL,'11.2 Digital Signature Cert','Digital Signature Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(382, NULL,'11.2.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(383, NULL,'11.2.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(383, NULL,'11.2.1.1','Certificate signature OID and encoded parameter form match selected SP 800-78-5 Section 3.2.1 values; issuer key pairing and certificate signature verification are not checked by this case','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(384, NULL,'11.2.1.2','The digital signature key uses an allowed asymmetric algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(385, NULL,'11.2.1.3','The digital signature key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(386, NULL,'11.2.2','Data Integrity Checks','',NULL, 1, 1);
@@ -683,7 +683,7 @@ INSERT INTO "TestCases" VALUES(402, NULL,'11.2.2.7.4','The URI scheme for id-ad-
 INSERT INTO "TestCases" VALUES(403, NULL,'11.2.2.7.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(404, NULL,'11.3 Key Management Cert','Key Management Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(405, NULL,'11.3.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(406, NULL,'11.3.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(406, NULL,'11.3.1.1','Certificate signature OID and encoded parameter form match selected SP 800-78-5 Section 3.2.1 values; issuer key pairing and certificate signature verification are not checked by this case','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(407, NULL,'11.3.1.2','The key management key uses an allowed asymmetric algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(408, NULL,'11.3.1.3','The key management key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(409, NULL,'11.3.2','Data Integrity Checks','',NULL, 1, 1);
@@ -706,7 +706,7 @@ INSERT INTO "TestCases" VALUES(425, NULL,'11.3.2.6.4','The URI scheme for id-ad-
 INSERT INTO "TestCases" VALUES(426, NULL,'11.3.2.6.5','File has an extension of “.p7c” containing a certs-only CMS message (see RFC 3851)','X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(427, NULL,'11.4 Card Auth Cert','Card Authentication Certificate','',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(428, NULL,'11.4.1','Algorithm Conformance','',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(429, NULL,'11.4.1.1','Certificate signature algorithm and parameters use SP 800-78-5 Section 3.2.1 Tables 2-3: RSA SHA-256/384 with PKCS #1 v1.5 or PSS, or ECDSA SHA-256/384','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(429, NULL,'11.4.1.1','Certificate signature OID and encoded parameter form match selected SP 800-78-5 Section 3.2.1 values; issuer key pairing and certificate signature verification are not checked by this case','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(430, NULL,'11.4.1.2','The asymmetric card authentication key uses an allowed algorithm under SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(431, NULL,'11.4.1.3','The asymmetric card authentication key size or curve is permitted by SP 800-78-5 Section 3.1, Table 1 (through 2030).','X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(432, NULL,'11.4.2','Data Integrity Checks','',NULL, 1, 1);

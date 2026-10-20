@@ -28,6 +28,9 @@ import gov.gsa.pivconformance.conformancelib.configuration.ConformanceTestDataba
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
 import gov.gsa.pivconformance.conformancelib.utilities.CardUtils;
 import gov.gsa.pivconformance.cardlib.utils.PCSCUtils;
+import gov.gsa.pivconformance.cardlib.card.client.CardHandle;
+import gov.gsa.pivconformance.cardlib.card.client.MiddlewareStatus;
+import gov.gsa.pivconformance.cardlib.card.client.PIVMiddleware;
 
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
@@ -56,6 +59,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 	private final JButton m_runButton;
 	private final JButton m_viewResultsButton;
 	private final JButton m_packageResultsButton;
+	private boolean m_refreshingReaders;
 	public SimpleTestExecutionPanel() {
 		setBackground(Color.WHITE);
 		
@@ -65,22 +69,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_readerComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int selected = m_readerComboBox.getSelectedIndex();
-				s_logger.debug("Selected reader: {}: {}", selected, m_readerComboBox.getSelectedItem());
-				CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-				css.setReaderIndex(selected);
-				try {
-					CardUtils.setUpReaderInSingleton();
-				} catch (ConformanceTestException e1) {
-					s_logger.error("Caught ConformanceTestException setting up card reader", e1);
-					JOptionPane msgBox = new JOptionPane("Unable to configure reader: " + m_readerComboBox.getSelectedItem() + ".\n" +
-							e1.getMessage(), JOptionPane.ERROR_MESSAGE);
-					JDialog dialog = msgBox.createDialog(SimpleTestExecutionPanel.this, "Error");
-					dialog.setAlwaysOnTop(true);
-					dialog.setVisible(true);
-				}
-				refreshReaderStatus(css);
-				
+				if (!m_refreshingReaders) configureSelectedReader();
 			}
 		});
 		
@@ -116,7 +105,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 					//a new card do this when new card is detected but not sure how to do that right now
 					int selected = m_readerComboBox.getSelectedIndex();
 					CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-					css.reset();
+					resetCardSession(css);
 					css.setReaderIndex(selected);
 					try {
 						CardUtils.setUpReaderInSingleton();
@@ -127,8 +116,9 @@ public class SimpleTestExecutionPanel extends JPanel {
 						JDialog dialog = msgBox.createDialog(SimpleTestExecutionPanel.this, "Error");
 						dialog.setAlwaysOnTop(true);
 						dialog.setVisible(true);
+						return;
 					}
-					refreshReaderStatus(css);
+					if (!refreshReaderStatus(css)) return;
 					
 					if(!CardUtils.setUpPivAppHandleInSingleton()) {
 						s_logger.error("CardUtils.setUpPivAppHandleInSingleton() returned false");
@@ -219,7 +209,6 @@ public class SimpleTestExecutionPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshReaderState();
-				refreshReaderStatus(CardSettingsSingleton.getInstance());
 			}
 		});
 		
@@ -336,7 +325,6 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_testProgressBar.setVisible(false);
 		refreshReaderState();
 		refreshDatabaseInfo();
-		refreshReaderStatus(CardSettingsSingleton.getInstance());
 		
 	}
 
@@ -372,20 +360,63 @@ public class SimpleTestExecutionPanel extends JPanel {
 	}
 	private void refreshReaderState() {
 		String selectedReader = (String) m_readerComboBox.getSelectedItem();
-		m_readerComboBox.removeAllItems();
-		
-		List<String> readers = PCSCUtils.GetConnectedReaders();
-		for(String reader : readers) {
-			m_readerComboBox.addItem(reader);
+		m_refreshingReaders = true;
+		try {
+			m_readerComboBox.removeAllItems();
+			List<String> readers = PCSCUtils.GetConnectedReaders();
+			for(String reader : readers) {
+				m_readerComboBox.addItem(reader);
+			}
+			if(selectedReader != null && readers.contains(selectedReader)) {
+				m_readerComboBox.setSelectedItem(selectedReader);
+			} else {
+				String reader = PCSCUtils.GetFirstReaderWithCardPresent();
+				if(reader != null && readers.contains(reader)) {
+					m_readerComboBox.setSelectedItem(reader);
+				}
+			}
+		} finally {
+			m_refreshingReaders = false;
 		}
-		if(selectedReader != null) {
-			m_readerComboBox.setSelectedItem(selectedReader);
-		} else {
-			String reader = PCSCUtils.GetFirstReaderWithCardPresent();
-			if(reader != null) {
-				m_readerComboBox.setSelectedItem(reader);
+		configureSelectedReader();
+	}
+
+	private void configureSelectedReader() {
+		int selected = m_readerComboBox.getSelectedIndex();
+		s_logger.debug("Selected reader: {}: {}", selected, m_readerComboBox.getSelectedItem());
+		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+		resetCardSession(css);
+		css.setReaderIndex(selected);
+		if (selected < 0) {
+			css.setTerminal(null);
+			m_readerStatusField.setText("No card reader connected.");
+			return;
+		}
+		try {
+			CardUtils.setUpReaderInSingleton();
+		} catch (ConformanceTestException e) {
+			s_logger.error("Caught ConformanceTestException setting up card reader", e);
+			css.setTerminal(null);
+			m_readerStatusField.setText("Unable to configure reader.");
+			JOptionPane msgBox = new JOptionPane("Unable to configure reader: " + m_readerComboBox.getSelectedItem() + ".\n" +
+					e.getMessage(), JOptionPane.ERROR_MESSAGE);
+			JDialog dialog = msgBox.createDialog(this, "Error");
+			dialog.setAlwaysOnTop(true);
+			dialog.setVisible(true);
+			return;
+		}
+		refreshReaderStatus(css);
+	}
+
+	static void resetCardSession(CardSettingsSingleton settings) {
+		CardHandle handle = settings.getCardHandle();
+		if (handle != null && handle.isValid() && handle.getCard() != null) {
+			MiddlewareStatus result = PIVMiddleware.pivDisconnect(handle);
+			if (result != MiddlewareStatus.PIV_OK) {
+				s_logger.warn("Unable to disconnect previous card session: {}", result);
 			}
 		}
+		settings.reset();
 	}
 	public JButton getRunButton() {
 		return m_runButton;
@@ -398,23 +429,28 @@ public class SimpleTestExecutionPanel extends JPanel {
 		repaint();
 	}
 
-	public void refreshReaderStatus(CardSettingsSingleton css) {
+	public boolean refreshReaderStatus(CardSettingsSingleton css) {
 		CardTerminal reader = css.getTerminal();
 		if(reader == null) { 
 			m_readerStatusField.setText("");
-			return;
+			return false;
 		}
 		try {
 			if(reader.isCardPresent()) {
 				try {
-					CardUtils.setUpPivAppHandleInSingleton();
+					if (!CardUtils.setUpPivAppHandleInSingleton()) {
+						m_readerStatusField.setText("Unable to connect to card.");
+						return false;
+					}
 				} catch (ConformanceTestException e1) {
 					s_logger.error("Unable to connect to card in reader", e1);
+					m_readerStatusField.setText("Unable to connect to card.");
 					JOptionPane msgBox = new JOptionPane("Unable to connect to reader: " + m_readerComboBox.getSelectedItem() + ".\n" +
 							e1.getMessage(), JOptionPane.ERROR_MESSAGE);
 					JDialog dialog = msgBox.createDialog(SimpleTestExecutionPanel.this, "Error");
 					dialog.setAlwaysOnTop(true);
 					dialog.setVisible(true);
+					return false;
 				}
 				String status = null;
 				byte[] atr = CardInfoController.getATR();
@@ -425,8 +461,10 @@ public class SimpleTestExecutionPanel extends JPanel {
 					status = "Unable to connect to card";
 				}
 				m_readerStatusField.setText(status);
+				return atr != null;
 			} else {
 				m_readerStatusField.setText("No card present. Insert a card and click refresh.");
+				return false;
 			}
 		} catch (HeadlessException | SecurityException | CardException e1) {
 			s_logger.error("Failed to check card presence", e1);
@@ -435,6 +473,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 			JDialog dialog = msgBox.createDialog(SimpleTestExecutionPanel.this, "Error");
 			dialog.setAlwaysOnTop(true);
 			dialog.setVisible(true);
+			return false;
 		}
 	}
 }

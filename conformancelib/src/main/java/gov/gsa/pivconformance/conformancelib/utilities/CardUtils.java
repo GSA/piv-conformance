@@ -40,7 +40,7 @@ public class CardUtils {
 		if (readers.isEmpty()) {
 			throw new ConformanceTestException("No connected readers found");
 		}
-		if (idx > readers.size()) {
+		if (idx < -1 || idx >= readers.size()) {
 			throw new ConformanceTestException(
 					"Reader index specified: " + idx + " but only " + readers.size() + " connected.");
 		}

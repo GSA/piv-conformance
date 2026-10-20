@@ -415,6 +415,8 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			return;
 		}
 
+		// This certificate route checks signature OID and encoded parameters only.
+		// Issuer-key pairing and certificate signature verification need issuer evidence.
 		X509Certificate cert = AtomHelper.getCertificateForContainer(object);
 		assertNotNull(cert, "SP800-78.3 current: certificate could not be decoded");
 		String algorithm = cert.getSigAlgOID();

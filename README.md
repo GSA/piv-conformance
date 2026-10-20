@@ -1,5 +1,13 @@
 # piv-conformance
-Tool for testing the PIV card data model. Its existing test cases derive from SP 800-85B guidance; selected checks have been updated for FIPS 201-3, SP 800-73-5 Part 1, SP 800-78-5, and SP 800-76-2. A passing run does not establish complete coverage of those publications.
+Tool for testing the PIV card data model. Its case catalog derives from SP 800-85B guidance. This `1.1.0-rc1` candidate updates selected checks for FIPS 201-3, SP 800-73-5 Part 1, and SP 800-78-5, and corrects selected checks under SP 800-76-2. A passing run does not establish complete coverage of those publications or certify a card.
+
+## Run the release candidate
+
+Download the candidate ZIP and its `.sha256` file together, verify the ZIP's SHA-256, and extract the complete ZIP into one directory. Install Java 17. From that directory, run `run.bat` on Windows or `./run.sh` on macOS/Linux. Keep the JAR, four profile databases, configuration files, and `x509-certs` directory together.
+
+In the GUI, select the PIV or PIV-I profile, select the card reader, and run the tests. After a run, use **View Results** for the report or **Package Results** to create a ZIP. Some cases report **Unsupported** when the card read cannot establish the required condition; this is not a passing result.
+
+Logs and result packages are written under the per-user CCT data directory: `%LOCALAPPDATA%\GSA\CCT` on Windows, `~/Library/Application Support/GSA/CCT` on macOS, and `$XDG_DATA_HOME/GSA/CCT` (or `~/.local/share/GSA/CCT` when unset) on Linux. Packages are under its `runs` directory. CCT preserves an existing per-user `x509-certs/cacerts.jks`, which takes precedence over the copy in the ZIP; review and back up customized trust material before replacing it.
 
 ## Build status
 
@@ -27,17 +35,17 @@ Cryptographic Modules](https://doi.org/10.6028/NIST.FIPS.140-2)
 - [FIPS 201-3 Personal Identity Verification (PIV) of Federal Employees and Contractors](https://doi.org/10.6028/NIST.FIPS.201-3)
 
 ### ISO/IEC Publications ###
-- ISO/IEC 17043, Conformity assessment – General requirements for proficiency testing, 2010
-- ISO/IEC 10373 Identification Cards—Test Methods. Part 1—Standard for General Characteristic Test of Identification Cards, ISO, 1998. Part 3—Standard for Integrated Circuit Cards with Contacts and Related Interface Devices, ISO, 2001. Part 6—Standard for Proximity Card Support in Identification Cards, ISO, 2001
-- ISO/IEC 7816, Identification Cards—Integrated Circuits with Contacts, Parts 1-6, ISO
-- ISO/IEC 14443-1:2000, Identification Cards—Contactless Integrated Circuit(s) Cards—Proximity Cards, ISO, 2000
+- ISO/IEC 17043, Conformity assessment â€“ General requirements for proficiency testing, 2010
+- ISO/IEC 10373 Identification Cardsâ€”Test Methods. Part 1â€”Standard for General Characteristic Test of Identification Cards, ISO, 1998. Part 3â€”Standard for Integrated Circuit Cards with Contacts and Related Interface Devices, ISO, 2001. Part 6â€”Standard for Proximity Card Support in Identification Cards, ISO, 2001
+- ISO/IEC 7816, Identification Cardsâ€”Integrated Circuits with Contacts, Parts 1-6, ISO
+- ISO/IEC 14443-1:2000, Identification Cardsâ€”Contactless Integrated Circuit(s) Cardsâ€”Proximity Cards, ISO, 2000
 
 ### NIST Special Publications ###
 - [SP 800-73-5 Part 1, PIV Card Application Namespace, Data Model and Representation](https://doi.org/10.6028/NIST.SP.800-73pt1-5)
 - [SP800-76 Biometric Specifications for Personal Identity Verification](https://doi.org/10.6028/NIST.SP.800-76-2)
 - [SP 800-78-5 Cryptographic Algorithms and Key Sizes for Personal Identity Verification](https://doi.org/10.6028/NIST.SP.800-78-5)
 - [SP800-85A PIV Card Application and Middleware Interface Test Guidelines (SP 800-73-4 Compliance)](https://doi.org/10.6028/NIST.SP.800-85A-4)
-- [SP800-85B PIV Data Model Test Guidelines (DRAFT)](https://csrc.nist.gov/CSRC/media/Publications/sp/800-85b/4/draft/documents/sp800_85b-4_draft.pdf)
+- [SP 800-85B PIV Data Model Test Guidelines (final, 2006)](https://csrc.nist.gov/pubs/sp/800/85/b/final). The later [SP 800-85B-4 draft](https://csrc.nist.gov/pubs/sp/800/85/b/4/ipd) was discontinued; its case lineage is historical guidance, not a final current standard.
 - [SP800-96 PIV Card to Reader Interoperability Guidelines](https://doi.org/10.6028/NIST.SP.800-96)
 - [SP800-116 A Recommendation for the Use of PIV Credentials in Physical Access Control Systems (PACS)](https://doi.org/10.6028/NIST.SP.800-116)
 

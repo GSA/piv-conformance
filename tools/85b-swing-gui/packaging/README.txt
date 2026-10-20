@@ -5,9 +5,15 @@ directory together. Install Java 17 if it is not already available on PATH.
 
 Windows: double-click run.bat. macOS/Linux: run ./run.sh from a terminal.
 Select the PIV or PIV-I profile in the toolbar, choose a card reader, then run
-the tests. Results and run packages are written to the per-user GSA/CCT data
-directory (on Windows, %LOCALAPPDATA%\GSA\CCT). The Package Results action
-creates a ZIP under that directory's runs folder.
+the tests. Use View Results for the report and Package Results to create a ZIP.
+Unsupported means the card read did not establish that case's requirement; it
+is not a passing result.
+
+Logs and packages are written under the per-user GSA/CCT data directory:
+Windows: %LOCALAPPDATA%\GSA\CCT
+macOS: ~/Library/Application Support/GSA/CCT
+Linux: $XDG_DATA_HOME/GSA/CCT, or ~/.local/share/GSA/CCT when XDG_DATA_HOME is unset
+Package Results writes its ZIP under the data directory's runs folder.
 
 An existing per-user x509-certs/cacerts.jks is preserved. Before using a new
 trust bundle, have your operator review any customized copy in the GSA/CCT

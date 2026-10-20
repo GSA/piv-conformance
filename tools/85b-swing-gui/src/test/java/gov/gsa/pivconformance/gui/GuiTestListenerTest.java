@@ -12,8 +12,8 @@ class GuiTestListenerTest {
     @Test
     void unsupportedPlaceholderIsSkippedRatherThanPassedOrBlamedOnCard() {
         GuiTestListener listener = new GuiTestListener();
-        listener.recordOutcome(TestExecutionResult.aborted(new RuntimeException(
-                "Assumption failed: " + PlaceholderTests.UNSUPPORTED_MESSAGE + "KEY_HISTORY_OBJECT_OID")));
+        listener.recordOutcome(TestExecutionResult.aborted(
+                new PlaceholderTests.UnsupportedConformanceException("KEY_HISTORY_OBJECT_OID")));
         assertEquals(TestStatus.SKIP, listener.getResultStatus());
 
         listener.recordOutcome(TestExecutionResult.failed(new AssertionError("Real assertion failure")));
@@ -28,5 +28,16 @@ class GuiTestListenerTest {
 
         listener.recordOutcome(TestExecutionResult.aborted(new RuntimeException("Acquisition error")));
         assertEquals(TestStatus.FAIL, listener.getResultStatus());
+
+        GuiTestListener misleadingMessage = new GuiTestListener();
+        misleadingMessage.recordOutcome(TestExecutionResult.aborted(new RuntimeException(
+                PlaceholderTests.UNSUPPORTED_MESSAGE + "but this is an unrelated abort")));
+        assertEquals(TestStatus.FAIL, misleadingMessage.getResultStatus());
+
+        GuiTestListener mixed = new GuiTestListener();
+        mixed.recordOutcome(TestExecutionResult.aborted(
+                new PlaceholderTests.UnsupportedConformanceException("one case")));
+        mixed.recordOutcome(TestExecutionResult.aborted(new RuntimeException("Another atom aborted")));
+        assertEquals(TestStatus.FAIL, mixed.getResultStatus());
     }
 }

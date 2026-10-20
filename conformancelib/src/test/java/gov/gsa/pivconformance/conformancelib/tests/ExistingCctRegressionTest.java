@@ -37,6 +37,7 @@ import java.sql.*;
 import java.security.Security;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
 import java.math.BigInteger;
@@ -556,7 +557,9 @@ public class ExistingCctRegressionTest {
 
     private static byte[] currentCertificate(KeyPair keyPair) throws Exception {
         String signature = keyPair.getPrivate().getAlgorithm().equals("RSA")
-                ? "SHA256withRSA" : "SHA384withECDSA";
+                ? "SHA256withRSA"
+                : ((ECPublicKey) keyPair.getPublic()).getParams().getCurve().getField().getFieldSize() == 256
+                    ? "SHA256withECDSA" : "SHA384withECDSA";
         return currentCertificate(keyPair, signature);
     }
 
@@ -687,6 +690,9 @@ public class ExistingCctRegressionTest {
                 if (expectedStatus == TestExecutionResult.Status.FAILED)
                     assertTrue(failure instanceof AssertionError,
                             "Setup/decode errors do not prove the intended failure: " + failure);
+                if (expectedStatus == TestExecutionResult.Status.ABORTED)
+                    assertTrue(failure instanceof PlaceholderTests.UnsupportedConformanceException,
+                            "Unsupported cases must use the typed result: " + failure);
                 assertTrue(expectedStatus == TestExecutionResult.Status.ABORTED
                                 ? failure.getMessage().contains(failurePrefix)
                                 : failure.getMessage().startsWith(failurePrefix),

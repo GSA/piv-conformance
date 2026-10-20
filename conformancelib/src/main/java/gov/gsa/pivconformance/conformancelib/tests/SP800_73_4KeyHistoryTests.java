@@ -5,7 +5,6 @@ import gov.gsa.pivconformance.cardlib.tlv.BerTag;
 import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
 import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,9 +25,8 @@ public class SP800_73_4KeyHistoryTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_57(String oid, TestReporter reporter) throws Exception {
         KeyHistoryObject object = (KeyHistoryObject) AtomHelper.getDataObject(oid);
-        Assumptions.assumeTrue(object != null,
-                PlaceholderTests.UNSUPPORTED_MESSAGE + "absent optional Key History; "
-                        + "retired private-key presence cannot be established from card data");
+        if (object == null) throw new PlaceholderTests.UnsupportedConformanceException(
+                "absent optional Key History; retired private-key presence cannot be established from card data");
         assertTrue(object.inBounds(oid), "SP800-73 Key History: field length exceeds Table 20");
         int onCard = object.getKeysWithOnCardCerts();
         int offCard = object.getKeysWithOffCardCerts();

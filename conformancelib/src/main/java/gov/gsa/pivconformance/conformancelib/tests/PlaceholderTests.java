@@ -8,6 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opentest4j.TestAbortedException;
 
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
@@ -18,6 +19,11 @@ import org.junit.jupiter.params.provider.Arguments;
 
 public class PlaceholderTests {
 	public static final String UNSUPPORTED_MESSAGE = "CCT has no implemented conformance assertion for ";
+	public static final class UnsupportedConformanceException extends TestAbortedException {
+		public UnsupportedConformanceException(String detail) {
+			super(UNSUPPORTED_MESSAGE + detail);
+		}
+	}
 	private static final Logger s_logger = LoggerFactory.getLogger(PlaceholderTests.class);
 
 	public PlaceholderTests() {
@@ -102,7 +108,7 @@ public class PlaceholderTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void PlaceholderTest_1(String oid, TestReporter reporter) {
-		org.junit.jupiter.api.Assumptions.assumeTrue(false, UNSUPPORTED_MESSAGE + oid);
+		throw new UnsupportedConformanceException(oid);
 	}
 	
 	// Only if it's a cat, dog, or elephant, shall it jump over the moon 

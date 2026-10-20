@@ -168,9 +168,8 @@ public class GuiRunnerApplication {
 		return locateFile(new File("./"), target, excludePattern);
 	}
 
-	private static String getVersion(String name) {
-		File resourceFile = getResourceFile("build.version", File.separator + "build" + File.separator);
-		try (BufferedReader versionFile = openVersionReader(name, resourceFile)) {
+	static String getVersion(String name) {
+		try (BufferedReader versionFile = openVersionReader(name)) {
 			String version = versionFile.readLine();
 			if (version == null || version.isBlank()) throw new IOException("Version is empty");
 			return version.trim();
@@ -179,8 +178,7 @@ public class GuiRunnerApplication {
 		}
 	}
 
-	private static BufferedReader openVersionReader(String name, File resourceFile) throws IOException {
-		if (resourceFile != null) return new BufferedReader(new FileReader(resourceFile, StandardCharsets.UTF_8));
+	private static BufferedReader openVersionReader(String name) throws IOException {
 		InputStream resourceStream = GuiRunnerApplication.class.getResourceAsStream("/" + name);
 		if (resourceStream == null) throw new FileNotFoundException(name);
 		return new BufferedReader(new InputStreamReader(resourceStream, StandardCharsets.UTF_8));
