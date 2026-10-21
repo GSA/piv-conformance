@@ -50,6 +50,13 @@ final class ReviewPackageBuilder {
 		if (entries.size() == entryCount) {
 			throw new IOException("The trust-path directory contains no files: " + trustDirectory);
 		}
+		if (run.getResults() != null) {
+			Path directory = requireDirectory(resultsDirectory.resolve("logs/conformancelog"), "Conformance log directory");
+			Path summary = run.getResults().writeSummary(directory, run.getTimeStampPrefix());
+			String name = resultsDirectory.relativize(summary).toString().replace('\\', '/');
+			entries.removeIf(entry -> entry.name.equals(name));
+			entries.add(new SourceEntry(summary, name));
+		}
 		entries.add(new SourceEntry(database, database.getFileName().toString()));
 		entries.sort(Comparator.comparing(entry -> entry.name));
 

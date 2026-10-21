@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.Arrays;
@@ -96,6 +98,10 @@ public class X509DataObjectTests {
     @DisplayName("SP800-73-5 active certificate MSCUID test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A, Tables 11 and 16-18",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            scope = "Checks that MSCUID tag 72 is absent from active certificate containers. Retired certificate containers have different rules.")
     void sp800_73_5_Test_20(String oid, TestReporter reporter) {
         if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
             return;
@@ -144,6 +150,10 @@ public class X509DataObjectTests {
     @DisplayName("SP800-73-5 active certificate FE order test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A, Tables 11 and 16-18",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            scope = "Checks the error detection code position in an active certificate container.")
     void sp800_73_5_Test_21(String oid, TestReporter reporter) {
         if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
             return;
@@ -186,6 +196,10 @@ public class X509DataObjectTests {
     @DisplayName("SP800-73-5 active certificate allowed tags test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A, Tables 11 and 16-18",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            scope = "Checks the allowed tag set in an active certificate container; retired containers are outside this case.")
     void sp800_73_5_Test_22(String oid, TestReporter reporter) {
         if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
             return;

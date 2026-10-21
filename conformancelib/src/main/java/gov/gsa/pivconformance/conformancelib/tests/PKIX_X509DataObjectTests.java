@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
@@ -1014,6 +1016,10 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.27 current PIV UUID test")
 	@ParameterizedTest
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Section 3.4.1 item 4; Section 3.4.2",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            scope = "Checks Card UUID linkage and applicable optional Cardholder UUID linkage between the certificate SAN and CHUID; it does not verify certificate signatures or trust.")
 	void PKIX_Test_27_current(String oid, String requiredOid, TestReporter reporter) {
 		PKIX_Test_27(oid, requiredOid, reporter);
 		if (!APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID.equals(oid)) return;

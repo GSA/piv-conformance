@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import java.security.AlgorithmParameters;
 import java.security.PublicKey;
 import java.security.Security;
@@ -240,6 +242,10 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     @DisplayName("SP800-78.1 current PIV test")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-78-5",
+            location = "Section 3.1, Table 1 (through 2030)",
+            url = "https://csrc.nist.gov/pubs/sp/800/78/5/final",
+            scope = "Checks selected active certificate public key algorithms, sizes, RSA exponent and named curves. Other key uses and post-2030 policy are outside this case.")
     void sp800_78_Test_1_current(String oid, TestReporter reporter) {
         Set<String> activePivCertificateOids = Set.of(
                 APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID,
@@ -363,6 +369,10 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 	@DisplayName("SP800-78.3 current PIV signature algorithm test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-78-5",
+            location = "Section 3.2.1, Tables 2-3 (selected predicates)",
+            url = "https://csrc.nist.gov/pubs/sp/800/78/5/final",
+            scope = "Certificate routes check signature OID and encoded parameters only. The CHUID route also checks SignerInfo, key pairing and its signature. This case does not establish certificate trust or complete certificate profiles.")
 	void sp800_78_Test_3_current(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject object = AtomHelper.getDataObject(oid);

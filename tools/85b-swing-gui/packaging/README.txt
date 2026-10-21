@@ -14,11 +14,25 @@ PATH="/path/to/jdk-17/bin:$PATH" ./run.sh using your Java 17 installation path.
 Choose PIV or PIV-I in the toolbar, or File > Open Database for another .db
 profile. Insert the card, click Refresh Readers, select its reader, and check
 Reader Status. Enter the PIV application PIN in the GUI and click Verify PIN
-and Execute Tests. After completion, use View Results for the HTML report and
-Package Results to create a ZIP for that run. The results ZIP includes the
-selected database, the completed run's logs and artifacts, and x509-certs.
-Unsupported means the card read did not establish that case's requirement; it
-is not a passing result.
+and Execute Tests. After completion, use View Test Results to open the Results
+tab inside CCT. It appears after a run produces results and refreshes for each
+new run. The Testing tab returns to the existing card workflow. Select a summary
+card or filter by outcome to inspect recorded reasons and available references.
+The result labels are Pass, Fail and Unsupported, matching the CSV. Profile
+expectations and execution errors are explained separately in case details.
+Optional search narrows by case number, object or reason. The version is at the
+lower right.
+
+Package Results creates a ZIP for that run from either Testing or Results.
+The results ZIP includes the selected database, the completed run's logs and
+artifacts, x509-certs, and a readable *-results-summary.txt containing counts
+and case details requiring review.
+It is included even if Results was never opened. The completion dialog offers
+Show in Folder, Copy Path, View Results and Done.
+Unsupported can mean an unimplemented CCT check or unavailable external
+evidence (such as vendor values or original input images). It is not a passing
+result and does not by itself mean card data is missing. The view identifies
+steps without a recorded source reference.
 
 Logs and packages are written under the per-user GSA/CCT data directory:
 Windows: %LOCALAPPDATA%\GSA\CCT

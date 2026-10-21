@@ -36,6 +36,7 @@ def getVersion = { ->
 version = getVersion()
 
 dependencies {
+    implementation 'com.formdev:flatlaf:3.7.2:no-natives'
     implementation 'commons-cli:commons-cli:1.4'
     implementation 'commons-codec:commons-codec:1.15'
     implementation 'org.apache.commons:commons-csv:1.8'
@@ -70,6 +71,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 test {
+    systemProperty 'cct.repository', file('../..').absolutePath
+    systemProperty 'cct.data.dir', layout.buildDirectory.dir('test-data').get().asFile.absolutePath
     useJUnitPlatform()
     testLogging {
         events 'passed', 'skipped', 'failed'

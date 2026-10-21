@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import gov.gsa.pivconformance.cardlib.card.client.KeyHistoryObject;
 import gov.gsa.pivconformance.cardlib.tlv.BerTag;
 import gov.gsa.pivconformance.cardlib.tlv.TagConstants;
@@ -23,6 +25,10 @@ public class SP800_73_4KeyHistoryTests {
     @DisplayName("SP800-73 Key History object fields")
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Section 3.3.3; Appendix A, Table 20",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            scope = "Checks present Key History field structure, counts and URL syntax. An absent object cannot establish absence of retired private keys.")
     void sp800_73_4_Test_57(String oid, TestReporter reporter) throws Exception {
         KeyHistoryObject object = (KeyHistoryObject) AtomHelper.getDataObject(oid);
         if (object == null) throw new PlaceholderTests.UnsupportedConformanceException(

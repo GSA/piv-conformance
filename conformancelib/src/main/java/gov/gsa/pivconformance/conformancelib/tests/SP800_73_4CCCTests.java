@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -142,6 +144,10 @@ public class SP800_73_4CCCTests {
 	@DisplayName("SP800-73-5 CCC eliminated optional elements")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A, Table 9 and following note",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            scope = "Checks absence of eliminated CCC tags E3 and B4; other CCC requirements are outside this case.")
 	void sp800_73_5_Test_4(String oid, TestReporter reporter) {
 		List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
 		assertTrue(tags.stream().noneMatch(tag -> Arrays.equals(tag.bytes,
