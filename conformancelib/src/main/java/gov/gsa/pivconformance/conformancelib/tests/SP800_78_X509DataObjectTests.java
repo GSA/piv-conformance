@@ -450,7 +450,16 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 					"SP800-78.3 current: RSA-PSS MGF1 digest is missing");
 			String mgfHash = ((MGF1ParameterSpec) spec.getMGFParameters())
 					.getDigestAlgorithm().toUpperCase(Locale.ROOT).replace("-", "");
-			assertEquals(hash, mgfHash, "SP800-78.3 current: RSA-PSS and MGF1 digests differ");
+			// RFC 4055 sections 2.1 and 3.1 permit an independently selected
+			// MGF1 hash; matching the message hash is a recommendation.
+			assertTrue(Set.of("SHA1", "SHA224", "SHA256", "SHA384", "SHA512").contains(mgfHash),
+					"SP800-78.3 current: RSA-PSS MGF1 digest is not supported by RFC 4055");
+			int hashLength = hash.equals("SHA256") ? 32 : 48;
+			// FIPS 186-5 section 5.4(g); RFC 4055 section 3.1 fixes the trailer to 1.
+			assertTrue(spec.getSaltLength() >= 0 && spec.getSaltLength() <= hashLength,
+					"SP800-78.3 current: RSA-PSS salt length must be between zero and the message hash length");
+			assertEquals(1, spec.getTrailerField(),
+					"SP800-78.3 current: RSA-PSS trailer field must be 1");
 			return hash.equals("SHA256") ? "2.16.840.1.101.3.4.2.1" : "2.16.840.1.101.3.4.2.2";
 		} catch (Exception e) {
 			fail("SP800-78.3 current: malformed RSA-PSS parameters", e);
