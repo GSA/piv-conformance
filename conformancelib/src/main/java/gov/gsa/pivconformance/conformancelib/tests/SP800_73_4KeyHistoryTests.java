@@ -26,7 +26,7 @@ public class SP800_73_4KeyHistoryTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Section 3.3.3, pp. 13–14; Appendix A, Table 20, p. 38",
+            location = "Section 3.3.3, pp. 13 through 14; Appendix A, Table 20, p. 38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=25",
             excerpt = "The Key History object SHALL be present in the PIV Card Application if the PIV Card Application contains any retired key management private keys but MAY be present even if no such keys are present in the PIV Card Application.",
@@ -56,9 +56,10 @@ public class SP800_73_4KeyHistoryTests {
                 "SP800-73 Key History: offCardCertURL must be absent when both counts are zero");
         if (url != null) {
             String value = new String(url, StandardCharsets.US_ASCII);
+            // RFC 3986 section 3.2.2 permits a final root dot in a DNS host name.
             String dnsLabel = "[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?";
             assertTrue(Arrays.equals(url, value.getBytes(StandardCharsets.US_ASCII))
-                            && value.matches("http://" + dnsLabel + "(?:\\." + dnsLabel + ")*/[0-9A-Fa-f]{64}"),
+                            && value.matches("http://" + dnsLabel + "(?:\\." + dnsLabel + ")*\\.?/[0-9A-Fa-f]{64}"),
                     "SP800-73 Key History: offCardCertURL must be an HTTP DNS name and SHA-256 hex hash");
         }
     }

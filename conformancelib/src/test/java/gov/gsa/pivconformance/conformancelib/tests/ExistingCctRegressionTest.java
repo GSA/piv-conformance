@@ -501,6 +501,7 @@ public class ExistingCctRegressionTest {
         run(database, 150, method, keyHistory(0, 0, null, true), true, "");
         String url = "http://example.com/" + "0".repeat(64);
         run(database, 150, method, keyHistory(0, 1, url, true), true, "");
+        run(database, 150, method, keyHistory(0, 1, "http://example.com./" + "0".repeat(64), true), true, "");
         run(database, 150, method, keyHistory(1, 0, null, true), true, "");
         run(database, 150, method, keyHistory(1, 0, url, true), true, "");
         run(database, 150, method, keyHistory(0, 1, null, true), false,
@@ -514,6 +515,10 @@ public class ExistingCctRegressionTest {
         run(database, 150, method, keyHistory(0, 1, "https://example.com/" + "0".repeat(64), true),
                 false, "SP800-73 Key History: offCardCertURL must be an HTTP");
         run(database, 150, method, keyHistory(0, 1, "http://bad..example/" + "0".repeat(64), true),
+                false, "SP800-73 Key History: offCardCertURL must be an HTTP");
+        run(database, 150, method, keyHistory(0, 1, "http://example.com../" + "0".repeat(64), true),
+                false, "SP800-73 Key History: offCardCertURL must be an HTTP");
+        run(database, 150, method, keyHistory(0, 1, "http://./" + "0".repeat(64), true),
                 false, "SP800-73 Key History: offCardCertURL must be an HTTP");
         run(database, 150, method, keyHistory(0, 0, null, false), false,
                 "SP800-73 Key History: expected C1, C2, conditional F3, FE");
