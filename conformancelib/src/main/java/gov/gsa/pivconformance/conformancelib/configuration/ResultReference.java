@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Reviewed source for the predicate asserted by an existing CCT atom. */
+/** Source for the check performed by a CCT test method. */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Repeatable(ResultReference.Sources.class)

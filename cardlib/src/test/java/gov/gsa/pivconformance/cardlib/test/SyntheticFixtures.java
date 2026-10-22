@@ -20,7 +20,7 @@ import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-/** Explicit regeneration of test-only inputs. No card/person data or stored private keys. */
+/** Generates test resources from invented data without saving the signing key. */
 public final class SyntheticFixtures {
     private SyntheticFixtures() { }
 
@@ -75,8 +75,7 @@ public final class SyntheticFixtures {
         System.arraycopy(ascii("FMR\0" + " 20\0"), 0, fingerprint, 0, 8);
         Files.write(output.resolve("fingerprint-header.bin"), biometric(fingerprint, key, cert));
 
-        // Parser smoke only: the encapsulated payload is a labeled test string,
-        // not a claim to a complete LDS hash table or Security Object evaluation.
+        // The parser test needs a CMS payload, not a complete LDS hash table.
         Files.write(output.resolve("security.bin"), concat(tlv(0xba, new byte[]{1, 0x30, 0x30}),
                 tlv(0xbb, cms(ascii("CCT SYNTHETIC SECURITY PAYLOAD"), "2.23.136.1.1.1", true, key, cert)),
                 tlv(0xfe, new byte[0])));

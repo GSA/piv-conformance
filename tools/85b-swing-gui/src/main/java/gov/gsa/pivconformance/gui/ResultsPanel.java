@@ -232,7 +232,7 @@ final class ResultsPanel extends JPanel {
                 result.steps().stream().filter(s -> s.status() != TestStatus.PASS)
                         .flatMap(s -> s.references().stream()).distinct().forEach(ref -> add(body, g, referenceCard(ref)));
                 if (result.steps().isEmpty() || result.steps().stream().anyMatch(s -> s.status() != TestStatus.PASS && s.references().isEmpty()))
-                    add(body, g, section("Source reference", "An assertion-specific source reference has not been recorded for one or more steps in this case. Use the technical evidence to identify the step and trace its check."));
+                    add(body, g, section("Source reference", "A source reference is missing for one or more steps. Technical evidence lists the test methods."));
                 add(body, g, section("What to check", result.guidance()));
                 StringBuilder evidence = new StringBuilder();
                 for (RunResults.StepResult step : result.steps()) {
@@ -242,7 +242,7 @@ final class ResultsPanel extends JPanel {
                 add(body, g, disclosure("Technical evidence", evidence.toString()));
                 JPanel actions = panel(new FlowLayout(FlowLayout.LEFT, 8, 0), Color.WHITE);
                 JButton copy = button("Copy finding", false);
-                copy.addActionListener(e -> copy(result.id() + " — " + result.statusText() + "\n" + result.description()
+                copy.addActionListener(e -> copy(result.id() + ": " + result.statusText() + "\n" + result.description()
                         + "\n" + result.reason() + "\n" + result.guidance() + "\n\n"
                         + result.steps().stream().filter(s -> s.status() != TestStatus.PASS)
                             .flatMap(s -> s.references().stream()).distinct().map(RunResults.Reference::text)
@@ -343,7 +343,7 @@ final class ResultsPanel extends JPanel {
         JOptionPane.showMessageDialog(this, text(message, 14, INK), "Results", JOptionPane.ERROR_MESSAGE);
     }
 
-    // Package-private seams exercise actual filtering/selection without card or desktop interaction.
+    // Tests use these methods to filter and select cases without a desktop.
     void selectFilter(Filter mode) { filter.setSelectedItem(mode); }
     void search(String query) { search.setText(query); }
     int visibleCount() { return visible.size(); }
