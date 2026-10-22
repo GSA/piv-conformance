@@ -20,28 +20,20 @@ Choose PIV or PIV-I in the toolbar, or File > Open Database for another .db
 profile. Insert the card, click Refresh Readers, select its reader, and check
 Reader Status. Enter the PIV application PIN in the GUI and click Verify PIN
 and Execute Tests. After completion, use View Test Results to open the Results
-tab inside CCT. It appears after a run produces results and refreshes for each
-new run. The Testing tab returns to the existing card workflow. Select a summary
-card or filter by outcome to inspect recorded reasons and available references.
-The result labels are Pass, Fail and Unsupported, matching the CSV. Profile
-expectations and execution errors are explained separately in case details.
-Optional search narrows by case number, object or reason. The version is at the
-lower right.
-Reviewed source cards separate Official wording (excerpt) from What CCT checks.
-Links open the cited PDF page or document section where available. The text
-is available offline; source links require a connection. Copy finding and the
-packaged summary retain this source context.
+tab inside CCT. It appears after a run and updates for each new run. Use the
+summary cards, filters or search to find a case. Details show its reason,
+expected outcome and available source references. Official excerpts and CCT
+explanations are labeled separately; source links open online.
 
-Package Results creates a ZIP for that run from either Testing or Results.
-The results ZIP includes the selected database, the completed run's logs and
-artifacts, x509-certs, and a readable *-results-summary.txt containing counts
-and case details requiring review.
-It is included even if Results was never opened. The completion dialog offers
-Show in Folder, Copy Path, View Results and Done.
-Unsupported can mean an unimplemented CCT check or unavailable external
-evidence (such as vendor values or original input images). It is not a passing
-result and does not by itself mean card data is missing. The view identifies
-steps without a recorded source reference.
+Results use the same Pass, Fail and Unsupported labels as the CSV. Unsupported
+means a check is not implemented or needs evidence CCT does not have. It does
+not by itself mean card data is missing. Negative ICAM cases can expect Fail;
+execution errors also retain the Fail label. See USER_GUIDE.md for details.
+
+Package Results works from Testing or Results. Its ZIP includes the selected
+database, matching logs and artifacts, x509-certs, and a readable results summary,
+even if Results was never opened. The completion dialog offers Show in Folder,
+Copy Path, View Results and Done.
 
 Logs and packages are written under the per-user GSA/CCT data directory:
 Windows: %LOCALAPPDATA%\GSA\CCT

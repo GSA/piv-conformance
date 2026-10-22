@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-/** Immutable results of the main execution pass, shared by the UI and portable summary. */
+/** Immutable run results shared by the Results tab and packaged summary. */
 record RunResults(String version, Path database, Instant started, Instant finished,
                   boolean complete, List<CaseResult> cases, String executionIssue) {
     RunResults(String version, Path database, Instant started, Instant finished, boolean complete, List<CaseResult> cases) {
@@ -46,7 +46,7 @@ record RunResults(String version, Path database, Instant started, Instant finish
         if (!executionIssue.isBlank()) text.append("Execution issue: ").append(executionIssue).append("\n");
         for (CaseResult result : cases) {
             if (result.status() == TestStatus.PASS && !result.expectationMismatch()) continue;
-            text.append("\n").append(result.id()).append(" — ").append(result.statusText())
+            text.append("\n").append(result.id()).append(": ").append(result.statusText())
                     .append("\n").append(result.description()).append("\nObject: ").append(result.object())
                     .append("\nExpected: ").append(result.expectedPass() ? "Pass" : "Fail").append("\n");
             if (result.steps().isEmpty()) text.append("No assertion outcome was recorded.\n");
@@ -58,7 +58,7 @@ record RunResults(String version, Path database, Instant started, Instant finish
                 for (Reference ref : step.references()) {
                     text.append("Reference: ").append(ref.text()).append("\n");
                 }
-                if (step.references().isEmpty()) text.append("An assertion-specific source reference has not been recorded for this step.\n");
+                if (step.references().isEmpty()) text.append("No source reference is recorded for this step.\n");
             }
             text.append("Next step: ").append(result.guidance()).append("\n");
         }
