@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
@@ -1014,6 +1016,16 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.27 current PIV UUID test")
 	@ParameterizedTest
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Sections 3.4.1 item 4 and 3.4.2, p. 17",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=29",
+            excerpt = "The string representation of the same UUID value SHALL be present in the X.509 Certificate for PIV Authentication and the X.509 Certificate for Card Authentication in the subjectAltName extension encoded as a URI, as specified by [RFC4122, Section 3].",
+            scope = "Checks Card UUID linkage between the certificate SAN and CHUID, plus applicable optional Cardholder UUID validity and linkage. This does not verify certificate signatures or trust.")
+	@ResultReference(publication = "RFC 4122 (as referenced by SP 800-73-5)",
+            location = "Section 3; Sections 4.1.1 through 4.1.3",
+            url = "https://www.rfc-editor.org/rfc/rfc4122.html#section-3",
+            scope = "Supplies UUID URN syntax, variant and version encoding. The applicable SAN linkage rule comes from SP 800-73-5.")
 	void PKIX_Test_27_current(String oid, String requiredOid, TestReporter reporter) {
 		PKIX_Test_27(oid, requiredOid, reporter);
 		if (!APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID.equals(oid)) return;
@@ -1447,7 +1459,7 @@ public class PKIX_X509DataObjectTests {
 						ASN1ObjectIdentifier oID = ASN1ObjectIdentifier.getInstance(seq.getObjectAt(0));
 						if (oID.toString().equals(requiredOid)) {
 							ASN1TaggedObject onValue = ASN1TaggedObject.getInstance(seq.getObjectAt(1)); 
-							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getObject()).getOctets();
+							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getExplicitBaseObject().toASN1Primitive()).getOctets();
 							if (encodedFascn != null &&  (Arrays.equals(encodedFascn, identifier))) {
 								result = Arrays.equals(encodedFascn, identifier);
 								s_logger.debug("FASCN: {}", Hex.encodeHexString(encodedFascn));

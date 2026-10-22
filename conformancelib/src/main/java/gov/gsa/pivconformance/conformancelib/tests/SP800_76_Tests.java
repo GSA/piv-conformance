@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -1348,6 +1350,12 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-76-2",
+            location = "Section 7.2, Table 12 row 20, p. 31; normative note 4, p. 33",
+            url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=41",
+            excerpt = "PIV facial images shall conform to the Full Frontal Image Type defined in Clause 8 of [FACESTD].",
+            scope = "Checks that the recorded facial image type is 1 (Full Frontal). This field check does not establish image pose or full image conformance.")
     void sp800_76Test_34(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1384,6 +1392,12 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-76-2",
+            location = "Section 7.2, Table 12 row 21, p. 31; normative note 5, p. 33",
+            url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=41",
+            excerpt = "Facial image data shall be formatted in either of the compression formats enumerated in Clause 6.2 of [FACESTD].",
+            scope = "Checks that the recorded image data type is 0 or 1 (JPEG or JPEG 2000). This does not validate the compressed image payload.")
     void sp800_76Test_35(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1420,6 +1434,12 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-76-2",
+            location = "Section 7.2, Table 12 row 24, p. 32; normative note 8, p. 33",
+            url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=41",
+            excerpt = "Facial image data shall be converted to the sRGB color space.",
+            scope = "Checks that the recorded color-space value is 1 (sRGB). This does not verify the pixel conversion process.")
     void sp800_76Test_36(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1456,6 +1476,12 @@ public class SP800_76_Tests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("sp800_76_FacialImageTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-76-2",
+            location = "Section 7.2, Table 12 row 25, p. 32",
+            url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=40",
+            excerpt = "Digital still or digital video",
+            scope = "Checks that the recorded source type is 2 or 6 (digital still or digital video). This does not establish capture-device performance.")
     void sp800_76Test_37(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done

@@ -157,6 +157,21 @@ class ReviewPackageBuilderTest {
 		try {
 			selected.openDatabaseInFile(nonCanonicalPath.toString());
 			assertEquals(database.toRealPath(), selected.getDatabasePath());
+			var controller = GuiRunnerAppController.getInstance();
+			var previous = controller.getTestDatabase();
+			try {
+				controller.setTestDatabase(selected);
+				javax.swing.SwingUtilities.invokeAndWait(() -> {
+					var panel = new SimpleTestExecutionPanel();
+					assertEquals("selected.db", panel.getDatabaseNameField().getText());
+					assertEquals(selected.getDatabasePath().toString(), panel.getDatabaseNameField().getToolTipText());
+					controller.setTestDatabase(null);
+					panel.refreshDatabaseInfo();
+					assertNull(panel.getDatabaseNameField().getToolTipText());
+				});
+			} finally {
+				controller.setTestDatabase(previous);
+			}
 		} finally {
 			if (selected.getConnection() != null) selected.getConnection().close();
 		}

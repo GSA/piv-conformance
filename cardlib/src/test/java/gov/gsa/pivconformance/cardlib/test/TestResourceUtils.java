@@ -11,9 +11,8 @@ final class TestResourceUtils {
     }
 
     /**
-     * Resolves Gradle's exploded test-resource output. Parser APIs currently
-     * require a Path, so packaged/JAR-backed test resources are intentionally
-     * rejected rather than copied or given different semantics.
+     * Resolves a resource from Gradle's test output. The parsers require a file
+     * path, so resources inside a JAR are not supported here.
      */
     static Path path(String resourceName) {
         URL resource = TestResourceUtils.class.getClassLoader().getResource(resourceName);

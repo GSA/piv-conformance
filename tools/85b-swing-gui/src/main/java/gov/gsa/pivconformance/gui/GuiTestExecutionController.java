@@ -5,18 +5,16 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMetho
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
 import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
-import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -120,6 +118,8 @@ public class GuiTestExecutionController {
 			return;
 		}
 
+		Instant started = Instant.now();
+		String version = GuiRunnerAppController.getInstance().getCctVersion();
 		m_trlc.setStartTimes();
 
 		GuiDisplayTestReportAction display = GuiRunnerAppController.getInstance().getDisplayTestReportAction();
@@ -139,6 +139,7 @@ public class GuiTestExecutionController {
 		try {
 			SwingUtilities.invokeAndWait(() -> {
 				display.setEnabled(false);
+				GuiRunnerAppController.getInstance().getApp().getMainContent().setCompletedRun(null);
 				packageResults.setCompletedRun(null);
 				m_testExecutionPanel.setPostRunActionsVisible(false);
 				m_testExecutionPanel.getRunButton().setEnabled(false);
@@ -166,145 +167,144 @@ public class GuiTestExecutionController {
 		
 		int passes = 0;
 		
-		do {
-			GuiTestCaseTreeNode curr = (GuiTestCaseTreeNode) root.getFirstChild();
-
-			while(curr != null) {
-				TestCaseModel testCase = curr.getTestCase();
-				boolean runTest = false;
-				String id = testCase.getIdentifier();
-				if (passes % 2 == 1) { // TODO: Fixme
-					runTest = true;
-				} else if (id.compareTo(GuiTestExecutionController.tag30TestId) == 0) {
-					m_trlc.captureIdentifiers();
-					runTest = true;
-				}
-				if (testCase.getTestStatus().equals(TestStatus.TESTCATEGORY)) {
-					// Test categories don't need to be processed
-					runTest = false;
-				}
-				if (runTest) {
-					LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
-					List<DiscoverySelector> discoverySelectors = new ArrayList<>();
-					List<TestStepModel> steps = testCase.getSteps();
-					for(TestStepModel currentStep : steps) {
-						atomCount++;
-						Class<?> testClass = null;
-						String className = currentStep.getTestClassName();
-						String methodName = currentStep.getTestMethodName();
-						List<String> parameters = currentStep.getParameters();
-						String fqmn = className;
-						try {
-							testClass = Class.forName(className);
-							for(Method m : testClass.getDeclaredMethods()) {
-								if(m.getName().contentEquals(methodName)) {
-									fqmn += "#" + m.getName() + "(";
-									Class<?>[] methodParameters = m.getParameterTypes();
-									int nMethodParameters = 0;
-									for(Class<?> mp : methodParameters) {
-										if(nMethodParameters >= 1) {
-											fqmn += ", ";
-										}
-										fqmn += mp.getName();
-										nMethodParameters++;
-									}
-									fqmn += ")";
-								}
-
-							}
-
-							if(fqmn == className) {
-								String errorMessage = "Test " + testCase.getIdentifier() + " specifies a test atom " + className + "#" +
-										methodName + "()" + " but no such method could be found for the class " + className + "." +
-										" (Test atom: " + currentStep.getTestDescription() + ")" +
-										" Check that the database matches the included set of test atoms.";
-
-								s_logger.error(errorMessage);
-								
-								if (passes % 2 == 1) { // TODO: Fixme
-									try {
-										SwingUtilities.invokeAndWait(() -> {			
-											JOptionPane msgBox = new JOptionPane(errorMessage, JOptionPane.ERROR_MESSAGE);
-											JDialog dialog = msgBox.createDialog(GuiRunnerAppController.getInstance().getMainFrame(), "Error");
-											dialog.setAlwaysOnTop(true);
-											dialog.setVisible(true);
-										});
-									} catch (InvocationTargetException | InterruptedException e) {
-										s_logger.error("Unable to display error dialog.");
-									}
-								}
-								break;
-							} // End skipped test
-						} catch (ClassNotFoundException e) {
-							s_logger.error("Method {} was configured in the database but the method could not be found in code.", fqmn);
-							break;
-						}
-
-						if(className != null && !className.isEmpty() && testClass != null) {
-							s_logger.trace("Adding {} from config", fqmn);
-							discoverySelectors.add(selectMethod(fqmn));
-							ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
-							String containerName = testCase.getContainer();
-							if(containerName != null && !containerName.isEmpty()) {
-								ParameterProviderSingleton.getInstance().addContainer(fqmn, containerName);
-							}
-							s_logger.trace("Added {} from config: {}", fqmn, parameters);
-						}
-
-					}
-					suiteBuilder.selectors(discoverySelectors);
-					suiteBuilder.configurationParameter("TestCaseIdentifier", testCase.getIdentifier());
-					LauncherDiscoveryRequest ldr = suiteBuilder.build();
-					Launcher l = LauncherFactory.create();
-					guiListener.setTestCaseIdentifier(testCase.getIdentifier());
-					guiListener.setTestCaseDescription(testCase.getDescription());
-					guiListener.setTestCaseExpectedResult(testCase.getExpectedStatus() == 1);
-					List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
-					listeners.add(guiListener);
-					registerListeners(l, listeners);
-					
-					l.execute(ldr);
-				}
-				curr = (GuiTestCaseTreeNode) curr.getNextSibling();
-			}
-		} while (++passes < 2); // End of CHUID priming workaround
-
-
+		boolean executionCompleted = true;
+		String executionIssue = "";
 		try {
-			SwingUtilities.invokeAndWait(() -> {
-				m_testExecutionPanel.getRunButton().setEnabled(true);
-				// TODO: Fix this or else
-				m_toolBar.getComponents()[0].setEnabled(true);
-			});
-		} catch (InvocationTargetException | InterruptedException e) {
-			s_logger.error("Failed to enable run button", e);
+			do {
+				GuiTestCaseTreeNode curr = root.getChildCount() == 0 ? null : (GuiTestCaseTreeNode) root.getFirstChild();
+
+				while(curr != null) {
+					TestCaseModel testCase = curr.getTestCase();
+					boolean runTest = false;
+					String id = testCase.getIdentifier();
+					if (passes % 2 == 1) { // TODO: Fixme
+						runTest = true;
+					} else if (id.compareTo(GuiTestExecutionController.tag30TestId) == 0) {
+						m_trlc.captureIdentifiers();
+						runTest = true;
+					}
+					if (testCase.getTestStatus().equals(TestStatus.TESTCATEGORY)) {
+						// Test categories don't need to be processed
+						runTest = false;
+					}
+					if (runTest) {
+						guiListener.configureCase(testCase, passes == 1);
+						LauncherDiscoveryRequestBuilder suiteBuilder = LauncherDiscoveryRequestBuilder.request();
+						List<DiscoverySelector> discoverySelectors = new ArrayList<>();
+						List<TestStepModel> steps = testCase.getSteps();
+						for(TestStepModel currentStep : steps) {
+							atomCount++;
+							Class<?> testClass = null;
+							String className = currentStep.getTestClassName();
+							String methodName = currentStep.getTestMethodName();
+							List<String> parameters = currentStep.getParameters();
+							String fqmn = className;
+							try {
+								testClass = Class.forName(className);
+								for(Method m : testClass.getDeclaredMethods()) {
+									if(m.getName().contentEquals(methodName)) {
+										fqmn += "#" + m.getName() + "(";
+										Class<?>[] methodParameters = m.getParameterTypes();
+										int nMethodParameters = 0;
+										for(Class<?> mp : methodParameters) {
+											if(nMethodParameters >= 1) {
+												fqmn += ", ";
+											}
+											fqmn += mp.getName();
+											nMethodParameters++;
+										}
+										fqmn += ")";
+									}
+
+								}
+
+								if(fqmn.equals(className)) {
+									String errorMessage = "Test " + testCase.getIdentifier() + " specifies a test atom " + className + "#" +
+											methodName + "()" + " but no such method could be found for the class " + className + "." +
+											" (Test atom: " + currentStep.getTestDescription() + ")" +
+											" Check that the database matches the included set of test atoms.";
+
+									s_logger.error(errorMessage);
+
+									guiListener.configurationFailed(errorMessage);
+
+									break;
+								} // End skipped test
+							} catch (ClassNotFoundException e) {
+								s_logger.error("Method {} was configured in the database but the method could not be found in code.", fqmn);
+								guiListener.configurationFailed("The selected profile references a missing test class: " + className);
+								break;
+							}
+
+							if(className != null && !className.isEmpty() && testClass != null) {
+								s_logger.trace("Adding {} from config", fqmn);
+								discoverySelectors.add(selectMethod(fqmn));
+								ParameterProviderSingleton.getInstance().addNamedParameter(fqmn, parameters);
+								String containerName = testCase.getContainer();
+								if(containerName != null && !containerName.isEmpty()) {
+									ParameterProviderSingleton.getInstance().addContainer(fqmn, containerName);
+								}
+								s_logger.trace("Added {} from config: {}", fqmn, parameters);
+							}
+
+						}
+						suiteBuilder.selectors(discoverySelectors);
+						suiteBuilder.configurationParameter("TestCaseIdentifier", testCase.getIdentifier());
+						LauncherDiscoveryRequest ldr = suiteBuilder.build();
+						Launcher l = LauncherFactory.create();
+						List<TestExecutionListener> listeners = new ArrayList<TestExecutionListener>();
+						listeners.add(guiListener);
+						registerListeners(l, listeners);
+
+						int completedBefore = guiListener.completedCases().size();
+						try { l.execute(ldr); }
+						catch (RuntimeException e) {
+							s_logger.error("Unable to execute case {}", id, e);
+							if (guiListener.completedCases().size() == completedBefore) guiListener.executionFailed(e);
+						}
+					}
+					curr = (GuiTestCaseTreeNode) curr.getNextSibling();
+				}
+			} while (++passes < 2); // End of CHUID priming workaround
+		} catch (RuntimeException e) {
+			executionCompleted = false;
+			executionIssue = e.toString();
+			s_logger.error("The test run stopped before all cases were executed", e);
 		}
+
 		
 		s_logger.debug("Atom count: {}", atomCount);
 		s_logger.debug("Tree count: {}", root.getChildCount() + root.getLeafCount() );
 		s_logger.debug("PCSC counters - connect() was called {} times, transmit() was called {} times",
 				pcsc.getConnectCount(), pcsc.getTransmitCount());
 
-		m_trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
-		m_trlc.cleanup();
-		m_running = false;
-		CardSettingsSingleton css = CardSettingsSingleton.getInstance();
-		CachingDefaultPIVApplication cpiv = (CachingDefaultPIVApplication) css.getPivHandle();
-		cpiv.clearCache();
 		try {
+			m_trlc.setTimeStamps(); // Sets the timestamp for all of the logger files
+			m_trlc.cleanup();
+			m_running = false;
+			CardSettingsSingleton css = CardSettingsSingleton.getInstance();
+			if (css.getPivHandle() instanceof CachingDefaultPIVApplication cpiv) cpiv.clearCache();
 			String timeStamp = m_trlc.getTimeStamp();
 			Path resultsDirectory = CctApplicationPaths.dataDirectory();
-			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, timeStamp);
+			RunResults results = new RunResults(version, selectedDatabase, started, Instant.now(),
+					executionCompleted && guiListener.completedCases().size() == db.getTestCaseCount(), guiListener.completedCases(), executionIssue);
+			CompletedTestRun completedRun = new CompletedTestRun(resultsDirectory, selectedDatabase, timeStamp, results);
 			SwingUtilities.invokeLater(() -> {
+				GuiRunnerAppController.getInstance().getApp().getMainContent().setCompletedRun(completedRun);
 				display.setEnabled(true);
 				packageResults.setCompletedRun(completedRun);
 				m_testExecutionPanel.setPostRunActionsVisible(true);
+				m_testExecutionPanel.getRunButton().setEnabled(true);
+				m_toolBar.getComponents()[0].setEnabled(true);
 				packageResults.packageCompletedRun();
 			});
 		} catch (Exception e) {
+			m_running = false;
 			s_logger.error("The completed run could not be prepared for review packaging", e);
 			SwingUtilities.invokeLater(() -> {
-				display.setEnabled(true);
+				display.setEnabled(false);
+				m_testExecutionPanel.getRunButton().setEnabled(true);
+				m_toolBar.getComponents()[0].setEnabled(true);
 				JOptionPane.showMessageDialog(GuiRunnerAppController.getInstance().getMainFrame(),
 						"The test run finished, but its results could not be packaged.\n" + e.getMessage(),
 						"Run Finished", JOptionPane.ERROR_MESSAGE);

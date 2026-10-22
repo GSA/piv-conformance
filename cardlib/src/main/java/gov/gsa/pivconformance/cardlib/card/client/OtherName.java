@@ -73,7 +73,7 @@ public class OtherName
     private OtherName(ASN1Sequence seq)
     {
         this.typeID = ASN1ObjectIdentifier.getInstance(seq.getObjectAt(0));
-        this.value = ASN1TaggedObject.getInstance(seq.getObjectAt(1)).getObject(); // explicitly tagged
+        this.value = ASN1TaggedObject.getInstance(seq.getObjectAt(1)).getExplicitBaseObject().toASN1Primitive();
     }
 
     public ASN1ObjectIdentifier getTypeID()

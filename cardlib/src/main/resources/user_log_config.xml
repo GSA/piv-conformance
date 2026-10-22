@@ -182,13 +182,7 @@
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>${LOG_DIR}/conformancelog/conformance_results.csv</file>
 
-		<!-- the application will search out this appender by name and manually 
-			rotate it at the beginning of each conformance run. this triggering policy 
-			is necessary to allow logback to append to a log without knowing how to rotate 
-			it. -->
-
-		<triggeringPolicy
-			class="gov.gsa.conformancelib.configuration.ManualTriggeringPolicy" />
+		<!-- TestRunLogController rotates this appender at each conformance run. -->
 		<encoder>
 			<pattern>%date{yyyy-MM-dd HH:mm:ss},%msg%n</pattern>
 		</encoder>
@@ -201,13 +195,7 @@
 		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender">
 		<file>${LOG_DIR}/apdu/apdu_transmission.log</file>
 
-		<!-- the application will search out this appender by name and manually 
-			rotate it at the beginning of each conformance run. this triggering policy 
-			is necessary to allow logback to append to a log without knowing how to rotate 
-			it. -->
-
-		<triggeringPolicy
-			class="gov.gsa.conformancelib.configuration.ManualTriggeringPolicy" />
+		<!-- TestRunLogController rotates this appender at each conformance run. -->
 		<encoder>
 			<pattern>%date %level [%thread] [%file:%L] %msg%n
 			</pattern>
@@ -216,8 +204,7 @@
 
 	<!-- this is fully optional and probably only desirable during development -->
 	<appender name="STDOUT"
-		class="gov.gsa.pivconformance.conformancelib.utilities.TimeStampedFileAppender"
-		type="Console">
+		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%date %level [%thread] [%file:%L] %msg%n
 			</pattern>
@@ -226,18 +213,10 @@
 
 	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
-		<encoder>
-			<pattern>%date %level [%thread] [%file:%L] %msg%n
-			</pattern>
-		</encoder>
 	</root>
 
 	<logger level="DEBUG" name="gov.gsa">
 		<appender-ref ref="DEBUG" />
-		<encoder>
-			<pattern>%date %level [%thread] [%file:%L] %msg%n
-			</pattern>
-		</encoder>
 	</logger>
 
 	<!-- These are especially noisy log facilities and therefore a good example 

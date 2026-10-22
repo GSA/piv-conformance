@@ -47,8 +47,10 @@ public class GuiRunnerApplication {
 		m_mainFrame = new JFrame();
 		m_mainFrame.setBounds(100, 100, 1024, 768);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool " + cctVersion);
-
+		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool");
+		m_mainFrame.setIconImages(java.util.List.of(
+				new ImageIcon(GuiRunnerApplication.class.getResource("/icons/exelogo.png")).getImage(),
+				new ImageIcon(GuiRunnerApplication.class.getResource("/icons/gsa_logo.png")).getImage()));
 
 		JMenuBar menuBar = new JMenuBar();
 		m_mainFrame.setJMenuBar(menuBar);
@@ -106,8 +108,8 @@ public class GuiRunnerApplication {
 		m_toolBar = new GuiRunnerToolbar();
 		m_mainFrame.getContentPane().add(m_toolBar, BorderLayout.NORTH);
 		
-		m_mainContent = new MainWindowContentPane();
-		m_mainFrame.getContentPane().add(m_mainContent.getSplitPane(), BorderLayout.CENTER);
+		m_mainContent = new MainWindowContentPane(cctVersion);
+		m_mainFrame.getContentPane().add(m_mainContent, BorderLayout.CENTER);
 	}
 
 	public JFrame getMainFrame() {
@@ -234,7 +236,7 @@ public class GuiRunnerApplication {
 			public void run() {
 				try {
 					PCSCUtils.ConfigureUserProperties();
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					configureLookAndFeel();
 					GuiRunnerApplication window = new GuiRunnerApplication();
 					GuiRunnerAppController c = GuiRunnerAppController.getInstance();
 					c.setCctVersion(cctVersion);
@@ -267,5 +269,13 @@ public class GuiRunnerApplication {
 				}
 			}
 		});
+	}
+
+	static void configureLookAndFeel() throws Exception {
+		System.setProperty("flatlaf.useNativeLibrary", "false");
+		if (!com.formdev.flatlaf.FlatLightLaf.setup()) {
+			s_logger.warn("FlatLaf initialization failed; using the system look and feel");
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
 	}
 }
