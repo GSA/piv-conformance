@@ -1,11 +1,12 @@
 ## Parser fixtures
 
-The seven data-object parser test classes use only the Golden PIV and Golden
-PIV-I objects from the GSA ICAM test-card corpus. The retained files and hashes
-are listed in `src/test/resources/gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/MANIFEST.sha256`.
-These are decode smoke tests; scenario names such as "tampered" or "expired" do
-not establish a CCT conformance verdict. Production-row positive and intended
-failure regressions live in Conformancelib's `ExistingCctRegressionTest`.
+The seven data-object parser test classes use the eight locally generated inputs
+in `src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/`; its README
+describes their provenance and regeneration. No captured biometric data or
+third-party card corpus is included. These are decode smoke tests; header-only
+face/fingerprint records do not establish biometric conformance. Production-row
+positive and intended-failure regressions live in Conformancelib's
+`ExistingCctRegressionTest` and reuse the explicitly synthetic inputs.
 
 ## Hardware-test safety
 

@@ -67,10 +67,8 @@ public class BiometricDataObjectTests {
 
     private static Stream<Arguments> dataObjectTestProvider() {
         return Stream.of(
-                Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/9 - Fingerprints"),
-                Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/9 - Fingerprints"),
-                Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/10 - Face Object"),
-                Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/10 - Face Object")
+                Arguments.of(APDUConstants.CARDHOLDER_FINGERPRINTS_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/fingerprint-header.bin"),
+                Arguments.of(APDUConstants.CARDHOLDER_FACIAL_IMAGE_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/face-header.bin")
         );
     }
 }

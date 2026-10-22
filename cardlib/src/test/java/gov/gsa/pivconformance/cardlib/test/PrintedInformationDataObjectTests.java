@@ -61,8 +61,7 @@ public class PrintedInformationDataObjectTests {
 
     private static Stream<Arguments> dataObjectTestProvider() {
         return Stream.of(
-                Arguments.of(APDUConstants.PRINTED_INFORMATION_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/11 - Printed Information"),
-                Arguments.of(APDUConstants.PRINTED_INFORMATION_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/11 - Printed Information")
+                Arguments.of(APDUConstants.PRINTED_INFORMATION_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/printed.bin")
         );
     }
 }

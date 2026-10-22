@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 
 import static gov.gsa.pivconformance.cardlib.card.client.APDUConstants.DISCOVERY_OBJECT_OID;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -42,10 +41,6 @@ public class DODataObjectTests {
         o.setOID(oid);
         o.setBytes(fileData);
         boolean decoded = o.decode();
-        if (file.contains("/25_Disco_Object_Not_Present/")) {
-            assertFalse(decoded, "A deliberately absent Discovery Object must not decode successfully");
-            return;
-        }
         assertTrue(decoded);
 
         assertNotNull(((DiscoveryObject) o).getSignedContent());
@@ -53,8 +48,7 @@ public class DODataObjectTests {
 
     private static Stream<Arguments> dataObjectTestProvider() {
         return Stream.of(
-                Arguments.of(DISCOVERY_OBJECT_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/1 - Discovery Object"),
-                Arguments.of(DISCOVERY_OBJECT_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/1 - Discovery Object")
+                Arguments.of(DISCOVERY_OBJECT_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin")
         );
     }
 }
