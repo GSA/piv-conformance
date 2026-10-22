@@ -1459,7 +1459,7 @@ public class PKIX_X509DataObjectTests {
 						ASN1ObjectIdentifier oID = ASN1ObjectIdentifier.getInstance(seq.getObjectAt(0));
 						if (oID.toString().equals(requiredOid)) {
 							ASN1TaggedObject onValue = ASN1TaggedObject.getInstance(seq.getObjectAt(1)); 
-							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getObject()).getOctets();
+							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getExplicitBaseObject().toASN1Primitive()).getOctets();
 							if (encodedFascn != null &&  (Arrays.equals(encodedFascn, identifier))) {
 								result = Arrays.equals(encodedFascn, identifier);
 								s_logger.debug("FASCN: {}", Hex.encodeHexString(encodedFascn));

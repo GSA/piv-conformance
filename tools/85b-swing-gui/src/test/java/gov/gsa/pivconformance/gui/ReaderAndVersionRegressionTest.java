@@ -16,8 +16,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReaderAndVersionRegressionTest {
+    @Test
+    void packagedLoggingConfigurationStartsAndWritesResultRows(@TempDir Path directory) throws Exception {
+        var context = new ch.qos.logback.classic.LoggerContext();
+        context.setMDCAdapter(new ch.qos.logback.classic.util.LogbackMDCAdapter());
+        context.putProperty("LOG_DIR", directory.toString());
+        try {
+            var configurator = new ch.qos.logback.classic.joran.JoranConfigurator();
+            configurator.setContext(context);
+            configurator.doConfigure(Path.of(System.getProperty("cct.repository"),
+                    "cardlib/src/main/resources/user_log_config.xml").toFile());
+            var problems = context.getStatusManager().getCopyOfStatusList().stream()
+                    .filter(status -> status.getLevel() >= ch.qos.logback.core.status.Status.WARN).toList();
+            assertTrue(problems.isEmpty(), problems.toString());
+            context.getLogger("gov.gsa.pivconformance.conformancelib.testResult")
+                    .info("8.1.8,\"Synthetic logging compatibility\",Pass,Pass");
+            assertTrue(Files.readString(directory.resolve("conformancelog/conformance_results.csv"))
+                    .contains(",8.1.8,\"Synthetic logging compatibility\",Pass,Pass"));
+        } finally {
+            context.stop();
+        }
+    }
+
     @Test
     void changingReaderReleasesTheOldConnection() {
         CardSettingsSingleton settings = CardSettingsSingleton.getInstance();

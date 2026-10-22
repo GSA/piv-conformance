@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
 import gov.gsa.pivconformance.cardlib.card.client.*;
+import gov.gsa.pivconformance.cardlib.card.client.OtherName;
 import gov.gsa.pivconformance.conformancelib.configuration.*;
 import gov.gsa.pivconformance.cardlib.tlv.*;
 import org.bouncycastle.asn1.*;
@@ -209,6 +210,26 @@ public class ExistingCctRegressionTest {
         value[index] = (byte) ((value[index] & 0x0f) | highBits);
         ByteBuffer changed = ByteBuffer.wrap(value);
         return "urn:uuid:" + new UUID(changed.getLong(), changed.getLong());
+    }
+
+    @ParameterizedTest(name="FASC-N explicit-tag compatibility: {0}")
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void fascnExplicitTagThroughExistingAtom(String database) throws Exception {
+        CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
+        decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+        decoded.setBytes(chuid);
+        assertTrue(decoded.decode());
+        for (boolean matches : new boolean[]{true, false}) {
+            byte[] value = decoded.getfASCN().clone();
+            if (!matches) value[0] ^= 1;
+            OtherName name = new OtherName(new ASN1ObjectIdentifier("2.16.840.1.101.3.6.6"),
+                    new DEROctetString(value));
+            OtherName parsed = OtherName.getInstance(name.getEncoded());
+            assertArrayEquals(value, ASN1OctetString.getInstance(parsed.getValue()).getOctets());
+            byte[] signed = signedCertificateWithSan(new GeneralName[]{
+                    new GeneralName(GeneralName.otherName, name)});
+            run(database, 368, "PKIX_Test_12", signed, matches, "Certificate doesn't contain ");
+        }
     }
 
     private static byte[] signedCertificateWithSan(GeneralName[] names) throws Exception {
