@@ -714,6 +714,7 @@ public class ExistingCctRegressionTest {
                 for (ASN1ObjectIdentifier oid : certificate.getExtensions().getExtensionOIDs())
                     if (!oid.equals(Extension.subjectAlternativeName)) extensions.addExtension(certificate.getExtension(oid));
                 if (names != null) extensions.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
+                if (extensions.isEmpty()) continue; // Omit the optional field when removing its only extension.
                 field = new DERTaggedObject(true, 3, extensions.generate());
             }
             fields.add(field);

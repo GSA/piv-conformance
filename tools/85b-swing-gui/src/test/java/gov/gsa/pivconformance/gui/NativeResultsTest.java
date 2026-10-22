@@ -35,9 +35,9 @@ class NativeResultsTest {
     void originalCccRouteRecordsCauseReferenceAndPortablePackage(String kind) throws Exception {
         Path root = Path.of(System.getProperty("cct.repository"));
         Path database = root.resolve("conformancelib/testdata/PIV_Production_Cards.db");
-        Path golden = root.resolve("cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/"
-                + "gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/7 - CCC");
-        byte[] ccc = Files.readAllBytes(golden);
+        Path fixture = root.resolve("cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/"
+                + "synthetic/ccc.bin");
+        byte[] ccc = Files.readAllBytes(fixture);
         byte[] body = Arrays.copyOf(ccc, ccc.length - 2);
         if (!kind.equals("plain")) body = join(body, APDUUtils.getTLV(new byte[]{(byte) Integer.parseInt(kind, 16)}, new byte[48]));
         byte[] raw = APDUUtils.getTLV(APDUConstants.DATA, join(body, new byte[]{(byte) 0xfe, 0}));
