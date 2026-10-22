@@ -27,6 +27,22 @@ Pop-Location
 
 The GUI Shadow JAR is written under `tools/85b-swing-gui/build/libs/`. A JAR alone is not the complete release package.
 
+### Windows package with Java included
+
+Build this package on **Windows x64**, using a Java 17 JDK with `jpackage` and PowerShell. From the repository root:
+
+```powershell
+.\packaging\windows\package-windows.ps1 -SmokeTest
+```
+
+The script builds and checks the three modules, downloads a pinned Temurin Java 17 JRE over HTTPS, verifies its SHA-256, and creates a native `CCT.exe` launcher with `jpackage --type app-image`. It retains the complete JRE and its license notices to preserve dynamic tests, cryptographic providers and smart-card support. The ZIP and checksum are written to a new folder under `build/releases/`. Existing output is not overwritten.
+
+`-SmokeTest` runs the original-row regressions under both providers using the extracted package's runtime, opens all four databases and checks the native window without Java on `PATH`. A compatible card/reader run is still required. `-SkipBuild` packages an already checked build; it is intended for maintainers, not clients.
+
+The Windows workflow builds QA artifacts only. It does not create tags, publish releases or upload release assets. Record the source commit and runtime in `BUILD-INFO.txt`; keep the exact accepted ZIP for publication. Recheck the pinned runtime's security status at release freeze and update its URL/hash and the CI JDK pin together when needed. The runtime is private to CCT and is updated by distributing a new CCT package.
+
+The ZIP includes an executable launcher, not an MSI installer. Confirm supported Windows architectures, signing/allowlisting requirements and runtime maintenance ownership with the release team before publication. Keep the portable Java-required ZIP and both source archive formats available. Source archives support development; they are not a ready-to-run fallback.
+
 ### Building a source archive
 
 GitHub's Source code ZIP and tar.gz contain the same tagged source and omit Git history. Cardlib's version-generation task normally reads the commit ID and timestamp from Git. When building an extracted source archive, supply the matching values recorded in the release notes:

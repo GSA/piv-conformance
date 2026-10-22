@@ -1,6 +1,6 @@
 # CCT user guide
 
-These instructions describe the Java 17 **1.1.0 release candidate**, including its Testing and Results tabs. Use the instructions supplied with your downloaded version. The release's wiki pages retain guidance for older releases.
+These instructions describe the **1.1.0 release candidate**, including its Testing and Results tabs. Use the instructions supplied with your downloaded version. The release's wiki pages retain guidance for older releases.
 
 - [Running the Card Conformance Tool](#running-the-card-conformance-tool)
 - [Viewing Test Results](#viewing-test-results)
@@ -9,36 +9,33 @@ These instructions describe the Java 17 **1.1.0 release candidate**, including i
 
 ## Running the Card Conformance Tool
 
-You need **Java 17**, a compatible card reader with any required drivers or middleware, and the card's **PIV application PIN**. CCT runs from the extracted folder; it has no separate application installer.
+You need a compatible card reader, any required drivers or middleware, and the card's **PIV application PIN**. The Windows package includes Java.
 
 ### Download and start on Windows
 
-1. **Download the application.** On the [releases page](https://github.com/GSA/piv-conformance/releases), choose the versioned **piv-conformance ZIP**. The **Source code** downloads are intended for developers and require a build.
+1. **Download the Windows ZIP.** On the [releases page](https://github.com/GSA/piv-conformance/releases), choose the **Windows x64** application ZIP. Java is included; no separate Java installation is needed.
+2. **Extract and open CCT.** Right-click the ZIP and choose **Extract All**. Open the extracted folder and double-click **`CCT.exe`**. Keep `CCT.exe`, `app` and `runtime` together. `CCT.exe` starts the application; it is not an installer.
 
-2. **Check Java 17.** Open PowerShell and run:
-
-    ```powershell
-    java -version
-    ```
-
-    The reported version must be **17**. If Java is missing or another version appears, install or select your organization's approved Java 17 runtime. The launchers use Java on `PATH`; setting `JAVA_HOME` alone does not select it.
-
-3. **Extract and open CCT.** Right-click the ZIP and choose **Extract All**. Open the extracted folder and double-click **`run.bat`**. Keep all extracted files together. `README.txt` contains a short offline quick start.
-
-Continue with [Select the profile](#select-the-profile). [Download verification](#verify-the-download-optional) is available separately if needed. Check the release notes for tested operating systems and hardware.
+Continue with [Select the profile](#select-the-profile). [Download verification](#verify-the-download-optional) is available separately if needed. Check the release notes for tested Windows versions and hardware.
 
 <details>
-<summary>macOS and Linux setup</summary>
+<summary>Other downloads: portable application and source code</summary>
 
-Download the application ZIP from the [releases page](https://github.com/GSA/piv-conformance/releases). Extract the entire ZIP and keep its files together.
+| Download | Use |
+|---|---|
+| **Windows x64 ZIP** | Recommended for Windows clients. Includes Java and the `CCT.exe` launcher. |
+| **Portable ZIP (Java 17 required)** | Existing Windows, macOS and Linux launch scripts for systems with Java 17. |
+| **Source code (zip / tar.gz)** | Equivalent source snapshots for developers. Both require a build with a Java 17 JDK. |
 
-Check that the launch terminal uses Java 17:
+For the portable ZIP, extract all files together. Check Java in PowerShell or a terminal:
 
 ```sh
 java -version
 ```
 
-From the extracted folder, start CCT:
+The version must be **17**. Install or select your organization's approved Java 17 runtime if needed. The portable launchers use Java on `PATH`; setting `JAVA_HOME` alone does not select it.
+
+On Windows, open **`run.bat`** from the extracted portable folder. On macOS/Linux, run:
 
 ```sh
 ./run.sh
@@ -49,6 +46,8 @@ If another Java version is the default, select Java 17 for this launch, using yo
 ```sh
 PATH="/path/to/jdk-17/bin:$PATH" ./run.sh
 ```
+
+The Windows x64 ZIP requires a compatible x64 Windows environment; use the appropriate package for another operating system or architecture.
 
 </details>
 

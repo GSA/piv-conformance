@@ -7,11 +7,13 @@ The four profile databases describe cases and select which Java JUnit test metho
 
 ## Run the release candidate
 
-The [user guide](docs/USER_GUIDE.md) covers running CCT, viewing results, preparing a lab submission and diagnostics. On the [releases page](https://github.com/GSA/piv-conformance/releases), choose the versioned **piv-conformance ZIP** to run the application. GitHub's **Source code (zip)** and **Source code (tar.gz)** are equivalent source snapshots for building or reviewing the code. Public downloads do not require a GitHub account.
+The [user guide](docs/USER_GUIDE.md) covers running CCT, viewing results, preparing a lab submission and diagnostics.
 
-Download and extract the complete application ZIP into one directory, keeping the JAR, four profile databases, configuration files and `x509-certs` directory together. Optional [download verification](docs/USER_GUIDE.md#verify-the-download-optional) compares its SHA-256 with the published value.
+For Windows clients, choose the **Windows x64 ZIP** on the [releases page](https://github.com/GSA/piv-conformance/releases). Use **Extract All**, then open **`CCT.exe`**. Java is included. Keep the extracted `app` and `runtime` directories beside the launcher.
 
-Install Java 17 and confirm that `java -version` resolves to Java 17 in the same terminal used to launch CCT. The launch scripts check the Java version on `PATH`; setting `JAVA_HOME` alone does not change which `java` they run. From the extracted directory, double-click `run.bat` on Windows or run `./run.sh` on macOS/Linux. On macOS/Linux, if another Java version is the default, use `PATH="/path/to/jdk-17/bin:$PATH" ./run.sh` with your Java 17 installation path.
+The **portable ZIP (Java 17 required)** retains `run.bat` for Windows and `run.sh` for macOS/Linux. Its launchers use Java 17 on `PATH`. **Source code (zip / tar.gz)** are equivalent source snapshots for developers and require a build. See [build instructions](docs/README.md). Public downloads do not require a GitHub account.
+
+Optional [download verification](docs/USER_GUIDE.md#verify-the-download-optional) compares the ZIP's SHA-256 with the published value.
 
 In the GUI, choose the **PIV** or **PIV-I** toolbar button (or **File → Open Database** for another `.db` profile). Insert the card, click **Refresh Readers**, select its reader, and check **Reader Status**. Enter the PIV application PIN in the GUI and click **Verify PIN and Execute Tests**. After the run completes, use **View Test Results** to open the **Results** tab inside CCT, or **Package Results** to create a ZIP for that run. The **Testing** tab returns to the existing card workflow.
 
@@ -35,9 +37,9 @@ cd tools/85b-swing-gui && ./gradlew test shadowJar
 
 The GUI JAR is written to `tools/85b-swing-gui/build/libs/`. See the [build notes](docs/README.md) for Windows module commands and the `CCT_GIT_COMMIT` / `CCT_GIT_COMMIT_EPOCH` metadata needed when building an extracted source archive without Git history.
 
-## Unreleased flat-ZIP candidate
+## Portable ZIP build
 
-With a Java 17 JDK in `JAVA_HOME`, use a Bash environment with `zip` and `shasum` and run `./doit.sh` from the repository root. It builds and tests Cardlib, Conformancelib and the GUI, then writes a flat ZIP and its SHA-256 under `build/releases/`. Extract the complete ZIP; use `run.bat` on Windows or `run.sh` on macOS/Linux with Java 17 on `PATH`. The included `README.txt` and `USER_GUIDE.md` give the run and results instructions. The ZIP is a candidate until its extracted Windows/card workflow is validated.
+With a Java 17 JDK in `JAVA_HOME`, use a Bash environment with `zip` and `shasum` and run `./doit.sh` from the repository root. It builds and tests Cardlib, Conformancelib and the GUI, then writes a flat ZIP and its SHA-256 under `build/releases/`. Extract the complete ZIP; use `run.bat` on Windows or `run.sh` on macOS/Linux with Java 17 on `PATH`. The included `README.txt` and `USER_GUIDE.md` give the run and results instructions. Both packages remain candidates until their extracted native/card workflows are validated.
 
 The packaged `x509-certs/cacerts.jks` is the exact 174-entry external trust store from the published [v1.0.9 release](https://github.com/GSA/piv-conformance/releases/tag/v1.0.9), whose ZIP SHA-256 is `2f5b82458b6c058c94eabb060ba1a9ad5e2610f777a1be3cdf87731496a656cb`. The JKS SHA-256 is `41496e64cb241c8f98bebee33ff2f1f98530d4febc2ab0b9d369910578628a10`; `doit.sh` checks it before packaging.
 
