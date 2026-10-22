@@ -122,21 +122,31 @@ try {
             $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
             $env:JAVA_HOME = "$Work\no-system-java"
             $env:LOCALAPPDATA = "$Work\fresh-user"
-            $Process = Start-Process "$Expanded\CCT.exe" -WorkingDirectory $env:TEMP -PassThru
+            $Executable = "$Expanded\CCT.exe"
+            $Process = Start-Process $Executable -WorkingDirectory $env:TEMP -PassThru `
+                -RedirectStandardOutput "$OutputDirectory\native-launch.stdout.log" `
+                -RedirectStandardError "$OutputDirectory\native-launch.stderr.log"
             $Deadline = [DateTime]::UtcNow.AddSeconds(30)
             do {
                 Start-Sleep -Milliseconds 500
-                $Process.Refresh()
-            } while (-not $Process.HasExited -and -not $Process.MainWindowTitle -and [DateTime]::UtcNow -lt $Deadline)
-            if ($Process.HasExited -or $Process.MainWindowTitle -ne "FIPS 201 Card Conformance Tool") {
+                # jpackage may use a child launcher process; require its actual application window.
+                $Windows = @(Get-Process -Name CCT -ErrorAction SilentlyContinue | Where-Object {
+                    $_.Path -eq $Executable -and $_.MainWindowTitle -eq "FIPS 201 Card Conformance Tool"
+                })
+            } while ($Windows.Count -eq 0 -and [DateTime]::UtcNow -lt $Deadline)
+            if ($Windows.Count -eq 0) {
+                Get-Content "$OutputDirectory\native-launch.stderr.log" -ErrorAction SilentlyContinue | Write-Host
+                Get-Process -Name CCT -ErrorAction SilentlyContinue |
+                    Select-Object Id, Path, MainWindowTitle | Format-List | Out-Host
                 throw "CCT.exe did not open its window without system Java."
             }
-            Write-Host "CCT.exe startup passed with Java absent from PATH and an unrelated working directory."
+            Write-Host "CCT.exe startup passed without system Java. Launcher PID $($Process.Id); window PID $($Windows[0].Id)."
         } finally {
-            if ($Process -and -not $Process.HasExited) {
-                $Process.CloseMainWindow() | Out-Null
-                if (-not $Process.WaitForExit(5000)) { $Process.Kill() }
-            }
+            Get-Process -Name CCT -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq "$Expanded\CCT.exe" } |
+                ForEach-Object {
+                    $_.CloseMainWindow() | Out-Null
+                    if (-not $_.WaitForExit(5000)) { $_.Kill(); $_.WaitForExit(5000) | Out-Null }
+                }
             $env:PATH = $PreviousPath; $env:JAVA_HOME = $PreviousJava; $env:LOCALAPPDATA = $PreviousData
         }
     }
