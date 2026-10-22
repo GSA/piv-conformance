@@ -218,7 +218,7 @@ final class ResultsPanel extends JPanel {
             else if (result.expectationMismatch()) expectation += "\nThe actual result differs from the selected profile's expectation.";
             add(body, g, section("Profile expectation", expectation));
             if (result.status() == TestStatus.PASS && !result.expectationMismatch()) {
-                add(body, g, section("Result", "The executed assertions passed. Detailed findings are shown for failed or unevaluated cases."));
+                add(body, g, section("Result", "The case completed without a recorded assertion failure. Detailed findings are shown for cases needing attention."));
             } else {
                 String explanation = result.steps().stream().filter(s -> s.status() != TestStatus.PASS)
                         .map(RunResults.StepResult::explanation).distinct().collect(java.util.stream.Collectors.joining("\n\n"));
@@ -229,9 +229,9 @@ final class ResultsPanel extends JPanel {
                     if (!step.expected().isBlank()) add(body, g, section("Expected value", step.expected()));
                     if (!step.actual().isBlank()) add(body, g, section("Observed value", step.actual()));
                 }
-                result.steps().stream().filter(s -> s.status() != TestStatus.PASS && s.reference() != null)
-                        .map(RunResults.StepResult::reference).distinct().forEach(ref -> add(body, g, referenceCard(ref)));
-                if (result.steps().isEmpty() || result.steps().stream().anyMatch(s -> s.status() != TestStatus.PASS && s.reference() == null))
+                result.steps().stream().filter(s -> s.status() != TestStatus.PASS)
+                        .flatMap(s -> s.references().stream()).distinct().forEach(ref -> add(body, g, referenceCard(ref)));
+                if (result.steps().isEmpty() || result.steps().stream().anyMatch(s -> s.status() != TestStatus.PASS && s.references().isEmpty()))
                     add(body, g, section("Source reference", "An assertion-specific source reference has not been recorded for one or more steps in this case. Use the technical evidence to identify the step and trace its check."));
                 add(body, g, section("What to check", result.guidance()));
                 StringBuilder evidence = new StringBuilder();
@@ -243,7 +243,10 @@ final class ResultsPanel extends JPanel {
                 JPanel actions = panel(new FlowLayout(FlowLayout.LEFT, 8, 0), Color.WHITE);
                 JButton copy = button("Copy finding", false);
                 copy.addActionListener(e -> copy(result.id() + " — " + result.statusText() + "\n" + result.description()
-                        + "\n" + result.reason() + "\n" + result.guidance()));
+                        + "\n" + result.reason() + "\n" + result.guidance() + "\n\n"
+                        + result.steps().stream().filter(s -> s.status() != TestStatus.PASS)
+                            .flatMap(s -> s.references().stream()).distinct().map(RunResults.Reference::text)
+                            .collect(java.util.stream.Collectors.joining("\n\n"))));
                 JButton logs = button("Open run debug log", false);
                 logs.addActionListener(e -> openFile(run.getResultsDirectory().resolve("logs/debug")
                         .resolve(run.getTimeStampPrefix() + "-debug.log")));
@@ -263,14 +266,34 @@ final class ResultsPanel extends JPanel {
     }
 
     private JPanel referenceCard(RunResults.Reference ref) {
-        JPanel p = panel(new BorderLayout(0, 8), new Color(0xf0f6fb));
+        Color background = new Color(0xf0f6fb);
+        JPanel p = panel(new BorderLayout(0, 12), background);
         p.setBorder(new CompoundBorder(new LineBorder(new Color(0xd9e7f2)), inset(14, 14, 14, 14)));
         p.add(label("Standard reference", 13, Font.BOLD, BLUE), BorderLayout.NORTH);
-        JTextArea description = text(ref.publication() + "\n" + ref.location() + "\n\n" + ref.scope(), 14, INK);
-        p.add(description, BorderLayout.CENTER);
-        JButton open = button("Open official publication ↗", false);
-        open.addActionListener(e -> openReference(ref.url()));
-        p.add(open, BorderLayout.SOUTH);
+        JPanel content = panel(new GridBagLayout(), background);
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridx = 0; g.gridy = 0; g.weightx = 1; g.fill = GridBagConstraints.HORIZONTAL;
+        g.anchor = GridBagConstraints.NORTHWEST; g.insets = new Insets(0, 0, 8, 0);
+        add(content, g, label(ref.publication(), 14, Font.BOLD, INK));
+        add(content, g, text(ref.location(), 12, MUTED));
+        if (!ref.excerpt().isBlank()) {
+            JPanel quotation = panel(new BorderLayout(0, 7), Color.WHITE);
+            quotation.setBorder(new CompoundBorder(BorderFactory.createMatteBorder(0, 3, 0, 0, BLUE), inset(10, 12, 10, 12)));
+            quotation.add(label("Official wording (excerpt)", 12, Font.BOLD, BLUE), BorderLayout.NORTH);
+            JTextArea words = text("“" + ref.excerpt() + "”", 14, INK);
+            words.setFont(font(14, Font.ITALIC));
+            quotation.add(words, BorderLayout.CENTER);
+            add(content, g, quotation);
+        }
+        add(content, g, label("What CCT checks", 12, Font.BOLD, BLUE));
+        add(content, g, text(ref.scope(), 14, INK));
+        p.add(content, BorderLayout.CENTER);
+        JButton open = button(ref.documentUrl().isBlank() ? "Open official publication ↗" : "Open cited page ↗", false);
+        open.setToolTipText(ref.link());
+        open.addActionListener(e -> openReference(ref.link()));
+        JPanel actions = panel(new FlowLayout(FlowLayout.LEFT, 0, 0), background);
+        actions.add(open);
+        p.add(actions, BorderLayout.SOUTH);
         return p;
     }
 

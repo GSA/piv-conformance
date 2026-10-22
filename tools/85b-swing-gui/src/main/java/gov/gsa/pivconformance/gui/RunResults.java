@@ -55,11 +55,10 @@ record RunResults(String version, Path database, Instant started, Instant finish
                 text.append("Step: ").append(step.method()).append("\n").append(step.reason()).append("\n");
                 if (!step.expected().isBlank()) text.append("Expected value: ").append(step.expected()).append("\n");
                 if (!step.actual().isBlank()) text.append("Observed value: ").append(step.actual()).append("\n");
-                if (step.reference() != null) {
-                    Reference ref = step.reference();
-                    text.append("Reference: ").append(ref.publication()).append(", ").append(ref.location())
-                            .append("\n").append(ref.scope()).append("\n").append(ref.url()).append("\n");
-                } else text.append("An assertion-specific source reference has not been recorded for this step.\n");
+                for (Reference ref : step.references()) {
+                    text.append("Reference: ").append(ref.text()).append("\n");
+                }
+                if (step.references().isEmpty()) text.append("An assertion-specific source reference has not been recorded for this step.\n");
             }
             text.append("Next step: ").append(result.guidance()).append("\n");
         }
@@ -71,16 +70,25 @@ record RunResults(String version, Path database, Instant started, Instant finish
         return file;
     }
 
-    record Reference(String publication, String location, String url, String scope) { }
+    record Reference(String publication, String location, String url, String scope,
+                     String excerpt, String documentUrl) {
+        String link() { return documentUrl.isBlank() ? url : documentUrl; }
+        String text() {
+            return publication + ", " + location + "\n"
+                    + (excerpt.isBlank() ? "" : "Official wording (excerpt):\n“" + excerpt + "”\n")
+                    + "What CCT checks: " + scope + "\n" + link();
+        }
+    }
 
     record StepResult(String method, TestStatus status, boolean executionError, String reason,
-                      String expected, String actual, String technical, Reference reference) {
+                      String expected, String actual, String technical, List<Reference> references) {
         StepResult {
             method = clean(method);
             reason = clean(reason);
             expected = clean(expected);
             actual = clean(actual);
             technical = clean(technical);
+            references = List.copyOf(references);
         }
 
         boolean booleanExpectation() {

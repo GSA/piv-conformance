@@ -72,7 +72,7 @@ public class GuiTestListener implements TestExecutionListener {
         if (configurationError != null) {
             failed = true;
             steps.add(new RunResults.StepResult("Profile configuration", TestStatus.FAIL, true,
-                    configurationError, "", "", configurationError, null));
+                    configurationError, "", "", configurationError, List.of()));
         }
         PROGRESS.info("Test plan started for conformance test {}{}", identifier, reportCase ? "" : " (setup)");
         onUi(() -> { if (progressBar != null) progressBar.setString(identifier); });
@@ -83,7 +83,7 @@ public class GuiTestListener implements TestExecutionListener {
             unsupported = true;
             steps.add(new RunResults.StepResult("JUnit discovery", TestStatus.SKIP, false,
                     "No test assertions executed for this case. Review the selected profile's method mappings.",
-                    "", "", "No test invocations were reported by JUnit.", null));
+                    "", "", "No test invocations were reported by JUnit.", List.of()));
         }
         PROGRESS.info("Test plan finished for conformance test {}", identifier);
         publishCase();
@@ -92,7 +92,7 @@ public class GuiTestListener implements TestExecutionListener {
     void executionFailed(Throwable failure) {
         failed = true;
         steps.add(new RunResults.StepResult("JUnit execution", TestStatus.FAIL, true,
-                "CCT could not execute this case: " + failure, "", "", technical(failure), null));
+                "CCT could not execute this case: " + failure, "", "", technical(failure), List.of()));
         publishCase();
     }
 
@@ -130,7 +130,7 @@ public class GuiTestListener implements TestExecutionListener {
     @Override public void executionSkipped(TestIdentifier test, String reason) {
         unsupported = true;
         steps.add(new RunResults.StepResult(methodName(test), TestStatus.SKIP, false,
-                "JUnit skipped this step: " + reason, "", "", reason, reference(test)));
+                "JUnit skipped this step: " + reason, "", "", reason, references(test)));
     }
 
     @Override public void executionFinished(TestIdentifier test, TestExecutionResult result) {
@@ -152,7 +152,7 @@ public class GuiTestListener implements TestExecutionListener {
         String expected = assertion != null && assertion.isExpectedDefined() ? assertion.getExpected().getStringRepresentation() : "";
         String actual = assertion != null && assertion.isActualDefined() ? assertion.getActual().getStringRepresentation() : "";
         steps.add(new RunResults.StepResult(methodName(test), status, executionError, limit(reason, 8000),
-                limit(expected, 1000), limit(actual, 1000), technical(throwable), reference(test)));
+                limit(expected, 1000), limit(actual, 1000), technical(throwable), references(test)));
         if (throwable != null) LOG.error("Case {} step {}: {}", identifier, methodName(test), reason, throwable);
         PROGRESS.info("Finished {}:{}", identifier, test.getDisplayName());
     }
@@ -177,14 +177,17 @@ public class GuiTestListener implements TestExecutionListener {
                 .map(m -> m.getClassName() + "#" + m.getMethodName()).orElse(test.getDisplayName());
     }
 
-    private static RunResults.Reference reference(TestIdentifier test) {
+    private List<RunResults.Reference> references(TestIdentifier test) {
         try {
-            ResultReference ref = test.getSource().filter(MethodSource.class::isInstance).map(MethodSource.class::cast)
-                    .map(m -> m.getJavaMethod().getAnnotation(ResultReference.class)).orElse(null);
-            return ref == null ? null : new RunResults.Reference(ref.publication(), ref.location(), ref.url(), ref.scope());
+            ResultReference[] refs = test.getSource().filter(MethodSource.class::isInstance).map(MethodSource.class::cast)
+                    .map(m -> m.getJavaMethod().getAnnotationsByType(ResultReference.class)).orElse(new ResultReference[0]);
+            return java.util.Arrays.stream(refs)
+                    .filter(ref -> ref.containers().length == 0 || java.util.Arrays.asList(ref.containers()).contains(object))
+                    .map(ref -> new RunResults.Reference(ref.publication(), ref.location(), ref.url(), ref.scope(),
+                            ref.excerpt(), ref.documentUrl())).toList();
         } catch (RuntimeException e) {
             LOG.warn("Unable to resolve source metadata for {}", methodName(test), e);
-            return null;
+            return List.of();
         }
     }
 

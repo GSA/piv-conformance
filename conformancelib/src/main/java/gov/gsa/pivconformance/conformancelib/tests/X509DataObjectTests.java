@@ -99,9 +99,11 @@ public class X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Appendix A, Tables 11 and 16-18",
+            location = "Appendix A, Tables 11 and 16–18, pp. 36–38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
-            scope = "Checks that MSCUID tag 72 is absent from active certificate containers. Retired certificate containers have different rules.")
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=48",
+            excerpt = "Note that the MSCUID data element has been eliminated in this version.",
+            scope = "Checks that MSCUID (72) is absent from active certificate containers. Retired certificates have different rules.")
     void sp800_73_5_Test_20(String oid, TestReporter reporter) {
         if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
             return;
@@ -151,9 +153,11 @@ public class X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Appendix A, Tables 11 and 16-18",
+            location = "Appendix A opening, p. 33; Tables 11 and 16–18, pp. 36–38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
-            scope = "Checks the error detection code position in an active certificate container.")
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=45",
+            excerpt = "For each container, compliant cards SHALL return all TLV elements of the container in the order listed in this appendix.",
+            scope = "Checks that Error Detection Code (FE) immediately follows CertInfo (71) in an active certificate container.")
     void sp800_73_5_Test_21(String oid, TestReporter reporter) {
         if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
             return;
@@ -197,9 +201,11 @@ public class X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Appendix A, Tables 11 and 16-18",
+            location = "Appendix A, Tables 11 and 16–18 (tag columns), pp. 36–38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
-            scope = "Checks the allowed tag set in an active certificate container; retired containers are outside this case.")
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=48",
+            excerpt = "Certificate 0x70\nCertInfo 0x71\nError Detection Code 0xFE",
+            scope = "Allows only Certificate (70), CertInfo (71) and Error Detection Code (FE) in active certificate containers. This rule does not cover retired containers.")
     void sp800_73_5_Test_22(String oid, TestReporter reporter) {
         if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
             return;

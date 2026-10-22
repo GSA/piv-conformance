@@ -6,10 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.TestIdentifier;
 
 import javax.smartcardio.Card;
 import javax.smartcardio.CardTerminal;
@@ -85,8 +87,8 @@ class NativeResultsTest {
                 assertEquals(kind.equals("plain") ? TestStatus.PASS : TestStatus.FAIL, result.status());
                 assertEquals(1, result.steps().size(), "JUnit containers must not duplicate the invocation");
                 RunResults.StepResult recorded = result.steps().get(0);
-                assertNotNull(recorded.reference());
-                assertTrue(recorded.reference().location().contains("Table 9"));
+                assertEquals(1, recorded.references().size());
+                assertTrue(recorded.references().get(0).location().contains("Table 9"));
                 if (!kind.equals("plain")) {
                     assertTrue(recorded.reason().contains("eliminated tag " + kind));
                     assertFalse(recorded.executionError(), "The intended assertion, not setup/decoding, must fail");
@@ -108,12 +110,74 @@ class NativeResultsTest {
                     assertNotNull(summaryEntry);
                     String summary = new String(archive.getInputStream(summaryEntry).readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
                     assertTrue(summary.contains("Cases processed: 1"));
-                    if (!kind.equals("plain")) assertTrue(summary.contains("eliminated tag " + kind));
+                    if (!kind.equals("plain")) {
+                        assertTrue(summary.contains("eliminated tag " + kind));
+                        var reference = recorded.references().get(0);
+                        assertTrue(summary.contains("Official wording (excerpt):\n“" + reference.excerpt() + "”"));
+                        assertTrue(summary.contains("What CCT checks: " + reference.scope()));
+                        assertTrue(summary.contains(reference.link()));
+                        SwingUtilities.invokeAndWait(() -> {
+                            ResultsPanel panel = new ResultsPanel(new AbstractAction("Package Results") {
+                                public void actionPerformed(java.awt.event.ActionEvent e) { fail("No desktop action during review"); }
+                            }, () -> {});
+                            panel.setCompletedRun(run);
+                            assertTrue(componentText(panel).contains("Official wording (excerpt)"));
+                            assertTrue(componentText(panel).contains("“" + reference.excerpt() + "”"));
+                            assertTrue(componentText(panel).contains("What CCT checks"));
+                            assertEquals(reference.documentUrl(), button(panel, "Open cited page ↗").getToolTipText());
+                        });
+                    }
                     assertEquals(1, archive.stream().filter(e -> e.getName().endsWith(".csv")).count());
                 }
                 assertDoesNotThrow(() -> new ReviewPackageBuilder().build(run), "Repackaging must not duplicate the summary entry");
             } finally { card.reset(); parameters.reset(); }
         }
+    }
+
+
+    /** Exercises source capture from real profile rows; the synthetic outcome does not validate a standard. */
+    @ParameterizedTest @CsvSource({
+            "PIV_Production_Cards.db,350,3", "PIV_ICAM_Test_Cards.db,350,3",
+            "PIV_Production_Cards.db,468,1", "PIV_ICAM_Test_Cards.db,468,1",
+            "PIV-I_Production_Cards.db,350,0", "PIV-I_ICAM_Test_Cards.db,350,0"})
+    void referencesFollowTheExecutedProfileAndContainer(String profile, int id, int expectedSources) throws Exception {
+        Path database = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", profile);
+        try (var connection = DriverManager.getConnection("jdbc:sqlite:file:" + database + "?mode=ro")) {
+            TestCaseModel row = new TestCaseModel(new ConformanceTestDatabase(connection));
+            row.retrieveForId(id);
+            TestStepModel step = row.getSteps().get(0);
+            var source = org.junit.platform.engine.support.descriptor.MethodSource.from(step.getTestClassName(),
+                    step.getTestMethodName(), "java.lang.String, org.junit.jupiter.api.TestReporter");
+            var descriptor = new org.junit.platform.engine.support.descriptor.AbstractTestDescriptor(
+                    org.junit.platform.engine.UniqueId.forEngine("metadata").append("test", "source"), "Source capture", source) {
+                @Override public Type getType() { return Type.TEST; }
+            };
+            GuiTestListener listener = new GuiTestListener(false);
+            listener.configureCase(row, true);
+            listener.testPlanExecutionStarted(null);
+            listener.executionFinished(TestIdentifier.from(descriptor), TestExecutionResult.failed(
+                    new org.opentest4j.AssertionFailedError("Synthetic metadata outcome")));
+            listener.testPlanExecutionFinished(null);
+            var sources = listener.completedCases().get(0).steps().get(0).references();
+            assertEquals(expectedSources, sources.size());
+            if (!sources.isEmpty()) {
+                assertEquals("SP 800-78-5", sources.get(0).publication());
+                assertTrue(sources.get(0).link().endsWith("#page=16"));
+            }
+            if (id == 468) assertTrue(sources.stream().noneMatch(r -> r.publication().startsWith("RFC")),
+                    "Certificate-specific RFC sources must not be attributed to the CHUID CMS route");
+            assertThrows(UnsupportedOperationException.class, () -> sources.clear(), "Run sources are immutable");
+        }
+    }
+
+    private static String componentText(java.awt.Container parent) {
+        StringBuilder text = new StringBuilder();
+        for (java.awt.Component child : parent.getComponents()) {
+            if (child instanceof JLabel label) text.append(label.getText()).append("\n");
+            if (child instanceof javax.swing.text.JTextComponent field) text.append(field.getText()).append("\n");
+            if (child instanceof java.awt.Container container) text.append(componentText(container));
+        }
+        return text.toString();
     }
 
     private static void execute(String selector, GuiTestListener listener) {
@@ -285,7 +349,7 @@ class NativeResultsTest {
     }
 
     @Test void displayedVerdictsAndFiltersMatchExistingCctStatuses() throws Exception {
-        var error = new RunResults.StepResult("reader", TestStatus.FAIL, true, "Reader error", "", "", "", null);
+        var error = new RunResults.StepResult("reader", TestStatus.FAIL, true, "Reader error", "", "", "", List.of());
         var cases = List.of(
                 new RunResults.CaseResult("pass", "Positive", "CCC", true, TestStatus.PASS, List.of()),
                 new RunResults.CaseResult("fail", "Positive failure", "CCC", true, TestStatus.FAIL, List.of()),
@@ -360,7 +424,7 @@ class NativeResultsTest {
 
     @Test void unimplementedKeyHistoryDoesNotImplyThatTheObjectWasAbsent() {
         var step = new RunResults.StepResult("placeholder", TestStatus.SKIP, false,
-                "CCT has no implemented conformance assertion for Key History", "", "", "", null);
+                "CCT has no implemented conformance assertion for Key History", "", "", "", List.of());
         var result = new RunResults.CaseResult("sample", "Key History", "KEY_HISTORY_OBJECT_OID", true,
                 TestStatus.SKIP, List.of(step));
         assertFalse(result.guidance().contains("object was unavailable"));

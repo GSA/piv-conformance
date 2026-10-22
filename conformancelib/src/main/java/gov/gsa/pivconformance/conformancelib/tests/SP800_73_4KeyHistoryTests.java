@@ -26,9 +26,11 @@ public class SP800_73_4KeyHistoryTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Section 3.3.3; Appendix A, Table 20",
+            location = "Section 3.3.3, pp. 13–14; Appendix A, Table 20, p. 38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
-            scope = "Checks present Key History field structure, counts and URL syntax. An absent object cannot establish absence of retired private keys.")
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=25",
+            excerpt = "The Key History object SHALL be present in the PIV Card Application if the PIV Card Application contains any retired key management private keys but MAY be present even if no such keys are present in the PIV Card Application.",
+            scope = "Checks present Key History fields, count bounds and conditional URL format. An absent object cannot establish whether retired private keys exist. This case does not retrieve off-card certificates.")
     void sp800_73_4_Test_57(String oid, TestReporter reporter) throws Exception {
         KeyHistoryObject object = (KeyHistoryObject) AtomHelper.getDataObject(oid);
         if (object == null) throw new PlaceholderTests.UnsupportedConformanceException(

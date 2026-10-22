@@ -145,9 +145,11 @@ public class SP800_73_4CCCTests {
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Appendix A, Table 9 and following note",
+            location = "Appendix A, Table 9 note, p. 35",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
-            scope = "Checks absence of eliminated CCC tags E3 and B4; other CCC requirements are outside this case.")
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=47",
+            excerpt = "Extended Application CardURL and Security Object Buffer data elements have been eliminated in this version of SP 800-73.",
+            scope = "Checks that CCC tags E3 and B4 are absent. This case does not check every CCC field.")
 	void sp800_73_5_Test_4(String oid, TestReporter reporter) {
 		List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
 		assertTrue(tags.stream().noneMatch(tag -> Arrays.equals(tag.bytes,

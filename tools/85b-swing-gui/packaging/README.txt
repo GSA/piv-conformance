@@ -1,5 +1,10 @@
 CCT __CCT_VERSION__ release candidate
 
+Full running, Results, submission and diagnostics instructions are in the
+included USER_GUIDE.md. Download the versioned piv-conformance ZIP to run CCT;
+GitHub's Source code ZIP and tar.gz require a build. Public downloads do not
+require a GitHub account.
+
 Compare the ZIP's SHA-256 with its .sha256 file and the release page. Use
 Get-FileHash "<zip-file>" -Algorithm SHA256 in Windows PowerShell,
 shasum -a 256 "<zip-file>" on macOS, or sha256sum "<zip-file>" on Linux.
@@ -22,6 +27,10 @@ The result labels are Pass, Fail and Unsupported, matching the CSV. Profile
 expectations and execution errors are explained separately in case details.
 Optional search narrows by case number, object or reason. The version is at the
 lower right.
+Reviewed source cards separate Official wording (excerpt) from What CCT checks.
+Links open the cited PDF page or document section where available. The text
+is available offline; source links require a connection. Copy finding and the
+packaged summary retain this source context.
 
 Package Results creates a ZIP for that run from either Testing or Results.
 The results ZIP includes the selected database, the completed run's logs and

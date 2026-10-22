@@ -7,13 +7,15 @@ The four profile databases describe cases and select which Java JUnit test metho
 
 ## Run the release candidate
 
+The [user guide](docs/USER_GUIDE.md) covers running CCT, viewing results, preparing a lab submission and diagnostics. On the [releases page](https://github.com/GSA/piv-conformance/releases), choose the versioned **piv-conformance ZIP** to run the application. GitHub's **Source code (zip)** and **Source code (tar.gz)** are equivalent source snapshots for building or reviewing the code. Public downloads do not require a GitHub account.
+
 Download the candidate ZIP and its `.sha256` file together. Compare the ZIP's hash with the `.sha256` file and the release page: use `Get-FileHash "<zip-file>" -Algorithm SHA256` in Windows PowerShell, `shasum -a 256 "<zip-file>"` on macOS, or `sha256sum "<zip-file>"` on Linux. Extract the complete ZIP into one directory, keeping the JAR, four profile databases, configuration files, and `x509-certs` directory together.
 
 Install Java 17 and confirm that `java -version` resolves to Java 17 in the same terminal used to launch CCT. The launch scripts check the Java version on `PATH`; setting `JAVA_HOME` alone does not change which `java` they run. From the extracted directory, double-click `run.bat` on Windows or run `./run.sh` on macOS/Linux. On macOS/Linux, if another Java version is the default, use `PATH="/path/to/jdk-17/bin:$PATH" ./run.sh` with your Java 17 installation path.
 
 In the GUI, choose the **PIV** or **PIV-I** toolbar button (or **File → Open Database** for another `.db` profile). Insert the card, click **Refresh Readers**, select its reader, and check **Reader Status**. Enter the PIV application PIN in the GUI and click **Verify PIN and Execute Tests**. After the run completes, use **View Test Results** to open the **Results** tab inside CCT, or **Package Results** to create a ZIP for that run. The **Testing** tab returns to the existing card workflow.
 
-The Results tab appears after a run produces results and refreshes for each new run. Results use the same **Pass**, **Fail** and **Unsupported** labels as the CSV and focus on failed or unsupported cases, with recorded reasons, available expected/observed values and reviewed source references. Select a summary card or use the status filter; optional search narrows by case ID, object or reason.
+The Results tab appears after a run produces results and refreshes for each new run. Results use the same **Pass**, **Fail** and **Unsupported** labels as the CSV and focus on failed or unsupported cases, with recorded reasons, available expected/observed values and reviewed source references. Select a summary card or use the status filter; optional search narrows by case ID, object or reason. Reviewed source cards separate **Official wording (excerpt)** from **What CCT checks**, with links to the cited PDF page or document section. The text is available offline; opening the official source requires a connection. Copy finding and packaged summaries retain the reviewed source context.
 
 **Unsupported** includes cases CCT has not implemented and checks requiring evidence outside the card, such as vendor values or original fingerprint images. It is not a passing result and does not by itself mean card data is missing. The case details show the selected profile's expected Pass/Fail separately from the actual result, including negative ICAM cases. Execution errors retain the Fail label and explain the tool or reader problem in the details. There is no separate Warning or Caution result category. The view identifies steps without a recorded assertion-specific source reference. The application version is shown at the lower right.
 
@@ -29,11 +31,11 @@ cd conformancelib && ./gradlew check install && cd ..
 cd tools/85b-swing-gui && ./gradlew test shadowJar
 ```
 
-The GUI JAR is written to `tools/85b-swing-gui/build/libs/`. The older Windows build page in `docs/README.md` is historical.
+The GUI JAR is written to `tools/85b-swing-gui/build/libs/`. See the [build notes](docs/README.md) for Windows module commands and the `CCT_GIT_COMMIT` / `CCT_GIT_COMMIT_EPOCH` metadata needed when building an extracted source archive without Git history.
 
 ## Unreleased flat-ZIP candidate
 
-With a Java 17 JDK in `JAVA_HOME` and `zip` installed, run `./doit.sh` from the repository root. It builds and tests Cardlib, Conformancelib and the GUI, then writes a flat ZIP and its SHA-256 under `build/releases/`. Extract the complete ZIP; use `run.bat` on Windows or `run.sh` on macOS/Linux with Java 17 on `PATH`. The included `README.txt` gives the run and results locations. The ZIP is a candidate until its extracted Windows/card workflow is validated.
+With a Java 17 JDK in `JAVA_HOME`, use a Bash environment with `zip` and `shasum` and run `./doit.sh` from the repository root. It builds and tests Cardlib, Conformancelib and the GUI, then writes a flat ZIP and its SHA-256 under `build/releases/`. Extract the complete ZIP; use `run.bat` on Windows or `run.sh` on macOS/Linux with Java 17 on `PATH`. The included `README.txt` and `USER_GUIDE.md` give the run and results instructions. The ZIP is a candidate until its extracted Windows/card workflow is validated.
 
 The packaged `x509-certs/cacerts.jks` is the exact 174-entry external trust store from the published [v1.0.9 release](https://github.com/GSA/piv-conformance/releases/tag/v1.0.9), whose ZIP SHA-256 is `2f5b82458b6c058c94eabb060ba1a9ad5e2610f777a1be3cdf87731496a656cb`. The JKS SHA-256 is `41496e64cb241c8f98bebee33ff2f1f98530d4febc2ab0b9d369910578628a10`; `doit.sh` checks it before packaging.
 

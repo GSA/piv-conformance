@@ -243,9 +243,11 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-78-5",
-            location = "Section 3.1, Table 1 (through 2030)",
+            location = "Section 3.1, Table 1, p. 6 (through 2030); Section 3.2.2, Tables 4–5, pp. 8–9",
             url = "https://csrc.nist.gov/pubs/sp/800/78/5/final",
-            scope = "Checks selected active certificate public key algorithms, sizes, RSA exponent and named curves. Other key uses and post-2030 policy are outside this case.")
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-78-5.pdf#page=15",
+            excerpt = "In addition to the key sizes, keys must be generated using secure parameters. Rivest-Shamir-Adleman (RSA) keys must be generated using a public exponent of 65537. Elliptic curve keys must correspond to one of the following recommended curves from [FIPS186]:\n• Curve P-256 or\n• Curve P-384.",
+            scope = "Checks active certificate public keys: RSA 2048/3072 with exponent 65537, or EC P-256/P-384 with the expected identifiers. Other key uses and post-2030 policy are outside this case.")
     void sp800_78_Test_1_current(String oid, TestReporter reporter) {
         Set<String> activePivCertificateOids = Set.of(
                 APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID,
@@ -370,9 +372,23 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ResultReference(publication = "SP 800-78-5",
-            location = "Section 3.2.1, Tables 2-3 (selected predicates)",
+            location = "Section 3.2.1, Tables 2–3 and footnote 5, pp. 7–8 (through 2030)",
             url = "https://csrc.nist.gov/pubs/sp/800/78/5/final",
-            scope = "Certificate routes check signature OID and encoded parameters only. The CHUID route also checks SignerInfo, key pairing and its signature. This case does not establish certificate trust or complete certificate profiles.")
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-78-5.pdf#page=16",
+            excerpt = "RSA signatures may use either the PKCS #1 v1.5 padding scheme or the Probabilistic Signature Scheme (PSS) padding, as specified in [FIPS186] through reference to [PKCS1].",
+            scope = "Certificate routes check signature algorithm identifiers and parameters. The CHUID route also checks CMS signer/digest/key pairing and verifies its signature. Certificate trust and complete profiles are outside this case.")
+	@ResultReference(publication = "RFC 4055",
+            location = "Section 3.1 (PSS parameters); Section 5 (RSA SHA-2 parameters)",
+            url = "https://www.rfc-editor.org/rfc/rfc4055.html#section-3.1",
+            excerpt = "The parameters MUST be present when used in the algorithm identifier associated with a signature value.",
+            containers = {"X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", "X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID", "X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID", "X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID"},
+            scope = "For RSA certificate signatures, checks NULL/absent SHA-2 parameters and encoded PSS parameters. This check does not verify the certificate signature.")
+    @ResultReference(publication = "RFC 5758",
+            location = "Section 3.2: ECDSA signature algorithm identifiers",
+            url = "https://www.rfc-editor.org/rfc/rfc5758.html#section-3.2",
+            excerpt = "the encoding MUST omit the parameters field.",
+            containers = {"X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", "X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID", "X509_CERTIFICATE_FOR_KEY_MANAGEMENT_OID", "X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID"},
+            scope = "For ECDSA certificate signatures, checks that algorithm parameters are absent.")
 	void sp800_78_Test_3_current(String oid, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid)) return;
 		PIVDataObject object = AtomHelper.getDataObject(oid);
