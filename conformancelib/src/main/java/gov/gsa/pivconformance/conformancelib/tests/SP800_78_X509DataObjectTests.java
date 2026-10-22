@@ -243,7 +243,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-78-5",
-            location = "Section 3.1, Table 1, p. 6 (through 2030); Section 3.2.2, Tables 4–5, pp. 8–9",
+            location = "Section 3.1, Table 1, p. 6 (through 2030); Section 3.2.2, Tables 4 through 5, pp. 8 through 9",
             url = "https://csrc.nist.gov/pubs/sp/800/78/5/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-78-5.pdf#page=15",
             excerpt = "In addition to the key sizes, keys must be generated using secure parameters. Rivest-Shamir-Adleman (RSA) keys must be generated using a public exponent of 65537. Elliptic curve keys must correspond to one of the following recommended curves from [FIPS186]:\n• Curve P-256 or\n• Curve P-384.",
@@ -372,7 +372,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@ResultReference(publication = "SP 800-78-5",
-            location = "Section 3.2.1, Tables 2–3 and footnote 5, pp. 7–8 (through 2030)",
+            location = "Section 3.2.1, Tables 2 through 3 and footnote 5, pp. 7 through 8 (through 2030)",
             url = "https://csrc.nist.gov/pubs/sp/800/78/5/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-78-5.pdf#page=16",
             excerpt = "RSA signatures may use either the PKCS #1 v1.5 padding scheme or the Probabilistic Signature Scheme (PSS) padding, as specified in [FIPS186] through reference to [PKCS1].",

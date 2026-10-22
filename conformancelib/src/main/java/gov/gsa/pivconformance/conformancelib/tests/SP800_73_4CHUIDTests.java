@@ -288,7 +288,7 @@ public class SP800_73_4CHUIDTests {
             excerpt = "If present, it SHALL include a Cardholder UUID as described in Sec. 3.4.2.",
             scope = "Allows the optional Cardholder UUID to be absent. When present, checks 16-byte length, RFC 4122 variant, version 4 and position after the expiration date.")
 	@ResultReference(publication = "RFC 4122 (as referenced by SP 800-73-5)",
-            location = "Sections 4.1.1–4.1.3: variant, byte order and version",
+            location = "Sections 4.1.1 through 4.1.3: variant, byte order and version",
             url = "https://www.rfc-editor.org/rfc/rfc4122.html#section-4.1.1",
             scope = "Supplies the UUID encoding used by this check; this case requires the RFC 4122 variant and version 4.")
 	void sp800_73_5_Test_13(String oid, TestReporter reporter) {

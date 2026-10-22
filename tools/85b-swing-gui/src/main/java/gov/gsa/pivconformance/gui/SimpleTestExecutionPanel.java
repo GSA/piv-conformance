@@ -277,12 +277,14 @@ public class SimpleTestExecutionPanel extends JPanel {
 	}
 
 	public void refreshDatabaseInfo() {
+		m_databaseNameField.setToolTipText(null);
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
 		if(db != null) {
 			if(db.getConnection() != null) {
 				Path databasePath = db.getDatabasePath();
 				if(databasePath != null) {
-					m_databaseNameField.setText(databasePath.toString());
+					m_databaseNameField.setText(databasePath.getFileName().toString());
+					m_databaseNameField.setToolTipText(databasePath.toString());
 				} else {
 					m_databaseNameField.setText("(unavailable)");
 				}

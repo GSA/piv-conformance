@@ -75,7 +75,7 @@ record RunResults(String version, Path database, Instant started, Instant finish
         String link() { return documentUrl.isBlank() ? url : documentUrl; }
         String text() {
             return publication + ", " + location + "\n"
-                    + (excerpt.isBlank() ? "" : "Official wording (excerpt):\n“" + excerpt + "”\n")
+                    + (excerpt.isBlank() ? "" : "Official wording (excerpt):\n\"" + excerpt + "\"\n")
                     + "What CCT checks: " + scope + "\n" + link();
         }
     }

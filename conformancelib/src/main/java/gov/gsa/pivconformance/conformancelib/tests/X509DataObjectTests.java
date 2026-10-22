@@ -99,7 +99,7 @@ public class X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Appendix A, Tables 11 and 16–18, pp. 36–38",
+            location = "Appendix A, Tables 11 and 16 through 18, pp. 36 through 38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=48",
             excerpt = "Note that the MSCUID data element has been eliminated in this version.",
@@ -153,7 +153,7 @@ public class X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Appendix A opening, p. 33; Tables 11 and 16–18, pp. 36–38",
+            location = "Appendix A opening, p. 33; Tables 11 and 16 through 18, pp. 36 through 38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=45",
             excerpt = "For each container, compliant cards SHALL return all TLV elements of the container in the order listed in this appendix.",
@@ -201,7 +201,7 @@ public class X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     @ResultReference(publication = "SP 800-73-5 Part 1",
-            location = "Appendix A, Tables 11 and 16–18 (tag columns), pp. 36–38",
+            location = "Appendix A, Tables 11 and 16 through 18 (tag columns), pp. 36 through 38",
             url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=48",
             excerpt = "Certificate 0x70\nCertInfo 0x71\nError Detection Code 0xFE",

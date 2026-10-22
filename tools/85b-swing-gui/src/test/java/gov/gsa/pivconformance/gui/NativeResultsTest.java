@@ -30,6 +30,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class NativeResultsTest {
     @TempDir Path temporary;
 
+    @Test
+    void officialExcerptRetainsItsUtf8Text() throws Exception {
+        var method = Class.forName("gov.gsa.pivconformance.conformancelib.tests.SP800_78_X509DataObjectTests")
+                .getDeclaredMethod("sp800_78_Test_1_current", String.class, org.junit.jupiter.api.TestReporter.class);
+        var references = method.getAnnotationsByType(ResultReference.class);
+        assertEquals(1, references.length);
+        assertTrue(references[0].excerpt().contains("\n\u2022 Curve P-256 or\n\u2022 Curve P-384."),
+                "The compiler must read the official excerpt as UTF-8 even on Windows Java 17");
+    }
+
     /** Uses the shipped database row, argument source, acquisition path and original CCC decoder. */
     @ParameterizedTest @ValueSource(strings = {"plain", "E3", "B4"})
     void originalCccRouteRecordsCauseReferenceAndPortablePackage(String kind) throws Exception {
@@ -113,7 +123,7 @@ class NativeResultsTest {
                     if (!kind.equals("plain")) {
                         assertTrue(summary.contains("eliminated tag " + kind));
                         var reference = recorded.references().get(0);
-                        assertTrue(summary.contains("Official wording (excerpt):\n“" + reference.excerpt() + "”"));
+                        assertTrue(summary.contains("Official wording (excerpt):\n\"" + reference.excerpt() + "\""));
                         assertTrue(summary.contains("What CCT checks: " + reference.scope()));
                         assertTrue(summary.contains(reference.link()));
                         SwingUtilities.invokeAndWait(() -> {
@@ -122,9 +132,9 @@ class NativeResultsTest {
                             }, () -> {});
                             panel.setCompletedRun(run);
                             assertTrue(componentText(panel).contains("Official wording (excerpt)"));
-                            assertTrue(componentText(panel).contains("“" + reference.excerpt() + "”"));
+                            assertTrue(componentText(panel).contains("\"" + reference.excerpt() + "\""));
                             assertTrue(componentText(panel).contains("What CCT checks"));
-                            assertEquals(reference.documentUrl(), button(panel, "Open cited page ↗").getToolTipText());
+                            assertEquals(reference.documentUrl(), button(panel, "Open cited page").getToolTipText());
                         });
                     }
                     assertEquals(1, archive.stream().filter(e -> e.getName().endsWith(".csv")).count());

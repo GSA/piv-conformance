@@ -143,8 +143,8 @@ final class ResultsPanel extends JPanel {
         search.setText("");
         filter.setSelectedItem(Filter.ATTENTION);
         RunResults results = value == null ? null : value.getResults();
-        metadata.setText(results == null ? "No completed run" : results.database().getFileName() + " · "
-                + (results.complete() ? "Completed " : "Incomplete · ") + TIME.format(results.finished()) + " · "
+        metadata.setText(results == null ? "No completed run" : results.database().getFileName() + " | "
+                + (results.complete() ? "Completed " : "Incomplete | ") + TIME.format(results.finished()) + " | "
                 + results.duration().toSeconds() / 60 + "m " + results.duration().toSeconds() % 60 + "s");
         counts.removeAll();
         counts.add(countCard("Cases processed", results == null ? 0 : results.cases().size(), INK, Filter.ALL));
@@ -187,7 +187,7 @@ final class ResultsPanel extends JPanel {
                     .sorted(Comparator.comparingInt(RunResults.CaseResult::attentionOrder))
                     .forEach(visible::addElement);
         }
-        listCount.setText(visible.size() + " shown · " + (results == null ? 0 : results.cases().size()) + " cases in run");
+        listCount.setText(visible.size() + " shown, " + (results == null ? 0 : results.cases().size()) + " cases in run");
         if (selected != null && visible.contains(selected)) cases.setSelectedValue(selected, true);
         else if (!visible.isEmpty()) cases.setSelectedIndex(0);
         else showDetail(null);
@@ -208,12 +208,12 @@ final class ResultsPanel extends JPanel {
                     : "Choose All cases to inspect the compact case list, or change the filter/search.", 14, MUTED));
         } else {
             Color statusColor = result.status() == TestStatus.SKIP ? AMBER : result.status() == TestStatus.FAIL ? RED : GREEN;
-            add(body, g, label(result.statusText() + "  ·  CASE " + result.id(), 13, Font.BOLD, statusColor));
+            add(body, g, label(result.statusText() + "   Case " + result.id(), 13, Font.BOLD, statusColor));
             JTextArea title = text(result.description(), 20, INK);
             title.setFont(font(20, Font.BOLD));
             add(body, g, title);
             add(body, g, label(result.object(), 13, Font.PLAIN, MUTED));
-            String expectation = "Expected " + (result.expectedPass() ? "Pass" : "Fail") + " · Actual " + result.statusText();
+            String expectation = "Expected " + (result.expectedPass() ? "Pass" : "Fail") + "; actual " + result.statusText();
             if (result.executionError()) expectation += "\nCCT recorded an execution error; review its recorded cause below.";
             else if (result.expectationMismatch()) expectation += "\nThe actual result differs from the selected profile's expectation.";
             add(body, g, section("Profile expectation", expectation));
@@ -280,7 +280,7 @@ final class ResultsPanel extends JPanel {
             JPanel quotation = panel(new BorderLayout(0, 7), Color.WHITE);
             quotation.setBorder(new CompoundBorder(BorderFactory.createMatteBorder(0, 3, 0, 0, BLUE), inset(10, 12, 10, 12)));
             quotation.add(label("Official wording (excerpt)", 12, Font.BOLD, BLUE), BorderLayout.NORTH);
-            JTextArea words = text("“" + ref.excerpt() + "”", 14, INK);
+            JTextArea words = text("\"" + ref.excerpt() + "\"", 14, INK);
             words.setFont(font(14, Font.ITALIC));
             quotation.add(words, BorderLayout.CENTER);
             add(content, g, quotation);
@@ -288,7 +288,7 @@ final class ResultsPanel extends JPanel {
         add(content, g, label("What CCT checks", 12, Font.BOLD, BLUE));
         add(content, g, text(ref.scope(), 14, INK));
         p.add(content, BorderLayout.CENTER);
-        JButton open = button(ref.documentUrl().isBlank() ? "Open official publication ↗" : "Open cited page ↗", false);
+        JButton open = button(ref.documentUrl().isBlank() ? "Open official publication" : "Open cited page", false);
         open.setToolTipText(ref.link());
         open.addActionListener(e -> openReference(ref.link()));
         JPanel actions = panel(new FlowLayout(FlowLayout.LEFT, 0, 0), background);
@@ -299,7 +299,7 @@ final class ResultsPanel extends JPanel {
 
     private static JPanel disclosure(String title, String content) {
         JPanel p = panel(new BorderLayout(0, 8), Color.WHITE);
-        JToggleButton toggle = new JToggleButton(title + " ▸");
+        JToggleButton toggle = new JToggleButton("Show " + title);
         CctUi.styleButton(toggle, false);
         toggle.setHorizontalAlignment(SwingConstants.LEFT);
         JTextArea evidence = text(content, 12, MUTED);
@@ -307,7 +307,7 @@ final class ResultsPanel extends JPanel {
         evidence.setVisible(false);
         toggle.addActionListener(e -> {
             evidence.setVisible(toggle.isSelected());
-            toggle.setText(title + (toggle.isSelected() ? " ▾" : " ▸"));
+            toggle.setText((toggle.isSelected() ? "Hide " : "Show ") + title);
             p.revalidate();
         });
         p.add(toggle, BorderLayout.NORTH);
@@ -373,7 +373,7 @@ final class ResultsPanel extends JPanel {
     private static JButton button(String s, boolean primary) {
         return CctUi.button(s, primary);
     }
-    private static String concise(String value, int length) { return value.length() <= length ? value : value.substring(0, length - 1) + "…"; }
+    private static String concise(String value, int length) { return value.length() <= length ? value : value.substring(0, length - 3) + "..."; }
 
     private static final class CaseRenderer extends JPanel implements ListCellRenderer<RunResults.CaseResult> {
         CaseRenderer() { super(new BorderLayout(0, 6)); }

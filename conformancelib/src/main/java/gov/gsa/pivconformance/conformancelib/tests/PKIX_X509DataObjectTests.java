@@ -1023,7 +1023,7 @@ public class PKIX_X509DataObjectTests {
             excerpt = "The string representation of the same UUID value SHALL be present in the X.509 Certificate for PIV Authentication and the X.509 Certificate for Card Authentication in the subjectAltName extension encoded as a URI, as specified by [RFC4122, Section 3].",
             scope = "Checks Card UUID linkage between the certificate SAN and CHUID, plus applicable optional Cardholder UUID validity and linkage. This does not verify certificate signatures or trust.")
 	@ResultReference(publication = "RFC 4122 (as referenced by SP 800-73-5)",
-            location = "Section 3; Sections 4.1.1–4.1.3",
+            location = "Section 3; Sections 4.1.1 through 4.1.3",
             url = "https://www.rfc-editor.org/rfc/rfc4122.html#section-3",
             scope = "Supplies UUID URN syntax, variant and version encoding. The applicable SAN linkage rule comes from SP 800-73-5.")
 	void PKIX_Test_27_current(String oid, String requiredOid, TestReporter reporter) {
