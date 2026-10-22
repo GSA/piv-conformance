@@ -9,20 +9,48 @@ These instructions describe the Java 17 **1.1.0 release candidate**, including i
 
 ## Running the Card Conformance Tool
 
-### Choose the download
+You need **Java 17**, a compatible card reader with any required drivers or middleware, and the card's **PIV application PIN**. CCT runs from the extracted folder; it has no separate application installer.
 
-On the [releases page](https://github.com/GSA/piv-conformance/releases), download the versioned **piv-conformance ZIP** and its `.sha256` file to run CCT. This package contains the built application, launchers, four test databases, configuration, trust files and instructions. Java 17 is installed separately.
+### Download and start on Windows
 
-**Source code (zip)** and **Source code (tar.gz)** contain the repository's source at the release tag. They are equivalent source snapshots in different archive formats, intended for developers and source review. They require a build before use. GitHub generates these two archives automatically; public downloads do not require a GitHub account. See [GitHub's release documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases).
+1. **Download the application.** On the [releases page](https://github.com/GSA/piv-conformance/releases), choose the versioned **piv-conformance ZIP**. The **Source code** downloads are intended for developers and require a build.
 
-### Verify, extract and start
+2. **Check Java 17.** Open PowerShell and run:
 
-1. Compare the ZIP's SHA-256 with both the release page and its `.sha256` file. In Windows PowerShell, use `Get-FileHash "<zip-file>" -Algorithm SHA256`; on macOS, `shasum -a 256 "<zip-file>"`; on Linux, `sha256sum "<zip-file>"`.
-2. Extract the entire ZIP. Keep the JAR, launchers, databases, configuration and `x509-certs` directory together. Read `README.txt` for version-specific instructions.
-3. Install Java 17. In the launch terminal, check that `java -version` reports Java 17. The launchers use `java` on `PATH`; setting `JAVA_HOME` alone does not change that selection.
-4. On Windows, open `run.bat` from the extracted folder. On macOS/Linux, run `./run.sh` from a terminal in that folder. If needed, select Java 17 for that invocation with `PATH="/path/to/jdk-17/bin:$PATH" ./run.sh`.
+    ```powershell
+    java -version
+    ```
 
-You also need a compatible card reader, its required platform drivers/middleware and the card's PIV application PIN. Check the release notes for tested operating systems and hardware.
+    The reported version must be **17**. If Java is missing or another version appears, install or select your organization's approved Java 17 runtime. The launchers use Java on `PATH`; setting `JAVA_HOME` alone does not select it.
+
+3. **Extract and open CCT.** Right-click the ZIP and choose **Extract All**. Open the extracted folder and double-click **`run.bat`**. Keep all extracted files together. `README.txt` contains a short offline quick start.
+
+Continue with [Select the profile](#select-the-profile). [Download verification](#verify-the-download-optional) is available separately if needed. Check the release notes for tested operating systems and hardware.
+
+<details>
+<summary>macOS and Linux setup</summary>
+
+Download the application ZIP from the [releases page](https://github.com/GSA/piv-conformance/releases). Extract the entire ZIP and keep its files together.
+
+Check that the launch terminal uses Java 17:
+
+```sh
+java -version
+```
+
+From the extracted folder, start CCT:
+
+```sh
+./run.sh
+```
+
+If another Java version is the default, select Java 17 for this launch, using your installation path:
+
+```sh
+PATH="/path/to/jdk-17/bin:$PATH" ./run.sh
+```
+
+</details>
 
 ### Select the profile
 
@@ -43,6 +71,37 @@ Use **File → Open Database** to select another supplied or approved custom `.d
 2. Click **Refresh Readers**, choose the reader under **Card Reader**, and check **Reader Status**. If the reader is absent, check its connection and platform setup, then refresh again.
 3. Enter the correct **PIV Application PIN**. Click **Verify PIN and Execute Tests**. Follow the progress in the test tree. Follow the issuer's recovery procedure for a blocked PIN.
 4. When results have been finalized, choose **View Test Results**. CCT also attempts to package the run automatically; **Package Results** lets you create another copy later in the same session.
+
+### Verify the download (optional)
+
+A SHA-256 checksum lets you check that your downloaded ZIP matches the file listed on the release page.
+
+<details>
+<summary>Show verification commands</summary>
+
+Open PowerShell or a terminal in the folder containing the ZIP. Replace `<zip-file>` with its filename.
+
+**Windows (PowerShell)**
+
+```powershell
+Get-FileHash "<zip-file>" -Algorithm SHA256
+```
+
+**macOS**
+
+```sh
+shasum -a 256 "<zip-file>"
+```
+
+**Linux**
+
+```sh
+sha256sum "<zip-file>"
+```
+
+Compare the resulting hash with **SHA256** on the release page. The accompanying `.sha256` file contains the same value and can be opened as text. The values should match; if they differ, download the ZIP again before running it.
+
+</details>
 
 ### Output locations and upgrades
 

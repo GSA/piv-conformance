@@ -9,7 +9,7 @@ The four profile databases describe cases and select which Java JUnit test metho
 
 The [user guide](docs/USER_GUIDE.md) covers running CCT, viewing results, preparing a lab submission and diagnostics. On the [releases page](https://github.com/GSA/piv-conformance/releases), choose the versioned **piv-conformance ZIP** to run the application. GitHub's **Source code (zip)** and **Source code (tar.gz)** are equivalent source snapshots for building or reviewing the code. Public downloads do not require a GitHub account.
 
-Download the candidate ZIP and its `.sha256` file together. Compare the ZIP's hash with the `.sha256` file and the release page: use `Get-FileHash "<zip-file>" -Algorithm SHA256` in Windows PowerShell, `shasum -a 256 "<zip-file>"` on macOS, or `sha256sum "<zip-file>"` on Linux. Extract the complete ZIP into one directory, keeping the JAR, four profile databases, configuration files, and `x509-certs` directory together.
+Download and extract the complete application ZIP into one directory, keeping the JAR, four profile databases, configuration files and `x509-certs` directory together. Optional [download verification](docs/USER_GUIDE.md#verify-the-download-optional) compares its SHA-256 with the published value.
 
 Install Java 17 and confirm that `java -version` resolves to Java 17 in the same terminal used to launch CCT. The launch scripts check the Java version on `PATH`; setting `JAVA_HOME` alone does not change which `java` they run. From the extracted directory, double-click `run.bat` on Windows or run `./run.sh` on macOS/Linux. On macOS/Linux, if another Java version is the default, use `PATH="/path/to/jdk-17/bin:$PATH" ./run.sh` with your Java 17 installation path.
 

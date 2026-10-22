@@ -5,11 +5,9 @@ included USER_GUIDE.md. Download the versioned piv-conformance ZIP to run CCT;
 GitHub's Source code ZIP and tar.gz require a build. Public downloads do not
 require a GitHub account.
 
-Compare the ZIP's SHA-256 with its .sha256 file and the release page. Use
-Get-FileHash "<zip-file>" -Algorithm SHA256 in Windows PowerShell,
-shasum -a 256 "<zip-file>" on macOS, or sha256sum "<zip-file>" on Linux.
 Extract the whole ZIP before running CCT. Keep the JAR, four databases,
-configuration files and x509-certs directory together.
+configuration files and x509-certs directory together. For optional SHA-256
+verification, see "Verify the download" in USER_GUIDE.md.
 
 Install Java 17 and check java -version in the launch terminal. The scripts use
 java on PATH; JAVA_HOME alone does not select it. Windows: double-click run.bat.
