@@ -76,21 +76,20 @@ public class ExistingCctRegressionTest {
             addedProvider = true;
         }
         Path root = Path.of(System.getProperty("cct.repository"));
-        Path golden = root.resolve("cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/"
-                + "gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/8 - CHUID Object");
-        chuid = APDUUtils.getTLV(APDUConstants.DATA, Files.readAllBytes(golden));
-        ccc = Files.readAllBytes(golden.resolveSibling("7 - CCC"));
+        Path fixture = root.resolve("cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/chuid.bin");
+        chuid = APDUUtils.getTLV(APDUConstants.DATA, Files.readAllBytes(fixture));
+        ccc = Files.readAllBytes(fixture.resolveSibling("ccc.bin"));
         facialImage = APDUUtils.getTLV(APDUConstants.DATA,
-                Files.readAllBytes(golden.resolveSibling("10 - Face Object")));
+                Files.readAllBytes(fixture.resolveSibling("face-header.bin")));
         CardCapabilityContainer decodedCcc = new CardCapabilityContainer();
         decodedCcc.setOID(APDUConstants.CARD_CAPABILITY_CONTAINER_OID);
         decodedCcc.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.CARD_CAPABILITY_CONTAINER_OID));
         decodedCcc.setBytes(APDUUtils.getTLV(APDUConstants.DATA, ccc));
-        assertTrue(decodedCcc.decode(), "Existing golden CCC must decode before testing current fields");
+        assertTrue(decodedCcc.decode(), "Synthetic CCC must decode before testing current fields");
         CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
         decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         decoded.setBytes(chuid);
-        assertTrue(decoded.decode(), "Existing golden CHUID must decode before testing UUID equality");
+        assertTrue(decoded.decode(), "Synthetic CHUID must decode before testing UUID equality");
         ByteBuffer guid = ByteBuffer.wrap(decoded.getgUID());
         cardUrn = "urn:uuid:" + new UUID(guid.getLong(), guid.getLong());
         ByteBuffer holderBytes = ByteBuffer.wrap(decoded.getCardholderUUID());
@@ -103,7 +102,7 @@ public class ExistingCctRegressionTest {
                 "date-short", "date-leap", "cms-pss-sha256-zero", "cms-pss-sha256-max", "cms-pss-sha256-excess",
                 "cms-pss-sha384-zero", "cms-pss-sha384-max", "cms-pss-sha384-excess"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
-        try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
+        try (var in = Files.newInputStream(fixture.resolveSibling("certificate.pem"))) {
             certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
                     .generateCertificate(in).getEncoded());
         }
@@ -540,9 +539,9 @@ public class ExistingCctRegressionTest {
         return APDUUtils.getTLV(APDUConstants.DATA, body);
     }
 
-    private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier golden, String kind) throws Exception {
-        byte[] fascn = APDUUtils.getTLV(new byte[]{0x30}, golden.getfASCN());
-        byte[] guid = APDUUtils.getTLV(new byte[]{0x34}, golden.getgUID());
+    private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier fixture, String kind) throws Exception {
+        byte[] fascn = APDUUtils.getTLV(new byte[]{0x30}, fixture.getfASCN());
+        byte[] guid = APDUUtils.getTLV(new byte[]{0x34}, fixture.getgUID());
         String dateText = switch (kind) {
             case "date-month-13" -> "20321302";
             case "date-nonleap" -> "20330229";
@@ -551,7 +550,7 @@ public class ExistingCctRegressionTest {
             default -> "20321202";
         };
         byte[] date = APDUUtils.getTLV(new byte[]{0x35}, dateText.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
-        byte[] holderValue = golden.getCardholderUUID();
+        byte[] holderValue = fixture.getCardholderUUID();
         if (holderValue != null) holderValue = holderValue.clone();
         if (kind.equals("holder-v1")) holderValue[6] = (byte) ((holderValue[6] & 0x0f) | 0x10);
         if (kind.equals("holder-v5")) holderValue[6] = (byte) ((holderValue[6] & 0x0f) | 0x50);
@@ -746,7 +745,7 @@ public class ExistingCctRegressionTest {
                 record = i;
             }
         }
-        assertTrue(record >= 0, "Golden face object must contain a FAC record");
+        assertTrue(record >= 0, "Synthetic face header must contain a FAC record");
         int[] ids = {251, 252, 253, 254};
         int[] offsets = {34, 35, 40, 41};
         int[] invalid = {0, 2, 0, 3};

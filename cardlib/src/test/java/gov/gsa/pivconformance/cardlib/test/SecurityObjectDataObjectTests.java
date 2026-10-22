@@ -56,8 +56,7 @@ public class SecurityObjectDataObjectTests {
 
     private static Stream<Arguments> dataObjectTestProvider() {
         return Stream.of(
-                Arguments.of(APDUConstants.SECURITY_OBJECT_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/2 - Security Object"),
-                Arguments.of(APDUConstants.SECURITY_OBJECT_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/2 - Security Object")
+                Arguments.of(APDUConstants.SECURITY_OBJECT_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/security.bin")
         );
     }
 }

@@ -80,6 +80,14 @@ tasks.register('hardwareTest', Test) {
     }
 }
 
+tasks.register('regenerateSyntheticFixtures', JavaExec) {
+    description = 'Regenerates test-only objects with invented fields and no captured biometric payloads.'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'gov.gsa.pivconformance.cardlib.test.SyntheticFixtures'
+    args layout.projectDirectory.dir('src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic').asFile
+}
+
 tasks.register('pinHardwareTest', Test) {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = 'Runs explicitly opted-in PIN interaction tests against an approved lab/test card.'

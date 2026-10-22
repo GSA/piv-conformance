@@ -54,7 +54,7 @@ public class CHUIDDataObjectTests {
 
         assertNotNull(((SignedPIVDataObject) o).getAsymmetricSignature());
 
-        ((SignedPIVDataObject) o).verifySignature();
+        assertTrue(((SignedPIVDataObject) o).verifySignature(), "Synthetic CHUID signature must verify");
         assertNotNull(((SignedPIVDataObject) o).getSignerCert());
 
         assertTrue(o.getErrorDetectionCode());
@@ -62,8 +62,7 @@ public class CHUIDDataObjectTests {
 
     private static Stream<Arguments> dataObjectTestProvider() {
         return Stream.of(
-                Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/8 - CHUID Object"),
-                Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/8 - CHUID Object")
+                Arguments.of(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/chuid.bin")
         );
     }
 }

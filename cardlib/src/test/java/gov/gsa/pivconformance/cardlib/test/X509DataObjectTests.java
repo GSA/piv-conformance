@@ -147,12 +147,10 @@ public class X509DataObjectTests {
 	/*
 	 * CertificateFactory cFactory = CertificateFactory.getInstance("X.509"); X509Certificate cert = (X509Certificate) cFactory.generateCertificate(getInputStream(of_the_original_unmodified_certificate_file));
 	 */
-	private static Stream<Arguments> dataObjectTestProvider() {
+    private static Stream<Arguments> dataObjectTestProvider() {
         return Stream.of(
-                Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/3 - ICAM_PIV_Auth_SP_800-73-4.crt"),
-                Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/3 - ICAM_PIV_Auth_SP_800-73-4.crt"),
-                Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/01_Golden_PIV/6 - ICAM_PIV_Card_Auth_SP_800-73-4.crt"),
-                Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "gov/gsa/pivconformance/cardlib/test/gsa-icam-card-builder/cards/ICAM_Card_Objects/02_Golden_PIV-I/6 - ICAM_PIV_Card_Auth_SP_800-73-4.crt")
+                Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/certificate.pem"),
+                Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID, "gov/gsa/pivconformance/cardlib/test/synthetic/certificate.pem")
         );
     }
 }
