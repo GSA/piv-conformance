@@ -108,6 +108,7 @@ public class ValidatorTlsTest {
                 assertNotNull(result);
                 assertEquals(Set.of(server.certificate), new HashSet<>(result.getCertificates(null)));
                 assertArrayEquals(bundle, Files.readAllBytes(output));
+                Files.delete(output); // Windows requires the bundle reader to have released its handle.
             } else {
                 InvocationTargetException failure = assertThrows(InvocationTargetException.class,
                         () -> method.invoke(validator, url, output.toString()));

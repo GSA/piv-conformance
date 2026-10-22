@@ -866,24 +866,19 @@ public class Validator {
 
         s_logger.debug("Opening " + v_caFileName);
 
-        try {
-            FileInputStream fis = new FileInputStream(v_caFileName);
-            if (fis != null) {
-                // Instantiate a CertificateFactory for X.509
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                // Extract the certification path from the PKCS7 SignedData structure
-                CertPath cp = cf.generateCertPath(fis, "PKCS7");
-                List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
-                int count = 0;
-                for (X509Certificate c : certs) {
-                    s_logger.debug(++count + ". " + c.getSubjectDN().getName());
-                }
-                List<X509Certificate> certList = new ArrayList<>();
-                certList.addAll(certs);
-                certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
-            } else {
-                s_logger.warn(getResourceDir() + File.separator + v_caFileName + " was not found");
+        try (FileInputStream fis = new FileInputStream(v_caFileName)) {
+            // Instantiate a CertificateFactory for X.509
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            // Extract the certification path from the PKCS7 SignedData structure
+            CertPath cp = cf.generateCertPath(fis, "PKCS7");
+            List<X509Certificate> certs = (List<X509Certificate>) cp.getCertificates();
+            int count = 0;
+            for (X509Certificate c : certs) {
+                s_logger.debug(++count + ". " + c.getSubjectDN().getName());
             }
+            List<X509Certificate> certList = new ArrayList<>();
+            certList.addAll(certs);
+            certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
         } catch (NoSuchAlgorithmException e) {
             String msg = "Crypto failure loading certs from " + getResourceDir() + File.separator + v_caFileName + ": " + e.getMessage();
             s_logger.error(msg);
