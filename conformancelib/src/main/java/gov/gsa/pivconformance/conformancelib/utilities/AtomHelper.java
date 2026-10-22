@@ -168,7 +168,7 @@ public class AtomHelper {
 		} else {
 			cert = ((X509CertificateDataObject) pivDataObject).getCertificate();
 		}
-		s_logger.debug(cert.toString());
+		s_logger.debug("Certificate: {}", cert);
 		return cert;
 	}
 	

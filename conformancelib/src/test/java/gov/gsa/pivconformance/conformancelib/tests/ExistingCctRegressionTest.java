@@ -41,6 +41,8 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.security.spec.MGF1ParameterSpec;
+import java.security.spec.PSSParameterSpec;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -98,7 +100,8 @@ public class ExistingCctRegressionTest {
                 "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date",
                 "cms-sha384", "cms-rsa4096-sha384", "cms-p256-sha256", "cms-p256-sha384",
                 "cms-p384-sha384", "cms-p384-sha256", "cms-p521-sha384", "cms-sha1", "date-month-13", "date-nonleap",
-                "date-short", "date-leap"))
+                "date-short", "date-leap", "cms-pss-sha256-zero", "cms-pss-sha256-max", "cms-pss-sha256-excess",
+                "cms-pss-sha384-zero", "cms-pss-sha384-max", "cms-pss-sha384-excess"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
         try (var in = Files.newInputStream(golden.resolveSibling("3 - ICAM_PIV_Auth_SP_800-73-4.crt"))) {
             certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
@@ -279,6 +282,65 @@ public class ExistingCctRegressionTest {
     void currentSignatureAlgorithmThroughExistingAtom(int row, String kind, boolean pass) throws Exception {
         run(row, "sp800_78_Test_3_current", keyProfileCertificates.get(kind),
                 pass, "SP800-78.3 current:");
+    }
+
+    @ParameterizedTest(name="PSS valid parameters in {0}")
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void pssValidParametersThroughExistingAtoms(String database) throws Exception {
+        // RFC 4055 section 3.1 recommends matching MGF/message hashes, but
+        // permits the independently identified hashes. FIPS 186-5 5.4(g)
+        // permits salt lengths from zero through the message hash length.
+        for (String hash : List.of("SHA-256", "SHA-384")) {
+            for (String mgf : List.of("SHA-1", "SHA-224", "SHA-256", "SHA-384", "SHA-512")) {
+                for (int salt : new int[]{0, hash.equals("SHA-256") ? 32 : 48}) {
+                    byte[] raw = pssCertificate(hash, mgf, salt);
+                    for (int row : new int[]{350, 383, 406, 429})
+                        run(database, row, "sp800_78_Test_3_current", raw, true, "");
+                }
+            }
+        }
+    }
+
+    @ParameterizedTest(name="PSS excessive salt in {0}")
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void pssExcessiveSaltThroughExistingAtoms(String database) throws Exception {
+        // These signatures verify under PKCS #1; FIPS 186-5 imposes the
+        // additional salt bound. They must fail the parameter assertion.
+        for (String hash : List.of("SHA-256", "SHA-384")) {
+            byte[] raw = pssCertificate(hash, hash, hash.equals("SHA-256") ? 33 : 49);
+            for (int row : new int[]{350, 383, 406, 429})
+                run(database, row, "sp800_78_Test_3_current", raw, false,
+                        "SP800-78.3 current: RSA-PSS salt length");
+        }
+    }
+
+    @ParameterizedTest(name="CHUID PSS salt bounds in {0}")
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void pssChuidSaltBoundsThroughExistingAtom(String database) throws Exception {
+        for (String hash : List.of("sha256", "sha384")) {
+            for (String salt : List.of("zero", "max", "excess"))
+                run(database, 468, "sp800_78_Test_3_current",
+                        currentChuidObjects.get("cms-pss-" + hash + "-" + salt),
+                        !salt.equals("excess"), "SP800-78.3 current: RSA-PSS salt length");
+        }
+    }
+
+    @ParameterizedTest(name="PSS invalid trailer in {0}")
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void pssInvalidTrailerThroughExistingAtoms(String database) throws Exception {
+        var parameters = java.security.AlgorithmParameters.getInstance("RSASSA-PSS", "SunRsaSign");
+        parameters.init(new PSSParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, 32, 2));
+        // An intentional encoding violation, not a signature-valid certificate.
+        byte[] raw = encodedCertificate(null, new AlgorithmIdentifier(PKCSObjectIdentifiers.id_RSASSA_PSS,
+                ASN1Primitive.fromByteArray(parameters.getEncoded())));
+        // SUN rejects this encoding while decoding the certificate; BC exposes
+        // the parameters to the atom. Both must give the intended assertion,
+        // rather than an incidental null-certificate logging exception.
+        String reason = Boolean.getBoolean("cct.regressionBC")
+                ? "SP800-78.3 current: RSA-PSS trailer field must be 1"
+                : "SP800-78.3 current: certificate could not be decoded";
+        for (int row : new int[]{350, 383, 406, 429})
+            run(database, row, "sp800_78_Test_3_current", raw, false, reason);
     }
 
     @ParameterizedTest(name="production CHUID CMS signature: {0}")
@@ -527,13 +589,19 @@ public class ExistingCctRegressionTest {
                 : kind.equals("cms-sha1") ? "SHA1withRSA" : "SHA256withRSA";
         CMSSignatureEncryptionAlgorithmFinder rsaPkcs1 = signatureAlgorithm ->
                 new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
-        SignerInfoGeneratorBuilder signerBuilder = ecCurve != null
+        boolean pss = kind.startsWith("cms-pss-");
+        String pssHash = kind.contains("sha256") ? "SHA-256" : "SHA-384";
+        int pssSalt = kind.endsWith("zero") ? 0 : (kind.contains("sha256") ? 32 : 48)
+                + (kind.endsWith("excess") ? 1 : 0);
+        var contentSigner = pss ? pssSigner(key.getPrivate(), pssHash, pssHash, pssSalt)
+                : new JcaContentSignerBuilder(algorithm).build(key.getPrivate());
+        SignerInfoGeneratorBuilder signerBuilder = ecCurve != null || pss
                 ? new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build())
                 : new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build(), rsaPkcs1);
         generator.addSignerInfoGenerator(signerBuilder
                 .setSignedAttributeGenerator(new DefaultSignedAttributeTableGenerator(
                         new AttributeTable(new Attribute(pivSignerDn, new DERSet(name)))))
-                .build(new JcaContentSignerBuilder(algorithm).build(key.getPrivate()),
+                .build(contentSigner,
                         new X509CertificateHolder(signer.getEncoded())));
         generator.addCertificates(new JcaCertStore(List.of(signer)));
         byte[] cms = generator.generate(new CMSProcessableByteArray(
@@ -596,6 +664,43 @@ public class ExistingCctRegressionTest {
         return APDUUtils.getTLV(APDUConstants.DATA, concat(
                 APDUUtils.getTLV(new byte[]{0x70}, generated.getEncoded()),
                 new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+    }
+
+    private static byte[] pssCertificate(String hash, String mgfHash, int saltLength) throws Exception {
+        X500Name name = new X500Name("CN=CCT PSS parameter regression");
+        X509Certificate generated = new JcaX509CertificateConverter().setProvider("SUN").getCertificate(
+                new JcaX509v3CertificateBuilder(name, BigInteger.ONE,
+                        new java.util.Date(1704067200000L), new java.util.Date(1893456000000L),
+                        name, sanSigningKey.getPublic()).build(
+                                pssSigner(sanSigningKey.getPrivate(), hash, mgfHash, saltLength)));
+        generated.verify(sanSigningKey.getPublic(), "SunRsaSign");
+        return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, generated.getEncoded()),
+                new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+    }
+
+    private static org.bouncycastle.operator.ContentSigner pssSigner(java.security.PrivateKey key,
+            String hash, String mgfHash, int saltLength) throws Exception {
+        PSSParameterSpec spec = new PSSParameterSpec(hash, "MGF1",
+                new MGF1ParameterSpec(mgfHash), saltLength, 1);
+        var parameters = java.security.AlgorithmParameters.getInstance("RSASSA-PSS", "SunRsaSign");
+        parameters.init(spec);
+        AlgorithmIdentifier algorithm = new AlgorithmIdentifier(PKCSObjectIdentifiers.id_RSASSA_PSS,
+                ASN1Primitive.fromByteArray(parameters.getEncoded()));
+        var bytes = new java.io.ByteArrayOutputStream();
+        var signature = java.security.Signature.getInstance("RSASSA-PSS", "SunRsaSign");
+        signature.setParameter(spec);
+        signature.initSign(key);
+        return new org.bouncycastle.operator.ContentSigner() {
+            public AlgorithmIdentifier getAlgorithmIdentifier() { return algorithm; }
+            public java.io.OutputStream getOutputStream() { return bytes; }
+            public byte[] getSignature() {
+                try {
+                    signature.update(bytes.toByteArray());
+                    return signature.sign();
+                } catch (java.security.GeneralSecurityException e) { throw new IllegalStateException(e); }
+            }
+        };
     }
 
     private static byte[] encodedCertificate(GeneralName[] names, AlgorithmIdentifier algorithm) throws Exception {
