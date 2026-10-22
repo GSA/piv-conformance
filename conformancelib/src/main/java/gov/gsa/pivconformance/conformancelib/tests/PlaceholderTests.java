@@ -5,17 +5,25 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.opentest4j.TestAbortedException;
 
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.PIVDataObject;
 import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
+import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgumentsProvider;
 
 import org.junit.jupiter.params.provider.Arguments;
 
 public class PlaceholderTests {
+	public static final String UNSUPPORTED_MESSAGE = "CCT has no implemented conformance assertion for ";
+	public static final class UnsupportedConformanceException extends TestAbortedException {
+		public UnsupportedConformanceException(String detail) {
+			super(UNSUPPORTED_MESSAGE + detail);
+		}
+	}
 	private static final Logger s_logger = LoggerFactory.getLogger(PlaceholderTests.class);
 
 	public PlaceholderTests() {
@@ -98,18 +106,9 @@ public class PlaceholderTests {
 	// CCT parameter Type 1 (no parameters - single purpose)
 	@DisplayName("PlaceholderTest.1 Test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
-	@MethodSource("placeholderTestProviderType1")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void PlaceholderTest_1(String oid, TestReporter reporter) {
-		return;
-		/*
-		PIVDataObject o = AtomHelper.getDataObject(oid);
-		
-		// The first of up to 2 allowed assertions
-		assertTrue(o.decode(), "Couldn't decode " + oid);
-		
-		// TODO: Assert something meaningful here
-		assertTrue(o.getBytes().length >= 0, "Length is < 0");
-		 */
+		throw new UnsupportedConformanceException(oid);
 	}
 	
 	// Only if it's a cat, dog, or elephant, shall it jump over the moon 
@@ -156,15 +155,6 @@ public class PlaceholderTests {
 	}
 
 	@SuppressWarnings("unused")
-	private static Stream<Arguments> placeholderTestProviderType1() {
-
-		return Stream.of(
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_DIGITAL_SIGNATURE_OID),
-				Arguments.of(APDUConstants.X509_CERTIFICATE_FOR_CARD_AUTHENTICATION_OID)
-		);
-	}
-
-	@SuppressWarnings("unused")
 	private static Stream<Arguments> placeholderTestProviderType2() {
 
 		return Stream.of(
@@ -173,4 +163,3 @@ public class PlaceholderTests {
 		);
 	}
 }
-

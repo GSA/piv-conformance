@@ -1,13 +1,20 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.binary.Hex;
@@ -66,6 +73,17 @@ public class SP800_73_4CHUIDTests {
 		}
 	}
 
+	// SP 800-73-5 Part 1, Appendix A, Table 10 eliminates Buffer Length (EE).
+	// The decoder keeps EE out of the signed-content tag list, so inspect the
+	// decoded field rather than that list. Historical PIV-I retains 73-4.9.
+	@DisplayName("SP800-73-5 CHUID Buffer Length absent")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_9(String oid, TestReporter reporter) {
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
+		assertTrue(chuid.getBufferLength() == null, "SP800-73-5 CHUID: eliminated tag EE is present");
+	}
+
 	// Tag 0x30 is present
 	@DisplayName("SP800-73-4.10 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
@@ -118,6 +136,17 @@ public class SP800_73_4CHUIDTests {
 
 			}
 		}
+	}
+
+	// SP 800-73-5 Part 1, Appendix A, Table 10 eliminates tags 32 and 33.
+	@DisplayName("SP800-73-5 CHUID organization fields absent")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_11(String oid, TestReporter reporter) {
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
+		assertTrue(chuid.getOrganizationalIdentifier() == null,
+				"SP800-73-5 CHUID: eliminated tag 32 is present");
+		assertTrue(chuid.getdUNS() == null, "SP800-73-5 CHUID: eliminated tag 33 is present");
 	}
 
 	// The Agency Code, System Code, and Credential Number of the FASC-N are
@@ -233,6 +262,26 @@ public class SP800_73_4CHUIDTests {
 		}
 	}
 
+	// FIPS 201-3 Section 4.2.1 and SP 800-73-5 Part 1 Sections 3.1.2,
+	// 3.4.2: the optional CHUID Cardholder UUID is a version 4 UUID.
+	@DisplayName("SP800-73-5 optional CHUID Cardholder UUID")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_13(String oid, TestReporter reporter) {
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
+		byte[] value = chuid.getCardholderUUID();
+		if (value == null) return;
+		assertTrue(value.length == 16, "SP800-73-5 CHUID: Cardholder UUID must contain 16 bytes");
+		ByteBuffer bytes = ByteBuffer.wrap(value);
+		UUID uuid = new UUID(bytes.getLong(), bytes.getLong());
+		assertTrue(uuid.variant() == 2, "SP800-73-5 CHUID: Cardholder UUID must use RFC 4122 variant");
+		assertTrue(uuid.version() == 4, "SP800-73-5 CHUID: Cardholder UUID must be version 4");
+		List<BerTag> tags = chuid.getTagList();
+		assertTrue(tags.indexOf(new BerTag(TagConstants.CARDHOLDER_UUID_TAG))
+				== tags.indexOf(new BerTag(TagConstants.CHUID_EXPIRATION_DATE_TAG)) + 1,
+				"SP800-73-5 CHUID: tag 36 must immediately follow tag 35");
+	}
+
 	// Tags 0x3E and 0xFE are present
 	@DisplayName("SP800-73-4.14 test")
 	@ParameterizedTest(name = "{index} => oid = {0}")
@@ -258,12 +307,12 @@ public class SP800_73_4CHUIDTests {
 	void sp800_73_4_Test_15(String oid, TestReporter reporter) {
 
 		PIVDataObject o = AtomHelper.getDataObject(oid);
-
-		Date expirationDate = ((CardHolderUniqueIdentifier) o).getExpirationDate();
-
-		// Decode for CardHolderUniqueIdentifier class parses the date in YYYYMMDD
-		// format.
-		assertNotNull(expirationDate);
+		byte[] encodedDate = ((CardHolderUniqueIdentifier) o).getExpirationDateBytes();
+		String message = "CHUID expiration date must be an eight-digit valid YYYYMMDD date";
+		assertNotNull(encodedDate, message);
+		assertEquals(8, encodedDate.length, message);
+		assertDoesNotThrow(() -> LocalDate.parse(new String(encodedDate, StandardCharsets.US_ASCII),
+				DateTimeFormatter.BASIC_ISO_DATE), message);
 
 	}
 
@@ -328,6 +377,23 @@ public class SP800_73_4CHUIDTests {
 		}
 	}
 
+	@DisplayName("SP800-73-5 CHUID allowed tags")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_17(String oid, TestReporter reporter) {
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
+		assertTrue(chuid.getBufferLength() == null, "SP800-73-5 CHUID: eliminated tag EE is present");
+		for (BerTag tag : chuid.getTagList()) {
+			boolean allowed = Arrays.equals(tag.bytes, TagConstants.FASC_N_TAG)
+					|| Arrays.equals(tag.bytes, TagConstants.GUID_TAG)
+					|| Arrays.equals(tag.bytes, TagConstants.CHUID_EXPIRATION_DATE_TAG)
+					|| Arrays.equals(tag.bytes, TagConstants.CARDHOLDER_UUID_TAG)
+					|| Arrays.equals(tag.bytes, TagConstants.ISSUER_ASYMMETRIC_SIGNATURE_TAG)
+					|| Arrays.equals(tag.bytes, TagConstants.ERROR_DETECTION_CODE_TAG);
+			assertTrue(allowed, "SP800-73-5 CHUID: tag " + Hex.encodeHexString(tag.bytes) + " is not permitted");
+		}
+	}
+
 	// Tag 0x30 is the first tag or the first tag following 0xEE (split from
 	// 73-4.10)
 	@ParameterizedTest(name = "{index} => oid = {0}")
@@ -348,6 +414,17 @@ public class SP800_73_4CHUIDTests {
 		} catch (Exception e) {
 			fail(e);
 		}
+	}
+
+	@DisplayName("SP800-73-5 CHUID FASC-N first")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_43(String oid, TestReporter reporter) {
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
+		assertTrue(chuid.getBufferLength() == null, "SP800-73-5 CHUID: eliminated tag EE is present");
+		List<BerTag> tags = chuid.getTagList();
+		assertTrue(!tags.isEmpty() && Arrays.equals(tags.get(0).bytes, TagConstants.FASC_N_TAG),
+				"SP800-73-5 CHUID: tag 30 must be first");
 	}
 
 	// Tag 0x34 is present (split from 73-4.12)
@@ -468,6 +545,17 @@ public class SP800_73_4CHUIDTests {
 		} catch (Exception e) {
 			fail(e);
 		}
+	}
+
+	@DisplayName("SP800-73-5 CHUID GUID after FASC-N")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void sp800_73_5_Test_45(String oid, TestReporter reporter) {
+		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
+		List<BerTag> tags = chuid.getTagList();
+		assertTrue(tags.size() >= 2 && Arrays.equals(tags.get(0).bytes, TagConstants.FASC_N_TAG)
+				&& Arrays.equals(tags.get(1).bytes, TagConstants.GUID_TAG),
+				"SP800-73-5 CHUID: tag 34 must immediately follow tag 30");
 	}
 
 	// Tag 0x35 is present (split from 73-4.12)

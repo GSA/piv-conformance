@@ -40,7 +40,7 @@ public class CardUtils {
 		if (readers.isEmpty()) {
 			throw new ConformanceTestException("No connected readers found");
 		}
-		if (idx > readers.size()) {
+		if (idx < -1 || idx >= readers.size()) {
 			throw new ConformanceTestException(
 					"Reader index specified: " + idx + " but only " + readers.size() + " connected.");
 		}
@@ -123,11 +123,11 @@ public class CardUtils {
 						String pIN;
 						s_logger.debug("Please enter a PIN and press <RETURN>: ");
 						pIN = scanInput.nextLine();
-						s_logger.debug("Confirm PIN {} is correct (y/n): ", pIN);
+						s_logger.debug("Confirm the entered PIN is correct (y/n): ");
 						String conf = scanInput.nextLine();
 						if (conf.contains("y") || conf.contains("Y")) {
 							css.setApplicationPin(pIN);
-							s_logger.debug("Setting PIN to {} and continuing...", pIN);
+							s_logger.debug("Setting the entered PIN and continuing...");
 							done = true;
 						}
 					}

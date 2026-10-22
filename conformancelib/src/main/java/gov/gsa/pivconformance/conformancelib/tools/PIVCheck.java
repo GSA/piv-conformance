@@ -107,8 +107,7 @@ public class PIVCheck {
 //                if (cons != null && (passwd = cons.readPassword("[%s]", "Pin:")) != null) {
 //
 //                    PIVAuthenticators authenticators = new PIVAuthenticators();
-//                    authenticators.addApplicationPin("123456");
-//                    authenticators.addGlobalPin("12345678");
+//                    Supply test-card authenticators through an approved external mechanism.
 //                    authenticators.addApplicationPin(new String(passwd));
 //                    result = piv.pivLogIntoCardApplication(c, authenticators.getBytes());
 //                    java.util.Arrays.fill(passwd, ' ');

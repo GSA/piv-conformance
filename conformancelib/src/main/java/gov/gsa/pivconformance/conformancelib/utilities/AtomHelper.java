@@ -127,8 +127,9 @@ public class AtomHelper {
 		case PIV_OK:
 			break;
 		default:
-			String errMsg = "Failed to retrieve data object for OID " + APDUConstants.oidNameMap.get(oid) + " container";
+			String errMsg = "Failed to retrieve data object for OID " + APDUConstants.oidNameMap.get(oid) + " container: " + result;
 			s_logger.error(errMsg);
+			fail(errMsg);
 			return null;
 		}
 
@@ -167,7 +168,7 @@ public class AtomHelper {
 		} else {
 			cert = ((X509CertificateDataObject) pivDataObject).getCertificate();
 		}
-		s_logger.debug(cert.toString());
+		s_logger.debug("Certificate: {}", cert);
 		return cert;
 	}
 	

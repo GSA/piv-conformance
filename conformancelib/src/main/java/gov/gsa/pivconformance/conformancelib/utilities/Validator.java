@@ -6,7 +6,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -116,7 +115,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator() throws ConformanceTestException {
-        reset("SunRsaSign", "x509-certs/cacerts.jks", "changeit", s_caFileName);
+        reset("SunRsaSign", null, null, s_caFileName);
     }
 
     /**
@@ -125,7 +124,7 @@ public class Validator {
      * @throws ConformanceTestException
      */
     public Validator (String provider) throws ConformanceTestException {
-        reset(provider, "x509-certs/cacerts.jks", "changeit", null);
+        reset(provider, null, null, null);
     }
 
     /**
@@ -147,8 +146,24 @@ public class Validator {
      * @param keyStorePath the path to the KeyStore file
      */
     public void setKeyStore(String keyStorePath, String password) throws ConformanceTestException {
-        InputStream is = null;
-        String targetPath = null;
+        String targetPath = resolveKeyStorePath(keyStorePath, File.separator);
+        try (ValidatorHelper.OpenedResource resource = openExternalFile(targetPath)) {
+            loadKeyStore(resource, password);
+        } catch (IOException e) {
+            throw new ConformanceTestException(e.getMessage());
+        }
+    }
+
+    private void setDefaultKeyStore(String keyStorePath, String password) throws ConformanceTestException {
+        String targetPath = resolveKeyStorePath(keyStorePath, "/");
+        try (ValidatorHelper.OpenedResource resource = openDefaultResource(targetPath)) {
+            loadKeyStore(resource, password);
+        } catch (IOException e) {
+            throw new ConformanceTestException(e.getMessage());
+        }
+    }
+
+    private String resolveKeyStorePath(String keyStorePath, String separator) throws ConformanceTestException {
         if (getResourceDir() == null)
             setResourceDir(s_resourceDir);
 
@@ -156,28 +171,26 @@ public class Validator {
             String msg = "No keystore file specified";
             s_logger.error(msg);
             throw new ConformanceTestException(msg);
-        } else
-            keyStorePath = TestRunLogController.pathFixup(keyStorePath);
+        }
 
-        if (keyStorePath.startsWith(File.separator))
-            targetPath = keyStorePath;
-        else if (!keyStorePath.startsWith(getResourceDir()))
-            targetPath = getResourceDir() + File.separator + keyStorePath;
-        else
-            targetPath = keyStorePath;
+        String normalizedPath = keyStorePath.replace('\\', separator.charAt(0)).replace('/', separator.charAt(0));
+        if (new File(normalizedPath).isAbsolute() || normalizedPath.startsWith(getResourceDir())) {
+            return normalizedPath;
+        }
+        return getResourceDir() + separator + normalizedPath;
+    }
 
-        is = getStreamFromResourceFile(targetPath);
-
-        KeyStore ks = null;
+    private void loadKeyStore(ValidatorHelper.OpenedResource resource, String password)
+            throws ConformanceTestException {
         try {
-            ks = KeyStore.getInstance("JKS");
-            ks.load(is, password.toCharArray());
-            is.close();
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(resource.stream(), password.toCharArray());
+            m_keystore = ks;
+            s_logger.info("Loaded key store from {} {}", resource.source(), resource.location());
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
             s_logger.error(e.getMessage());
             throw new ConformanceTestException(e.getMessage());
         }
-        m_keystore = ks;
     }
 
     /**
@@ -829,41 +842,13 @@ public class Validator {
         // Use the scheme to switch between HTTPS and FILE protocol
         if (caPathString != null && caPathString.toLowerCase().startsWith("https:")) {
             try {
-                //setMonitorUrl(new URL(caPathString));
-                TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-                    // Stubs to accept all offered certs
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }};
-                // Install the all-trusting trust manager
-                final SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                // Create all-trusting host name verifier
-                HostnameVerifier allHostsValid = new HostnameVerifier() {
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
-                };
-
-                HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+                // Use the JVM's configured trust store and HTTPS hostname validation.
+                // Never change global TLS defaults while retrieving CA material.
                 URLConnection con = new URL(caPathString).openConnection();
-                byte[] buf = con.getInputStream().readAllBytes();
-                OutputStream outStream = new FileOutputStream(v_caFileName);
-                outStream.write(buf, 0, buf.length);
-                outStream.flush();
-                outStream.close();
-            } catch (NoSuchAlgorithmException | KeyManagementException e) {
-                String msg = "Crypto failure connecting to " + caPathString + ": " + e.getMessage();
-                s_logger.error(msg);
-                throw new ConformanceTestException(msg);
+                try (InputStream input = con.getInputStream();
+                     OutputStream output = new FileOutputStream(v_caFileName)) {
+                    input.transferTo(output);
+                }
             } catch (Exception e) {
                 String msg = "IO problem connecting to " + caPathString + ": " + e.getMessage();
                 s_logger.error(msg);
@@ -922,18 +907,31 @@ public class Validator {
         m_keystore = null;
         m_downloadAia = false;
         try {
-            Properties props = readPropertiesFile("pdval.properties");
+            ValidatorHelper.LoadedProperties loadedProperties = readDefaultProperties("pdval.properties");
+            Properties props = loadedProperties.properties();
             setProvider(provider);
             if (props != null) {
                 s_logger.debug("Loading properties");
                 if (props.get("provider") != null)
                     setProvider((String) props.get("provider"));
-                if (props.get("resourceDir") != null)
-                    setResourceDir((String) props.get("resourceDir"));
+				if (props.get("resourceDir") != null) {
+					String resourceDirectory = (String) props.get("resourceDir");
+					if (loadedProperties.source() == ValidatorHelper.ResourceSource.EXTERNAL_FILE
+							&& !new File(resourceDirectory).isAbsolute()
+							&& !resourceDirectory.contains("://")) {
+						Path propertiesPath = Path.of(loadedProperties.location()).toAbsolutePath().normalize();
+						resourceDirectory = propertiesPath.getParent().resolve(resourceDirectory).normalize().toString();
+					}
+					setResourceDir(resourceDirectory);
+				}
                 if (props.get("storePass") != null)
                     setStorePass((String) props.get("storePass"));
-                if (props.get("keyStore") != null)
-                    setKeyStore((String) props.get("keyStore"), getStorePass());
+                if (props.get("keyStore") != null) {
+                    if (loadedProperties.source() == ValidatorHelper.ResourceSource.EXTERNAL_FILE)
+                        setKeyStore((String) props.get("keyStore"), getStorePass());
+                    else
+                        setDefaultKeyStore((String) props.get("keyStore"), getStorePass());
+                }
                 if (props.get("defaultAlias") != null)
                     setDefaultAlias((String) props.get("defaultAlias"));
                 if (props.get("caPathString") != null)
@@ -949,11 +947,8 @@ public class Validator {
                     setCertPathBuilder(s_certPathBuilderProviders.get(provider));
             }
         } catch (ConformanceTestException e) {
-            s_logger.error(e.getMessage());
-            s_logger.warn("Using default values");
-            setProvider(provider);
-            setCertPathBuilder("SUN");
-            setDownloadAia(true);
+            s_logger.error("Validator configuration failed closed: {}", e.getMessage());
+            throw e;
         } finally {
             // Keystore specified
             if (keyStoreName != null && password != null) {
