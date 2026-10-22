@@ -8,7 +8,24 @@ The active GUI build uses the three existing modules in order: `cardlib`, `confo
 
 From the repository root, use the [build sequence](../README.md#build-status). For the tested flat-ZIP recipe, run `./doit.sh` in a Bash environment with `zip` and `shasum` available. It runs the software checks and writes the runnable ZIP and checksum under `build/releases/`. Building that ZIP on Windows requires those shell tools; running an extracted ZIP on Windows uses `run.bat`.
 
-For module builds from Windows PowerShell, use each module's `gradlew.bat` in place of `./gradlew`, preserving the same module/task order. The GUI Shadow JAR is written under `tools/85b-swing-gui/build/libs/`. A JAR alone is not the complete release package.
+For module builds from Windows PowerShell, start at the repository root with Java 17 selected:
+
+```powershell
+Push-Location .\cardlib
+.\gradlew.bat check install
+if ($LASTEXITCODE -ne 0) { throw "Cardlib build failed." }
+Pop-Location
+Push-Location .\conformancelib
+.\gradlew.bat check install
+if ($LASTEXITCODE -ne 0) { throw "Conformancelib build failed." }
+Pop-Location
+Push-Location .\tools\85b-swing-gui
+.\gradlew.bat test shadowJar
+if ($LASTEXITCODE -ne 0) { throw "GUI build failed." }
+Pop-Location
+```
+
+The GUI Shadow JAR is written under `tools/85b-swing-gui/build/libs/`. A JAR alone is not the complete release package.
 
 ### Building a source archive
 
