@@ -37,6 +37,8 @@ Build this package on **Windows x64**, using a Java 17 JDK with `jpackage` and P
 
 The script builds and checks the three modules, downloads a pinned Temurin Java 17 JRE over HTTPS, verifies its SHA-256, and creates a native `CCT.exe` launcher with `jpackage --type app-image`. It retains the complete JRE and its license notices to preserve dynamic tests, cryptographic providers and smart-card support. The ZIP and checksum are written to a new folder under `build/releases/`. Existing output is not overwritten.
 
+The launcher and application window use the existing GSA artwork in the GUI's `icons` resources. `gsa.ico` provides Windows icon sizes from 16 to 256 pixels, derived from `exelogo.png` for small sizes and `gsa_logo.png` for larger sizes. Update it alongside those PNGs if the artwork changes.
+
 `-SmokeTest` runs the original-row regressions under both providers using the extracted package's runtime, opens all four databases and checks the native window without Java on `PATH`. A compatible card/reader run is still required. `-SkipBuild` packages an already checked build; it is intended for maintainers, not clients.
 
 The Windows workflow builds QA artifacts only. It does not create tags, publish releases or upload release assets. Record the source commit and runtime in `BUILD-INFO.txt`; keep the exact accepted ZIP for publication. Recheck the pinned runtime's security status at release freeze and update its URL/hash and the CI JDK pin together when needed. The runtime is private to CCT and is updated by distributing a new CCT package.

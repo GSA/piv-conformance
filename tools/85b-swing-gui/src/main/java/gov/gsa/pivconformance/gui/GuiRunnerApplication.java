@@ -48,7 +48,9 @@ public class GuiRunnerApplication {
 		m_mainFrame.setBounds(100, 100, 1024, 768);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool");
-
+		m_mainFrame.setIconImages(java.util.List.of(
+				new ImageIcon(GuiRunnerApplication.class.getResource("/icons/exelogo.png")).getImage(),
+				new ImageIcon(GuiRunnerApplication.class.getResource("/icons/gsa_logo.png")).getImage()));
 
 		JMenuBar menuBar = new JMenuBar();
 		m_mainFrame.setJMenuBar(menuBar);

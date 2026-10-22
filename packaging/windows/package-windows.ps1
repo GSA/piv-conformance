@@ -79,7 +79,8 @@ try {
     & "$Jdk\bin\jpackage.exe" --type app-image --name CCT --dest "$Work\image" `
         --input $InputDirectory.FullName --main-jar $Jar --runtime-image $Runtime `
         --app-version ($Version.Split('-')[0]) --vendor "General Services Administration" `
-        --description "PIV Card Conformance Tool" --java-options "-Dcct.packaged=true"
+        --description "PIV Card Conformance Tool" --java-options "-Dcct.packaged=true" `
+        --icon "$RepositoryRoot\tools\85b-swing-gui\src\main\resources\icons\gsa.ico"
     if ($LASTEXITCODE -ne 0) { throw "jpackage failed." }
     $Image = "$Work\image\CCT"
     Copy-Item "$RepositoryRoot\docs\USER_GUIDE.md", "$RepositoryRoot\LICENSE.md" $Image
