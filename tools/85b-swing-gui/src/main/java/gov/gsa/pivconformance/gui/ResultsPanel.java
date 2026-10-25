@@ -5,11 +5,8 @@ import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.ActionEvent;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,7 +43,6 @@ final class ResultsPanel extends JPanel {
     private final JTextArea executionIssue = text("", 13, RED);
     private final JPanel counts = panel(new GridLayout(1, 4, 12, 0), BACKGROUND);
     private final JComboBox<Filter> filter = new JComboBox<>(Filter.values());
-    private final JTextField search = new JTextField();
     private final DefaultListModel<RunResults.CaseResult> visible = new DefaultListModel<>();
     private final JList<RunResults.CaseResult> cases = new JList<>(visible) {
         @Override public boolean getScrollableTracksViewportWidth() { return true; }
@@ -93,15 +89,8 @@ final class ResultsPanel extends JPanel {
         JPanel controls = panel(new BorderLayout(0, 10), Color.WHITE);
         controls.setBorder(inset(14, 14, 12, 14));
         controls.add(label("Findings", 17, Font.BOLD, INK), BorderLayout.NORTH);
-        JPanel fields = panel(new GridLayout(0, 1, 0, 8), Color.WHITE);
         filter.getAccessibleContext().setAccessibleName("Filter results");
-        search.putClientProperty("JTextField.placeholderText", "Search case or object (optional)");
-        search.setToolTipText("Optional: narrow the list by case number, object or recorded reason.");
-        search.getAccessibleContext().setAccessibleName("Search results (optional)");
-        search.setPreferredSize(new Dimension(240, 34));
-        fields.add(filter);
-        fields.add(search);
-        controls.add(fields, BorderLayout.CENTER);
+        controls.add(filter, BorderLayout.CENTER);
         controls.add(listCount, BorderLayout.SOUTH);
         navigator.add(controls, BorderLayout.NORTH);
         cases.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -123,24 +112,12 @@ final class ResultsPanel extends JPanel {
         split.setContinuousLayout(true);
         add(split, BorderLayout.CENTER);
         filter.addActionListener(e -> refresh());
-        search.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { refresh(); }
-            public void removeUpdate(DocumentEvent e) { refresh(); }
-            public void changedUpdate(DocumentEvent e) { refresh(); }
-        });
         cases.addListSelectionListener(e -> { if (!e.getValueIsAdjusting()) showDetail(cases.getSelectedValue()); });
-        getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F,
-                GraphicsEnvironment.isHeadless() ? java.awt.event.InputEvent.CTRL_DOWN_MASK
-                        : Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()), "find");
-        getActionMap().put("find", new AbstractAction() {
-            @Override public void actionPerformed(ActionEvent e) { search.requestFocusInWindow(); search.selectAll(); }
-        });
         setCompletedRun(null);
     }
 
     void setCompletedRun(CompletedTestRun value) {
         run = value;
-        search.setText("");
         filter.setSelectedItem(Filter.ATTENTION);
         RunResults results = value == null ? null : value.getResults();
         metadata.setText(results == null ? "No completed run" : results.database().getFileName() + " | "
@@ -157,7 +134,6 @@ final class ResultsPanel extends JPanel {
         executionIssue.setVisible(!executionIssue.getText().isBlank());
         openCsv.setEnabled(results != null);
         filter.setEnabled(!empty);
-        search.setEnabled(!empty);
         refresh();
         counts.revalidate();
         counts.repaint();
@@ -181,9 +157,8 @@ final class ResultsPanel extends JPanel {
         visible.clear();
         RunResults results = run == null ? null : run.getResults();
         if (results != null) {
-            String query = search.getText().strip().toLowerCase(Locale.ROOT);
             Filter mode = (Filter) filter.getSelectedItem();
-            results.cases().stream().filter(mode::includes).filter(c -> c.searchText().contains(query))
+            results.cases().stream().filter(mode::includes)
                     .sorted(Comparator.comparingInt(RunResults.CaseResult::attentionOrder))
                     .forEach(visible::addElement);
         }
@@ -205,7 +180,7 @@ final class ResultsPanel extends JPanel {
             boolean noAttention = !noResults && run.getResults().cases().stream().noneMatch(Filter.ATTENTION::includes);
             add(body, g, label(noResults ? "No completed results" : noAttention ? "No failures recorded" : "No matching cases", 22, Font.BOLD, INK));
             add(body, g, text(noResults ? "No case outcomes were recorded. Review the run status and selected profile."
-                    : "Choose All cases to inspect the compact case list, or change the filter/search.", 14, MUTED));
+                    : "Choose All cases to inspect the compact case list, or change the filter.", 14, MUTED));
         } else {
             Color statusColor = result.status() == TestStatus.SKIP ? AMBER : result.status() == TestStatus.FAIL ? RED : GREEN;
             add(body, g, label(result.statusText() + "   Case " + result.id(), 13, Font.BOLD, statusColor));
@@ -345,7 +320,6 @@ final class ResultsPanel extends JPanel {
 
     // Tests use these methods to filter and select cases without a desktop.
     void selectFilter(Filter mode) { filter.setSelectedItem(mode); }
-    void search(String query) { search.setText(query); }
     int visibleCount() { return visible.size(); }
     RunResults.CaseResult selectedCase() { return cases.getSelectedValue(); }
 

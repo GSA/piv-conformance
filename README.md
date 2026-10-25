@@ -1,5 +1,5 @@
 # piv-conformance
-Tool for testing the PIV card data model. Its case catalog derives from SP 800-85B guidance. This `1.1.0-rc1` candidate updates selected checks for FIPS 201-3, SP 800-73-5 Part 1, and SP 800-78-5, and corrects selected checks under SP 800-76-2. A passing run does not establish complete coverage of those publications or certify a card.
+Tool for testing the PIV card data model. Its case catalog derives from SP 800-85B guidance. This `2.0.0-rc6` candidate updates selected checks for FIPS 201-3, SP 800-73-5 Part 1, and SP 800-78-5, and corrects selected checks under SP 800-76-2. A passing run does not establish complete coverage of those publications or certify a card.
 
 ## How the checks are organized
 
@@ -17,7 +17,7 @@ Optional [download verification](docs/USER_GUIDE.md#verify-the-download-optional
 
 In the GUI, choose the **PIV** or **PIV-I** toolbar button (or **File → Open Database** for another `.db` profile). Insert the card, click **Refresh Readers**, select its reader, and check **Reader Status**. Enter the PIV application PIN in the GUI and click **Verify PIN and Execute Tests**. After the run completes, use **View Test Results** to open the **Results** tab inside CCT, or **Package Results** to create a ZIP for that run. The **Testing** tab returns to the existing card workflow.
 
-The Results tab appears after a run and updates for each new run. Select a summary card or filter to review **Pass**, **Fail** and **Unsupported** cases, or search by case ID, object or reason. Details show the recorded cause, available expected/observed values and the selected profile's expected outcome. Negative ICAM cases can expect Fail; execution errors also retain the Fail label.
+The Results tab appears after a run and updates for each new run. Select a summary card or filter to review **Pass**, **Fail** and **Unsupported** cases. Details show the recorded cause, available expected/observed values and the selected profile's expected outcome. Profiles can specify an expected Fail for a negative case; execution errors also retain the Fail label.
 
 **Unsupported** means the check is not implemented or needs evidence CCT does not have, such as vendor values or original fingerprint images. It does not by itself mean card data is missing. The tests have no separate Warning or Caution result.
 

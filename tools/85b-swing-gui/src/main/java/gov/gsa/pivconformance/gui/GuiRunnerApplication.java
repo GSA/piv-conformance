@@ -47,7 +47,7 @@ public class GuiRunnerApplication {
 		m_mainFrame = new JFrame();
 		m_mainFrame.setBounds(100, 100, 1024, 768);
 		m_mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool");
+		m_mainFrame.setTitle("FIPS 201 Card Conformance Tool v" + cctVersion);
 		m_mainFrame.setIconImages(java.util.List.of(
 				new ImageIcon(GuiRunnerApplication.class.getResource("/icons/exelogo.png")).getImage(),
 				new ImageIcon(GuiRunnerApplication.class.getResource("/icons/gsa_logo.png")).getImage()));
@@ -246,18 +246,10 @@ public class GuiRunnerApplication {
 					s_logger.debug("----------------------------------------");
 					ConformanceTestDatabase db = new ConformanceTestDatabase(null);
 
-					// The only action permitted is opening a database
-					String dbFilename = "";
-
-					boolean opened = false;
-
 					c.setTestDatabase(db);
 					window.m_mainContent.getTestExecutionPanel().refreshDatabaseInfo();
 
 					window.m_mainFrame.setVisible(true);
-					if(opened) {
-						window.m_mainContent.getTestExecutionPanel().getDatabaseNameField().setText(dbFilename);
-					}
 					GuiTestExecutionController txc = GuiTestExecutionController.getInstance();
 					txc.setTestRunLogController(trlc);
 					txc.setTestExecutionPanel(window.m_mainContent.getTestExecutionPanel());

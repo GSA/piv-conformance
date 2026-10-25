@@ -34,7 +34,7 @@ public class OpenDefaultPIVIDatabaseAction extends AbstractAction {
 			db.openDatabaseInFile(fullPath);
 			GuiRunnerAppController.getInstance().setTestDatabase(db);
 
-			if(db != null) GuiRunnerAppController.getInstance().getApp().getMainContent().getTestExecutionPanel().getDatabaseNameField().setText(fullPath);
+			GuiRunnerAppController.getInstance().getApp().getMainContent().getTestExecutionPanel().refreshDatabaseInfo();
 			
 		} catch(ConfigurationException | IllegalStateException ce) {
 			s_logger.error("Failed to open the default PIV-I conformance test database", ce);

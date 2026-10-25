@@ -145,10 +145,6 @@ record RunResults(String version, Path database, Instant started, Instant finish
             return "Review the recorded assertion and the matching object/debug logs for this run. Correct the specific condition before running CCT again.";
         }
 
-        String searchText() {
-            return (id + " " + description + " " + object + " " + reason()).toLowerCase(Locale.ROOT);
-        }
-
         int attentionOrder() {
             if (executionError() || expectationMismatch()) return 0;
             if (status == TestStatus.SKIP) return 1;

@@ -284,10 +284,9 @@ class NativeResultsTest {
             assertEquals("three", panel.selectedCase().id());
             panel.selectFilter(ResultsPanel.Filter.ALL);
             assertEquals(4, panel.visibleCount());
-            panel.search("NEGATIVE");
-            assertEquals("four", panel.selectedCase().id());
-            panel.search("no match");
-            assertEquals(0, panel.visibleCount());
+            panel.selectFilter(ResultsPanel.Filter.PASSED);
+            assertEquals(2, panel.visibleCount());
+            assertEquals("four", panel.selectedCase().id(), "An unexpected Pass remains sorted before an ordinary Pass");
             RunResults replacement = new RunResults("new", temporary.resolve("other-profile.db"), Instant.EPOCH,
                     Instant.EPOCH, true, List.of(pass));
             panel.setCompletedRun(new CompletedTestRun(temporary, replacement.database(), "two", replacement));
@@ -319,7 +318,7 @@ class NativeResultsTest {
                 Instant.EPOCH, true, List.of(failure));
         CompletedTestRun run = new CompletedTestRun(temporary, snapshot.database(), "navigation", snapshot);
         SwingUtilities.invokeAndWait(() -> {
-            MainWindowContentPane content = new MainWindowContentPane("1.1.0-rc1");
+            MainWindowContentPane content = new MainWindowContentPane(GuiRunnerApplication.getVersion("build.version"));
             JTabbedPane tabs = (JTabbedPane) content.getComponent(0);
             assertEquals(1, tabs.getTabCount(), "Results is hidden until a run has results");
             content.setCompletedRun(run);
@@ -328,7 +327,6 @@ class NativeResultsTest {
             assertEquals("Results", tabs.getTitleAt(tabs.getSelectedIndex()));
             ResultsPanel results = (ResultsPanel) tabs.getSelectedComponent();
             results.selectFilter(ResultsPanel.Filter.FAILED);
-            results.search("failure");
             button(results, "Back to Testing").doClick();
             assertEquals("Testing", tabs.getTitleAt(tabs.getSelectedIndex()));
             content.showResults();

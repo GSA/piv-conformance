@@ -19,14 +19,15 @@ profile. Insert the card, click Refresh Readers, select its reader, and check
 Reader Status. Enter the PIV application PIN in the GUI and click Verify PIN
 and Execute Tests. After completion, use View Test Results to open the Results
 tab inside CCT. It appears after a run and updates for each new run. Use the
-summary cards, filters or search to find a case. Details show its reason,
+summary cards, filters and sorting to find a case. Details show its reason,
 expected outcome and available source references. Official excerpts and CCT
 explanations are labeled separately; source links open online.
 
 Results use the same Pass, Fail and Unsupported labels as the CSV. Unsupported
 means a check is not implemented or needs evidence CCT does not have. It does
-not by itself mean card data is missing. Negative ICAM cases can expect Fail;
-execution errors also retain the Fail label. See USER_GUIDE.md for details.
+not by itself mean card data is missing. The supplied profiles expect Pass;
+an ICAM label does not automatically make a failure expected. Execution errors
+also retain the Fail label. See USER_GUIDE.md for details.
 
 Package Results works from Testing or Results. Its ZIP includes the selected
 database, matching logs and artifacts, x509-certs, and a readable results summary,

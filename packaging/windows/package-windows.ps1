@@ -132,7 +132,7 @@ try {
                 Start-Sleep -Milliseconds 500
                 # jpackage may use a child launcher process; require its actual application window.
                 $Windows = @(Get-Process -Name CCT -ErrorAction SilentlyContinue | Where-Object {
-                    $_.Path -eq $Executable -and $_.MainWindowTitle -eq "FIPS 201 Card Conformance Tool"
+                    $_.Path -eq $Executable -and $_.MainWindowTitle -eq "FIPS 201 Card Conformance Tool v$Version"
                 })
             } while ($Windows.Count -eq 0 -and [DateTime]::UtcNow -lt $Deadline)
             if ($Windows.Count -eq 0) {
