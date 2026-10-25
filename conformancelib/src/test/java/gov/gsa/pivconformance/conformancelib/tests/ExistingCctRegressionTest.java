@@ -3,10 +3,15 @@ package gov.gsa.pivconformance.conformancelib.tests;
 import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.cardlib.card.client.OtherName;
 import gov.gsa.pivconformance.conformancelib.configuration.*;
+import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
+import gov.gsa.pivconformance.conformancelib.utilities.Validator;
 import gov.gsa.pivconformance.cardlib.tlv.*;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.cms.SignedData;
+import org.bouncycastle.asn1.cms.SignerInfo;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.*;
@@ -22,6 +27,7 @@ import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
 import org.bouncycastle.cms.SignerInfoGeneratorBuilder;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -63,9 +69,12 @@ public class ExistingCctRegressionTest {
     private static String cardUrn;
     private static String holderUrn;
     private static KeyPair sanSigningKey;
-    private static X509CertificateHolder certificate;
     private static final Map<String, byte[]> keyProfileCertificates = new HashMap<>();
     private static final Map<String, byte[]> currentChuidObjects = new HashMap<>();
+    // Retained only to build the Security Object with its required CHUID signing key.
+    private static final Map<String, KeyPair> cmsKeys = new HashMap<>();
+    private static final Map<String, X509Certificate> cmsCertificates = new HashMap<>();
+    private static final Map<String, byte[]> cmsConsumerObjects = new HashMap<>();
     private static boolean addedProvider;
 
     @BeforeAll static void fixtures() throws Exception {
@@ -97,19 +106,18 @@ public class ExistingCctRegressionTest {
         sanSigningKey = rsa(2048, RSAKeyGenParameterSpec.F4);
         for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first",
                 "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date",
-                "cms-sha384", "cms-rsa4096-sha384", "cms-p256-sha256", "cms-p256-sha384",
-                "cms-p384-sha384", "cms-p384-sha256", "cms-p521-sha384", "cms-sha1", "date-month-13", "date-nonleap",
-                "date-short", "date-leap", "cms-pss-sha256-zero", "cms-pss-sha256-max", "cms-pss-sha256-excess",
+                "cms-sha384", "cms-rsa1024-sha256", "cms-rsa3072-sha256", "cms-rsa4096-sha384", "cms-rsa4096-sha256", "cms-p256-sha256", "cms-p256-sha384",
+                "cms-p384-sha384", "cms-p384-sha256", "cms-p521-sha384", "cms-brainpool256-sha256", "cms-sha1", "date-month-13", "date-nonleap",
+                "date-short", "date-leap", "date-nondigit", "date-nonascii", "guid-delayed",
+                "cms-combined-rsa-oid", "cms-corrupt-signature",
+                "cms-pss-sha256-zero", "cms-pss-sha256-max", "cms-pss-sha256-excess",
                 "cms-pss-sha384-zero", "cms-pss-sha384-max", "cms-pss-sha384-excess"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
-        try (var in = Files.newInputStream(fixture.resolveSibling("certificate.pem"))) {
-            certificate = new X509CertificateHolder(CertificateFactory.getInstance("X.509")
-                    .generateCertificate(in).getEncoded());
-        }
         keyProfileCertificates.put("rsa2048", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4)));
         keyProfileCertificates.put("rsa3072", currentCertificate(rsa(3072, RSAKeyGenParameterSpec.F4)));
         // A fixed, self-signed weak-key certificate is the intentional negative
-        // input; the regression suite never generates or uses a weak private key.
+        // input for the key-profile cases. The separate CMS size negative uses
+        // an ephemeral 1024-bit test key, never written to disk or packaged.
         byte[] weakDer = Files.readAllBytes(root.resolve("conformancelib/testdata/weak-rsa1024-test-only.der"));
         X509Certificate weakCertificate = (X509Certificate) CertificateFactory.getInstance("X.509")
                 .generateCertificate(new java.io.ByteArrayInputStream(weakDer));
@@ -123,9 +131,28 @@ public class ExistingCctRegressionTest {
         keyProfileCertificates.put("rsaSha384Signature", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4), "SHA384withRSA"));
         keyProfileCertificates.put("rsaSha1Signature", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4), "SHA1withRSA"));
         keyProfileCertificates.put("rsaPssSha384Signature", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4), "SHA384withRSAandMGF1"));
+        keyProfileCertificates.put("ecdsaNullParameters", currentCertificate(ec("secp384r1"), "SHA384withECDSA", true));
+        KeyPair rsaSubject = rsa(2048, RSAKeyGenParameterSpec.F4);
+        keyProfileCertificates.put("rsaEncryptionSubjectKey", subjectKeyCertificate(rsaSubject,
+                new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE)));
+        keyProfileCertificates.put("rsaPssSubjectKey", subjectKeyCertificate(rsaSubject,
+                new AlgorithmIdentifier(PKCSObjectIdentifiers.id_RSASSA_PSS)));
+        KeyPair ecSubject = ec("secp256r1");
+        keyProfileCertificates.put("ecExplicitParameters", subjectKeyCertificate(ecSubject,
+                new AlgorithmIdentifier(new ASN1ObjectIdentifier("1.2.840.10045.2.1"),
+                        org.bouncycastle.asn1.x9.ECNamedCurveTable.getByName("secp256r1"))));
+        keyProfileCertificates.put("ecDhIdentifier", subjectKeyCertificate(ecSubject,
+                new AlgorithmIdentifier(new ASN1ObjectIdentifier("1.3.132.1.12"),
+                        new ASN1ObjectIdentifier("1.2.840.10045.3.1.7"))));
+        currentChuidObjects.put("cms-rsa-absent-parameters",
+                chuidWithRsaCmsParameters(currentChuidObjects.get("plain"), null));
     }
 
-    @AfterAll static void restoreProvider() { if (addedProvider) Security.removeProvider("BC"); }
+    @AfterAll static void restoreProvider() {
+        cmsKeys.clear();
+        cmsCertificates.clear();
+        if (addedProvider) Security.removeProvider("BC");
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {"PIV_Production_Cards.db", "PIV-I_Production_Cards.db"})
@@ -136,8 +163,9 @@ public class ExistingCctRegressionTest {
                 false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
         run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get("date-nonleap"),
                 false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
-        run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get("date-short"),
-                false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
+        for (String kind : List.of("date-short", "date-nondigit", "date-nonascii"))
+            run(database, 38, "sp800_73_4_Test_15", currentChuidObjects.get(kind),
+                    false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
     }
 
     static Stream<Arguments> uuidCases() {
@@ -169,8 +197,8 @@ public class ExistingCctRegressionTest {
                 || (row == 451 && Set.of("holder-before-card", "holder-after-card").contains(kind));
         String failure = row == 369 && Set.of("holder-before-card", "holder-after-card").contains(kind)
                 ? "PKIX.27 current:" : "PKIX.27:";
-        run(row, "PKIX_Test_27_current", encodedCertificate(names, certificate.getSignatureAlgorithm()),
-                pass, failure);
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"))
+            run(database, row, "PKIX_Test_27_current", signedCertificateWithSan(names), pass, failure);
     }
 
     static Stream<Arguments> currentSanHolderCases() {
@@ -200,7 +228,11 @@ public class ExistingCctRegressionTest {
         if (kind.equals("unrelated"))
             names.add(new GeneralName(GeneralName.uniformResourceIdentifier, "https://example.invalid/"));
         byte[] signed = signedCertificateWithSan(names.toArray(new GeneralName[0]));
-        run(369, "PKIX_Test_27_current", signed, pass, "PKIX.27 current:");
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db")) {
+            run(database, 369, "PKIX_Test_27_current", signed, pass, "PKIX.27 current:");
+            if (pass) run(database, 369, "PKIX_Test_27_current", signed,
+                    TestExecutionResult.Status.SUCCESSFUL, "", null, currentChuidObjects.get("holder-absent"));
+        }
         if (kind.equals("v1") || kind.equals("mismatch"))
             run("PIV-I_Production_Cards.db", 369, "PKIX_Test_27", signed, true, "");
     }
@@ -239,7 +271,7 @@ public class ExistingCctRegressionTest {
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(4242),
                 new java.util.Date(1704067200000L), new java.util.Date(1893456000000L),
                 name, sanSigningKey.getPublic());
-        builder.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
+        if (names != null) builder.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
         X509Certificate signed = new JcaX509CertificateConverter().getCertificate(
                 builder.build(new JcaContentSignerBuilder("SHA256withRSA").build(sanSigningKey.getPrivate())));
         signed.verify(sanSigningKey.getPublic());
@@ -273,6 +305,7 @@ public class ExistingCctRegressionTest {
                 Arguments.of(row, "rsaSha384Signature", true),
                 Arguments.of(row, "rsaPssSha384Signature", true),
                 Arguments.of(row, "p384", true),
+                Arguments.of(row, "p256", true),
                 Arguments.of(row, "rsaSha1Signature", false)));
     }
 
@@ -281,6 +314,257 @@ public class ExistingCctRegressionTest {
     void currentSignatureAlgorithmThroughExistingAtom(int row, String kind, boolean pass) throws Exception {
         run(row, "sp800_78_Test_3_current", keyProfileCertificates.get(kind),
                 pass, "SP800-78.3 current:");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void ecdsaCertificateParametersMustBeAbsent(String database) throws Exception {
+        boolean current = !database.startsWith("PIV-I_");
+        String method = current ? "sp800_78_Test_3_current" : "sp800_78_Test_3";
+        for (int row : new int[]{350, 383, 406, 429}) {
+            run(database, row, method, keyProfileCertificates.get("p384"), true, "");
+            run(database, row, method, keyProfileCertificates.get("ecdsaNullParameters"), false,
+                    current ? "SP800-78.3 current: ECDSA parameters must be absent"
+                            : "Non-conformant signature algorithm OID");
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void optionalReadErrorsMustNotBeReportedAsAbsence(String database) throws Exception {
+        boolean current = !database.startsWith("PIV-I_");
+        if (current) {
+            for (int row : new int[]{384, 385, 407, 408}) {
+                run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("rsa2048"), true, "");
+                run(database, row, "sp800_78_Test_1_current", null, true, "");
+                run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("rsa2048"),
+                        TestExecutionResult.Status.FAILED, "Failed to retrieve data object",
+                        MiddlewareStatus.PIV_CONNECTION_FAILURE);
+            }
+            for (int row : new int[]{383, 406}) {
+                run(database, row, "sp800_78_Test_3_current", keyProfileCertificates.get("rsa2048"), true, "");
+                run(database, row, "sp800_78_Test_3_current", null, true, "");
+                run(database, row, "sp800_78_Test_3_current", keyProfileCertificates.get("rsa2048"),
+                        TestExecutionResult.Status.FAILED, "Failed to retrieve data object",
+                        MiddlewareStatus.PIV_CONNECTION_FAILURE);
+            }
+        }
+        run(database, 94, "sp800_73_4_Test_19", keyProfileCertificates.get("rsa2048"), true, "");
+        run(database, 94, "sp800_73_4_Test_19", null, true, "");
+        run(database, 94, "sp800_73_4_Test_19", keyProfileCertificates.get("rsa2048"),
+                TestExecutionResult.Status.FAILED, "Failed to retrieve data object",
+                MiddlewareStatus.PIV_CONNECTION_FAILURE);
+        if (current) {
+            for (int row : new int[]{95, 96, 97, 107, 108, 109}) {
+                String method = row == 95 || row == 107 ? "sp800_73_5_Test_20"
+                        : row == 97 || row == 108 ? "sp800_73_5_Test_21" : "sp800_73_5_Test_22";
+                run(database, row, method, keyProfileCertificates.get("rsa2048"), true, "");
+                run(database, row, method, null, true, "");
+                run(database, row, method, keyProfileCertificates.get("rsa2048"),
+                        TestExecutionResult.Status.FAILED, "Failed to retrieve data object",
+                        MiddlewareStatus.PIV_CONNECTION_FAILURE);
+            }
+        }
+        // Iris is optional; the PIV-I ICAM row-338 mapping is disabled.
+        if (!database.equals("PIV-I_ICAM_Test_Cards.db")) {
+            String cmsMethod = current ? "CMS_Test_23_current" : "CMS_Test_23";
+            run(database, 338, cmsMethod, null, true, "");
+            run(database, 338, cmsMethod, facialImage,
+                    TestExecutionResult.Status.FAILED, "Failed to retrieve data object",
+                    MiddlewareStatus.PIV_CONNECTION_FAILURE);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void cmsRsa4096AcceptanceIsLimitedToCurrentPivProfiles(String database) throws Exception {
+        String method = database.startsWith("PIV-I_") ? "CMS_Test_23" : "CMS_Test_23_current";
+        run(database, 269, method, currentChuidObjects.get("plain"), true, "");
+        run(database, 269, method, currentChuidObjects.get("cms-rsa4096-sha256"),
+                !database.startsWith("PIV-I_"), "4096 is an invalid key length");
+    }
+
+    static Stream<Arguments> cmsConsumerRoutes() {
+        // PIV-I ICAM 286/338 are disabled: explicit compatibility guards, not scheduled coverage.
+        return Stream.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+                "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db").flatMap(database ->
+                IntStream.of(269, 286, 306, 324, 338).mapToObj(row -> Arguments.of(database, row)));
+    }
+
+    @ParameterizedTest(name="CMS impact: {0}, row {1}")
+    @MethodSource("cmsConsumerRoutes")
+    void sharedCmsConsumersPreserveCurveAndEditionRules(String database, int row) throws Exception {
+        // 78-5 Table 2 / 78-4 Table 3-2, through each original object's decoder.
+        boolean current = !database.startsWith("PIV-I_");
+        String method = current ? "CMS_Test_23_current" : "CMS_Test_23";
+        for (String kind : List.of("plain", "cms-rsa1024-sha256", "cms-rsa3072-sha256", "cms-rsa4096-sha256", "cms-p256-sha256", "cms-p384-sha384",
+                "cms-brainpool256-sha256", "cms-p256-sha384", "cms-p384-sha256")) {
+            byte[] raw = cmsConsumerObject(row, kind);
+            boolean pass = !kind.equals("cms-rsa1024-sha256") && !kind.equals("cms-brainpool256-sha256")
+                    && !kind.equals("cms-p256-sha384") && !kind.equals("cms-p384-sha256")
+                    && (current || !kind.equals("cms-rsa4096-sha256"));
+            String reason = kind.equals("cms-brainpool256-sha256")
+                    ? "EC signer must use named curve P-256 or P-384"
+                    : kind.equals("cms-rsa1024-sha256") ? "1024 is an invalid key length"
+                    : kind.equals("cms-rsa4096-sha256") ? "4096 is an invalid key length"
+                    : "EC signer curve and digest are incompatible";
+            run(database, row, method, raw, pass ? TestExecutionResult.Status.SUCCESSFUL
+                    : TestExecutionResult.Status.FAILED, reason, null,
+                    row == 324 ? currentChuidObjects.get(kind) : null);
+        }
+        run(database, row, method, cmsConsumerObject(row, "plain"),
+                TestExecutionResult.Status.FAILED, "Failed to retrieve data object",
+                MiddlewareStatus.PIV_CONNECTION_FAILURE);
+        if (row == 338) run(database, row, method, null, true, "");
+    }
+
+    @Test
+    void cmsImpactFixturesAreValid() throws Exception {
+        // CMS/relationship scope only: synthetic records do not qualify biometric images or PKI profiles.
+        for (int row : new int[]{286, 306, 324, 338}) {
+            for (String kind : List.of("plain", "cms-rsa1024-sha256", "cms-rsa3072-sha256", "cms-rsa4096-sha256", "cms-p256-sha256", "cms-p384-sha384",
+                    "cms-brainpool256-sha256", "cms-p256-sha384", "cms-p384-sha256")) {
+                byte[] raw = cmsConsumerObject(row, kind);
+                CMSSignedData cms;
+                X509CertificateHolder expectedSigner;
+                if (row == 324) {
+                    cms = new CMSSignedData(fixtureValue(raw, 0xbb));
+                    expectedSigner = assertFixtureCmsValid(fixtureChuidCms(currentChuidObjects.get(kind)));
+                    assertTrue(cms.getCertificates().getMatches(null).isEmpty());
+                    assertArrayEquals(new byte[]{1, (byte) 0xdb, 0, 2, 0x30, 1}, fixtureValue(raw, 0xba));
+                    var lds = org.bouncycastle.asn1.icao.LDSSecurityObject.getInstance(cms.getSignedContent().getContent());
+                    String digestOid = cms.getSignerInfos().getSigners().iterator().next().getDigestAlgOID();
+                    assertEquals(digestOid, lds.getDigestAlgorithmIdentifier().getAlgorithm().getId(),
+                            "SP 800-78-5 section 3.2.3: Security Object hashes must match its signature digest: " + kind);
+                    var hash = java.security.MessageDigest.getInstance(digestOid);
+                    var groups = lds.getDatagroupHash();
+                    assertEquals(2, groups.length);
+                    assertEquals(1, groups[0].getDataGroupNumber());
+                    assertEquals(2, groups[1].getDataGroupNumber());
+                    assertArrayEquals(hash.digest(ccc),
+                            groups[0].getDataGroupHashValue().getOctets());
+                    assertArrayEquals(hash.digest(printedFixture()),
+                            groups[1].getDataGroupHashValue().getOctets());
+                    assertEquals("2.23.136.1.1.1", cms.getSignedContentTypeOID());
+                } else {
+                    byte[] biometric = fixtureValue(raw, 0xbc);
+                    int bdbLength = ByteBuffer.wrap(biometric).getInt(2);
+                    int sbLength = Short.toUnsignedInt(ByteBuffer.wrap(biometric).getShort(6));
+                    assertTrue(bdbLength > 0);
+                    assertEquals(88 + bdbLength + sbLength, biometric.length);
+                    cms = new CMSSignedData(new CMSProcessableByteArray(Arrays.copyOf(biometric, 88 + bdbLength)),
+                            Arrays.copyOfRange(biometric, 88 + bdbLength, biometric.length));
+                    expectedSigner = assertFixtureCmsValid(cms);
+                    assertTrue(cms.isDetachedSignature());
+                    assertEquals("2.16.840.1.101.3.6.2", cms.getSignedContentTypeOID());
+                    assertArrayEquals(fixtureValue(chuid, 0x30), Arrays.copyOfRange(biometric, 59, 84));
+                    var attrs = cms.getSignerInfos().getSigners().iterator().next().getSignedAttributes();
+                    assertEquals(expectedSigner.getSubject(), X500Name.getInstance(attrs
+                            .get(new ASN1ObjectIdentifier("2.16.840.1.101.3.6.5")).getAttrValues().getObjectAt(0)));
+                    assertArrayEquals(fixtureValue(chuid, 0x30), ASN1OctetString.getInstance(attrs
+                            .get(new ASN1ObjectIdentifier("2.16.840.1.101.3.6.6")).getAttrValues().getObjectAt(0)).getOctets());
+                    assertArrayEquals(fixtureValue(chuid, 0x34), ASN1OctetString.getInstance(attrs
+                            .get(new ASN1ObjectIdentifier("1.3.6.1.1.16.4")).getAttrValues().getObjectAt(0)).getOctets());
+                    assertFalse(expectedSigner.getSubjectPublicKeyInfo().equals(
+                            assertFixtureCmsValid(fixtureChuidCms(chuid)).getSubjectPublicKeyInfo()),
+                            "A separately embedded biometric signer must differ from the fallback CHUID signer");
+                }
+                if (row == 324) assertFixtureCmsValid(cms, expectedSigner);
+            }
+        }
+    }
+
+    @ParameterizedTest(name="CMS certificate/signer counts: {0}, row {1}")
+    @MethodSource("cmsConsumerRoutes")
+    void cmsCertificateAndSignerCountsUseOriginalCases(String database, int row) throws Exception {
+        byte[] control = cmsConsumerObject(row, "plain");
+        byte[] relatedChuid = row == 324 ? currentChuidObjects.get("plain") : null;
+        String algorithmMethod = database.startsWith("PIV-I_") ? "CMS_Test_23" : "CMS_Test_23_current";
+        CMSSignedData good = fixtureCms(row, control);
+        X509CertificateHolder external = row == 324
+                ? assertFixtureCmsValid(fixtureChuidCms(relatedChuid)) : null;
+        assertFixtureCmsValid(good, external);
+        assertEquals(row == 324 ? 0 : 1, good.getCertificates().getMatches(null).size());
+        run(database, row, algorithmMethod, control, TestExecutionResult.Status.SUCCESSFUL, "", null, relatedChuid);
+
+        byte[] extraCertificate = cmsConsumerObject(row, "plain", "extra-certificate");
+        CMSSignedData changed = fixtureCms(row, extraCertificate);
+        assertEquals(1, changed.getSignerInfos().size());
+        assertEquals(row == 324 ? 1 : 2, changed.getCertificates().getMatches(null).size());
+        // The extra certificate does not change or invalidate the actual signature.
+        if (row == 324) assertFixtureCmsValid(changed);
+        else assertFixtureCmsValid(changed, null);
+        if (row == 324) {
+            run(database, 323, "CMS_Test_21", control, TestExecutionResult.Status.SUCCESSFUL, "", null, relatedChuid);
+            run(database, 323, "CMS_Test_21", extraCertificate, TestExecutionResult.Status.FAILED,
+                    "Certificate(s) are present and shouldn't", null, relatedChuid);
+        } else {
+            var result = run(database, row, algorithmMethod, extraCertificate,
+                    TestExecutionResult.Status.FAILED, "", null, null);
+            Throwable cause = result.getThrowable().orElseThrow().getCause();
+            assertTrue(cause instanceof ConformanceTestException, "Expected certificate-bag rejection: " + cause);
+            assertTrue(cause.getMessage().startsWith("More than one cert found in "));
+        }
+        SignedPIVDataObject counted = new SignedPIVDataObject();
+        assertEquals(0, counted.getCertCount());
+        counted.setAsymmetricSignature(changed);
+        assertEquals(row == 324 ? 1 : 2, counted.getCertCount());
+
+        byte[] twoSigners = cmsConsumerObject(row, "plain", "two-signers");
+        CMSSignedData doubled = fixtureCms(row, twoSigners);
+        assertEquals(2, doubled.getSignerInfos().size());
+        assertEquals(good.getCertificates().getMatches(null).size(), doubled.getCertificates().getMatches(null).size());
+        X509CertificateHolder signerCertificate = external == null ? assertFixtureCmsValid(good) : external;
+        for (var signer : doubled.getSignerInfos().getSigners())
+            assertTrue(signer.verify(new JcaSimpleSignerInfoVerifierBuilder().build(signerCertificate)));
+        if (row == 324) {
+            run(database, 326, "CMS_Test_14", control, TestExecutionResult.Status.SUCCESSFUL, "", null, relatedChuid);
+            run(database, 326, "CMS_Test_14", twoSigners, TestExecutionResult.Status.FAILED,
+                    "Object signature does not verify", null, relatedChuid);
+        } else {
+            int countRow = row == 269 ? 266 : row == 286 ? 282 : row == 306 ? 302 : 334;
+            run(database, countRow, "CMS_Test_7", control, true, "");
+            run(database, countRow, "CMS_Test_7", twoSigners, false, "Number of signers is not 1 (one)");
+        }
+    }
+
+    @ParameterizedTest(name="CMS signer relationship: {0}, row {1}")
+    @MethodSource("cmsConsumerRoutes")
+    void cmsSignerRelationshipsUseOriginalCases(String database, int row) throws Exception {
+        int signatureRow = row == 269 ? 274 : row == 286 ? 291 : row == 306 ? 311 : row == 324 ? 326 : 343;
+        byte[] control = cmsConsumerObject(row, "plain");
+        byte[] relatedChuid = row == 324 ? currentChuidObjects.get("plain") : null;
+        X509CertificateHolder expected = assertFixtureCmsValid(fixtureCms(row, control), row == 324
+                ? assertFixtureCmsValid(fixtureChuidCms(relatedChuid)) : null);
+        run(database, signatureRow, "CMS_Test_14", control,
+                TestExecutionResult.Status.SUCCESSFUL, "", null, relatedChuid);
+        byte[] wrongIdentifier = cmsConsumerObject(row, "plain", "wrong-identifier");
+        CMSSignedData changed = fixtureCms(row, wrongIdentifier);
+        var signer = changed.getSignerInfos().getSigners().iterator().next();
+        assertFalse(signer.getSID().match(expected));
+        // SID is outside the signed attributes. Verify the signed bytes and payload
+        // independently so this negative isolates certificate identification.
+        var verification = java.security.Signature.getInstance("SHA256withRSA", "SunRsaSign");
+        verification.initVerify(new JcaX509CertificateConverter().setProvider("SUN").getCertificate(expected));
+        verification.update(signer.getEncodedSignedAttributes());
+        assertTrue(verification.verify(signer.getSignature()));
+        assertArrayEquals(java.security.MessageDigest.getInstance("SHA-256").digest(
+                        (byte[]) changed.getSignedContent().getContent()), ASN1OctetString.getInstance(
+                        signer.getSignedAttributes().get(org.bouncycastle.asn1.cms.CMSAttributes.messageDigest)
+                                .getAttrValues().getObjectAt(0)).getOctets());
+        run(database, signatureRow, "CMS_Test_14", wrongIdentifier,
+                TestExecutionResult.Status.FAILED, "Object signature does not verify", null, relatedChuid);
+        if (row != 269 && row != 324) {
+            byte[] fallback = cmsConsumerObject(row, "plain", "omit-certificate");
+            assertFixtureCmsValid(fixtureCms(row, fallback), expected);
+            run(database, signatureRow, "CMS_Test_14", fallback,
+                    TestExecutionResult.Status.SUCCESSFUL, "", null, currentChuidObjects.get("plain"));
+            run(database, signatureRow, "CMS_Test_14", fallback,
+                    TestExecutionResult.Status.FAILED, "Object signature does not verify", null, chuid);
+        }
     }
 
     @ParameterizedTest(name="PSS valid parameters in {0}")
@@ -343,10 +627,59 @@ public class ExistingCctRegressionTest {
     }
 
     @ParameterizedTest(name="production CHUID CMS signature: {0}")
-    @ValueSource(strings={"plain", "cms-sha384", "cms-rsa4096-sha384", "cms-sha1"})
+    @ValueSource(strings={"plain", "cms-sha384", "cms-rsa1024-sha256", "cms-rsa3072-sha256", "cms-rsa4096-sha384", "cms-sha1"})
     void currentChuidSignatureAlgorithmThroughExistingAtom(String kind) throws Exception {
         run(468, "sp800_78_Test_3_current", currentChuidObjects.get(kind),
-                !kind.equals("cms-sha1"), "SP800-78.3 current:");
+                !kind.equals("cms-sha1") && !kind.equals("cms-rsa1024-sha256"), "SP800-78.3 current:");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void currentChuidSignatureRejectionsUseTheIntendedAssertion(String database) throws Exception {
+        run(database, 468, "sp800_78_Test_3_current", currentChuidObjects.get("plain"), true, "");
+        run(database, 468, "sp800_78_Test_3_current", currentChuidObjects.get("cms-rsa3072-sha256"), true, "");
+        run(database, 468, "sp800_78_Test_3_current", currentChuidObjects.get("cms-rsa1024-sha256"), false,
+                "SP800-78.3 current: RSA CMS signer key must be 2048, 3072 or 4096 bits through 2030");
+        run(database, 468, "sp800_78_Test_3_current", currentChuidObjects.get("cms-combined-rsa-oid"), false,
+                "SP800-78.3 current: unsupported CMS signature algorithm 1.2.840.113549.1.1.11");
+        run(database, 468, "sp800_78_Test_3_current", currentChuidObjects.get("cms-corrupt-signature"), false,
+                "SP800-78.3 current: CMS signature does not verify");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void remainingCmsDeclarationsReachTheirOwnAssertions(String database) throws Exception {
+        String method = "sp800_78_Test_3_current";
+        run(database, 468, method, currentChuidObjects.get("plain"), true, "");
+        run(database, 468, method, cmsConsumerObject(269, "plain", "two-signers"), false,
+                "SP800-78.3 current: exactly one CMS signer is required");
+        byte[] unsigned = APDUUtils.getTLV(APDUConstants.DATA, fixtureFields(currentChuidObjects.get("plain"))
+                .stream().filter(f -> !f.isTag(new BerTag(0x3e)))
+                .map(f -> APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
+                .reduce(new byte[0], ExistingCctRegressionTest::concat));
+        run(database, 468, method, unsigned, false, "SP800-78.3 current: CMS signature is missing");
+        for (String mutation : List.of("pss-digest-mismatch", "ecdsa-digest-mismatch", "ecdsa-null", "rsa-with-ec-key")) {
+            String kind = mutation.startsWith("pss") ? "cms-pss-sha256-max" : "cms-p256-sha256";
+            run(database, 468, method, currentChuidObjects.get(kind), true, "");
+            byte[] changed = cmsConsumerObject(269, kind, mutation);
+            if (mutation.equals("ecdsa-null")) assertFixtureCmsValid(fixtureChuidCms(changed));
+            String reason = switch (mutation) {
+                case "pss-digest-mismatch" -> "CMS PSS digest and parameters differ";
+                case "ecdsa-digest-mismatch" -> "CMS ECDSA signature and digest differ";
+                case "ecdsa-null" -> "ECDSA CMS signature parameters must be absent";
+                case "rsa-with-ec-key" -> "RSA CMS signature requires an RSA signer key";
+                default -> throw new AssertionError(mutation);
+            };
+            run(database, 468, method, changed, false, "SP800-78.3 current: " + reason);
+        }
+        // The two inconsistent digest sets deliberately retain the original
+        // signature/attributes: these are declaration violations, not full CMS controls.
+        for (String mutation : List.of("extra-sha1-digest", "missing-selected-digest"))
+            run(database, 269, "CMS_Test_23_current", cmsConsumerObject(269, "plain", mutation), false,
+                    mutation.equals("extra-sha1-digest") ? "Unsupported digest algorithm" : "2.16.840.1.101.3.4.2.1 is not a supported digest algorithm");
+        for (int row : new int[]{350, 383, 406, 429})
+            run(database, row, method, pssCertificate("SHA-1", "SHA-1", 20), false,
+                    "SP800-78.3 current: RSA-PSS digest must be SHA-256 or SHA-384");
     }
 
     @ParameterizedTest(name="production CMS digest/key row {0}: {1}")
@@ -354,7 +687,8 @@ public class ExistingCctRegressionTest {
             "269,cms-p384-sha384,true", "269,cms-p256-sha384,false", "269,cms-p384-sha256,false",
             "269,cms-p521-sha384,false", "269,cms-sha1,false"})
     void currentCmsDigestAndSignerKeyThroughExistingAtom(int row, String kind, boolean pass) throws Exception {
-        run(row, "CMS_Test_23", currentChuidObjects.get(kind), pass,
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"))
+        run(database, row, "CMS_Test_23_current", currentChuidObjects.get(kind), pass,
                 kind.equals("cms-sha1") ? "Unsupported digest algorithm" : kind.equals("cms-p521-sha384")
                         ? "521 is an invalid key length" : kind.equals("cms-p256-sha384") || kind.equals("cms-p384-sha256")
                         ? "EC signer curve and digest are incompatible" : "");
@@ -363,8 +697,9 @@ public class ExistingCctRegressionTest {
     @ParameterizedTest(name="shared CMS row in {0}")
     @ValueSource(strings={"PIV_ICAM_Test_Cards.db", "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
     void cmsCurveDigestPairingPreservesOtherProfiles(String database) throws Exception {
-        run(database, 269, "CMS_Test_23", currentChuidObjects.get("cms-p256-sha256"), true, "");
-        run(database, 269, "CMS_Test_23", currentChuidObjects.get("cms-p256-sha384"), false,
+        String method = database.startsWith("PIV-I_") ? "CMS_Test_23" : "CMS_Test_23_current";
+        run(database, 269, method, currentChuidObjects.get("cms-p256-sha256"), true, "");
+        run(database, 269, method, currentChuidObjects.get("cms-p256-sha384"), false,
                 "EC signer curve and digest are incompatible");
     }
 
@@ -378,20 +713,422 @@ public class ExistingCctRegressionTest {
     @MethodSource("currentKeyProfileCases")
     void currentKeyProfileThroughExistingAtom(int row, String kind) throws Exception {
         boolean pass = Set.of("rsa2048", "rsa3072", "p256", "p384").contains(kind);
-        run(row, "sp800_78_Test_1_current", keyProfileCertificates.get(kind),
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"))
+        run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get(kind),
                 pass, "SP800-78.1:");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void rsaSubjectPublicKeyIdentifierUsesTable4(String database) throws Exception {
+        // SP 800-78-5 section 3.2.2/Table 4: subject-key and signature OIDs are distinct.
+        assertAll(IntStream.of(351, 352, 384, 385, 407, 408, 430, 431).mapToObj(row -> () -> {
+            run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("rsaEncryptionSubjectKey"), true, "");
+            run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("rsaPssSubjectKey"), false,
+                    "SP800-78.1: subject public key algorithm identifier must be rsaEncryption or id-ecPublicKey");
+        }));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void remainingKeyAndPssBoundariesUseExistingCases(String database) throws Exception {
+        KeyPairGenerator dsa = KeyPairGenerator.getInstance("DSA");
+        dsa.initialize(2048);
+        KeyPair subject = dsa.generateKeyPair();
+        byte[] dsaCertificate = subjectKeyCertificate(subject,
+                SubjectPublicKeyInfo.getInstance(subject.getPublic().getEncoded()).getAlgorithm());
+        byte[] largeRsa = APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, cmsCertificates.get("cms-rsa4096-sha256").getEncoded()),
+                new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+        for (int row : new int[]{351, 352, 384, 385, 407, 408, 430, 431}) {
+            run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("rsa2048"), true, "");
+            run(database, row, "sp800_78_Test_1_current", dsaCertificate, false,
+                    "SP800-78.1: subject public key algorithm identifier must be rsaEncryption or id-ecPublicKey");
+            run(database, row, "sp800_78_Test_1_current", largeRsa, false,
+                    "SP800-78.1: RSA modulus must be 2048 or 3072 bits through 2030");
+        }
+        for (int row : new int[]{350, 383, 406, 429}) {
+            run(database, row, "sp800_78_Test_3_current", pssCertificate("SHA-256", "SHA-256", 32), true, "");
+            for (ASN1Encodable parameters : new ASN1Encodable[]{null, DERNull.INSTANCE})
+                run(database, row, "sp800_78_Test_3_current",
+                        encodedCertificate(null, new AlgorithmIdentifier(PKCSObjectIdentifiers.id_RSASSA_PSS, parameters)), false,
+                        parameters == null || !Boolean.getBoolean("cct.regressionBC")
+                                ? "SP800-78.3 current: RSA-PSS parameters are required"
+                                : "SP800-78.3 current: malformed RSA-PSS parameters");
+            run(database, row, "sp800_78_Test_3_current", pssCertificate("SHA-256", "MD5", 32), false,
+                    Boolean.getBoolean("cct.regressionBC")
+                            ? "SP800-78.3 current: RSA-PSS MGF1 digest is not supported by RFC 4055"
+                            : "SP800-78.3 current: certificate could not be decoded");
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void encodedEcKeysReachTheIntendedChecks(String database) throws Exception {
+        boolean bc = Boolean.getBoolean("cct.regressionBC");
+        for (int row : new int[]{351, 352, 384, 385, 407, 408, 430, 431}) {
+            run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("p256"), true, "");
+            run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("ecExplicitParameters"), false,
+                    bc ? "SP800-78.1: EC key must use named curve P-256 or P-384"
+                            : "SP800-78.1: certificate could not be decoded");
+            run(database, row, "sp800_78_Test_1_current", keyProfileCertificates.get("ecDhIdentifier"), false,
+                    bc ? "SP800-78.1: subject public key algorithm identifier must be rsaEncryption or id-ecPublicKey"
+                            : "SP800-78.1: certificate could not be decoded");
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({"PIV_Production_Cards.db,269", "PIV_ICAM_Test_Cards.db,269",
+            "PIV_Production_Cards.db,468", "PIV_ICAM_Test_Cards.db,468",
+            "PIV-I_Production_Cards.db,269", "PIV-I_ICAM_Test_Cards.db,269"})
+    void cmsSignerRequiresAnApprovedNamedCurve(String database, int row) throws Exception {
+        // 78-5 Table 2 and 78-4 Table 3-2 name the curves; field size is insufficient.
+        String method = row == 468 ? "sp800_78_Test_3_current"
+                : database.startsWith("PIV-I_") ? "CMS_Test_23" : "CMS_Test_23_current";
+        run(database, row, method, currentChuidObjects.get("cms-p256-sha256"), true, "");
+        run(database, row, method, currentChuidObjects.get("cms-p384-sha384"), true, "");
+        String reason = row == 269 ? "EC signer must use named curve P-256 or P-384"
+                : "SP800-78.3 current: ECDSA CMS signer must use named curve P-256 or P-384";
+        run(database, row, method, currentChuidObjects.get("cms-brainpool256-sha256"), false, reason);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void rsaCmsParametersMustBeNull(String database) throws Exception {
+        // RFC 3370 section 3.2 / RFC 8017: rsaEncryption requires NULL.
+        // RFC 4055's combined RSA-SHA2 certificate exception is a different identifier.
+        run(database, 468, "sp800_78_Test_3_current", currentChuidObjects.get("plain"), true, "");
+        run(database, 468, "sp800_78_Test_3_current", currentChuidObjects.get("cms-rsa-absent-parameters"), false,
+                "SP800-78.3 current: RSA CMS signature parameters must be NULL");
+    }
+
+    @Test
+    void cryptoAuditFixturesAreValid() throws Exception {
+        // Independent ASN.1 and signature checks: no CCT atom or conformance helper.
+        var provider = new BouncyCastleProvider();
+        var positive = fixtureCertificate(keyProfileCertificates.get("rsaEncryptionSubjectKey"));
+        var negative = fixtureCertificate(keyProfileCertificates.get("rsaPssSubjectKey"));
+        assertEquals(PKCSObjectIdentifiers.rsaEncryption, positive.getSubjectPublicKeyInfo().getAlgorithm().getAlgorithm());
+        assertEquals(DERNull.INSTANCE, positive.getSubjectPublicKeyInfo().getAlgorithm().getParameters());
+        assertEquals(PKCSObjectIdentifiers.id_RSASSA_PSS, negative.getSubjectPublicKeyInfo().getAlgorithm().getAlgorithm());
+        assertNull(negative.getSubjectPublicKeyInfo().getAlgorithm().getParameters());
+        var publicKey = org.bouncycastle.asn1.pkcs.RSAPublicKey.getInstance(
+                positive.getSubjectPublicKeyInfo().parsePublicKey());
+        assertEquals(2048, publicKey.getModulus().bitLength());
+        assertEquals(RSAKeyGenParameterSpec.F4, publicKey.getPublicExponent());
+        assertEquals(positive.getSubjectPublicKeyInfo().getPublicKeyData(), negative.getSubjectPublicKeyInfo().getPublicKeyData());
+        ASN1Sequence a = ASN1Sequence.getInstance(positive.toASN1Structure().getTBSCertificate());
+        ASN1Sequence b = ASN1Sequence.getInstance(negative.toASN1Structure().getTBSCertificate());
+        assertEquals(a.size(), b.size());
+        int changed = 0;
+        for (int i = 0; i < a.size(); i++) {
+            if (!a.getObjectAt(i).equals(b.getObjectAt(i))) {
+                assertEquals(positive.getSubjectPublicKeyInfo().toASN1Primitive(), a.getObjectAt(i).toASN1Primitive());
+                assertEquals(negative.getSubjectPublicKeyInfo().toASN1Primitive(), b.getObjectAt(i).toASN1Primitive());
+                changed++;
+            }
+        }
+        assertEquals(1, changed, "Only the SPKI algorithm changes in TBSCertificate");
+        var issuerVerifier = new JcaContentVerifierProviderBuilder().setProvider(provider).build(sanSigningKey.getPublic());
+        assertTrue(positive.isSignatureValid(issuerVerifier));
+        assertTrue(negative.isSignatureValid(issuerVerifier));
+
+        for (var curve : Map.of("cms-p256-sha256", "1.2.840.10045.3.1.7",
+                "cms-p384-sha384", "1.3.132.0.34",
+                "cms-brainpool256-sha256", "1.3.36.3.3.2.8.1.1.7").entrySet()) {
+            var cms = fixtureChuidCms(currentChuidObjects.get(curve.getKey()));
+            var cert = assertFixtureCmsValid(cms);
+            var spki = cert.getSubjectPublicKeyInfo();
+            assertEquals("1.2.840.10045.2.1", spki.getAlgorithm().getAlgorithm().getId());
+            assertEquals(curve.getValue(), ASN1ObjectIdentifier.getInstance(spki.getAlgorithm().getParameters()).getId());
+            var key = new JcaX509CertificateConverter().setProvider(provider).getCertificate(cert).getPublicKey();
+            assertEquals(curve.getKey().contains("p384") ? 384 : 256,
+                    ((ECPublicKey) key).getParams().getCurve().getField().getFieldSize());
+        }
+
+        var cmsPositive = fixtureChuidCms(currentChuidObjects.get("plain"));
+        var cmsNegative = fixtureChuidCms(currentChuidObjects.get("cms-rsa-absent-parameters"));
+        assertFixtureCmsValid(cmsPositive);
+        assertFixtureCmsValid(cmsNegative);
+        var goodSigner = cmsPositive.getSignerInfos().getSigners().iterator().next();
+        var badSigner = cmsNegative.getSignerInfos().getSigners().iterator().next();
+        assertEquals(PKCSObjectIdentifiers.rsaEncryption.getId(), goodSigner.getEncryptionAlgOID());
+        assertEquals(goodSigner.getEncryptionAlgOID(), badSigner.getEncryptionAlgOID());
+        assertArrayEquals(new byte[]{5, 0}, goodSigner.getEncryptionAlgParams());
+        assertNull(badSigner.getEncryptionAlgParams());
+        assertArrayEquals(goodSigner.getSignature(), badSigner.getSignature());
+        assertArrayEquals((byte[]) cmsPositive.getSignedContent().getContent(),
+                (byte[]) cmsNegative.getSignedContent().getContent());
+        SignedData goodData = SignedData.getInstance(cmsPositive.toASN1Structure().getContent());
+        SignedData badData = SignedData.getInstance(cmsNegative.toASN1Structure().getContent());
+        assertEquals(goodData.getCertificates(), badData.getCertificates());
+        assertEquals(goodData.getDigestAlgorithms(), badData.getDigestAlgorithms());
+        assertEquals(goodSigner.getSID(), badSigner.getSID());
+        assertEquals(goodSigner.getDigestAlgorithmID(), badSigner.getDigestAlgorithmID());
+        assertArrayEquals(goodSigner.getEncodedSignedAttributes(), badSigner.getEncodedSignedAttributes());
+    }
+
+    private static List<BerTlv> fixtureFields(byte[] raw) {
+        byte[] body = new BerTlvParser().parse(raw).find(new BerTag(APDUConstants.DATA)).getBytesValue();
+        return new BerTlvParser().parse(body).getList();
+    }
+
+    private static byte[] fixtureValue(byte[] raw, int tag) {
+        return fixtureFields(raw).stream().filter(field -> field.isTag(new BerTag(tag)))
+                .findFirst().orElseThrow().getBytesValue();
+    }
+
+    private static byte[] printedFixture() throws Exception {
+        return Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/printed.bin"));
+    }
+
+    private static byte[] cmsConsumerObject(int row, String kind) throws Exception {
+        return cmsConsumerObject(row, kind, null);
+    }
+
+    private static byte[] cmsConsumerObject(int row, String kind, String mutation) throws Exception {
+        if (row == 269) return mutation == null ? currentChuidObjects.get(kind)
+                : chuidWithCms(currentChuidObjects.get(kind), mutateFixtureCms(
+                        fixtureChuidCms(currentChuidObjects.get(kind)).getEncoded(), mutation));
+        String identity = row + ":" + kind + ":" + mutation;
+        if (cmsConsumerObjects.containsKey(identity)) return cmsConsumerObjects.get(identity);
+        byte[] raw;
+        if (row == 324) {
+            // 73-5 section 3.1.7: same signer as CHUID, whose certificate supplies verification.
+            var digestAlgorithm = fixtureChuidCms(currentChuidObjects.get(kind)).getSignerInfos()
+                    .getSigners().iterator().next().getDigestAlgorithmID();
+            var hash = java.security.MessageDigest.getInstance(digestAlgorithm.getAlgorithm().getId());
+            var lds = new org.bouncycastle.asn1.icao.LDSSecurityObject(
+                    digestAlgorithm,
+                    new org.bouncycastle.asn1.icao.DataGroupHash[]{
+                            new org.bouncycastle.asn1.icao.DataGroupHash(1, new DEROctetString(hash.digest(ccc))),
+                            new org.bouncycastle.asn1.icao.DataGroupHash(2, new DEROctetString(hash.digest(printedFixture())))});
+            byte[] cms = cmsGenerator(kind, false, false).generate(new CMSProcessableByteArray(
+                    new ASN1ObjectIdentifier("2.23.136.1.1.1"), lds.getEncoded()), true).getEncoded();
+            cms = mutateFixtureCms(cms, mutation);
+            raw = APDUUtils.getTLV(APDUConstants.DATA, concat(
+                    APDUUtils.getTLV(new byte[]{(byte) 0xba}, new byte[]{1, (byte) 0xdb, 0, 2, 0x30, 1}),
+                    concat(APDUUtils.getTLV(new byte[]{(byte) 0xbb}, cms), new byte[]{(byte) 0xfe, 0})));
+        } else {
+            // Reuse existing header records; iris bytes are opaque test data, not an iris image.
+            byte[] record;
+            if (row == 338) record = "CCT synthetic iris CMS payload".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+            else {
+                byte[] template = row == 306 ? facialImage : APDUUtils.getTLV(APDUConstants.DATA,
+                        Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                                "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/fingerprint-header.bin")));
+                byte[] biometric = fixtureValue(template, 0xbc);
+                record = Arrays.copyOfRange(biometric, 88, 88 + ByteBuffer.wrap(biometric).getInt(2));
+            }
+            byte[] header = new byte[88];
+            header[0] = 3; header[1] = 0x0d;
+            ByteBuffer.wrap(header).putInt(2, record.length)
+                    .putShort(8, (short) (row == 338 ? 0x0101 : 0x001b))
+                    .putShort(10, (short) (row == 286 ? 0x0201 : row == 306 ? 0x0501 : 0x0009));
+            byte[] date = {20, 24, 1, 1, 0, 0, 0, 'Z'};
+            for (int offset : new int[]{12, 20, 28}) System.arraycopy(date, 0, header, offset, date.length);
+            header[29] = 29;
+            header[38] = (byte) (row == 286 ? 8 : row == 306 ? 2 : 16);
+            header[39] = (byte) (row == 286 ? 0x80 : row == 306 ? 0x20 : 0x40);
+            header[40] = row == 286 ? 0 : (byte) -2;
+            byte[] creator = "CCT regression".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+            System.arraycopy(creator, 0, header, 41, creator.length);
+            System.arraycopy(fixtureValue(chuid, 0x30), 0, header, 59, 25);
+            var generator = cmsGenerator(kind, true, true);
+            byte[] cms = null;
+            // 76-2 Table 14 note 3 explicitly permits iteration when signature lengths vary.
+            for (int attempt = 0; attempt < 128; attempt++) {
+                byte[] signed = concat(header, record);
+                byte[] encoded = generator.generate(new CMSProcessableByteArray(
+                        new ASN1ObjectIdentifier("2.16.840.1.101.3.6.2"), signed), false).getEncoded();
+                encoded = mutateFixtureCms(encoded, mutation);
+                assertTrue(encoded.length < Short.MAX_VALUE);
+                if (Short.toUnsignedInt(ByteBuffer.wrap(header).getShort(6)) == encoded.length) {
+                    cms = encoded;
+                    break;
+                }
+                ByteBuffer.wrap(header).putShort(6, (short) encoded.length);
+            }
+            assertNotNull(cms, "Signed CBEFF header must record its actual signature length");
+            raw = APDUUtils.getTLV(APDUConstants.DATA, concat(APDUUtils.getTLV(new byte[]{(byte) 0xbc},
+                    concat(concat(header, record), cms)), new byte[]{(byte) 0xfe, 0}));
+        }
+        cmsConsumerObjects.put(identity, raw);
+        return raw;
+    }
+
+    private static CMSSignedData fixtureCms(int row, byte[] raw) throws Exception {
+        if (row == 269) return fixtureChuidCms(raw);
+        if (row == 324) return new CMSSignedData(fixtureValue(raw, 0xbb));
+        byte[] biometric = fixtureValue(raw, 0xbc);
+        int signatureOffset = 88 + ByteBuffer.wrap(biometric).getInt(2);
+        assertEquals(biometric.length - signatureOffset, Short.toUnsignedInt(ByteBuffer.wrap(biometric).getShort(6)));
+        return new CMSSignedData(new CMSProcessableByteArray(Arrays.copyOf(biometric, signatureOffset)),
+                Arrays.copyOfRange(biometric, signatureOffset, biometric.length));
+    }
+
+    private static byte[] mutateFixtureCms(byte[] encoded, String mutation) throws Exception {
+        if (mutation == null) return encoded;
+        ContentInfo content = ContentInfo.getInstance(encoded);
+        SignedData data = SignedData.getInstance(content.getContent());
+        ASN1Set certificates = data.getCertificates();
+        ASN1Set signers = data.getSignerInfos();
+        ASN1Set digests = data.getDigestAlgorithms();
+        if (mutation.equals("extra-certificate")) {
+            ASN1EncodableVector bag = new ASN1EncodableVector();
+            if (certificates != null) for (ASN1Encodable certificate : certificates) bag.add(certificate);
+            // SO's one deliberately forbidden certificate is its matching CHUID signer.
+            X509CertificateHolder extra = certificates == null
+                    ? new X509CertificateHolder(cmsCertificates.get("plain").getEncoded())
+                    : fixtureCertificate(keyProfileCertificates.get("rsa2048"));
+            bag.add(extra.toASN1Structure());
+            certificates = new DERSet(bag);
+        } else if (mutation.equals("omit-certificate")) certificates = null;
+        else if (mutation.equals("two-signers")) signers = new DERSet(new ASN1Encodable[]{signers.getObjectAt(0), signers.getObjectAt(0)});
+        else if (mutation.equals("wrong-identifier")) {
+            SignerInfo signer = SignerInfo.getInstance(signers.getObjectAt(0));
+            var sid = org.bouncycastle.asn1.cms.IssuerAndSerialNumber.getInstance(signer.getSID().getId());
+            signers = new DERSet(new SignerInfo(new org.bouncycastle.asn1.cms.SignerIdentifier(
+                    new org.bouncycastle.asn1.cms.IssuerAndSerialNumber(sid.getName(), sid.getSerialNumber().getValue().add(BigInteger.ONE))),
+                    signer.getDigestAlgorithm(), signer.getAuthenticatedAttributes(), signer.getDigestEncryptionAlgorithm(),
+                    signer.getEncryptedDigest(), signer.getUnauthenticatedAttributes()));
+        } else if (Set.of("pss-digest-mismatch", "ecdsa-digest-mismatch", "ecdsa-null", "rsa-with-ec-key").contains(mutation)) {
+            SignerInfo original = SignerInfo.getInstance(signers.getObjectAt(0));
+            AlgorithmIdentifier algorithm = switch (mutation) {
+                case "pss-digest-mismatch" -> new AlgorithmIdentifier(PKCSObjectIdentifiers.id_RSASSA_PSS,
+                        new org.bouncycastle.asn1.pkcs.RSASSAPSSparams(
+                                new AlgorithmIdentifier(new ASN1ObjectIdentifier("2.16.840.1.101.3.4.2.2")),
+                                new AlgorithmIdentifier(PKCSObjectIdentifiers.id_mgf1,
+                                        new AlgorithmIdentifier(new ASN1ObjectIdentifier("2.16.840.1.101.3.4.2.1"))),
+                                new ASN1Integer(32), new ASN1Integer(1)));
+                case "ecdsa-digest-mismatch" -> new AlgorithmIdentifier(new ASN1ObjectIdentifier("1.2.840.10045.4.3.3"));
+                case "ecdsa-null" -> new AlgorithmIdentifier(new ASN1ObjectIdentifier("1.2.840.10045.4.3.2"), DERNull.INSTANCE);
+                case "rsa-with-ec-key" -> new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
+                default -> throw new AssertionError(mutation);
+            };
+            signers = new DERSet(new SignerInfo(original.getSID(), original.getDigestAlgorithm(),
+                    original.getAuthenticatedAttributes(), algorithm, original.getEncryptedDigest(), original.getUnauthenticatedAttributes()));
+        } else if (mutation.equals("extra-sha1-digest")) {
+            digests = new DERSet(new ASN1Encodable[]{digests.getObjectAt(0),
+                    new AlgorithmIdentifier(new ASN1ObjectIdentifier("1.3.14.3.2.26"))});
+        } else if (mutation.equals("missing-selected-digest")) digests = new DERSet();
+        else throw new IllegalArgumentException(mutation);
+        return new ContentInfo(content.getContentType(), new SignedData(digests,
+                data.getEncapContentInfo(), certificates, data.getCRLs(), signers)).getEncoded();
+    }
+
+    private static X509CertificateHolder fixtureCertificate(byte[] raw) throws Exception {
+        return new X509CertificateHolder(fixtureFields(raw).stream()
+                .filter(field -> field.isTag(new BerTag(new byte[]{0x70})))
+                .findFirst().orElseThrow().getBytesValue());
+    }
+
+    private static CMSSignedData fixtureChuidCms(byte[] raw) throws Exception {
+        var content = new java.io.ByteArrayOutputStream();
+        byte[] signature = null;
+        for (BerTlv field : fixtureFields(raw)) {
+            if (field.isTag(new BerTag(new byte[]{0x3e}))) signature = field.getBytesValue();
+            else if (!field.isTag(new BerTag(new byte[]{(byte) 0xee})))
+                content.writeBytes(APDUUtils.getTLV(field.getTag().bytes, field.getBytesValue()));
+        }
+        assertNotNull(signature);
+        return new CMSSignedData(new CMSProcessableByteArray(content.toByteArray()), signature);
+    }
+
+    private static X509CertificateHolder assertFixtureCmsValid(CMSSignedData cms) throws Exception {
+        return assertFixtureCmsValid(cms, null);
+    }
+
+    private static X509CertificateHolder assertFixtureCmsValid(CMSSignedData cms,
+            X509CertificateHolder externalSigner) throws Exception {
+        assertEquals(1, cms.getSignerInfos().size());
+        var signer = cms.getSignerInfos().getSigners().iterator().next();
+        @SuppressWarnings("unchecked")
+        Collection<X509CertificateHolder> matches = cms.getCertificates().getMatches(signer.getSID());
+        assertEquals(externalSigner == null ? 1 : 0, matches.size(),
+                "The signer certificate must come from the expected embedded or CHUID source");
+        X509CertificateHolder cert = externalSigner == null ? matches.iterator().next() : externalSigner;
+        assertTrue(signer.getSID().match(cert), "SignerIdentifier must match its certificate");
+        var provider = new BouncyCastleProvider();
+        assertTrue(cert.isSignatureValid(new JcaContentVerifierProviderBuilder().setProvider(provider)
+                .build(cert.getSubjectPublicKeyInfo())), "Fixture signer certificate must verify");
+        assertTrue(signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(provider).build(cert)),
+                "CMS signed attributes, message digest and signature must verify independently of CCT");
+        return cert;
+    }
+
+    private static byte[] chuidWithRsaCmsParameters(byte[] raw, ASN1Encodable parameters) throws Exception {
+        ContentInfo content = ContentInfo.getInstance(fixtureChuidCms(raw).getEncoded());
+        SignedData data = SignedData.getInstance(content.getContent());
+        SignerInfo signer = SignerInfo.getInstance(data.getSignerInfos().getObjectAt(0));
+        SignerInfo changed = new SignerInfo(signer.getSID(), signer.getDigestAlgorithm(),
+                signer.getAuthenticatedAttributes(), new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, parameters),
+                signer.getEncryptedDigest(), signer.getUnauthenticatedAttributes());
+        return chuidWithCms(raw, new ContentInfo(content.getContentType(), new SignedData(data.getDigestAlgorithms(),
+                data.getEncapContentInfo(), data.getCertificates(), data.getCRLs(), new DERSet(changed))).getEncoded());
+    }
+
+    private static byte[] chuidWithCms(byte[] raw, byte[] cms) {
+        var fields = fixtureFields(raw);
+        var encoded = new java.io.ByteArrayOutputStream();
+        for (BerTlv field : fields) {
+            byte[] value = field.getBytesValue();
+            if (field.isTag(new BerTag(new byte[]{0x3e}))) {
+                value = cms;
+            }
+            encoded.writeBytes(APDUUtils.getTLV(field.getTag().bytes, value));
+        }
+        return APDUUtils.getTLV(APDUConstants.DATA, encoded.toByteArray());
+    }
+
+    @Test
+    void dataModelAuditFixturesAreValid() throws Exception {
+        for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first", "guid-delayed",
+                "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date",
+                "date-month-13", "date-nonleap", "date-short", "date-nondigit", "date-nonascii", "date-leap")) {
+            byte[] raw = currentChuidObjects.get(kind);
+            assertFixtureCmsValid(fixtureChuidCms(raw));
+            if (kind.startsWith("holder-") && !kind.equals("holder-absent")) {
+                byte[] holder = fixtureValue(raw, 0x36);
+                assertEquals(kind.equals("holder-short") ? 15 : 16, holder.length);
+                assertEquals(kind.equals("holder-v1") ? 1 : kind.equals("holder-v5") ? 5 : 4, (holder[6] & 0xf0) >>> 4);
+                assertEquals(kind.equals("holder-variant") ? 0 : 2, (holder[8] & 0xc0) >>> 6);
+            }
+        }
+        // EE is outside the signed content. Its addition must not alter either
+        // signed bytes or the deterministic RSA signature of the plain object.
+        var plain = fixtureChuidCms(currentChuidObjects.get("plain"));
+        var ee = fixtureChuidCms(currentChuidObjects.get("EE"));
+        assertArrayEquals((byte[]) plain.getSignedContent().getContent(), (byte[]) ee.getSignedContent().getContent());
+        assertArrayEquals(plain.getSignerInfos().getSigners().iterator().next().getSignature(),
+                ee.getSignerInfos().getSigners().iterator().next().getSignature());
+        byte[] changed = currentChuidObjects.get("plain").clone();
+        byte[] date = fixtureValue(changed, 0x35);
+        int index = -1;
+        for (int i = 0; i <= changed.length - date.length; i++)
+            if (Arrays.equals(date, Arrays.copyOfRange(changed, i, i + date.length))) { index = i; break; }
+        assertTrue(index >= 0);
+        changed[index + 7] ^= 1;
+        var corrupted = fixtureChuidCms(changed);
+        var signer = corrupted.getSignerInfos().getSigners().iterator().next();
+        var certificate = corrupted.getCertificates().getMatches(signer.getSID()).iterator().next();
+        assertThrows(org.bouncycastle.cms.CMSSignerDigestMismatchException.class,
+                () -> signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(new BouncyCastleProvider())
+                        .build((X509CertificateHolder) certificate)));
     }
 
     @ParameterizedTest(name="current CCC: {0}")
     @ValueSource(strings={"plain", "E3", "B4"})
     void currentCccThroughExistingAtom(String kind) throws Exception {
-        run(11, "sp800_73_5_Test_4", cccWithOptional(kind), kind.equals("plain"),
-                "SP800-73-5 CCC:");
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"))
+            run(database, 11, "sp800_73_5_Test_4", cccWithOptional(kind), kind.equals("plain"),
+                    "SP800-73-5 CCC: eliminated tag " + kind + " is present");
     }
 
     @Test void historicalCccStillPermitsDeprecatedOptionalFields() throws Exception {
-        run("PIV-I_Production_Cards.db", 11, "sp800_73_4_Test_4",
-                cccWithOptional("both"), true, "");
+        for (String database : List.of("PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"))
+            run(database, 11, "sp800_73_4_Test_4", cccWithOptional("both"), true, "");
     }
 
     @ParameterizedTest
@@ -413,9 +1150,12 @@ public class ExistingCctRegressionTest {
                 Arguments.of(26, "sp800_73_5_Test_45", "plain", true, ""),
                 Arguments.of(26, "sp800_73_5_Test_45", "32", false, "SP800-73-5 CHUID:"),
                 Arguments.of(26, "sp800_73_5_Test_45", "33", false, "SP800-73-5 CHUID:"),
+                Arguments.of(26, "sp800_73_5_Test_45", "guid-delayed", false,
+                        "SP800-73-5 CHUID: tag 34 must immediately follow tag 30"),
                 Arguments.of(35, "sp800_73_5_Test_9", "plain", true, ""),
                 Arguments.of(35, "sp800_73_5_Test_9", "EE", false, "SP800-73-5 CHUID:"),
                 Arguments.of(36, "sp800_73_5_Test_17", "plain", true, ""),
+                Arguments.of(36, "sp800_73_5_Test_17", "holder-absent", true, ""),
                 Arguments.of(36, "sp800_73_5_Test_17", "EE", false, "SP800-73-5 CHUID:"),
                 Arguments.of(36, "sp800_73_5_Test_17", "32", false, "SP800-73-5 CHUID:"),
                 Arguments.of(36, "sp800_73_5_Test_17", "33", false, "SP800-73-5 CHUID:"),
@@ -425,7 +1165,8 @@ public class ExistingCctRegressionTest {
     @ParameterizedTest(name="production CHUID row {0}: {2}") @MethodSource("currentChuidCases")
     void currentChuidThroughExistingAtom(int row, String method, String kind, boolean pass,
                                          String failurePrefix) throws Exception {
-        run(row, method, currentChuidObjects.get(kind), pass, failurePrefix);
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"))
+            run(database, row, method, currentChuidObjects.get(kind), pass, failurePrefix);
     }
 
     @Test void historicalChuidStillPermitsDeprecatedFields() throws Exception {
@@ -447,7 +1188,8 @@ public class ExistingCctRegressionTest {
 
     @ParameterizedTest(name="production holder UUID row {0}: {1}") @MethodSource("currentHolderUuidCases")
     void currentHolderUuidThroughExistingAtom(int row, String kind, boolean pass) throws Exception {
-        run(row, "sp800_73_5_Test_13", currentChuidObjects.get(kind), pass, "SP800-73-5 CHUID:");
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"))
+            run(database, row, "sp800_73_5_Test_13", currentChuidObjects.get(kind), pass, "SP800-73-5 CHUID:");
     }
 
     @Test void historicalHolderUuidStillPermitsOlderVersions() throws Exception {
@@ -495,15 +1237,128 @@ public class ExistingCctRegressionTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
+    void activeCertificatePresenceAndOrderingUseOriginalCases(String database) throws Exception {
+        byte[] valid = certificateContainerWithField(null);
+        byte[] cert = APDUUtils.getTLV(new byte[]{0x70}, fixtureValue(valid, 0x70));
+        byte[] info = new byte[]{0x71, 1, 0}, end = new byte[]{(byte) 0xfe, 0};
+        for (int row : new int[]{50, 94, 106, 118}) {
+            run(database, row, "sp800_73_4_Test_19", valid, true, "");
+            // Missing certificate is rejected deliberately by the existing decoder.
+            var missing = run(database, row, "sp800_73_4_Test_19",
+                    APDUUtils.getTLV(APDUConstants.DATA, concat(info, end)),
+                    TestExecutionResult.Status.FAILED, "", null, null);
+            assertTrue(missing.getThrowable().orElseThrow().getCause() instanceof ConformanceTestException);
+            assertTrue(missing.getThrowable().orElseThrow().getCause().getMessage().startsWith("Failed to decode object for OID "));
+            run(database, row, "sp800_73_4_Test_19",
+                    APDUUtils.getTLV(APDUConstants.DATA, concat(cert, end)), false, "Certificate container: tag 71 is required");
+            run(database, row, "sp800_73_4_Test_19",
+                    APDUUtils.getTLV(APDUConstants.DATA, concat(info, concat(cert, end))), false, "Certificate container: tag 71 must immediately follow tag 70");
+        }
+        for (int row : new int[]{52, 97, 108, 120}) {
+            run(database, row, "sp800_73_5_Test_21", valid, true, "");
+            run(database, row, "sp800_73_5_Test_21",
+                    APDUUtils.getTLV(APDUConstants.DATA, concat(cert, concat(end, info))), false,
+                    "SP800-73-5 X509: tag 0xFE must immediately follow tag 0x71");
+            run(database, row, "sp800_73_5_Test_21",
+                    APDUUtils.getTLV(APDUConstants.DATA, concat(cert, info)), false,
+                    "SP800-73-5 X509: tag 0xFE must immediately follow tag 0x71");
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void sharedMembershipUsesEachExistingContainer(String database) throws Exception {
+        // Includes disabled ICAM routes as explicit diagnostics.
+        for (int row : new int[]{14, 21, 49, 61, 69, 83, 93, 105, 117, 129, 145}) {
+            byte[] valid = switch (row) {
+                case 14 -> cccWithOptional("plain");
+                case 21 -> currentChuidObjects.get("plain");
+                case 49, 93, 105, 117 -> keyProfileCertificates.get("rsa2048");
+                case 61 -> cmsConsumerObject(286, "plain");
+                case 83 -> cmsConsumerObject(306, "plain");
+                case 129 -> cmsConsumerObject(324, "plain");
+                case 69 -> APDUUtils.getTLV(APDUConstants.DATA,
+                        fixtureFields(APDUUtils.getTLV(APDUConstants.DATA, printedFixture())).stream()
+                                .map(f -> f.isTag(new BerTag(4))
+                                        ? APDUUtils.getTLV(new byte[]{4}, "2030DEC31".getBytes(java.nio.charset.StandardCharsets.US_ASCII))
+                                        : APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
+                                .reduce(new byte[0], ExistingCctRegressionTest::concat));
+                case 145 -> Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                        "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin"));
+                default -> throw new AssertionError(row);
+            };
+            run(database, row, "sp800_73_4_Test_56", valid, true, "");
+            BerTlv outer = new BerTlvParser().parse(valid).getList().get(0);
+            byte[] unknown = APDUUtils.getTLV(outer.getTag().bytes,
+                    concat(new byte[]{(byte) 0xf8, 0}, outer.getBytesValue()));
+            run(database, row, "sp800_73_4_Test_56", unknown, false, "Unlisted or out-of-order tag");
+        }
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = {"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"})
     void keyHistoryConditionalFieldsUseOriginalCase(String database) throws Exception {
         String method = "sp800_73_4_Test_57";
-        run(database, 150, method, keyHistory(0, 0, null, true), true, "");
+        KeyHistoryObject reused = new KeyHistoryObject();
+        reused.setOID(APDUConstants.KEY_HISTORY_OBJECT_OID);
+        reused.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.KEY_HISTORY_OBJECT_OID));
+        reused.setBytes(keyHistory(0, 1, "http://example.com/" + "0".repeat(64), true));
+        assertTrue(reused.decode());
+        assertNotNull(reused.getOffCardCertUrl());
+        reused.setBytes(keyHistory(0, 0, null, true));
+        assertTrue(reused.decode());
+        assertNull(reused.getOffCardCertUrl());
+        assertEquals(0, reused.getKeysWithOffCardCerts());
+        assertEquals(3, reused.getTagList().size());
+        reused.setBytes(APDUUtils.getTLV(APDUConstants.DATA, new byte[]{(byte) 0xc2, 1, 0, (byte) 0xfe, 0}));
+        assertFalse(reused.decode());
+        assertEquals(-1, reused.getKeysWithOnCardCerts(), "Prior successful decoding cannot supply a missing C1");
+        byte[] control = keyHistory(0, 0, null, true);
+        // Literal BER lengths/values establish these fixtures without the CCT decoder.
+        assertArrayEquals(java.util.HexFormat.of().parseHex("5308c10100c20100fe00"), control);
+        run(database, 150, method, control, true, "");
+        for (String missingField : List.of("5305c20100fe00", "5305c10100fe00")) {
+            var result = run(database, 150, method, java.util.HexFormat.of().parseHex(missingField),
+                    TestExecutionResult.Status.FAILED, "", null, null);
+            // Missing mandatory counts deliberately return false from decode().
+            // An unrelated exception or a later field assertion is not this evidence.
+            Throwable cause = result.getThrowable().orElseThrow().getCause();
+            assertTrue(cause instanceof ConformanceTestException, "Expected deliberate decode rejection: " + cause);
+            assertEquals("Failed to decode object for OID " + APDUConstants.KEY_HISTORY_OBJECT_OID,
+                    cause.getMessage());
+        }
+        // Table 20 fixes both counter widths at one byte and FE at zero bytes.
+        for (String badWidth : List.of("5307c100c20100fe00", "5309c1020000c20100fe00",
+                "5307c10100c200fe00", "5309c10100c2020000fe00", "5309c10100c20100fe0100"))
+            run(database, 150, method, java.util.HexFormat.of().parseHex(badWidth), false,
+                    "SP800-73 Key History: field length exceeds Table 20");
+        for (String badOrder : List.of("5308c20100c10100fe00", "530bc10100c10100c20100fe00"))
+            run(database, 150, method, java.util.HexFormat.of().parseHex(badOrder), false,
+                    "SP800-73 Key History: expected C1, C2, conditional F3, FE in order");
         String url = "http://example.com/" + "0".repeat(64);
         run(database, 150, method, keyHistory(0, 1, url, true), true, "");
         run(database, 150, method, keyHistory(0, 1, "http://example.com./" + "0".repeat(64), true), true, "");
+        run(database, 150, method, keyHistory(0, 1, "http://123.example.com/" + "0".repeat(64), true), true, "");
+        for (String literal : List.of("127.0.0.1", "192.0.2.1"))
+            run(database, 150, method, keyHistory(0, 1, "http://" + literal + "/" + "0".repeat(64), true),
+                    false, "SP800-73 Key History: offCardCertURL host must be a DNS name");
         run(database, 150, method, keyHistory(1, 0, null, true), true, "");
         run(database, 150, method, keyHistory(1, 0, url, true), true, "");
+        for (int onCard : new int[]{0, 10, 20})
+            run(database, 150, method, keyHistory(onCard, 20 - onCard, onCard == 20 ? null : url, true),
+                    true, "");
+        String longestUrl = "http://" + "a".repeat(42) + ".com/" + "0".repeat(64);
+        assertEquals(118, longestUrl.getBytes(java.nio.charset.StandardCharsets.US_ASCII).length);
+        assertEquals("a".repeat(42) + ".com", java.net.URI.create(longestUrl).getHost());
+        run(database, 150, method, keyHistory(0, 1, longestUrl, true), true, "");
+        run(database, 150, method, keyHistory(0, 1, longestUrl.replace(".com", "a.com"), true), false,
+                "SP800-73 Key History: field length exceeds Table 20");
+        run(database, 150, method, keyHistory(0, 1, "http://example.com/" + "aB".repeat(32), true), true, "");
+        for (String hash : List.of("0".repeat(63), "0".repeat(65), "0".repeat(63) + "G"))
+            run(database, 150, method, keyHistory(0, 1, "http://example.com/" + hash, true), false,
+                    "SP800-73 Key History: offCardCertURL must be an HTTP");
         run(database, 150, method, keyHistory(0, 1, null, true), false,
                 "SP800-73 Key History: offCardCertURL is required");
         run(database, 150, method, keyHistory(0, 0, url, true), false,
@@ -522,6 +1377,10 @@ public class ExistingCctRegressionTest {
                 false, "SP800-73 Key History: offCardCertURL must be an HTTP");
         run(database, 150, method, keyHistory(0, 0, null, false), false,
                 "SP800-73 Key History: expected C1, C2, conditional F3, FE");
+        byte[] unknownField = APDUUtils.getTLV(APDUConstants.DATA,
+                java.util.HexFormat.of().parseHex("f800c10100c20100fe00"));
+        run(database, 150, method, unknownField, false,
+                "SP800-73 Key History: expected C1, C2, conditional F3, FE in order");
         byte[] longC1 = APDUUtils.getTLV(APDUConstants.DATA, concat(
                 APDUUtils.getTLV(new byte[]{(byte) 0xc1}, new byte[]{0, 0}),
                 concat(APDUUtils.getTLV(new byte[]{(byte) 0xc2}, new byte[]{0}),
@@ -544,6 +1403,141 @@ public class ExistingCctRegressionTest {
         return APDUUtils.getTLV(APDUConstants.DATA, body);
     }
 
+    @ParameterizedTest(name="certificate policy field: {0}, row {1}")
+    @MethodSource("policyRoutes")
+    void certificatePolicyFieldsDoNotDependOnPathBuilding(String database, int row) throws Exception {
+        // Reproduce the installed tool's trust-file layout for the old atom too.
+        // The synthetic issuing root is deliberately outside that operator trust set.
+        Path installedStore = Path.of("x509-certs/cacerts.jks");
+        Files.createDirectories(installedStore.getParent());
+        if (!Files.exists(installedStore)) Files.copy(Path.of(System.getProperty("cct.repository"),
+                "conformancelib/src/main/resources/x509-certs/cacerts.jks"), installedStore);
+        List<String> policies;
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + Path.of(
+                System.getProperty("cct.repository"), "conformancelib/testdata", database) + "?mode=ro")) {
+            TestCaseModel testCase = new TestCaseModel(new ConformanceTestDatabase(connection));
+            testCase.retrieveForId(row);
+            var step = testCase.getSteps().stream().filter(s -> s.getTestMethodName().equals("PKIX_Test_6")).findFirst().orElseThrow();
+            String entry = step.getParameters().stream().filter(p -> p.startsWith(testCase.getContainer() + ":")).findFirst().orElseThrow();
+            policies = Arrays.asList(entry.substring(entry.indexOf(':') + 1).split("\\|"));
+        }
+        KeyPair issuerKey = sanSigningKey;
+        X500Name issuer = new X500Name("CN=CCT policy fixture CA");
+        KeyPair subjectKey = cmsKeys.get("plain");
+        X500Name subject = new X500Name("CN=CCT policy fixture leaf");
+        X509CertificateHolder root = policyCertificate(issuerKey, issuer, issuerKey, issuer, true, List.of(), null);
+        for (String policy : policies) {
+            X509CertificateHolder cert = policyCertificate(subjectKey, subject, issuerKey, issuer, false, List.of(policy), null);
+            assertTrue(cert.isSignatureValid(new JcaContentVerifierProviderBuilder().build(root.getSubjectPublicKeyInfo())));
+            assertEquals(policy, CertificatePolicies.fromExtensions(cert.getExtensions()).getPolicyInformation()[0].getPolicyIdentifier().getId());
+            run(database, row, "PKIX_Test_6", policyObject(row, cert, subjectKey), true, "");
+        }
+        for (List<String> invalid : List.of(List.<String>of(), List.of("1.2.3.4"), List.of("2.5.29.32.0"))) {
+            X509CertificateHolder cert = policyCertificate(subjectKey, subject, issuerKey, issuer, false, invalid, null);
+            assertTrue(cert.isSignatureValid(new JcaContentVerifierProviderBuilder().build(root.getSubjectPublicKeyInfo())));
+            run(database, row, "PKIX_Test_6", policyObject(row, cert, subjectKey), false,
+                    "Certificate does not assert a required policy OID");
+        }
+    }
+
+    static Stream<Arguments> policyRoutes() {
+        return Stream.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+                "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db").flatMap(database ->
+                IntStream.of(359, 394, 417, 437, 479).mapToObj(row -> Arguments.of(database, row)));
+    }
+
+    @Test
+    void validatorRequiresRequestedPathPoliciesAndPreservesMappings() throws Exception {
+        String issuerPolicy = "1.2.3.4", subjectPolicy = "1.2.3.5";
+        KeyPair rootKey = rsa(2048, RSAKeyGenParameterSpec.F4), leafKey = sanSigningKey;
+        assertFalse(Arrays.equals(rootKey.getPublic().getEncoded(), leafKey.getPublic().getEncoded()));
+        X500Name rootName = new X500Name("CN=CCT path root"), leafName = new X500Name("CN=CCT path leaf");
+        var root = policyCertificate(rootKey, rootName, rootKey, rootName, true, List.of(), null);
+        var good = policyCertificate(leafKey, leafName, rootKey, rootName, false, List.of(issuerPolicy), null);
+        var wrong = policyCertificate(leafKey, leafName, rootKey, rootName, false, List.of(subjectPolicy), null);
+        var absent = policyCertificate(leafKey, leafName, rootKey, rootName, false, List.of(), null);
+        var converter = new JcaX509CertificateConverter();
+        for (var cert : List.of(root, good, wrong, absent))
+            assertTrue(cert.isSignatureValid(new JcaContentVerifierProviderBuilder().build(root.getSubjectPublicKeyInfo())));
+        Validator validator = new Validator();
+        String provider = Boolean.getBoolean("cct.regressionBC") ? "BC" : "SunRsaSign";
+        validator.setProvider(provider); validator.setCertPathBuilder(provider);
+        validator.setDownloadAia(false); validator.setCaFileName(null);
+        assertTrue(validator.isValid(converter.getCertificate(good), issuerPolicy, converter.getCertificate(root)));
+        assertNotNull(validator.getCertPath());
+        assertFalse(validator.isValid(converter.getCertificate(wrong), issuerPolicy, converter.getCertificate(root)),
+                "A valid signature is insufficient when the requested path policy is absent");
+        assertNull(validator.getCertPath(), "A failed validation must not retain an earlier path");
+        assertFalse(validator.isValid(converter.getCertificate(absent), issuerPolicy, converter.getCertificate(root)));
+        assertTrue(validator.isValid(converter.getCertificate(good), issuerPolicy + "|" + subjectPolicy, converter.getCertificate(root)));
+        assertTrue(validator.isValid(converter.getCertificate(absent), null, converter.getCertificate(root)),
+                "No requested policy remains an unconstrained path-validation API call");
+        var unrelatedRoot = policyCertificate(leafKey, rootName, leafKey, rootName, true, List.of(), null);
+        assertTrue(unrelatedRoot.isSignatureValid(new JcaContentVerifierProviderBuilder().build(unrelatedRoot.getSubjectPublicKeyInfo())));
+        assertFalse(validator.isValid(converter.getCertificate(good), issuerPolicy, converter.getCertificate(unrelatedRoot)),
+                "An unrelated trusted key cannot validate the leaf signature");
+
+        KeyPair intermediateKey = rsa(2048, RSAKeyGenParameterSpec.F4);
+        assertFalse(Arrays.equals(rootKey.getPublic().getEncoded(), intermediateKey.getPublic().getEncoded()));
+        X500Name intermediateName = new X500Name("CN=CCT mapping CA");
+        ASN1Encodable mapping = new DERSequence(new DERSequence(new ASN1Encodable[]{
+                new ASN1ObjectIdentifier(issuerPolicy), new ASN1ObjectIdentifier(subjectPolicy)}));
+        var intermediate = policyCertificate(intermediateKey, intermediateName, rootKey, rootName, true, List.of(issuerPolicy), mapping);
+        var mappedLeaf = policyCertificate(leafKey, leafName, intermediateKey, intermediateName, false, List.of(subjectPolicy), null);
+        assertTrue(intermediate.isSignatureValid(new JcaContentVerifierProviderBuilder().build(root.getSubjectPublicKeyInfo())));
+        assertTrue(mappedLeaf.isSignatureValid(new JcaContentVerifierProviderBuilder().build(intermediate.getSubjectPublicKeyInfo())));
+        Path temporary = Files.createTempDirectory("cct-policy-chain-");
+        try {
+            var bundle = new CMSSignedDataGenerator();
+            bundle.addCertificates(new org.bouncycastle.util.CollectionStore<>(List.of(intermediate)));
+            Files.write(temporary.resolve("chain.p7c"), bundle.generate(new CMSProcessableByteArray(new byte[0])).getEncoded());
+            validator.setCaPathString(temporary.toString()); validator.setCaFileName("chain.p7c");
+            assertTrue(validator.isValid(converter.getCertificate(mappedLeaf), issuerPolicy, converter.getCertificate(root)),
+                    "Initial issuer-domain policy must map to the leaf subject-domain policy");
+            assertFalse(validator.isValid(converter.getCertificate(mappedLeaf), subjectPolicy, converter.getCertificate(root)),
+                    "Leaf policy is not interchangeable with the initial issuer-domain policy");
+            validator.setCaFileName(null);
+            validator.getKeyStore().setCertificateEntry("cct-mapping-intermediate", converter.getCertificate(intermediate));
+            assertTrue(validator.isValid(converter.getCertificate(mappedLeaf), issuerPolicy, converter.getCertificate(root)),
+                    "A stored intermediate must remain available without a separately configured bundle");
+            validator.getKeyStore().setCertificateEntry("cct-unrelated-root", converter.getCertificate(unrelatedRoot));
+            var unrelatedLeaf = policyCertificate(leafKey, leafName, leafKey, rootName, false, List.of(issuerPolicy), null);
+            assertFalse(validator.isValid(converter.getCertificate(unrelatedLeaf), issuerPolicy, converter.getCertificate(root)),
+                    "Issuer candidates must not be promoted to trust anchors");
+        } finally {
+            Files.deleteIfExists(temporary.resolve("chain.p7c")); Files.delete(temporary);
+        }
+    }
+
+    private static X509CertificateHolder policyCertificate(KeyPair subjectKey, X500Name subject, KeyPair issuerKey,
+            X500Name issuer, boolean ca, List<String> policies, ASN1Encodable mapping) throws Exception {
+        var builder = new JcaX509v3CertificateBuilder(issuer, BigInteger.valueOf(subject.equals(issuer) ? 1 : ca ? 2 : 3),
+                new java.util.Date(1704067200000L), new java.util.Date(1893456000000L), subject, subjectKey.getPublic());
+        builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(ca));
+        builder.addExtension(Extension.keyUsage, true, new KeyUsage(ca ? KeyUsage.keyCertSign | KeyUsage.cRLSign : KeyUsage.digitalSignature));
+        if (!policies.isEmpty()) builder.addExtension(Extension.certificatePolicies, false,
+                new CertificatePolicies(policies.stream().map(p -> new PolicyInformation(new ASN1ObjectIdentifier(p))).toArray(PolicyInformation[]::new)));
+        if (mapping != null) builder.addExtension(Extension.policyMappings, true, mapping);
+        return builder.build(new JcaContentSignerBuilder("SHA256withRSA").build(issuerKey.getPrivate()));
+    }
+
+    private static byte[] policyObject(int row, X509CertificateHolder certificate, KeyPair key) throws Exception {
+        if (row != 479) return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, certificate.getEncoded()), new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+        var generator = new CMSSignedDataGenerator();
+        generator.addSignerInfoGenerator(new org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder(
+                new JcaDigestCalculatorProviderBuilder().build()).build(
+                new JcaContentSignerBuilder("SHA256withRSA").build(key.getPrivate()), certificate));
+        generator.addCertificates(new org.bouncycastle.util.CollectionStore<>(List.of(certificate)));
+        byte[] content = (byte[]) fixtureChuidCms(currentChuidObjects.get("plain")).getSignedContent().getContent();
+        byte[] encoded = generator.generate(new CMSProcessableByteArray(new ASN1ObjectIdentifier("2.16.840.1.101.3.6.1"), content), false).getEncoded();
+        byte[] raw = chuidWithCms(currentChuidObjects.get("plain"), encoded);
+        var signature = fixtureChuidCms(raw).getSignerInfos().getSigners().iterator().next();
+        assertTrue(signature.getSID().match(certificate));
+        assertTrue(signature.verify(new JcaSimpleSignerInfoVerifierBuilder().build(certificate)));
+        return raw;
+    }
+
     private static byte[] signedCurrentChuid(CardHolderUniqueIdentifier fixture, String kind) throws Exception {
         byte[] fascn = APDUUtils.getTLV(new byte[]{0x30}, fixture.getfASCN());
         byte[] guid = APDUUtils.getTLV(new byte[]{0x34}, fixture.getgUID());
@@ -552,9 +1546,12 @@ public class ExistingCctRegressionTest {
             case "date-nonleap" -> "20330229";
             case "date-short" -> "2032122";
             case "date-leap" -> "20320229";
+            case "date-nondigit", "date-nonascii" -> "2032120A";
             default -> "20321202";
         };
-        byte[] date = APDUUtils.getTLV(new byte[]{0x35}, dateText.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        byte[] dateBytes = dateText.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        if (kind.equals("date-nonascii")) dateBytes[7] = (byte) 0xb2;
+        byte[] date = APDUUtils.getTLV(new byte[]{0x35}, dateBytes);
         byte[] holderValue = fixture.getCardholderUUID();
         if (holderValue != null) holderValue = holderValue.clone();
         if (kind.equals("holder-v1")) holderValue[6] = (byte) ((holderValue[6] & 0x0f) | 0x10);
@@ -572,57 +1569,112 @@ public class ExistingCctRegressionTest {
         };
         byte[] fields = kind.equals("guid-first") ? concat(guid, fascn) : concat(fascn, concat(between, guid));
         byte[] datedFields = kind.equals("holder-before-date") ? concat(holder, date) : concat(date, holder);
+        if (kind.equals("guid-delayed")) {
+            fields = concat(fascn, concat(date, guid));
+            datedFields = holder;
+        }
         byte[] signedContent = concat(concat(fields, datedFields), new byte[]{(byte) 0xfe, 0});
 
         String ecCurve = kind.startsWith("cms-p256-") ? "secp256r1"
                 : kind.startsWith("cms-p384-") ? "secp384r1"
-                : kind.equals("cms-p521-sha384") ? "secp521r1" : null;
-        KeyPair key = ecCurve == null ? rsa(kind.equals("cms-rsa4096-sha384") ? 4096 : 2048,
-                RSAKeyGenParameterSpec.F4) : ec(ecCurve);
+                : kind.equals("cms-p521-sha384") ? "secp521r1"
+                : kind.equals("cms-brainpool256-sha256") ? "brainpoolP256r1" : null;
+        boolean brainpool = kind.equals("cms-brainpool256-sha256");
+        KeyPair key = ecCurve != null ? ec(ecCurve)
+                : kind.startsWith("cms-rsa4096-") ? rsa(4096, RSAKeyGenParameterSpec.F4)
+                : kind.startsWith("cms-rsa3072-") ? rsa(3072, RSAKeyGenParameterSpec.F4)
+                : kind.startsWith("cms-rsa1024-") ? rsa(1024, RSAKeyGenParameterSpec.F4) : sanSigningKey;
         X500Name name = new X500Name("CN=CCT CHUID regression signer");
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(100),
                 new java.util.Date(1704067200000L), new java.util.Date(1893456000000L), name, key.getPublic());
-        X509Certificate signer = new JcaX509CertificateConverter().getCertificate(
-                builder.build(new JcaContentSignerBuilder(ecCurve == null ? "SHA256withRSA"
-                        : ecCurve.equals("secp256r1") ? "SHA256withECDSA" : "SHA384withECDSA")
-                        .build(key.getPrivate())));
-        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
-        ASN1ObjectIdentifier pivSignerDn = new ASN1ObjectIdentifier("2.16.840.1.101.3.6.5");
-        String algorithm = ecCurve != null ? (kind.endsWith("sha256") ? "SHA256withECDSA" : "SHA384withECDSA")
-                : kind.equals("cms-sha384") || kind.equals("cms-rsa4096-sha384") ? "SHA384withRSA"
-                : kind.equals("cms-sha1") ? "SHA1withRSA" : "SHA256withRSA";
-        CMSSignatureEncryptionAlgorithmFinder rsaPkcs1 = signatureAlgorithm ->
-                new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
-        boolean pss = kind.startsWith("cms-pss-");
-        String pssHash = kind.contains("sha256") ? "SHA-256" : "SHA-384";
-        int pssSalt = kind.endsWith("zero") ? 0 : (kind.contains("sha256") ? 32 : 48)
-                + (kind.endsWith("excess") ? 1 : 0);
-        var contentSigner = pss ? pssSigner(key.getPrivate(), pssHash, pssHash, pssSalt)
-                : new JcaContentSignerBuilder(algorithm).build(key.getPrivate());
-        SignerInfoGeneratorBuilder signerBuilder = ecCurve != null || pss
-                ? new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build())
-                : new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build(), rsaPkcs1);
-        generator.addSignerInfoGenerator(signerBuilder
-                .setSignedAttributeGenerator(new DefaultSignedAttributeTableGenerator(
-                        new AttributeTable(new Attribute(pivSignerDn, new DERSet(name)))))
-                .build(contentSigner,
-                        new X509CertificateHolder(signer.getEncoded())));
-        generator.addCertificates(new JcaCertStore(List.of(signer)));
+        var certificateSigner = new JcaContentSignerBuilder(ecCurve == null ? "SHA256withRSA"
+                : ecCurve.equals("secp256r1") || brainpool ? "SHA256withECDSA" : "SHA384withECDSA");
+        var converter = new JcaX509CertificateConverter();
+        if (brainpool) { certificateSigner.setProvider("BC"); converter.setProvider("BC"); }
+        X509Certificate signer = converter.getCertificate(builder.build(certificateSigner.build(key.getPrivate())));
+        cmsKeys.put(kind, key);
+        cmsCertificates.put(kind, signer);
+        CMSSignedDataGenerator generator = cmsGenerator(kind, true, false);
         byte[] cms = generator.generate(new CMSProcessableByteArray(
                 new ASN1ObjectIdentifier("2.16.840.1.101.3.6.1"), signedContent), false).getEncoded();
         CMSSignedData detached = new CMSSignedData(new CMSProcessableByteArray(signedContent), cms);
+        var verifier = new JcaSimpleSignerInfoVerifierBuilder();
+        if (brainpool) verifier.setProvider("BC");
         assertTrue(detached.getSignerInfos().getSigners().iterator().next()
-                .verify(new JcaSimpleSignerInfoVerifierBuilder().build(signer)),
+                .verify(verifier.build(signer)),
                 "Synthetic CHUID CMS signature must be cryptographically valid: " + kind);
+        if (kind.equals("cms-corrupt-signature")) {
+            ContentInfo content = ContentInfo.getInstance(ASN1Primitive.fromByteArray(cms));
+            SignedData data = SignedData.getInstance(content.getContent());
+            SignerInfo original = SignerInfo.getInstance(data.getSignerInfos().getObjectAt(0));
+            byte[] signature = original.getEncryptedDigest().getOctets().clone();
+            signature[signature.length - 1] ^= 1;
+            SignerInfo corrupted = new SignerInfo(original.getSID(), original.getDigestAlgorithm(),
+                    original.getAuthenticatedAttributes(), original.getDigestEncryptionAlgorithm(),
+                    new DEROctetString(signature), original.getUnauthenticatedAttributes());
+            cms = new ContentInfo(content.getContentType(), new SignedData(data.getDigestAlgorithms(),
+                    data.getEncapContentInfo(), data.getCertificates(), data.getCRLs(), new DERSet(corrupted)))
+                    .getEncoded();
+        }
         byte[] raw = APDUUtils.getTLV(APDUConstants.DATA, concat(concat(before, fields),
                 concat(datedFields, concat(APDUUtils.getTLV(new byte[]{0x3e}, cms), new byte[]{(byte) 0xfe, 0}))));
         CardHolderUniqueIdentifier decoded = new CardHolderUniqueIdentifier();
         decoded.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
         decoded.setBytes(raw);
         assertTrue(decoded.decode(), "CHUID vector must decode before testing current fields: " + kind);
-        if (!kind.equals("cms-sha1"))
+        if (kind.equals("cms-corrupt-signature"))
+            assertFalse(decoded.verifySignature(), "Signature-only mutation must invalidate the signature");
+        // The SUN verification engine does not support Brainpool. Its signature
+        // was verified explicitly with BC above; decoding still must succeed.
+        else if (!kind.equals("cms-sha1") && !(brainpool && !Boolean.getBoolean("cct.regressionBC")))
             assertTrue(decoded.verifySignature(), "CHUID vector must retain a valid CMS signature: " + kind);
         return raw;
+    }
+
+    private static CMSSignedDataGenerator cmsGenerator(String kind, boolean includeCertificate,
+            boolean biometric) throws Exception {
+        KeyPair key = cmsKeys.get(kind);
+        X509Certificate signer = cmsCertificates.get(kind);
+        assertNotNull(key, "The matching CHUID signer must already exist");
+        assertNotNull(signer);
+        boolean ecKey = key.getPublic() instanceof ECPublicKey;
+        boolean brainpool = kind.equals("cms-brainpool256-sha256");
+        X500Name name = X500Name.getInstance(signer.getSubjectX500Principal().getEncoded());
+        CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+        ASN1ObjectIdentifier pivSignerDn = new ASN1ObjectIdentifier("2.16.840.1.101.3.6.5");
+        String algorithm = ecKey ? (kind.endsWith("sha256") ? "SHA256withECDSA" : "SHA384withECDSA")
+                : kind.equals("cms-sha384") || kind.equals("cms-rsa4096-sha384") ? "SHA384withRSA"
+                : kind.equals("cms-sha1") ? "SHA1withRSA" : "SHA256withRSA";
+        CMSSignatureEncryptionAlgorithmFinder rsaPkcs1 = signatureAlgorithm ->
+                kind.equals("cms-combined-rsa-oid") ? signatureAlgorithm
+                        : new AlgorithmIdentifier(PKCSObjectIdentifiers.rsaEncryption, DERNull.INSTANCE);
+        boolean pss = kind.startsWith("cms-pss-");
+        String pssHash = kind.contains("sha256") ? "SHA-256" : "SHA-384";
+        int pssSalt = kind.endsWith("zero") ? 0 : (kind.contains("sha256") ? 32 : 48)
+                + (kind.endsWith("excess") ? 1 : 0);
+        var cmsSigner = new JcaContentSignerBuilder(algorithm);
+        if (brainpool) cmsSigner.setProvider("BC");
+        var contentSigner = pss ? pssSigner(key.getPrivate(), pssHash, pssHash, pssSalt)
+                : cmsSigner.build(key.getPrivate());
+        SignerInfoGeneratorBuilder signerBuilder = ecKey || pss
+                ? new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build())
+                : new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().build(), rsaPkcs1);
+        ASN1EncodableVector attributes = new ASN1EncodableVector();
+        attributes.add(new Attribute(pivSignerDn, new DERSet(name)));
+        attributes.add(new Attribute(org.bouncycastle.asn1.cms.CMSAttributes.signingTime,
+                new DERSet(new org.bouncycastle.asn1.cms.Time(new java.util.Date(1735689600000L)))));
+        if (biometric) {
+            attributes.add(new Attribute(new ASN1ObjectIdentifier("2.16.840.1.101.3.6.6"),
+                    new DERSet(new DEROctetString(fixtureValue(chuid, 0x30)))));
+            attributes.add(new Attribute(new ASN1ObjectIdentifier("1.3.6.1.1.16.4"),
+                    new DERSet(new DEROctetString(fixtureValue(chuid, 0x34)))));
+        }
+        generator.addSignerInfoGenerator(signerBuilder
+                .setSignedAttributeGenerator(new DefaultSignedAttributeTableGenerator(new AttributeTable(attributes)))
+                .build(contentSigner,
+                        new X509CertificateHolder(signer.getEncoded())));
+        if (includeCertificate) generator.addCertificates(new JcaCertStore(List.of(signer)));
+        return generator;
     }
 
     private static byte[] cccWithOptional(String kind) {
@@ -643,7 +1695,8 @@ public class ExistingCctRegressionTest {
     }
 
     private static KeyPair ec(String curve) throws Exception {
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
+        KeyPairGenerator generator = curve.startsWith("brainpool") ? KeyPairGenerator.getInstance("EC", "BC")
+                : KeyPairGenerator.getInstance("EC");
         generator.initialize(new ECGenParameterSpec(curve));
         return generator.generateKeyPair();
     }
@@ -657,13 +1710,41 @@ public class ExistingCctRegressionTest {
     }
 
     private static byte[] currentCertificate(KeyPair keyPair, String signature) throws Exception {
+        return currentCertificate(keyPair, signature, false);
+    }
+
+    private static byte[] subjectKeyCertificate(KeyPair subject, AlgorithmIdentifier algorithm) throws Exception {
+        var original = org.bouncycastle.asn1.x509.SubjectPublicKeyInfo.getInstance(subject.getPublic().getEncoded());
+        var restricted = new org.bouncycastle.asn1.x509.SubjectPublicKeyInfo(
+                algorithm, original.getPublicKeyData().getBytes());
+        var builder = new org.bouncycastle.cert.X509v3CertificateBuilder(
+                new X500Name("CN=CCT SPKI regression issuer"), BigInteger.valueOf(77),
+                new java.util.Date(1704067200000L), new java.util.Date(1893456000000L),
+                new X500Name("CN=CCT RSA subject"), restricted);
+        X509CertificateHolder signed = builder.build(
+                new JcaContentSignerBuilder("SHA256withRSA").build(sanSigningKey.getPrivate()));
+        assertTrue(signed.isSignatureValid(new JcaContentVerifierProviderBuilder()
+                .setProvider(new BouncyCastleProvider()).build(sanSigningKey.getPublic())));
+        return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{0x70}, signed.getEncoded()), new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+    }
+
+    private static byte[] currentCertificate(KeyPair keyPair, String signature, boolean explicitNullParameters) throws Exception {
         X500Name name = new X500Name("CN=CCT SP800-78-5 regression");
         java.util.Date notBefore = new java.util.Date(1704067200000L);
         java.util.Date notAfter = new java.util.Date(1893456000000L);
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(
                 keyProfileCertificates.size() + 1L), notBefore, notAfter, name, keyPair.getPublic());
-        X509Certificate generated = new JcaX509CertificateConverter().getCertificate(
-                builder.build(new JcaContentSignerBuilder(signature).build(keyPair.getPrivate())));
+        var delegate = new JcaContentSignerBuilder(signature).build(keyPair.getPrivate());
+        org.bouncycastle.operator.ContentSigner signer = explicitNullParameters
+                ? new org.bouncycastle.operator.ContentSigner() {
+                    public AlgorithmIdentifier getAlgorithmIdentifier() {
+                        return new AlgorithmIdentifier(delegate.getAlgorithmIdentifier().getAlgorithm(), DERNull.INSTANCE);
+                    }
+                    public java.io.OutputStream getOutputStream() { return delegate.getOutputStream(); }
+                    public byte[] getSignature() { return delegate.getSignature(); }
+                } : delegate;
+        X509Certificate generated = new JcaX509CertificateConverter().getCertificate(builder.build(signer));
         generated.verify(keyPair.getPublic());
         return APDUUtils.getTLV(APDUConstants.DATA, concat(
                 APDUUtils.getTLV(new byte[]{0x70}, generated.getEncoded()),
@@ -672,6 +1753,46 @@ public class ExistingCctRegressionTest {
 
     private static byte[] pssCertificate(String hash, String mgfHash, int saltLength) throws Exception {
         X500Name name = new X500Name("CN=CCT PSS parameter regression");
+        if (mgfHash.equals("MD5")) {
+            // Intentionally disallowed RFC4055 MGF hash, with an otherwise
+            // mathematical PSS signature. Keys remain ephemeral test data.
+            var algorithm = new AlgorithmIdentifier(PKCSObjectIdentifiers.id_RSASSA_PSS,
+                    new org.bouncycastle.asn1.pkcs.RSASSAPSSparams(
+                            new AlgorithmIdentifier(new ASN1ObjectIdentifier("2.16.840.1.101.3.4.2.1")),
+                            new AlgorithmIdentifier(PKCSObjectIdentifiers.id_mgf1,
+                                    new AlgorithmIdentifier(PKCSObjectIdentifiers.md5, DERNull.INSTANCE)),
+                            new ASN1Integer(saltLength), new ASN1Integer(1)));
+            var bytes = new java.io.ByteArrayOutputStream();
+            var signer = new org.bouncycastle.crypto.signers.PSSSigner(
+                    new org.bouncycastle.crypto.engines.RSABlindedEngine(),
+                    new org.bouncycastle.crypto.digests.SHA256Digest(),
+                    new org.bouncycastle.crypto.digests.MD5Digest(), saltLength);
+            signer.init(true, org.bouncycastle.crypto.util.PrivateKeyFactory.createKey(sanSigningKey.getPrivate().getEncoded()));
+            var signed = new JcaX509v3CertificateBuilder(name, BigInteger.ONE,
+                    new java.util.Date(1704067200000L), new java.util.Date(1893456000000L),
+                    name, sanSigningKey.getPublic()).build(new org.bouncycastle.operator.ContentSigner() {
+                public AlgorithmIdentifier getAlgorithmIdentifier() { return algorithm; }
+                public java.io.OutputStream getOutputStream() { return bytes; }
+                public byte[] getSignature() {
+                    byte[] message = bytes.toByteArray();
+                    signer.update(message, 0, message.length);
+                    try { return signer.generateSignature(); }
+                    catch (org.bouncycastle.crypto.CryptoException e) { throw new IllegalStateException(e); }
+                }
+            });
+            signer.init(false, org.bouncycastle.crypto.util.PublicKeyFactory.createKey(sanSigningKey.getPublic().getEncoded()));
+            byte[] tbs = signed.toASN1Structure().getTBSCertificate().getEncoded();
+            signer.update(tbs, 0, tbs.length);
+            assertTrue(signer.verifySignature(signed.getSignature()));
+            if (!Boolean.getBoolean("cct.regressionBC")) {
+                var rejection = assertThrows(java.security.cert.CertificateException.class,
+                        () -> CertificateFactory.getInstance("X.509", "SUN").generateCertificate(
+                                new java.io.ByteArrayInputStream(signed.getEncoded())));
+                assertTrue(rejection.getMessage().contains("Unrecognized message digest algorithm MD5"));
+            }
+            return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                    APDUUtils.getTLV(new byte[]{0x70}, signed.getEncoded()), new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+        }
         X509Certificate generated = new JcaX509CertificateConverter().setProvider("SUN").getCertificate(
                 new JcaX509v3CertificateBuilder(name, BigInteger.ONE,
                         new java.util.Date(1704067200000L), new java.util.Date(1893456000000L),
@@ -708,26 +1829,26 @@ public class ExistingCctRegressionTest {
     }
 
     private static byte[] encodedCertificate(GeneralName[] names, AlgorithmIdentifier algorithm) throws Exception {
-        var original = certificate.toASN1Structure();
-        ASN1Sequence tbs = ASN1Sequence.getInstance(original.getTBSCertificate().toASN1Primitive());
-        ASN1EncodableVector fields = new ASN1EncodableVector();
-        for (int i = 0; i < tbs.size(); i++) {
-            ASN1Encodable field = tbs.getObjectAt(i);
-            if (i == 2) field = algorithm; // v3 TBSCertificate.signature
-            if (field instanceof ASN1TaggedObject && ((ASN1TaggedObject) field).getTagNo() == 3) {
-                ExtensionsGenerator extensions = new ExtensionsGenerator();
-                for (ASN1ObjectIdentifier oid : certificate.getExtensions().getExtensionOIDs())
-                    if (!oid.equals(Extension.subjectAlternativeName)) extensions.addExtension(certificate.getExtension(oid));
-                if (names != null) extensions.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
-                if (extensions.isEmpty()) continue; // Omit the optional field when removing its only extension.
-                field = new DERTaggedObject(true, 3, extensions.generate());
-            }
-            fields.add(field);
-        }
-        byte[] der = new DERSequence(new ASN1Encodable[]{new DERSequence(fields), algorithm,
-                original.getSignature()}).getEncoded();
+        // Invalid identifiers are encoding-only negatives. Valid SHA-256
+        // identifiers retain a verifiable certificate signature.
+        X500Name name = new X500Name("CN=CCT signature identifier regression");
+        var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(4243),
+                new java.util.Date(1704067200000L), new java.util.Date(1893456000000L),
+                name, sanSigningKey.getPublic());
+        if (names != null) builder.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(names));
+        var delegate = new JcaContentSignerBuilder("SHA256withRSA").build(sanSigningKey.getPrivate());
+        var signed = builder.build(new org.bouncycastle.operator.ContentSigner() {
+            public AlgorithmIdentifier getAlgorithmIdentifier() { return algorithm; }
+            public java.io.OutputStream getOutputStream() { return delegate.getOutputStream(); }
+            public byte[] getSignature() { return delegate.getSignature(); }
+        });
+        assertEquals(algorithm, signed.getSignatureAlgorithm());
+        var verifier = java.security.Signature.getInstance("SHA256withRSA");
+        verifier.initVerify(sanSigningKey.getPublic());
+        verifier.update(signed.toASN1Structure().getTBSCertificate().getEncoded());
+        assertTrue(verifier.verify(signed.getSignature()), "Fixture TBS must retain its actual RSA signature");
         return APDUUtils.getTLV(APDUConstants.DATA, concat(
-                APDUUtils.getTLV(new byte[]{0x70}, der), new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
+                APDUUtils.getTLV(new byte[]{0x70}, signed.getEncoded()), new byte[]{0x71, 1, 0, (byte) 0xfe, 0}));
     }
 
     private static byte[] concat(byte[] a, byte[] b) {
@@ -738,6 +1859,41 @@ public class ExistingCctRegressionTest {
 
     private static void run(int id, String expectedMethod, byte[] raw, boolean pass, String failurePrefix) throws Exception {
         run("PIV_Production_Cards.db", id, expectedMethod, raw, pass, failurePrefix);
+    }
+
+    private static byte[] facialRecordObject(int features, int images, int field, int value) throws Exception {
+        byte[] biometric = fixtureValue(cmsConsumerObject(306, "plain"), 0xbc);
+        byte[] original = Arrays.copyOfRange(biometric, 88, 88 + ByteBuffer.wrap(biometric).getInt(2));
+        int blocks = Math.max(1, images);
+        byte[] record = new byte[14 + blocks * (32 + 8 * features)];
+        System.arraycopy(original, 0, record, 0, 14);
+        ByteBuffer.wrap(record).putInt(8, record.length).putShort(12, (short) images);
+        for (int image = 0; image < blocks; image++) {
+            int start = 14 + image * (32 + 8 * features);
+            System.arraycopy(original, 14, record, start, 20);
+            System.arraycopy(original, 34, record, start + 20 + 8 * features, 12);
+            ByteBuffer.wrap(record).putInt(start, 32 + 8 * features).putShort(start + 4, (short) features);
+            if (image == images - 1 && field >= 0) record[start + 20 + 8 * features + field] = (byte) value;
+        }
+        // Synthetic feature slots and absent pixels are header/offset evidence,
+        // not a full INCITS image. The complete encoded envelope is signed.
+        assertEquals(record.length, ByteBuffer.wrap(record).getInt(8));
+        assertEquals(images, Short.toUnsignedInt(ByteBuffer.wrap(record).getShort(12)));
+        byte[] header = Arrays.copyOf(biometric, 88);
+        ByteBuffer.wrap(header).putInt(2, record.length);
+        var generator = cmsGenerator("plain", true, true);
+        byte[] cms = null;
+        for (int attempt = 0; attempt < 3; attempt++) {
+            cms = generator.generate(new CMSProcessableByteArray(
+                    new ASN1ObjectIdentifier("2.16.840.1.101.3.6.2"), concat(header, record)), false).getEncoded();
+            if (Short.toUnsignedInt(ByteBuffer.wrap(header).getShort(6)) == cms.length) break;
+            ByteBuffer.wrap(header).putShort(6, (short) cms.length);
+        }
+        assertEquals(cms.length, Short.toUnsignedInt(ByteBuffer.wrap(header).getShort(6)));
+        byte[] raw = APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{(byte) 0xbc}, concat(concat(header, record), cms)), new byte[]{(byte) 0xfe, 0}));
+        assertFixtureCmsValid(fixtureCms(306, raw));
+        return raw;
     }
 
     @ParameterizedTest
@@ -763,6 +1919,28 @@ public class ExistingCctRegressionTest {
             byte[] changed = facialImage.clone();
             changed[record + offsets[i]] = (byte) invalid[i];
             run(database, ids[i], method, changed, false, messages[i]);
+            if (ids[i] == 252 || ids[i] == 254) {
+                byte[] alternative = facialImage.clone();
+                alternative[record + offsets[i]] = (byte) (ids[i] == 252 ? 0 : 6);
+                run(database, ids[i], method, alternative, true, "");
+            }
+            int relative = offsets[i] - 34;
+            for (int features : new int[]{1, 256, 257}) {
+                run(database, ids[i], method, facialRecordObject(features, 1, -1, 0), true, "");
+                run(database, ids[i], method, facialRecordObject(features, 1, relative, invalid[i]), false, messages[i]);
+            }
+            run(database, ids[i], method, facialRecordObject(0, 2, relative, invalid[i]),
+                    TestExecutionResult.Status.ABORTED, "facial records containing multiple images", null);
+            run(database, ids[i], method, facialRecordObject(0, 0, -1, 0), false,
+                    "Facial record must contain at least one image");
+            // Table 12 uses unsigned big-endian numbers. Declaring 256 feature
+            // points cannot leave the image-info fields at the zero-point offset.
+            // This deliberately inconsistent header must fail the bounds check.
+            byte[] truncatedFeatures = facialImage.clone();
+            truncatedFeatures[record + 18] = 1;
+            truncatedFeatures[record + 19] = 0;
+            run(database, ids[i], method, truncatedFeatures, false,
+                    "Facial image record is too short for the declared feature-point count");
         }
     }
 
@@ -801,6 +1979,12 @@ public class ExistingCctRegressionTest {
     private static void run(String database, int id, String expectedMethod, byte[] raw,
                             TestExecutionResult.Status expectedStatus, String failurePrefix,
                             MiddlewareStatus retrievalFailure) throws Exception {
+        run(database, id, expectedMethod, raw, expectedStatus, failurePrefix, retrievalFailure, null);
+    }
+
+    private static TestExecutionResult run(String database, int id, String expectedMethod, byte[] raw,
+                            TestExecutionResult.Status expectedStatus, String failurePrefix,
+                            MiddlewareStatus retrievalFailure, byte[] relatedChuid) throws Exception {
         Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro")) {
             TestCaseModel row = new TestCaseModel(new ConformanceTestDatabase(connection));
@@ -812,7 +1996,7 @@ public class ExistingCctRegressionTest {
             String selector = step.getTestClassName() + "#" + method.getName() + "("
                     + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ")";
             Map<String,byte[]> objects = new HashMap<>();
-            objects.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, chuid);
+            objects.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, relatedChuid == null ? chuid : relatedChuid);
             objects.put(APDUConstants.getStringForFieldNamed(row.getContainer()), raw);
             var result = execute(selector, row.getContainer(), step.getParameters(), objects, retrievalFailure);
             assertEquals(expectedStatus, result.getStatus(), row.getIdentifier() + ": " + result);
@@ -829,6 +2013,7 @@ public class ExistingCctRegressionTest {
                                 : failure.getMessage().startsWith(failurePrefix),
                         "Wrong assertion: " + failure);
             }
+            return result;
         }
     }
 
@@ -837,6 +2022,7 @@ public class ExistingCctRegressionTest {
         CardSettingsSingleton card = CardSettingsSingleton.getInstance();
         ParameterProviderSingleton parameters = ParameterProviderSingleton.getInstance();
         card.reset(); parameters.reset();
+        DataModelSingleton.getInstance().reset();
         card.setTerminal(new CardTerminal() {
             public String getName() { return "Synthetic evidence only"; }
             public Card connect(String protocol) { throw new AssertionError("Physical connection forbidden"); }
@@ -862,6 +2048,11 @@ public class ExistingCctRegressionTest {
         parameters.addNamedParameter(method, arguments);
         List<TestExecutionResult> results = new ArrayList<>();
         try {
+            // Normal runs acquire CHUID before Security Object checks. Preserve that
+            // real decoder/cache relationship for this otherwise isolated atom.
+            if (container.equals("SECURITY_OBJECT_OID") || (method.contains("#CMS_Test_14(")
+                    && !container.equals("CARD_HOLDER_UNIQUE_IDENTIFIER_OID")))
+                assertNotNull(AtomHelper.getDataObject(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID));
             LauncherFactory.create().execute(LauncherDiscoveryRequestBuilder.request()
                     .selectors(DiscoverySelectors.selectMethod(method)).build(), new TestExecutionListener() {
                 @Override public void executionFinished(TestIdentifier id, TestExecutionResult result) {
@@ -872,7 +2063,10 @@ public class ExistingCctRegressionTest {
             });
             assertEquals(1, results.size(), "Exactly one database atom must execute");
             return results.get(0);
-        } finally { card.reset(); parameters.reset(); }
+        } finally {
+            card.reset(); parameters.reset();
+            DataModelSingleton.getInstance().reset();
+        }
     }
 
 }

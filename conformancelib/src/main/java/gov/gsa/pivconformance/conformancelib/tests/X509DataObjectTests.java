@@ -42,9 +42,8 @@ public class X509DataObjectTests {
     //@MethodSource("sp800_73_4_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_19(String oid, TestReporter reporter) {
-		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
-		if(!isMandatory && !AtomHelper.isDataObjectPresent(oid, true)) {
+		if(AtomHelper.isOptionalAndAbsent(oid)) {
 			s_logger.info("Optional container {} is absent from the card.", oid);
 			return;
 		} else {
@@ -57,13 +56,15 @@ public class X509DataObjectTests {
 		BerTag berCertTag = new BerTag(TagConstants.CERTIFICATE_TAG);
 		BerTag berCertInfoTag = new BerTag(TagConstants.CERTINFO_TAG);
 		
-		assertTrue(tagList.contains(berCertTag));
-		assertTrue(tagList.contains(berCertInfoTag));
+		assertTrue(tagList.contains(berCertTag), "Certificate container: tag 70 is required");
+		assertTrue(tagList.contains(berCertInfoTag), "Certificate container: tag 71 is required");
 		
 		int tagIndex = tagList.indexOf(berCertTag);
 		
 		assertTrue(Arrays.equals(tagList.get(tagIndex).bytes,TagConstants.CERTIFICATE_TAG));
-		assertTrue(Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.CERTINFO_TAG));
+		assertTrue(tagIndex + 1 < tagList.size()
+                && Arrays.equals(tagList.get(tagIndex+1).bytes,TagConstants.CERTINFO_TAG),
+                "Certificate container: tag 71 must immediately follow tag 70");
     }
     
 	//Tag 0x72 is optionally present and follows tags from 73-4.19
@@ -105,7 +106,7 @@ public class X509DataObjectTests {
             excerpt = "Note that the MSCUID data element has been eliminated in this version.",
             scope = "Checks that MSCUID (72) is absent from active certificate containers. Retired certificates have different rules.")
     void sp800_73_5_Test_20(String oid, TestReporter reporter) {
-        if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+        if (AtomHelper.isOptionalAndAbsent(oid)) {
             return;
         }
         List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
@@ -159,7 +160,7 @@ public class X509DataObjectTests {
             excerpt = "For each container, compliant cards SHALL return all TLV elements of the container in the order listed in this appendix.",
             scope = "Checks that Error Detection Code (FE) immediately follows CertInfo (71) in an active certificate container.")
     void sp800_73_5_Test_21(String oid, TestReporter reporter) {
-        if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+        if (AtomHelper.isOptionalAndAbsent(oid)) {
             return;
         }
         List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();
@@ -207,7 +208,7 @@ public class X509DataObjectTests {
             excerpt = "Certificate 0x70\nCertInfo 0x71\nError Detection Code 0xFE",
             scope = "Allows only Certificate (70), CertInfo (71) and Error Detection Code (FE) in active certificate containers. This rule does not cover retired containers.")
     void sp800_73_5_Test_22(String oid, TestReporter reporter) {
-        if (!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+        if (AtomHelper.isOptionalAndAbsent(oid)) {
             return;
         }
         List<BerTag> tags = AtomHelper.getDataObject(oid).getTagList();

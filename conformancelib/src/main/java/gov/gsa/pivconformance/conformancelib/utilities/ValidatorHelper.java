@@ -1,6 +1,8 @@
 package gov.gsa.pivconformance.conformancelib.utilities;
 
 import gov.gsa.pivconformance.conformancelib.tests.ConformanceTestException;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +13,7 @@ import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,6 +26,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class ValidatorHelper {
 
     private static final Logger s_logger = LoggerFactory.getLogger(ValidatorHelper.class);
+
+    /** Reads the certificate's encoded SPKI identifier without provider key normalization. */
+    public static AlgorithmIdentifier getEncodedSubjectPublicKeyAlgorithm(X509Certificate certificate) {
+        try {
+            return new JcaX509CertificateHolder(certificate).getSubjectPublicKeyInfo().getAlgorithm();
+        } catch (CertificateEncodingException | IllegalArgumentException e) {
+            fail("Certificate subject public key identifier could not be decoded", e);
+            return null;
+        }
+    }
 
     public enum ResourceSource {
         EXTERNAL_FILE,

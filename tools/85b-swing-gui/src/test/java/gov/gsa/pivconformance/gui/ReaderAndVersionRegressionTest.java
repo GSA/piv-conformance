@@ -50,10 +50,10 @@ class ReaderAndVersionRegressionTest {
         var summary = listener.getSummary();
         summary.printTo(new java.io.PrintWriter(System.out, true));
         summary.printFailuresTo(new java.io.PrintWriter(System.out, true));
-        assertEquals(206, summary.getTestsSucceededCount());
+        assertEquals(334, summary.getTestsSucceededCount());
         assertEquals(0, summary.getTestsFailedCount());
         assertEquals(0, summary.getTestsSkippedCount());
-        System.out.println("Bundled runtime: resources, four databases, cryptography and 206 regressions passed.");
+        System.out.println("Packaged application: resources, four databases, cryptography and 334 regressions passed.");
     }
 
     @Test

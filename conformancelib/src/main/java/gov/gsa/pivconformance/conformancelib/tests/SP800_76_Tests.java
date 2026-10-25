@@ -1355,7 +1355,7 @@ public class SP800_76_Tests {
             url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=41",
             excerpt = "PIV facial images shall conform to the Full Frontal Image Type defined in Clause 8 of [FACESTD].",
-            scope = "Checks that the recorded facial image type is 1 (Full Frontal). This field check does not establish image pose or full image conformance.")
+            scope = "Checks that the recorded facial image type is 1 (Full Frontal). Multiple images are Unsupported. This field check does not establish image pose or full image conformance.")
     void sp800_76Test_34(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1373,14 +1373,19 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
+        int images = ((biometricDataBlock[12] & 0xff) << 8) | (biometricDataBlock[13] & 0xff);
+        assertTrue(images >= 1, "Facial record must contain at least one image");
+        if (images > 1) throw new PlaceholderTests.UnsupportedConformanceException(
+                "facial records containing multiple images; this atom inspects only the first image");
 		
-		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
+		int numberOfFeaturePoints = (((biometricDataBlock[18] & 0xFF) << 8) | (biometricDataBlock[19] & 0xFF));
         
 		int offset = 14;
 		if(numberOfFeaturePoints > 0)
 			offset = offset+ numberOfFeaturePoints*8;
         
-        assertTrue(biometricDataBlock.length >= 20 + offset + 1);
+        assertTrue(biometricDataBlock.length >= 20 + offset + 1,
+                "Facial image record is too short for the declared feature-point count");
         
 		int facialImageType  = biometricDataBlock[20 + offset] & 0xFF;
 		
@@ -1397,7 +1402,7 @@ public class SP800_76_Tests {
             url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=41",
             excerpt = "Facial image data shall be formatted in either of the compression formats enumerated in Clause 6.2 of [FACESTD].",
-            scope = "Checks that the recorded image data type is 0 or 1 (JPEG or JPEG 2000). This does not validate the compressed image payload.")
+            scope = "Checks that the recorded image data type is 0 or 1 (JPEG or JPEG 2000). Multiple images are Unsupported. This does not validate the compressed image payload.")
     void sp800_76Test_35(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1415,14 +1420,19 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
+        int images = ((biometricDataBlock[12] & 0xff) << 8) | (biometricDataBlock[13] & 0xff);
+        assertTrue(images >= 1, "Facial record must contain at least one image");
+        if (images > 1) throw new PlaceholderTests.UnsupportedConformanceException(
+                "facial records containing multiple images; this atom inspects only the first image");
 		
-		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
+		int numberOfFeaturePoints = (((biometricDataBlock[18] & 0xFF) << 8) | (biometricDataBlock[19] & 0xFF));
         
 		int offset = 15;
 		if(numberOfFeaturePoints > 0)
 			offset = offset+ numberOfFeaturePoints*8;
         
-        assertTrue(biometricDataBlock.length >= 20 + offset + 1);
+        assertTrue(biometricDataBlock.length >= 20 + offset + 1,
+                "Facial image record is too short for the declared feature-point count");
         
 		int facialImageDataType  = biometricDataBlock[20 + offset] & 0xFF;
 		
@@ -1439,7 +1449,7 @@ public class SP800_76_Tests {
             url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=41",
             excerpt = "Facial image data shall be converted to the sRGB color space.",
-            scope = "Checks that the recorded color-space value is 1 (sRGB). This does not verify the pixel conversion process.")
+            scope = "Checks that the recorded color-space value is 1 (sRGB). Multiple images are Unsupported. This does not verify the pixel conversion process.")
     void sp800_76Test_36(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1457,14 +1467,19 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
+        int images = ((biometricDataBlock[12] & 0xff) << 8) | (biometricDataBlock[13] & 0xff);
+        assertTrue(images >= 1, "Facial record must contain at least one image");
+        if (images > 1) throw new PlaceholderTests.UnsupportedConformanceException(
+                "facial records containing multiple images; this atom inspects only the first image");
 		
-		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
+		int numberOfFeaturePoints = (((biometricDataBlock[18] & 0xFF) << 8) | (biometricDataBlock[19] & 0xFF));
         
 		int offset = 20;
 		if(numberOfFeaturePoints > 0)
 			offset = offset+ numberOfFeaturePoints*8;
         
-        assertTrue(biometricDataBlock.length >= 20 + offset + 1);
+        assertTrue(biometricDataBlock.length >= 20 + offset + 1,
+                "Facial image record is too short for the declared feature-point count");
         
 		int imageColorSpace  = biometricDataBlock[20 + offset] & 0xFF;
 		
@@ -1481,7 +1496,7 @@ public class SP800_76_Tests {
             url = "https://csrc.nist.gov/pubs/sp/800/76/2/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-76-2.pdf#page=40",
             excerpt = "Digital still or digital video",
-            scope = "Checks that the recorded source type is 2 or 6 (digital still or digital video). This does not establish capture-device performance.")
+            scope = "Checks that the recorded source type is 2 or 6 (digital still or digital video). Multiple images are Unsupported. This does not establish capture-device performance.")
     void sp800_76Test_37(String oid, TestReporter reporter) {
 		boolean isMandatory = APDUConstants.isContainerMandatory(oid);
 		// if the object is not mandatory and is not present, the test is done
@@ -1499,14 +1514,19 @@ public class SP800_76_Tests {
 		assertNotNull(biometricDataBlock, "Biometric data block is absent in CardHolderBiometricData object");
 							
 		assertTrue(biometricDataBlock.length >= 20);
+        int images = ((biometricDataBlock[12] & 0xff) << 8) | (biometricDataBlock[13] & 0xff);
+        assertTrue(images >= 1, "Facial record must contain at least one image");
+        if (images > 1) throw new PlaceholderTests.UnsupportedConformanceException(
+                "facial records containing multiple images; this atom inspects only the first image");
 		
-		int numberOfFeaturePoints = ((biometricDataBlock[18] << 8 & 0xFF) | biometricDataBlock[19] & 0xFF);
+		int numberOfFeaturePoints = (((biometricDataBlock[18] & 0xFF) << 8) | (biometricDataBlock[19] & 0xFF));
         
 		int offset = 21;
 		if(numberOfFeaturePoints > 0)
 			offset = offset+ numberOfFeaturePoints*8;
         
-        assertTrue(biometricDataBlock.length >= 20 + offset + 1);
+        assertTrue(biometricDataBlock.length >= 20 + offset + 1,
+                "Facial image record is too short for the declared feature-point count");
         
 		int sourceType  = biometricDataBlock[20 + offset] & 0xFF;
 		
