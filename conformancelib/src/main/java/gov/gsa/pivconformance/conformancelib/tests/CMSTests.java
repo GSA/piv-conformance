@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import gov.gsa.pivconformance.conformancelib.configuration.ParameterUtils;
 import gov.gsa.pivconformance.conformancelib.configuration.ParameterizedArgumentsProvider;
 import gov.gsa.pivconformance.conformancelib.utilities.AtomHelper;
+import gov.gsa.pivconformance.conformancelib.utilities.ValidatorHelper;
 import gov.gsa.pivconformance.cardlib.card.client.APDUConstants;
 import gov.gsa.pivconformance.cardlib.card.client.Algorithm;
 import gov.gsa.pivconformance.cardlib.card.client.CardHolderUniqueIdentifier;
@@ -692,6 +693,17 @@ public class CMSTests {
 	//@MethodSource("CMS_SecurityObjectTestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void CMS_Test_23(String oid, TestReporter reporter) {
+		checkCmsDigestAndSignerKey(oid, false);
+	}
+
+	@DisplayName("CMS.23 current PIV digest and signer key test")
+	@ParameterizedTest(name = "{index} => oid = {0}")
+	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	void CMS_Test_23_current(String oid, TestReporter reporter) {
+		checkCmsDigestAndSignerKey(oid, true);
+	}
+
+	private void checkCmsDigestAndSignerKey(String oid, boolean currentPiv) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		SignedPIVDataObject o = null;
@@ -708,11 +720,19 @@ public class CMSTests {
 		if (pk instanceof RSAPublicKey) {
 			RSAPublicKey rsaPk = (RSAPublicKey) pk;
 			keylen = rsaPk.getModulus().bitLength();
-			assertTrue((keylen == 2048 || keylen == 3072 || keylen == 4096), keylen + " is an invalid key length");
+			// 78-5 Table 2 adds RSA-4096; retain 78-4 Table 3-2 for historical profiles.
+			assertTrue((keylen == 2048 || keylen == 3072 || (currentPiv && keylen == 4096)),
+					keylen + " is an invalid key length");
 		} else if (pk instanceof ECPublicKey) {
 			ECPublicKey ec = (ECPublicKey) pk;
 			keylen = ec.getParams().getCurve().getField().getFieldSize();
 			assertTrue((keylen == 256 || keylen == 384), keylen + " is an invalid key length");
+			// Table 2 (78-5), also Table 3-2 (78-4), identifies curves, not just field sizes.
+			ASN1Encodable curve = ValidatorHelper.getEncodedSubjectPublicKeyAlgorithm(cert).getParameters();
+			assertTrue(curve instanceof ASN1ObjectIdentifier
+					&& Set.of("1.2.840.10045.3.1.7", "1.3.132.0.34")
+						.contains(((ASN1ObjectIdentifier) curve).getId()),
+					"EC signer must use named curve P-256 or P-384");
 		} else {
 			fail("Unsupported CMS signing public key algorithm: " + pk.getAlgorithm());
 		}

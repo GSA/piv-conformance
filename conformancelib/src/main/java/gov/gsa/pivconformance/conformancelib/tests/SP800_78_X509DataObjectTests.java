@@ -247,7 +247,7 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
             url = "https://csrc.nist.gov/pubs/sp/800/78/5/final",
             documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-78-5.pdf#page=15",
             excerpt = "In addition to the key sizes, keys must be generated using secure parameters. Rivest-Shamir-Adleman (RSA) keys must be generated using a public exponent of 65537. Elliptic curve keys must correspond to one of the following recommended curves from [FIPS186]:\n• Curve P-256 or\n• Curve P-384.",
-            scope = "Checks active certificate public keys: RSA 2048/3072 with exponent 65537, or EC P-256/P-384 with the expected identifiers. Other key uses and post-2030 policy are outside this case.")
+            scope = "Checks active certificate public keys: RSA 2048/3072 with exponent 65537, or EC P-256/P-384 with the expected identifiers. Absent optional or conditional containers skip this field check; issuance conditions, other key uses and post-2030 policy are outside this case.")
     void sp800_78_Test_1_current(String oid, TestReporter reporter) {
         Set<String> activePivCertificateOids = Set.of(
                 APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID,
@@ -257,9 +257,15 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
         assertTrue(activePivCertificateOids.contains(oid),
                 "SP800-78.1: unsupported container for the current PIV key profile: " + oid);
 
+        if (AtomHelper.isOptionalAndAbsent(oid)) return;
         PIVDataObject object = AtomHelper.getDataObject(oid);
+        assertNotNull(object, "SP800-78.1: certificate container is missing");
         X509Certificate certificate = AtomHelper.getCertificateForContainer(object);
         assertNotNull(certificate, "SP800-78.1: certificate could not be decoded");
+        AlgorithmIdentifier subjectAlgorithm = ValidatorHelper.getEncodedSubjectPublicKeyAlgorithm(certificate);
+        assertTrue(Set.of("1.2.840.113549.1.1.1", "1.2.840.10045.2.1")
+                .contains(subjectAlgorithm.getAlgorithm().getId()),
+                "SP800-78.1: subject public key algorithm identifier must be rsaEncryption or id-ecPublicKey");
         PublicKey publicKey = certificate.getPublicKey();
         assertNotNull(publicKey, "SP800-78.1: certificate public key is missing");
 
@@ -275,12 +281,11 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
         }
 
         if (publicKey instanceof ECPublicKey) {
-            AlgorithmIdentifier algorithm = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded()).getAlgorithm();
-            assertEquals("1.2.840.10045.2.1", algorithm.getAlgorithm().getId(),
-                    "SP800-78.1: EC public key algorithm identifier must be id-ecPublicKey");
-            ASN1ObjectIdentifier curve = ASN1ObjectIdentifier.getInstance(algorithm.getParameters());
-            assertTrue(curve.getId().equals("1.2.840.10045.3.1.7") || curve.getId().equals("1.3.132.0.34"),
-                    "SP800-78.1: EC key must use named curve P-256 or P-384; found " + curve.getId());
+            ASN1Encodable curve = subjectAlgorithm.getParameters();
+            assertTrue(curve instanceof ASN1ObjectIdentifier
+                    && Set.of("1.2.840.10045.3.1.7", "1.3.132.0.34")
+                            .contains(((ASN1ObjectIdentifier) curve).getId()),
+                    "SP800-78.1: EC key must use named curve P-256 or P-384");
             return;
         }
 
@@ -345,16 +350,10 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 				assertNotNull(pssps, "Parameter spec is null");
 				String digestAlg = pssps.getDigestAlgorithm();
 				assertTrue(digestAlg.toLowerCase().toLowerCase().replaceAll("-", "").equals("sha256"));
-			} else if (signatureAlgOID.compareTo(ecdsaWithSHA256) == 0) {
-				byte[] params = cert.getSigAlgParams();
-				if (params != null)
-					s_logger.error("Parameter must NOT be supplied for " + signatureAlgOID + ".  Value of params " + Hex.encodeHexString(params));
-				assertTrue(params == null, "Non-conformant signature algorithm OID");
-			} else if (signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
-				byte[] params = cert.getSigAlgParams();
-				if (params != null)
-					s_logger.error("Parameter must NOT be supplied for " + signatureAlgOID + ".  Value of params " + Hex.encodeHexString(params));
-				assertTrue(params == null, "Non-conformant signature algorithm OID");
+			} else if (signatureAlgOID.compareTo(ecdsaWithSHA256) == 0
+					|| signatureAlgOID.compareTo(ecdsaWithSHA384) == 0) {
+				assertEcdsaParametersAbsent(cert,
+						"Non-conformant signature algorithm OID: ECDSA parameters must be absent");
 			} else {
 				assertTrue(false, "Signature algorithm (" + signatureAlgOID + ") is not an allowable algorithm");
 			}
@@ -405,8 +404,9 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 				assertTrue(digest.equals("2.16.840.1.101.3.4.2.1")
 						|| digest.equals("2.16.840.1.101.3.4.2.2"),
 						"SP800-78.3 current: RSA CMS digest must be SHA-256 or SHA-384");
-				assertTrue(parameters == null || Arrays.equals(parameters, new byte[]{5, 0}),
-						"SP800-78.3 current: RSA CMS signature parameters must be NULL or absent");
+				// RFC 3370 section 3.2 / RFC 8017: rsaEncryption parameters are NULL.
+				assertTrue(Arrays.equals(parameters, new byte[]{5, 0}),
+						"SP800-78.3 current: RSA CMS signature parameters must be NULL");
 			} else if (algorithm.equals("1.2.840.113549.1.1.10")) {
 				assertEquals(digest, pssDigest(parameters),
 						"SP800-78.3 current: CMS PSS digest and parameters differ");
@@ -432,6 +432,11 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			} else {
 				assertTrue(signerKey instanceof ECPublicKey,
 						"SP800-78.3 current: ECDSA CMS signature requires an EC signer key");
+				ASN1Encodable curve = ValidatorHelper.getEncodedSubjectPublicKeyAlgorithm(signerCertificate).getParameters();
+				assertTrue(curve instanceof ASN1ObjectIdentifier
+						&& Set.of("1.2.840.10045.3.1.7", "1.3.132.0.34")
+							.contains(((ASN1ObjectIdentifier) curve).getId()),
+						"SP800-78.3 current: ECDSA CMS signer must use named curve P-256 or P-384");
 				int bits = ((ECPublicKey) signerKey).getParams().getCurve().getField().getFieldSize();
 				int required = algorithm.equals("1.2.840.10045.4.3.2") ? 256 : 384;
 				assertEquals(required, bits,
@@ -455,9 +460,19 @@ add("X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID", new List<String>("1.2.840.113
 			pssDigest(parameters);
 		} else if (algorithm.equals("1.2.840.10045.4.3.2")
 				|| algorithm.equals("1.2.840.10045.4.3.3")) {
-			assertNull(parameters, "SP800-78.3 current: ECDSA parameters must be absent");
+			assertEcdsaParametersAbsent(cert, "SP800-78.3 current: ECDSA parameters must be absent");
 		} else {
 			fail("SP800-78.3 current: unsupported certificate signature algorithm " + algorithm);
+		}
+	}
+
+	private static void assertEcdsaParametersAbsent(X509Certificate certificate, String message) {
+		// RFC 5758 section 3.2: inspect the encoding, since providers can normalize NULL.
+		try {
+			assertNull(org.bouncycastle.asn1.x509.Certificate.getInstance(certificate.getEncoded())
+					.getSignatureAlgorithm().getParameters(), message);
+		} catch (java.security.cert.CertificateEncodingException | IllegalArgumentException e) {
+			fail("SP800-78.3: certificate signature identifier could not be decoded", e);
 		}
 	}
 

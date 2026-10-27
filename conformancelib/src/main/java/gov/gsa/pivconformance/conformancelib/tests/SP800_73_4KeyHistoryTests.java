@@ -35,7 +35,6 @@ public class SP800_73_4KeyHistoryTests {
         KeyHistoryObject object = (KeyHistoryObject) AtomHelper.getDataObject(oid);
         if (object == null) throw new PlaceholderTests.UnsupportedConformanceException(
                 "absent optional Key History; retired private-key presence cannot be established from card data");
-        assertTrue(object.inBounds(oid), "SP800-73 Key History: field length exceeds Table 20");
         int onCard = object.getKeysWithOnCardCerts();
         int offCard = object.getKeysWithOffCardCerts();
         assertTrue(onCard >= 0 && offCard >= 0 && onCard + offCard <= 20,
@@ -49,6 +48,7 @@ public class SP800_73_4KeyHistoryTests {
         expected.add(new BerTag(TagConstants.ERROR_DETECTION_CODE_TAG));
         assertEquals(expected, object.getTagList(),
                 "SP800-73 Key History: expected C1, C2, conditional F3, FE in order");
+        assertTrue(object.inBounds(oid), "SP800-73 Key History: field length exceeds Table 20");
 
         assertTrue(offCard == 0 || url != null,
                 "SP800-73 Key History: offCardCertURL is required when off-card count is nonzero");
@@ -61,6 +61,10 @@ public class SP800_73_4KeyHistoryTests {
             assertTrue(Arrays.equals(url, value.getBytes(StandardCharsets.US_ASCII))
                             && value.matches("http://" + dnsLabel + "(?:\\." + dnsLabel + ")*\\.?/[0-9A-Fa-f]{64}"),
                     "SP800-73 Key History: offCardCertURL must be an HTTP DNS name and SHA-256 hex hash");
+            // RFC 3986 section 3.2.2 classifies a matching IPv4 host as a literal.
+            String host = value.substring(7, value.indexOf('/', 7));
+            assertTrue(!org.bouncycastle.util.IPAddress.isValidIPv4(host),
+                    "SP800-73 Key History: offCardCertURL host must be a DNS name");
         }
     }
 }

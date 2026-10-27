@@ -1,6 +1,6 @@
 # CCT user guide
 
-These instructions describe the **1.1.0 release candidate**, including its Testing and Results tabs. Use the instructions supplied with your downloaded version. The release's wiki pages retain guidance for older releases.
+These instructions describe the **CCT v2.0.0 release candidate**, including its Testing and Results tabs. Use the instructions supplied with your downloaded version. The release's wiki pages retain guidance for older releases.
 
 - [Running the Card Conformance Tool](#running-the-card-conformance-tool)
 - [Viewing Test Results](#viewing-test-results)
@@ -62,7 +62,9 @@ For an ordinary card evaluation, choose **PIV** or **PIV-I** on the toolbar acco
 | `PIV_ICAM_Test_Cards.db` | Known ICAM PIV test cards when instructed. |
 | `PIV-I_ICAM_Test_Cards.db` | Known ICAM PIV-I test cards when instructed. |
 
-Use **File → Open Database** to select another supplied or approved custom `.db` file. ICAM test profiles include expected negative results; use the profile intended for the card under test.
+Use **File → Open Database** to select another supplied or approved custom `.db` file. Profiles select different cases and parameters; use the profile intended for the card under test. A test card may contain intentional faults or older data that correctly fail a conformance check. The supplied profiles currently expect Pass for their scheduled cases; the ICAM label does not automatically make a failure an expected result.
+
+The Production profiles use a six-year CHUID expiry window; the ICAM profiles retain a 15-year test window. CCT measures this from the test date. A Pass does not establish the card's lifetime from issuance or confirm that its printed expiry matches the CHUID.
 
 ### Connect and run
 
@@ -124,7 +126,7 @@ The header identifies the run's database, completion time and duration. The smal
 
 ### Find cases needing attention
 
-The initial **Needs attention** view includes failed or unsupported cases and results that differ from the profile's expected outcome. Click a summary card or use the filter to select an outcome; **All cases** includes passing cases. Optional search narrows by case ID, description, object or recorded reason.
+The initial **Needs attention** view includes failed or unsupported cases and results that differ from the profile's expected outcome. Click a summary card or use the filter to select an outcome; **All cases** includes passing cases. Cases needing attention appear first.
 
 | Actual result | Meaning |
 |---|---|
@@ -132,7 +134,7 @@ The initial **Needs attention** view includes failed or unsupported cases and re
 | **Fail** | An assertion failed or an execution problem occurred. Read the recorded cause and profile expectation. |
 | **Unsupported** | CCT has no implemented assertion for the case or cannot establish it with the available evidence. This does not by itself mean card data is missing. |
 
-The current tests have no separate Warning or Caution verdict. A negative ICAM test may expect **Fail**; its actual result remains **Fail**, with that expectation shown separately.
+The current tests have no separate Warning or Caution verdict. A profile can specify an expected **Fail** for a negative case; its actual result remains **Fail**, with that expectation shown separately.
 
 ### Read a finding
 
@@ -190,6 +192,10 @@ CCT retains SP 800-85B-derived case IDs. Additional numbering levels are CCT sub
 
 The selected modernization baseline is [FIPS 201-3](https://csrc.nist.gov/pubs/fips/201-3/final), [SP 800-73-5 Part 1](https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final), [SP 800-78-5](https://csrc.nist.gov/pubs/sp/800/78/5/final) and [SP 800-76-2](https://csrc.nist.gov/pubs/sp/800/76/2/final). A passing CCT run proves neither complete coverage of those publications nor certification of the card.
 
+The certificate policy-identifier cases inspect the certificate's `certificatePolicies` extension for the OIDs configured by the selected database. They do not validate a certificate path or revocation. CCT's separate Validator utility retains path-building support; a passing policy-field case is not evidence of trust.
+
 For certificate path errors, review the recorded cause, certificate validity, intended policies and approved trust material, including preserved per-user files. An extracted end-entity certificate may be available even when a path cannot be built. Resolve a trust configuration problem through the approved PKI process.
+
+Issuer certificates must also be available to the path builder. [Java 17.0.18 introduced filtering of AIA issuer-download URLs](https://www.oracle.com/java/technologies/javase/17-0-18-relnotes.html), so `downloadAia=true` alone may not enable those downloads. The Validator also uses certificates already present in its store as issuer candidates, without treating them as additional trust anchors. An approved local PKCS#7 issuer bundle can supply intermediates without downloads: in `pdval.properties`, set `caPathString` to its absolute directory and `caFileName` to its filename, then restart CCT. The configured trust anchor still governs validation. A path-building failure alone does not establish that a policy OID is missing.
 
 The packaged `user_log_config.xml` configures **Logback through SLF4J**. Preserve its `${LOG_DIR}` paths when changing logging, and restart CCT to apply configuration changes. The older wiki's Log4j configuration instructions and installation-directory output paths describe earlier releases.

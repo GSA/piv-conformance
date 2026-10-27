@@ -192,7 +192,7 @@ INSERT INTO "TestSteps" VALUES(127,'CMS.19','gov.gsa.pivconformance.conformancel
 INSERT INTO "TestSteps" VALUES(128,'CMS.20','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_20',NULL);
 INSERT INTO "TestSteps" VALUES(129,'CMS.21','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_21',NULL);
 INSERT INTO "TestSteps" VALUES(130,'CMS.22','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_22',NULL);
-INSERT INTO "TestSteps" VALUES(131,'CMS.23','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_23',NULL);
+INSERT INTO "TestSteps" VALUES(131,'CMS.23','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_23_current',NULL);
 INSERT INTO "TestSteps" VALUES(132,'CMS.24','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_24',NULL);
 INSERT INTO "TestSteps" VALUES(133,'CMS.25','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_25',NULL);
 INSERT INTO "TestSteps" VALUES(134,'CMS.26','gov.gsa.pivconformance.conformancelib.tests.CMSTests','CMS_Test_26',NULL);

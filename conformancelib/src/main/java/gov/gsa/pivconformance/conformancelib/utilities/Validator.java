@@ -715,6 +715,7 @@ public class Validator {
      * @throws NoSuchProviderException
      */
     public boolean isValid(X509Certificate eeCert, String policyOids, X509Certificate trustAnchorCert) throws NoSuchAlgorithmException, CertStoreException, CertPathBuilderException, InvalidAlgorithmParameterException, NoSuchProviderException, ConformanceTestException {
+        setCertPath(null);
         boolean rv = false;
         HashSet<String> policies = null;
         if (eeCert == null) {
@@ -755,7 +756,18 @@ public class Validator {
             if (certStore == null)
                 certStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList));
 
-            Set<X509Certificate> certSet = (Set<X509Certificate>) certStore.getCertificates(null);
+            Set<X509Certificate> certSet = new HashSet<>();
+            for (Certificate candidate : certStore.getCertificates(null))
+                certSet.add((X509Certificate) candidate);
+            // Stored certificates are issuer candidates; only the selected anchor is trusted.
+            KeyStore keyStore = getKeyStore();
+            if (keyStore != null) {
+                Enumeration<String> aliases = keyStore.aliases();
+                while (aliases.hasMoreElements()) {
+                    Certificate candidate = keyStore.getCertificate(aliases.nextElement());
+                    if (candidate instanceof X509Certificate certificate) certSet.add(certificate);
+                }
+            }
             certSet.add(v_eeCert);
             if (v_trustAnchorCert != null)
                 certSet.add(v_trustAnchorCert);
@@ -775,7 +787,7 @@ public class Validator {
             }
         } catch (ConformanceTestException e) {
             s_logger.error("Build failed: Check test config");
-        } catch (CertPathBuilderException | NoSuchAlgorithmException | NoSuchProviderException | CertStoreException | InvalidAlgorithmParameterException e) {
+        } catch (CertPathBuilderException | NoSuchAlgorithmException | NoSuchProviderException | CertStoreException | InvalidAlgorithmParameterException | KeyStoreException e) {
             s_logger.error("Build failed: " + e.getMessage());
         }
         return rv;
@@ -824,7 +836,7 @@ public class Validator {
         parameters.setRevocationEnabled(false);
         parameters.setSigProvider(getProvider());
         parameters.setInitialPolicies(policies);
-        parameters.setExplicitPolicyRequired(false);
+        parameters.setExplicitPolicyRequired(policies != null && !policies.isEmpty());
         parameters.setPolicyMappingInhibited(false);
         CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX", this.getProvider().equals("BC") ? "BC" : "SUN");
         CertPathBuilderResult cpbResult = cpb.build(parameters);
