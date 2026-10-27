@@ -104,9 +104,22 @@ public class ExistingCctRegressionTest {
         ByteBuffer holderBytes = ByteBuffer.wrap(decoded.getCardholderUUID());
         holderUrn = "urn:uuid:" + new UUID(holderBytes.getLong(), holderBytes.getLong());
         sanSigningKey = rsa(2048, RSAKeyGenParameterSpec.F4);
+        // Fixed public signed objects preserve the weak-key negative without generating a weak private key.
+        String weakCms = "cms-rsa1024-sha256";
+        try (var archive = new java.util.zip.ZipFile(root.resolve(
+                "conformancelib/testdata/weak-rsa1024-cms-test-only.zip").toFile())) {
+            for (int row : new int[]{269, 286, 306, 324, 338}) {
+                var entry = archive.getEntry(row + ".bin");
+                assertNotNull(entry, "Stored weak-key CMS fixture is missing: " + row);
+                try (var input = archive.getInputStream(entry)) {
+                    cmsConsumerObjects.put(row + ":" + weakCms + ":null", input.readAllBytes());
+                }
+            }
+        }
+        currentChuidObjects.put(weakCms, cmsConsumerObjects.get("269:" + weakCms + ":null"));
         for (String kind : List.of("plain", "EE", "32", "33", "unknown", "guid-first",
                 "holder-absent", "holder-v1", "holder-v5", "holder-variant", "holder-short", "holder-before-date",
-                "cms-sha384", "cms-rsa1024-sha256", "cms-rsa3072-sha256", "cms-rsa4096-sha384", "cms-rsa4096-sha256", "cms-p256-sha256", "cms-p256-sha384",
+                "cms-sha384", "cms-rsa3072-sha256", "cms-rsa4096-sha384", "cms-rsa4096-sha256", "cms-p256-sha256", "cms-p256-sha384",
                 "cms-p384-sha384", "cms-p384-sha256", "cms-p521-sha384", "cms-brainpool256-sha256", "cms-sha1", "date-month-13", "date-nonleap",
                 "date-short", "date-leap", "date-nondigit", "date-nonascii", "guid-delayed",
                 "cms-combined-rsa-oid", "cms-corrupt-signature",
@@ -123,8 +136,8 @@ public class ExistingCctRegressionTest {
         }
         keyProfileCertificates.put("rsa3072", currentCertificate(rsa(3072, RSAKeyGenParameterSpec.F4)));
         // A fixed, self-signed weak-key certificate is the intentional negative
-        // input for the key-profile cases. The separate CMS size negative uses
-        // an ephemeral 1024-bit test key, never written to disk or packaged.
+        // input for the key-profile cases. The separate CMS size negatives use
+        // the public signed objects loaded above. Neither fixture is packaged.
         byte[] weakDer = Files.readAllBytes(root.resolve("conformancelib/testdata/weak-rsa1024-test-only.der"));
         X509Certificate weakCertificate = (X509Certificate) CertificateFactory.getInstance("X.509")
                 .generateCertificate(new java.io.ByteArrayInputStream(weakDer));
@@ -1917,8 +1930,7 @@ public class ExistingCctRegressionTest {
         boolean brainpool = kind.equals("cms-brainpool256-sha256");
         KeyPair key = ecCurve != null ? ec(ecCurve)
                 : kind.startsWith("cms-rsa4096-") ? rsa(4096, RSAKeyGenParameterSpec.F4)
-                : kind.startsWith("cms-rsa3072-") ? rsa(3072, RSAKeyGenParameterSpec.F4)
-                : kind.startsWith("cms-rsa1024-") ? rsa(1024, RSAKeyGenParameterSpec.F4) : sanSigningKey;
+                : kind.startsWith("cms-rsa3072-") ? rsa(3072, RSAKeyGenParameterSpec.F4) : sanSigningKey;
         X500Name name = new X500Name("CN=CCT CHUID regression signer");
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(100),
                 new java.util.Date(1704067200000L), new java.util.Date(1893456000000L), name, key.getPublic());
