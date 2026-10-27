@@ -7,7 +7,6 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 
-import java.awt.Color;
 import java.awt.HeadlessException;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.LayoutStyle.ComponentPlacement;
 
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -61,7 +59,8 @@ public class SimpleTestExecutionPanel extends JPanel {
 	private final JButton m_packageResultsButton;
 	private boolean m_refreshingReaders;
 	public SimpleTestExecutionPanel() {
-		setBackground(Color.WHITE);
+		setBackground(CctUi.CANVAS);
+		setBorder(javax.swing.BorderFactory.createEmptyBorder(18, 22, 18, 22));
 		
 		JLabel lblCardReader = new JLabel("Card Reader");
 		
@@ -84,10 +83,6 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_databaseNameField.setEditable(false);
 		m_databaseNameField.setColumns(10);
 		
-		JButton btnOpenOtherDatabase = new JButton("Open Other Database...");
-		// XXX *** TEMPORARY
-		btnOpenOtherDatabase.setVisible(false);
-		
 		JLabel lblReaderStatus = new JLabel("Reader Status");
 		
 		m_readerStatusField = new JTextField();
@@ -95,7 +90,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_readerStatusField.setEditable(false);
 		m_readerStatusField.setColumns(10);
 		
-		m_runButton = new JButton("Verify PIN and Execute Tests");
+		m_runButton = CctUi.button("Verify PIN and Execute Tests", true);
 		m_runButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -191,20 +186,16 @@ public class SimpleTestExecutionPanel extends JPanel {
 			}
 		});
 
-		m_viewResultsButton = new JButton(GuiRunnerAppController.getInstance().getDisplayTestReportAction());
-		m_viewResultsButton.setText("View Results");
-		m_viewResultsButton.setIcon(null);
+		m_viewResultsButton = CctUi.button(GuiRunnerAppController.getInstance().getDisplayTestReportAction(), "View Test Results", false);
 		m_viewResultsButton.setVisible(false);
 
-		m_packageResultsButton = new JButton(GuiRunnerAppController.getInstance().getPackageResultsAction());
-		m_packageResultsButton.setText("Package Results");
-		m_packageResultsButton.setIcon(null);
+		m_packageResultsButton = CctUi.button(GuiRunnerAppController.getInstance().getPackageResultsAction(), "Package Results", false);
 		m_packageResultsButton.setVisible(false);
 		
 		m_testProgressBar = new JProgressBar();
 		m_testProgressBar.setAlignmentY(Component.TOP_ALIGNMENT);
 		
-		JButton btnRefreshReaders = new JButton("Refresh Readers");
+		JButton btnRefreshReaders = CctUi.button("Refresh Readers", true);
 		btnRefreshReaders.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -228,100 +219,57 @@ public class SimpleTestExecutionPanel extends JPanel {
 			lblImage.setIcon(imageIcon);
 			lblImage.setText("");
 		}
+		lblCardReader.setLabelFor(m_readerComboBox);
+		lblApplicationPin.setLabelFor(m_appPinField);
+		lblTestDatabase.setLabelFor(m_databaseNameField);
+		lblReaderStatus.setLabelFor(m_readerStatusField);
+		for (JLabel label : new JLabel[] { lblCardReader, lblApplicationPin, lblTestDatabase, lblReaderStatus }) {
+			label.setFont(CctUi.font(13, java.awt.Font.PLAIN));
+			label.setForeground(CctUi.INK);
+		}
+		JPanel actions = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 8, 0));
+		actions.setOpaque(false);
+		actions.add(m_runButton);
+		actions.add(m_viewResultsButton);
+		actions.add(m_packageResultsButton);
 		GroupLayout groupLayout = new GroupLayout(this);
-		groupLayout.setHorizontalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(10)
-							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(lblApplicationPin)
-									.addGap(425)
-									.addComponent(m_appPinField, 0, 0, Short.MAX_VALUE))
-								.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
-									.addComponent(lblCardReader)
-									.addGap(34)
-									.addComponent(m_readerComboBox, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE))))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(10)
-							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(lblReaderStatus)
-									.addGap(26)
-									.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-										.addComponent(btnOpenOtherDatabase)
-										.addComponent(m_readerStatusField, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE)))
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(lblTestDatabase)
-									.addGap(25)
-									.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, 507, GroupLayout.PREFERRED_SIZE))))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(226)
-							.addComponent(lblImage, GroupLayout.PREFERRED_SIZE, 202, GroupLayout.PREFERRED_SIZE)))
-					.addGap(165))
-				.addGroup(groupLayout.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(m_testProgressBar, GroupLayout.DEFAULT_SIZE, 784, Short.MAX_VALUE)
-					.addContainerGap())
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(106)
-					.addComponent(btnRefreshReaders, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(m_runButton)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(m_viewResultsButton)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(m_packageResultsButton)
-					.addGap(106))
-		);
-		groupLayout.setVerticalGroup(
-			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(20)
-					.addComponent(lblImage)
-					.addGap(20)
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(3)
-							.addComponent(lblCardReader))
-						.addComponent(m_readerComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(23)
-							.addComponent(lblApplicationPin))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(20)
-							.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addGap(20)
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(3)
-							.addComponent(lblTestDatabase))
-						.addComponent(m_databaseNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(27)
-					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(lblReaderStatus)
-							.addGap(18))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(m_readerStatusField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)))
-					.addComponent(btnOpenOtherDatabase)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(btnRefreshReaders)
-						.addComponent(m_runButton)
-						.addComponent(m_viewResultsButton)
-						.addComponent(m_packageResultsButton))
-					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-		);
 		setLayout(groupLayout);
-		
-		
+		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+						.addGap(0, 0, Short.MAX_VALUE).addComponent(lblImage).addGap(0, 0, Short.MAX_VALUE))
+				.addGroup(groupLayout.createSequentialGroup()
+						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(lblCardReader).addComponent(lblApplicationPin)
+								.addComponent(lblTestDatabase).addComponent(lblReaderStatus))
+						.addGap(16)
+						.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup()
+										.addComponent(m_readerComboBox, 120, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addGap(8).addComponent(btnRefreshReaders))
+								.addGroup(groupLayout.createSequentialGroup()
+										.addComponent(m_appPinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+										.addGap(0, 0, Short.MAX_VALUE))
+								.addComponent(m_databaseNameField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(m_readerStatusField, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+				.addComponent(m_testProgressBar, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+				.addComponent(actions, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
+		groupLayout.setVerticalGroup(groupLayout.createSequentialGroup()
+				.addGap(8).addComponent(lblImage).addGap(24)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblCardReader).addComponent(m_readerComboBox).addComponent(btnRefreshReaders))
+				.addGap(18)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblApplicationPin).addComponent(m_appPinField))
+				.addGap(18)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblTestDatabase).addComponent(m_databaseNameField))
+				.addGap(18)
+				.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblReaderStatus).addComponent(m_readerStatusField))
+				.addGap(20).addComponent(m_testProgressBar, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+				.addGap(12).addComponent(actions, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+				.addGap(0, 0, Short.MAX_VALUE));
+
 		m_testProgressBar.setVisible(false);
 		refreshReaderState();
 		refreshDatabaseInfo();
@@ -329,12 +277,14 @@ public class SimpleTestExecutionPanel extends JPanel {
 	}
 
 	public void refreshDatabaseInfo() {
+		m_databaseNameField.setToolTipText(null);
 		ConformanceTestDatabase db = GuiRunnerAppController.getInstance().getTestDatabase();
 		if(db != null) {
 			if(db.getConnection() != null) {
 				Path databasePath = db.getDatabasePath();
 				if(databasePath != null) {
-					m_databaseNameField.setText(databasePath.toString());
+					m_databaseNameField.setText(databasePath.getFileName().toString());
+					m_databaseNameField.setToolTipText(databasePath.toString());
 				} else {
 					m_databaseNameField.setText("(unavailable)");
 				}

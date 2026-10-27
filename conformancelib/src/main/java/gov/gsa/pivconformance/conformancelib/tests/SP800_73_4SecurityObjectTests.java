@@ -179,7 +179,7 @@ public class SP800_73_4SecurityObjectTests {
 				} else if(entry.getValue().equals(APDUConstants.PRINTED_INFORMATION_OID)) {
 					soDataElements.put(APDUConstants.PRINTED_INFORMATION_OID, ((PrintedInformation) dataObject).getSignedContent());
 				} else if(entry.getValue().equals(APDUConstants.DISCOVERY_OBJECT_OID)) {
-					soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, (dataObject).getBytes());
+					soDataElements.put(APDUConstants.DISCOVERY_OBJECT_OID, ((DiscoveryObject) dataObject).getSignedContent());
 				} else if(entry.getValue().equals(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID)) {
 					soDataElements.put(APDUConstants.CARDHOLDER_IRIS_IMAGES_OID, ((CardHolderBiometricData) dataObject).getCbeffContainer());
 				} else if(entry.getValue().equals(APDUConstants.KEY_HISTORY_OBJECT_OID)) {
@@ -244,9 +244,9 @@ public class SP800_73_4SecurityObjectTests {
 
 		((SecurityObject) o).setMapOfDataElements(soDataElements);
 		
-		//Confirm that message digest from signed attributes bag matches the digest over Fingerprint biometric data (excluding contents of digital signature field) 
+		// Compare every referenced data-object content hash with the signed Security Object.
 		boolean verified = ((SecurityObject) o).verifyHashes();
-		assertTrue(verified, "Hashes is security object were not equivalent");
+		assertTrue(verified, "Hashes in Security Object do not match the retrieved data objects");
     }
 
 	//Tags 0xBA, 0xBB, 0XFE are in that order

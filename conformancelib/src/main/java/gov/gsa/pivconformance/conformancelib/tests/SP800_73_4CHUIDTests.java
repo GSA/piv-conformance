@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -79,6 +81,12 @@ public class SP800_73_4CHUIDTests {
 	@DisplayName("SP800-73-5 CHUID Buffer Length absent")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A, Table 10 note, p. 36",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=48",
+            excerpt = "Buffer Length, Organizational Identifier, and DUNS data elements have been eliminated in this version of SP 800-73.",
+            scope = "Checks that CHUID Buffer Length (EE) is absent.")
 	void sp800_73_5_Test_9(String oid, TestReporter reporter) {
 		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
 		assertTrue(chuid.getBufferLength() == null, "SP800-73-5 CHUID: eliminated tag EE is present");
@@ -142,6 +150,12 @@ public class SP800_73_4CHUIDTests {
 	@DisplayName("SP800-73-5 CHUID organization fields absent")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A, Table 10 note, p. 36",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=48",
+            excerpt = "Buffer Length, Organizational Identifier, and DUNS data elements have been eliminated in this version of SP 800-73.",
+            scope = "Checks that CHUID Organizational Identifier (32) and DUNS (33) are absent.")
 	void sp800_73_5_Test_11(String oid, TestReporter reporter) {
 		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
 		assertTrue(chuid.getOrganizationalIdentifier() == null,
@@ -267,6 +281,16 @@ public class SP800_73_4CHUIDTests {
 	@DisplayName("SP800-73-5 optional CHUID Cardholder UUID")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Sections 3.1.2 and 3.4.2, pp. 7 and 17; Appendix A, pp. 33 and 36",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=19",
+            excerpt = "If present, it SHALL include a Cardholder UUID as described in Sec. 3.4.2.",
+            scope = "Allows the optional Cardholder UUID to be absent. When present, checks 16-byte length, RFC 4122 variant, version 4 and position after the expiration date.")
+	@ResultReference(publication = "RFC 4122 (as referenced by SP 800-73-5)",
+            location = "Sections 4.1.1 through 4.1.3: variant, byte order and version",
+            url = "https://www.rfc-editor.org/rfc/rfc4122.html#section-4.1.1",
+            scope = "Supplies the UUID encoding used by this check; this case requires the RFC 4122 variant and version 4.")
 	void sp800_73_5_Test_13(String oid, TestReporter reporter) {
 		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
 		byte[] value = chuid.getCardholderUUID();
@@ -343,10 +367,12 @@ public class SP800_73_4CHUIDTests {
 		Calendar cal = Calendar.getInstance();
 		Date today = cal.getTime();
 		cal.add(Calendar.YEAR, years);
-		Date todayPlus6Years = cal.getTime();
+		Date latestExpirationDate = cal.getTime();
 
-		assertTrue(expirationDate.compareTo(today) >= 0);
-		assertTrue(expirationDate.compareTo(todayPlus6Years) <= 0);
+		assertTrue(expirationDate.compareTo(today) >= 0,
+				"CHUID expiration date is before the test date");
+		assertTrue(expirationDate.compareTo(latestExpirationDate) <= 0,
+				"CHUID expiration date is more than " + years + " years after the test date");
 	}
 
 	// No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are
@@ -380,6 +406,12 @@ public class SP800_73_4CHUIDTests {
 	@DisplayName("SP800-73-5 CHUID allowed tags")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A, Table 10 (tag columns), p. 36",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=48",
+            excerpt = "FASC-N 0x30\nGUID 0x34\nExpiration Date 0x35\nCardholder UUID (Optional) 0x36\nIssuer Asymmetric Signature 0x3E\nError Detection Code 0xFE",
+            scope = "Allows only CHUID tags 30, 34, 35, 36, 3E and FE; also rejects EE. Field lengths and signature validity are outside this case.")
 	void sp800_73_5_Test_17(String oid, TestReporter reporter) {
 		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
 		assertTrue(chuid.getBufferLength() == null, "SP800-73-5 CHUID: eliminated tag EE is present");
@@ -419,6 +451,12 @@ public class SP800_73_4CHUIDTests {
 	@DisplayName("SP800-73-5 CHUID FASC-N first")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A opening, p. 33; Table 10, p. 36",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=45",
+            excerpt = "For each container, compliant cards SHALL return all TLV elements of the container in the order listed in this appendix.",
+            scope = "Checks that FASC-N (30) is first and Buffer Length (EE) is absent.")
 	void sp800_73_5_Test_43(String oid, TestReporter reporter) {
 		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
 		assertTrue(chuid.getBufferLength() == null, "SP800-73-5 CHUID: eliminated tag EE is present");
@@ -550,6 +588,12 @@ public class SP800_73_4CHUIDTests {
 	@DisplayName("SP800-73-5 CHUID GUID after FASC-N")
 	@ParameterizedTest(name = "{index} => oid = {0}")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Appendix A opening, p. 33; Table 10, p. 36",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=45",
+            excerpt = "For each container, compliant cards SHALL return all TLV elements of the container in the order listed in this appendix.",
+            scope = "Checks that GUID (34) immediately follows FASC-N (30).")
 	void sp800_73_5_Test_45(String oid, TestReporter reporter) {
 		CardHolderUniqueIdentifier chuid = (CardHolderUniqueIdentifier) AtomHelper.getDataObject(oid);
 		List<BerTag> tags = chuid.getTagList();

@@ -6,7 +6,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -212,7 +211,6 @@ public class DiscoveryObject extends PIVDataObject {
             BerTlvParser tlvp = new BerTlvParser(new CCTTlvLogger(this.getClass()));
             BerTlv outer = tlvp.parseConstructed(rawBytes);
 
-            ByteArrayOutputStream scos = new ByteArrayOutputStream();
             for (BerTlv tlv : outer.getValues()) {
                 byte[] tag = tlv.getTag().bytes;
             	super.m_tagList.add(tlv.getTag());
@@ -221,13 +219,11 @@ public class DiscoveryObject extends PIVDataObject {
                 	m_aid = tlv.getBytesValue();
                     m_content.put(tlv.getTag(), tlv.getBytesValue());
                     
-                    scos.write(APDUUtils.getTLV(TagConstants.PIV_CARD_APPLICATION_AID_TAG, m_aid));
                 } else if (Arrays.equals(tag, TagConstants.PIN_USAGE_POLICY_TAG)) {
                     
                 	m_pinPolicy = tlv.getBytesValue();
                     m_content.put(tlv.getTag(), tlv.getBytesValue());
                     
-                    scos.write(APDUUtils.getTLV(TagConstants.PIN_USAGE_POLICY_TAG, m_pinPolicy));
 
                     m_globalPINisPrimary = false;
                     m_globalPINSatisfiesACR = false;
@@ -255,7 +251,8 @@ public class DiscoveryObject extends PIVDataObject {
                 }
             }
 
-            m_signedContent = scos.toByteArray();
+            // Integrity checks cover the exact encoded value, without the outer 7E tag and length.
+            m_signedContent = outer.getBytesValue();
 
         } catch (Exception ex) {
 

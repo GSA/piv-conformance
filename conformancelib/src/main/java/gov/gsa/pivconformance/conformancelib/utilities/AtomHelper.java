@@ -188,7 +188,9 @@ public class AtomHelper {
 	 */
 
 	public static boolean isOptionalAndAbsent(String oid) {
-		if(!APDUConstants.isContainerMandatory(oid) && !AtomHelper.isDataObjectPresent(oid, true)) {
+		// Only DATA_OBJECT_NOT_FOUND establishes absence. Read and decode errors
+		// must retain the failures raised by the existing acquisition path.
+		if(!APDUConstants.isContainerMandatory(oid) && AtomHelper.getDataObject(oid) == null) {
 			s_logger.info("Optional container {} is absent from the card.", oid);
 			return true;
 		}

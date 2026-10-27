@@ -16,8 +16,73 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReaderAndVersionRegressionTest {
+    /** Run against the shipped JAR with its bundled runtime, not the build JDK. */
+    public static void main(String[] args) throws Exception {
+        Path application = Path.of(args[0]).toAbsolutePath().normalize();
+        System.setProperty("cct.packaged", "true");
+        System.setProperty("cct.data.dir", args[1]);
+        CctApplicationPaths.initialize();
+        assertEquals(application, CctApplicationPaths.resourceDirectory());
+        assertTrue(Files.isRegularFile(CctApplicationPaths.dataDirectory().resolve("x509-certs/cacerts.jks")));
+        assertNotNull(java.security.Security.getProvider("SunEC"));
+        java.security.Signature.getInstance("RSASSA-PSS");
+        java.security.Signature.getInstance("SHA384withECDSA");
+        javax.smartcardio.TerminalFactory.getDefault();
+        for (String profile : new String[]{"PIV_Production_Cards", "PIV_ICAM_Test_Cards",
+                "PIV-I_Production_Cards", "PIV-I_ICAM_Test_Cards"}) {
+            String uri = application.resolve(profile + ".db").toUri().toString();
+            try (var connection = java.sql.DriverManager.getConnection("jdbc:sqlite:" + uri + "?mode=ro");
+                 var statement = connection.createStatement();
+                 var rows = statement.executeQuery("SELECT COUNT(*) FROM TestCases")) {
+                assertTrue(rows.next());
+                assertEquals(489, rows.getInt(1), profile);
+            }
+        }
+        var listener = new org.junit.platform.launcher.listeners.SummaryGeneratingListener();
+        var request = org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.request()
+                .selectors(org.junit.platform.engine.discovery.DiscoverySelectors.selectClass(
+                        "gov.gsa.pivconformance.conformancelib.tests.ExistingCctRegressionTest")).build();
+        org.junit.platform.launcher.core.LauncherFactory.create().execute(request, listener);
+        var summary = listener.getSummary();
+        summary.printTo(new java.io.PrintWriter(System.out, true));
+        summary.printFailuresTo(new java.io.PrintWriter(System.out, true));
+        assertTrue(summary.getTestsFoundCount() > 0, "The packaged regression suite must discover tests");
+        assertEquals(summary.getTestsFoundCount(), summary.getTestsStartedCount());
+        assertEquals(summary.getTestsFoundCount(), summary.getTestsSucceededCount());
+        assertEquals(0, summary.getTestsFailedCount());
+        assertEquals(0, summary.getTestsSkippedCount());
+        assertEquals(0, summary.getTestsAbortedCount());
+        assertEquals(0, summary.getContainersFailedCount());
+        System.out.println("Packaged application: resources, four databases, cryptography and "
+                + summary.getTestsSucceededCount() + " regressions passed.");
+    }
+
+    @Test
+    void packagedLoggingConfigurationStartsAndWritesResultRows(@TempDir Path directory) throws Exception {
+        var context = new ch.qos.logback.classic.LoggerContext();
+        context.setMDCAdapter(new ch.qos.logback.classic.util.LogbackMDCAdapter());
+        context.putProperty("LOG_DIR", directory.toString());
+        try {
+            var configurator = new ch.qos.logback.classic.joran.JoranConfigurator();
+            configurator.setContext(context);
+            configurator.doConfigure(Path.of(System.getProperty("cct.repository"),
+                    "cardlib/src/main/resources/user_log_config.xml").toFile());
+            var problems = context.getStatusManager().getCopyOfStatusList().stream()
+                    .filter(status -> status.getLevel() >= ch.qos.logback.core.status.Status.WARN).toList();
+            assertTrue(problems.isEmpty(), problems.toString());
+            context.getLogger("gov.gsa.pivconformance.conformancelib.testResult")
+                    .info("8.1.8,\"Synthetic logging compatibility\",Pass,Pass");
+            assertTrue(Files.readString(directory.resolve("conformancelog/conformance_results.csv"))
+                    .contains(",8.1.8,\"Synthetic logging compatibility\",Pass,Pass"));
+        } finally {
+            context.stop();
+        }
+    }
+
     @Test
     void changingReaderReleasesTheOldConnection() {
         CardSettingsSingleton settings = CardSettingsSingleton.getInstance();

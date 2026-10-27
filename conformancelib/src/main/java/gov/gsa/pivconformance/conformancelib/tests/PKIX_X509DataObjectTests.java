@@ -1,5 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+
 import gov.gsa.pivconformance.cardlib.card.client.*;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton;
 import gov.gsa.pivconformance.conformancelib.configuration.CardSettingsSingleton.LOGIN_STATUS;
@@ -232,49 +234,38 @@ public class PKIX_X509DataObjectTests {
     @ParameterizedTest(name = "{index} => oid = {0}")
     //@MethodSource("pKIX_PIVAuthx509TestProvider2")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
+    @ResultReference(publication = "SP 800-85B",
+            location = "Sections 11.1.2.2, 11.2.2.5, 11.3.2.4, 11.4.2.2 and 11.7.2.4.1",
+            url = "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-85b.pdf",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-85b.pdf",
+            scope = "Checks the configured policy OIDs in the certificate extension. This does not build a certificate path or establish trust or revocation status.")
     void PKIX_Test_6(String oid, String containersAndPolicyOids, TestReporter reporter) {
 		if (AtomHelper.isOptionalAndAbsent(oid))
 			return;
 		X509Certificate eeCert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
 		assertNotNull(eeCert, "Certificate could not be read for " + oid);
 
-		if (containersAndPolicyOids == null) {
-			ConformanceTestException e  = new ConformanceTestException("policyOid is null");
-			fail(e);
+		assertNotNull(containersAndPolicyOids, "Certificate policy OIDs are not configured");
+		Set<String> allowed = new HashSet<>();
+		for (String entry : containersAndPolicyOids.replaceAll("\\s+", "").split(",")) {
+			String[] parts = entry.split(":", 2);
+			if (parts.length == 2 && oid.equals(APDUConstants.getStringForFieldNamed(parts[0])))
+				allowed.addAll(Arrays.asList(parts[1].split("\\|")));
 		}
-		String[] containerOidList = containersAndPolicyOids.replaceAll("\\s+", "").split(",");
-		
-		HashMap<String,List<String>> rv = new HashMap<String,List<String>>();
-		String failMsg = null;
-		boolean valid = false;
-		for(String p : containerOidList) {
-			String[] allowedPolicies = p.split(":");
-			String policyOidValue = APDUConstants.getStringForFieldNamed(allowedPolicies[0]).trim();
-			if (policyOidValue.equals(oid)) {
-				String containerOid = allowedPolicies[0].trim();
-				s_logger.debug("For {}, one of policy OIDs ({}) should be asserted", containerOid, allowedPolicies[1]);
-				try {
-					Validator validator = new Validator("SunRsaSign", "cacerts.jks", "changeit");
-					s_logger.debug(validator.toString());
-					// Validate cert to trust anchor in default keystore
-					valid = validator.isValid(eeCert, allowedPolicies[1], null);
-					if (valid == true)  {
-						s_logger.debug("Certificate is valid");
-						s_logger.debug(validator.toString());
-						if (validator.getCertPath() != null) {
-							validator.dumpCertPath(true);
-						} else {
-							failMsg = "Certificate is invalid";
-							s_logger.error(failMsg);
-						}
-					}
-				} catch (Exception e) {
-					failMsg = e.getMessage();
-					s_logger.error(failMsg);
-				}
+		assertFalse(allowed.isEmpty(), "No certificate policy OIDs configured for " + oid);
+		Set<String> asserted = new HashSet<>();
+		byte[] extension = eeCert.getExtensionValue(Extension.certificatePolicies.getId());
+		if (extension != null) {
+			try {
+				CertificatePolicies policies = CertificatePolicies.getInstance(JcaX509ExtensionUtils.parseExtensionValue(extension));
+				for (PolicyInformation policy : policies.getPolicyInformation())
+					asserted.add(policy.getPolicyIdentifier().getId());
+			} catch (IOException | IllegalArgumentException e) {
+				fail("Certificate policies extension could not be decoded", e);
 			}
 		}
-		assertTrue(valid, failMsg);
+		assertTrue(allowed.stream().anyMatch(asserted::contains),
+				"Certificate does not assert a required policy OID: " + allowed);
     }
 	
 	/* ******************* Standard stuff for most all certs ************************ */
@@ -422,7 +413,11 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_7(String oid, TestReporter reporter) {
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
+		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get authorityInformationAccess extension
@@ -822,7 +817,11 @@ public class PKIX_X509DataObjectTests {
 	//@MethodSource("pKIX_x509TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void PKIX_Test_22(String oid, TestReporter reporter) {
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
+		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		boolean rv = false;
 
@@ -1014,6 +1013,16 @@ public class PKIX_X509DataObjectTests {
 	@DisplayName("PKIX.27 current PIV UUID test")
 	@ParameterizedTest
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
+	@ResultReference(publication = "SP 800-73-5 Part 1",
+            location = "Sections 3.4.1 item 4 and 3.4.2, p. 17",
+            url = "https://csrc.nist.gov/pubs/sp/800/73/pt1/5/final",
+            documentUrl = "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-73pt1-5.pdf#page=29",
+            excerpt = "The string representation of the same UUID value SHALL be present in the X.509 Certificate for PIV Authentication and the X.509 Certificate for Card Authentication in the subjectAltName extension encoded as a URI, as specified by [RFC4122, Section 3].",
+            scope = "Checks Card UUID linkage between the certificate SAN and CHUID, plus applicable optional Cardholder UUID validity and linkage. This does not verify certificate signatures or trust.")
+	@ResultReference(publication = "RFC 4122 (as referenced by SP 800-73-5)",
+            location = "Section 3; Sections 4.1.1 through 4.1.3",
+            url = "https://www.rfc-editor.org/rfc/rfc4122.html#section-3",
+            scope = "Supplies UUID URN syntax, variant and version encoding. The applicable SAN linkage rule comes from SP 800-73-5.")
 	void PKIX_Test_27_current(String oid, String requiredOid, TestReporter reporter) {
 		PKIX_Test_27(oid, requiredOid, reporter);
 		if (!APDUConstants.X509_CERTIFICATE_FOR_PIV_AUTHENTICATION_OID.equals(oid)) return;
@@ -1447,7 +1456,7 @@ public class PKIX_X509DataObjectTests {
 						ASN1ObjectIdentifier oID = ASN1ObjectIdentifier.getInstance(seq.getObjectAt(0));
 						if (oID.toString().equals(requiredOid)) {
 							ASN1TaggedObject onValue = ASN1TaggedObject.getInstance(seq.getObjectAt(1)); 
-							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getObject()).getOctets();
+							byte[] encodedFascn = ASN1OctetString.getInstance(onValue.getExplicitBaseObject().toASN1Primitive()).getOctets();
 							if (encodedFascn != null &&  (Arrays.equals(encodedFascn, identifier))) {
 								result = Arrays.equals(encodedFascn, identifier);
 								s_logger.debug("FASCN: {}", Hex.encodeHexString(encodedFascn));

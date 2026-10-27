@@ -24,3 +24,10 @@ sqlite3 filename.db < filename.sql
 
 That will produce the .sql and .db files for the profile *filename*.
 
+### Weak-key rejection fixtures
+
+`weak-rsa1024-test-only.der` is a public certificate for the RSA key-size rejection cases.
+`weak-rsa1024-cms-test-only.zip` contains five public signed objects generated once with the existing regression builder: CHUID (`269.bin`), fingerprints (`286.bin`), face (`306.bin`), Security Object (`324.bin`) and iris (`338.bin`). The CMS signer uses a synthetic 1,024-bit RSA certificate. No private key is stored, and ordinary test runs do not generate weak keys.
+
+`ExistingCctRegressionTest` verifies signatures, signed attributes, CBEFF lengths and Security Object relationships independently of the mapped key-size assertions. The original case routes must reject these objects for their key size; valid generated controls must pass. The biometric payloads only support these CMS tests and do not establish image conformance. Both weak-key fixture files are test inputs and are excluded from runnable release packages.
+

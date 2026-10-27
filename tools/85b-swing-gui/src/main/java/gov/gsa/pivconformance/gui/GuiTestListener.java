@@ -1,211 +1,243 @@
 package gov.gsa.pivconformance.gui;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
-import javax.swing.tree.DefaultTreeModel;
-
+import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
+import gov.gsa.pivconformance.conformancelib.configuration.TestCaseModel;
+import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
+import gov.gsa.pivconformance.conformancelib.tests.PlaceholderTests;
 import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.engine.reporting.ReportEntry;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.TestPlan;
+import org.opentest4j.AssertionFailedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import gov.gsa.pivconformance.conformancelib.configuration.TestCaseModel;
-import gov.gsa.pivconformance.conformancelib.configuration.TestStatus;
-import gov.gsa.pivconformance.conformancelib.tests.PlaceholderTests;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Set;
 
-
+/** Records the original CCT verdicts and their causes as each database case executes. */
 public class GuiTestListener implements TestExecutionListener {
-	
-	// for log events intended to troubleshoot the listener
-	private static final Logger s_logger = LoggerFactory.getLogger(GuiTestListener.class);
-	private static Logger s_testProgressLogger = null;
-	private static Logger s_testResultLogger = null;
-	
-	private String m_testCaseIdentifier;
-	private String m_testCaseDescription;
-	private boolean m_testCaseExpectedResult;
-	private JProgressBar m_progressBar;
-	
-	Map<TestIdentifier, TestExecutionResult> m_testStepResults;
-	boolean m_atomFailed;
-	boolean m_atomAborted;
-	boolean m_atomUnsupported;
+    private static final Logger LOG = LoggerFactory.getLogger(GuiTestListener.class);
+    private static final Logger PROGRESS = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testProgress");
+    private static final Logger RESULTS = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");
 
-	@Override
-	public void testPlanExecutionStarted(TestPlan testPlan) {
-		if (s_testProgressLogger == null)
-			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testProgress");
-		if (s_testResultLogger == null)
-			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-		TestExecutionListener.super.testPlanExecutionStarted(testPlan);
-		m_atomAborted = false;
-		m_atomFailed = false;
-		m_atomUnsupported = false;
-		s_testProgressLogger.info("Test plan started for conformance test {}", m_testCaseIdentifier);
-		try {
-			SwingUtilities.invokeAndWait(() -> {
-				m_progressBar.setString(m_testCaseIdentifier);
-			});
-		} catch (InterruptedException | InvocationTargetException e) {
-			s_logger.error("Failed to update progress bar on secondary thread", e);
-		}
-	}
+    private String identifier = "";
+    private String description = "";
+    private String object = "";
+    private boolean expectedPass = true;
+    private boolean reportCase = true;
+    private String configurationError;
+    private JProgressBar progressBar;
+    private final boolean updateUi;
+    private boolean failed;
+    private boolean aborted;
+    private boolean unsupported;
+    private int invocations;
+    private final List<RunResults.StepResult> steps = new ArrayList<>();
+    private final List<RunResults.CaseResult> completedCases = new ArrayList<>();
+    private final Set<Throwable> recordedFailures = Collections.newSetFromMap(new IdentityHashMap<>());
 
-	@Override
-	public void testPlanExecutionFinished(TestPlan testPlan) {
-		if (s_testProgressLogger == null)
-			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testProgress");
-		if (s_testResultLogger == null)
-			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");		
-		TestExecutionListener.super.testPlanExecutionFinished(testPlan);
-		s_testProgressLogger.info("Test plan finished for conformance test {}", m_testCaseIdentifier);
+    public GuiTestListener() { this(true); }
+    GuiTestListener(boolean updateUi) { this.updateUi = updateUi; }
 
-		TestStatus resultStatus = getResultStatus();
-		s_testResultLogger.info("{},\"{}\",{},{}", m_testCaseIdentifier, m_testCaseDescription.replaceAll("\"", "'"),
-				m_testCaseExpectedResult ? "Pass" : "Fail",
-				resultStatus == TestStatus.SKIP ? "Unsupported" : resultStatus == TestStatus.FAIL ? "Fail" : "Pass");
-		GuiTestCaseTreeNode tcNode = GuiRunnerAppController.getInstance().getApp().getTreePanel().getNodeByName(m_testCaseIdentifier);
-		if(tcNode != null) {
-			TestCaseModel tcModel = tcNode.getTestCase();
-			if(tcModel != null) {
-				tcModel.setTestStatus(resultStatus);
-			}
-		}
-		DefaultTreeModel model = GuiRunnerAppController.getInstance().getApp().getTreePanel().getTreeModel();
-		try {
-			SwingUtilities.invokeAndWait(() -> {
-				m_progressBar.setString(m_testCaseIdentifier + " Finished.");
-				m_progressBar.setValue(m_progressBar.getValue()+1);
-				if(model != null && tcNode != null) model.nodeChanged(tcNode);
-			});
-		} catch (InterruptedException | InvocationTargetException e) {
-			s_logger.error("Failed to update progress bar on secondary thread", e);
-		}
-	}
+    void configureCase(TestCaseModel testCase, boolean reportCase) {
+        identifier = testCase.getIdentifier();
+        description = testCase.getDescription();
+        object = testCase.getContainer();
+        expectedPass = testCase.getExpectedStatus() == 1;
+        this.reportCase = reportCase;
+        configurationError = null;
+        failed = aborted = unsupported = false;
+        steps.clear();
+        recordedFailures.clear();
+        invocations = 0;
+    }
 
-	@Override
-	public void executionStarted(TestIdentifier testIdentifier) {
-		if (s_testProgressLogger == null)
-			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testProgress");
-		if (s_testResultLogger == null)
-			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-		TestExecutionListener.super.executionStarted(testIdentifier);
-		String displayName = testIdentifier.getDisplayName();
-		//if(!testIdentifier.isTest()) return;
-		if(displayName != "JUnit Jupiter") {
-			s_testProgressLogger.info("Started {}:{}", m_testCaseIdentifier, displayName);
-			try {
-				SwingUtilities.invokeAndWait(() -> {
-					m_progressBar.setString(m_testCaseIdentifier + " (" + displayName + ")");
-				});
-			} catch (InterruptedException | InvocationTargetException e) {
-				s_logger.error("Failed to update progress bar on secondary thread", e);
-			}
-		}
-	}
+    void configurationFailed(String reason) { configurationError = reason; }
+    List<RunResults.CaseResult> completedCases() { return List.copyOf(completedCases); }
 
-	@Override
-	public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-		if (s_testProgressLogger == null)
-			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testProgress");
-		if (s_testResultLogger == null)
-			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-		TestExecutionListener.super.executionFinished(testIdentifier, testExecutionResult);
-		
-		String displayName = testIdentifier.getDisplayName();
-		//if(!testIdentifier.isTest()) return;
-		m_testStepResults.put(testIdentifier, testExecutionResult);
-		recordOutcome(testExecutionResult);
-		if(testExecutionResult.getStatus() == TestExecutionResult.Status.FAILED) {
-			s_testProgressLogger.error("Test atom {}:{} failed", m_testCaseIdentifier, displayName);
-		}
-		if(testExecutionResult.getStatus() == TestExecutionResult.Status.ABORTED) {
-			if (isUnsupportedResult(testExecutionResult)) {
-				s_testProgressLogger.warn("Test atom {}:{} is unsupported", m_testCaseIdentifier, displayName);
-			} else {
-				s_testProgressLogger.error("Test atom {}:{} aborted", m_testCaseIdentifier, displayName);
-			}
-		}
+    @Override public void testPlanExecutionStarted(TestPlan plan) {
+        failed = aborted = unsupported = false;
+        invocations = 0;
+        steps.clear();
+        recordedFailures.clear();
+        if (configurationError != null) {
+            failed = true;
+            steps.add(new RunResults.StepResult("Profile configuration", TestStatus.FAIL, true,
+                    configurationError, "", "", configurationError, List.of()));
+        }
+        PROGRESS.info("Test plan started for conformance test {}{}", identifier, reportCase ? "" : " (setup)");
+        onUi(() -> { if (progressBar != null) progressBar.setString(identifier); });
+    }
 
-		Optional<Throwable> exception = testExecutionResult.getThrowable();
-		if(exception.isPresent()) s_logger.error("Caused by:", exception.get());
-		if(displayName != "JUnit Jupiter") {
-			s_testProgressLogger.info("Finished {}:{}", m_testCaseIdentifier, displayName);
-		}
-	}
+    @Override public void testPlanExecutionFinished(TestPlan plan) {
+        if (invocations == 0 && !failed && !aborted && steps.isEmpty()) {
+            unsupported = true;
+            steps.add(new RunResults.StepResult("JUnit discovery", TestStatus.SKIP, false,
+                    "No test assertions executed for this case. Review the selected profile's method mappings.",
+                    "", "", "No test invocations were reported by JUnit.", List.of()));
+        }
+        PROGRESS.info("Test plan finished for conformance test {}", identifier);
+        publishCase();
+    }
 
-	void recordOutcome(TestExecutionResult result) {
-		if (result.getStatus() == TestExecutionResult.Status.FAILED) m_atomFailed = true;
-		if (result.getStatus() == TestExecutionResult.Status.ABORTED) {
-			if (isUnsupportedResult(result)) m_atomUnsupported = true;
-			else m_atomAborted = true;
-		}
-	}
+    void executionFailed(Throwable failure) {
+        failed = true;
+        steps.add(new RunResults.StepResult("JUnit execution", TestStatus.FAIL, true,
+                "CCT could not execute this case: " + failure, "", "", technical(failure), List.of()));
+        publishCase();
+    }
 
-	private boolean isUnsupportedResult(TestExecutionResult result) {
-		return result.getStatus() == TestExecutionResult.Status.ABORTED
-				&& result.getThrowable()
-				.filter(PlaceholderTests.UnsupportedConformanceException.class::isInstance)
-				.isPresent();
-	}
+    private void publishCase() {
+        if (!reportCase) return; // The preliminary CHUID read is setup, not another result row.
+        TestStatus status = getResultStatus();
+        completedCases.add(new RunResults.CaseResult(identifier, description, object, expectedPass, status, steps));
+        RESULTS.info("{},\"{}\",{},{}", identifier, description.replace('"', '\''),
+                expectedPass ? "Pass" : "Fail", status == TestStatus.SKIP ? "Unsupported" : status == TestStatus.FAIL ? "Fail" : "Pass");
+        onUi(() -> {
+            if (progressBar != null) {
+                progressBar.setString(identifier + " Finished.");
+                progressBar.setValue(progressBar.getValue() + 1);
+            }
+            GuiRunnerApplication app = GuiRunnerAppController.getInstance().getApp();
+            if (app == null) return;
+            GuiTestCaseTreeNode node = app.getTreePanel().getNodeByName(identifier);
+            if (node != null && node.getTestCase() != null) {
+                node.getTestCase().setTestStatus(status);
+                if (app.getTreePanel().getTreeModel() != null) app.getTreePanel().getTreeModel().nodeChanged(node);
+            }
+        });
+    }
 
-	TestStatus getResultStatus() {
-		return m_atomAborted || m_atomFailed ? TestStatus.FAIL
-				: m_atomUnsupported ? TestStatus.SKIP : TestStatus.PASS;
-	}
+    @Override public void executionStarted(TestIdentifier test) {
+        if (!test.isTest()) return;
+        PROGRESS.info("Started {}:{}", identifier, test.getDisplayName());
+        onUi(() -> { if (progressBar != null) progressBar.setString(identifier + " (" + test.getDisplayName() + ")"); });
+    }
 
-	@Override
-	public void reportingEntryPublished(TestIdentifier testIdentifier, ReportEntry entry) {
-		if (s_testProgressLogger == null)
-			s_testProgressLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testProgress");
-		if (s_testResultLogger == null)
-			s_testResultLogger = LoggerFactory.getLogger("gov.gsa.pivconformance.conformancelib.testResult");
-		TestExecutionListener.super.reportingEntryPublished(testIdentifier, entry);
-		s_testResultLogger.info("{}: {} {}", m_testCaseIdentifier, testIdentifier.getDisplayName(), "Placeholder" );
-	}
+    @Override public void reportingEntryPublished(TestIdentifier test, ReportEntry entry) {
+        PROGRESS.info("Case {} step {}: {}", identifier, methodName(test), entry.getKeyValuePairs());
+    }
 
-	public GuiTestListener() {
-		m_testStepResults = new LinkedHashMap<TestIdentifier, TestExecutionResult>();
-	}
+    @Override public void executionSkipped(TestIdentifier test, String reason) {
+        unsupported = true;
+        steps.add(new RunResults.StepResult(methodName(test), TestStatus.SKIP, false,
+                "JUnit skipped this step: " + reason, "", "", reason, references(test)));
+    }
 
-	public String getTestCaseIdentifier() {
-		return m_testCaseIdentifier;
-	}
+    @Override public void executionFinished(TestIdentifier test, TestExecutionResult result) {
+        recordOutcome(result);
+        if (test.isTest()) invocations++;
+        Throwable throwable = result.getThrowable().orElse(null);
+        // Successful engine/template callbacks are not extra assertions. Keep setup/container errors.
+        if (!test.isTest() && result.getStatus() == TestExecutionResult.Status.SUCCESSFUL) return;
+        if (throwable != null && !recordedFailures.add(throwable)) return;
+        TestStatus status = isUnsupportedResult(result) ? TestStatus.SKIP
+                : result.getStatus() == TestExecutionResult.Status.SUCCESSFUL ? TestStatus.PASS : TestStatus.FAIL;
+        Throwable root = rootCause(throwable);
+        AssertionError assertionError = findCause(throwable, AssertionError.class);
+        if (assertionError != null) root = assertionError;
+        boolean executionError = status == TestStatus.FAIL && assertionError == null;
+        String reason = throwable == null ? (status == TestStatus.PASS ? "" : "JUnit did not record a failure cause.")
+                : root.getMessage() == null ? root.getClass().getSimpleName() : root.getMessage();
+        AssertionFailedError assertion = findCause(throwable, AssertionFailedError.class);
+        String expected = assertion != null && assertion.isExpectedDefined() ? assertion.getExpected().getStringRepresentation() : "";
+        String actual = assertion != null && assertion.isActualDefined() ? assertion.getActual().getStringRepresentation() : "";
+        steps.add(new RunResults.StepResult(methodName(test), status, executionError, limit(reason, 8000),
+                limit(expected, 1000), limit(actual, 1000), technical(throwable), references(test)));
+        if (throwable != null) LOG.error("Case {} step {}: {}", identifier, methodName(test), reason, throwable);
+        PROGRESS.info("Finished {}:{}", identifier, test.getDisplayName());
+    }
 
-	public void setTestCaseIdentifier(String testCaseIdentifier) {
-		m_testCaseIdentifier = testCaseIdentifier;
-	}
+    void recordOutcome(TestExecutionResult result) {
+        if (result.getStatus() == TestExecutionResult.Status.FAILED) failed = true;
+        if (result.getStatus() == TestExecutionResult.Status.ABORTED) {
+            if (isUnsupportedResult(result)) unsupported = true;
+            else aborted = true;
+        }
+    }
 
-	public JProgressBar getProgressBar() {
-		return m_progressBar;
-	}
+    private boolean isUnsupportedResult(TestExecutionResult result) {
+        return result.getStatus() == TestExecutionResult.Status.ABORTED
+                && result.getThrowable().filter(PlaceholderTests.UnsupportedConformanceException.class::isInstance).isPresent();
+    }
 
-	public void setProgressBar(JProgressBar progressBar) {
-		m_progressBar = progressBar;
-	}
+    TestStatus getResultStatus() { return aborted || failed ? TestStatus.FAIL : unsupported ? TestStatus.SKIP : TestStatus.PASS; }
 
-	public String getTestCaseDescription() {
-		return m_testCaseDescription;
-	}
+    private static String methodName(TestIdentifier test) {
+        return test.getSource().filter(MethodSource.class::isInstance).map(MethodSource.class::cast)
+                .map(m -> m.getClassName() + "#" + m.getMethodName()).orElse(test.getDisplayName());
+    }
 
-	public void setTestCaseDescription(String testCaseDescription) {
-		m_testCaseDescription = testCaseDescription;
-	}
+    private List<RunResults.Reference> references(TestIdentifier test) {
+        try {
+            ResultReference[] refs = test.getSource().filter(MethodSource.class::isInstance).map(MethodSource.class::cast)
+                    .map(m -> m.getJavaMethod().getAnnotationsByType(ResultReference.class)).orElse(new ResultReference[0]);
+            return java.util.Arrays.stream(refs)
+                    .filter(ref -> ref.containers().length == 0 || java.util.Arrays.asList(ref.containers()).contains(object))
+                    .map(ref -> new RunResults.Reference(ref.publication(), ref.location(), ref.url(), ref.scope(),
+                            ref.excerpt(), ref.documentUrl())).toList();
+        } catch (RuntimeException e) {
+            LOG.warn("Unable to resolve source metadata for {}", methodName(test), e);
+            return List.of();
+        }
+    }
 
-	public boolean getTestCaseExpectedResult() {
-		return m_testCaseExpectedResult;
-	}
+    private static Throwable rootCause(Throwable t) {
+        Set<Throwable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        while (t != null && t.getCause() != null && seen.add(t.getCause())) t = t.getCause();
+        return t;
+    }
 
-	public void setTestCaseExpectedResult(boolean testCaseExpectedResult) {
-		m_testCaseExpectedResult = testCaseExpectedResult;
-	}
+    private static <T extends Throwable> T findCause(Throwable failure, Class<T> type) {
+        Set<Throwable> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+        while (failure != null && seen.add(failure)) {
+            if (type.isInstance(failure)) return type.cast(failure);
+            failure = failure.getCause();
+        }
+        return null;
+    }
 
+    private static String technical(Throwable t) {
+        if (t == null) return "";
+        StringBuilder text = new StringBuilder(t.toString());
+        for (StackTraceElement frame : t.getStackTrace()) {
+            if (text.length() > 4000) break;
+            text.append("\n  at ").append(frame);
+        }
+        return limit(text.toString(), 4500);
+    }
+
+    private static String limit(String value, int length) {
+        if (value == null) return "";
+        return value.length() > length ? value.substring(0, length) + "\n[truncated; see debug log]" : value;
+    }
+
+    private void onUi(Runnable action) {
+        if (!updateUi) return;
+        try {
+            if (SwingUtilities.isEventDispatchThread()) action.run();
+            else SwingUtilities.invokeAndWait(action);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.error("Interrupted while updating case progress", e);
+        } catch (InvocationTargetException e) { LOG.error("Unable to update case progress", e.getCause()); }
+    }
+
+    public String getTestCaseIdentifier() { return identifier; }
+    public void setTestCaseIdentifier(String value) { identifier = value; }
+    public String getTestCaseDescription() { return description; }
+    public void setTestCaseDescription(String value) { description = value; }
+    public boolean getTestCaseExpectedResult() { return expectedPass; }
+    public void setTestCaseExpectedResult(boolean value) { expectedPass = value; }
+    public JProgressBar getProgressBar() { return progressBar; }
+    public void setProgressBar(JProgressBar value) { progressBar = value; }
 }

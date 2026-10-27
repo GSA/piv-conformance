@@ -1,6 +1,7 @@
 package gov.gsa.pivconformance.conformancelib.tests;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -53,8 +54,11 @@ public class SP800_73_4PrintedInfoTests {
     //@MethodSource("sp800_73_4_PrintedInfoTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_28(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
 		
 		//Get tag list
 		List<BerTag> tagList = o.getTagList();
@@ -79,8 +83,11 @@ public class SP800_73_4PrintedInfoTests {
 	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_29(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
 		
 		List<BerTag> tagList = o.getTagList();
 		
@@ -108,8 +115,11 @@ public class SP800_73_4PrintedInfoTests {
 	//@MethodSource("sp800_73_4_PrintedInfoTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void sp800_73_4_Test_30(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
 		
 		List<BerTag> tagList = o.getTagList();
 		
@@ -125,8 +135,11 @@ public class SP800_73_4PrintedInfoTests {
     //@MethodSource("sp800_73_4_PrintedInfoTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_31(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
 				
 		List<BerTag> tagList = o.getTagList();
 		List<byte[]> allPrintedInfoTags = TagConstants.AllPrintedInfoTags();
@@ -152,8 +165,11 @@ public class SP800_73_4PrintedInfoTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.52 test")
 	void sp800_73_4_Test_52 (String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
+			assertNotNull(o, "Required container is absent: " + oid);
 			List<BerTag> tagList = o.getTagList();
 
 			BerTag berNameTag = new BerTag(TagConstants.NAME_TAG);
@@ -184,8 +200,11 @@ public class SP800_73_4PrintedInfoTests {
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
 	@DisplayName("SP800-73-4.53 test")
 	void sp800_73_4_Test_53 (String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
+			assertNotNull(o, "Required container is absent: " + oid);
 			
 			List<BerTag> tagList = o.getTagList();
 			

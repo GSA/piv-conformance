@@ -22,9 +22,11 @@ import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.cms.ContentInfo;
+import org.bouncycastle.asn1.cms.SignedData;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessable;
 import org.bouncycastle.cms.CMSProcessableByteArray;
@@ -52,8 +54,6 @@ public class SignedPIVDataObject extends PIVDataObject {
 	private byte[] m_signedContent;
 	// The effective signing cert.
 	private X509Certificate m_signerCert;
-	// This will be zero or one, and reflects the number of certs in this object
-	private final int m_signerCertCount;
 	// This will be true *only* when this object has its own cert
 	private boolean m_hasOwnSignerCert;
 	// Prefetch
@@ -71,7 +71,6 @@ public class SignedPIVDataObject extends PIVDataObject {
 		super();
 		m_dalgList = null;
 		m_signerCert = null;
-		m_signerCertCount = 0;
 		m_hasOwnSignerCert = false;
 		m_signedAttrsDigest = null;
 		m_computedDigest = null;
@@ -146,12 +145,7 @@ public class SignedPIVDataObject extends PIVDataObject {
 	 * @return X509Certificate object containing the CHUID signer cert for this card
 	 */
 	public X509Certificate getChuidSignerCert() {
-		// Cache if not already cached
-		if (DataModelSingleton.getInstance().getChuidSignerCert() == null) {
-			CardHolderUniqueIdentifier o = (CardHolderUniqueIdentifier) new PIVDataObject(
-					APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
-			o.decode(); // Caches it
-		}
+		// CHUID acquisition populates this cache before dependent objects are tested.
 		return DataModelSingleton.getInstance().getChuidSignerCert();
 	}
 
@@ -188,12 +182,14 @@ public class SignedPIVDataObject extends PIVDataObject {
 
 	/**
 	 *
-	 * Returns the number of certs found in this object
+	 * Returns the number of entries in the CMS certificates field, independently of SignerInfo count.
 	 *
-	 * @return number of certs found in this object
+	 * @return number of certificates, or zero when the field or signed data is absent
 	 */
 	public int getCertCount() {
-		return m_signerCertCount;
+		if (m_asymmetricSignature == null) return 0;
+		var certificates = SignedData.getInstance(m_asymmetricSignature.toASN1Structure().getContent()).getCertificates();
+		return certificates == null ? 0 : certificates.size();
 	}
 
 	/**
@@ -524,6 +520,10 @@ public class SignedPIVDataObject extends PIVDataObject {
                     	setSignerCert(signerCert);
                 }
 
+                if (!signer.getSID().match(new JcaX509CertificateHolder(signerCert))) {
+                    s_logger.error("SignerIdentifier does not match the verification certificate");
+                    return false;
+                }
                 rv_result = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().build(signerCert));
             }
         } catch (CertificateException e) {

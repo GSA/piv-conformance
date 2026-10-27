@@ -160,8 +160,8 @@ public class GuiRunnerAppController {
 	    m_runAllTestsAction = new GuiRunAllTestsAction("Run all tests", runIcon, "Run all available tests in database");
 	    ImageIcon toggleIcon = getActionIcon("application_side_tree", "Toggle Tree");
 	    m_toggleTreeAction = new GuiToggleTestTreeAction("Toggle test tree view", toggleIcon, "Show or hide the test tree");
-	    ImageIcon displayReportIcon = getActionIcon("html", "Display HTML report");
-	    m_displayTestReportAction = new GuiDisplayTestReportAction("Display Test Report", displayReportIcon, "Display test report for current log");
+	    ImageIcon displayReportIcon = getActionIcon("html", "View Test Results");
+	    m_displayTestReportAction = new GuiDisplayTestReportAction("Test Results", displayReportIcon, "View results for the completed run inside CCT");
 	    ImageIcon packageIcon = getActionIcon("database_save", "Package Results");
 	    m_packageResultsAction = new PackageResultsAction("Package Results", packageIcon,
 				"Create a ZIP containing the latest completed run");
