@@ -1,11 +1,11 @@
 # piv-conformance
-Tool for testing the PIV card data model. Its case catalog derives from SP 800-85B guidance. This `2.0.0-rc6` candidate updates selected checks for FIPS 201-3, SP 800-73-5 Part 1, and SP 800-78-5, and corrects selected checks under SP 800-76-2. A passing run does not establish complete coverage of those publications or certify a card.
+Tool for testing the PIV card data model. Its case catalog derives from SP 800-85B guidance. Version `2.0.0` updates selected checks for FIPS 201-3, SP 800-73-5 Part 1, and SP 800-78-5, and corrects selected checks under SP 800-76-2. A passing run does not establish complete coverage of those publications or certify a card. [Issue #332](https://github.com/GSA/piv-conformance/issues/332) records the delivered updates and remaining work.
 
 ## How the checks are organized
 
-The four profile databases describe cases and select which Java JUnit test method (an *atom*) runs, with the card object and any parameters it needs. The assertion itself is Java code in `conformancelib`; `cardlib` decodes card data, and the GUI runs the selected cases and reports their results. The catalog sources include profile workbooks, SQL dumps, and SQLite databases. For example, PIV case 8.1.8 now routes to an atom that rejects CCC tags E3 and B4. The candidate covers selected SP 800-73-5 Part 1 changes to CCC, CHUID, and active certificate containers; it has not completed an exhaustive Part 1 requirements audit. PIV-I retains historical routes where applicability has not been established.
+The four profile databases describe cases and select which Java JUnit test method (an *atom*) runs, with the card object and any parameters it needs. The assertion itself is Java code in `conformancelib`; `cardlib` decodes card data, and the GUI runs the selected cases and reports their results. The catalog sources include profile workbooks, SQL dumps, and SQLite databases. For example, PIV case 8.1.8 now routes to an atom that rejects CCC tags E3 and B4. This release covers selected SP 800-73-5 Part 1 changes to CCC, CHUID, and active certificate containers; it has not completed an exhaustive Part 1 requirements audit. PIV-I retains historical routes where applicability has not been established.
 
-## Run the release candidate
+## Run CCT
 
 The [user guide](docs/USER_GUIDE.md) covers running CCT, viewing results, preparing a lab submission and diagnostics.
 

@@ -80,6 +80,7 @@ cp conformancelib/src/main/resources/x509-certs/valid/policy.xml "$stage/x509-ce
 cp conformancelib/src/main/resources/x509-certs/valid/valid.zip "$stage/x509-certs/valid/"
 sed "s/__CCT_VERSION__/$version/g" tools/85b-swing-gui/packaging/README.txt > "$stage/README.txt"
 cp docs/USER_GUIDE.md "$stage/USER_GUIDE.md"
+cp LICENSE.md "$stage/LICENSE.md"
 sed "s/__CCT_JAR__/$jar_name/g" tools/85b-swing-gui/packaging/run.bat \
     | awk '{ sub(/\r$/, ""); printf "%s\r\n", $0 }' > "$stage/run.bat"
 sed "s/__CCT_JAR__/$jar_name/g" tools/85b-swing-gui/packaging/run.sh > "$stage/run.sh"

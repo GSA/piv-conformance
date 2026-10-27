@@ -1,6 +1,6 @@
 # CCT user guide
 
-These instructions describe the **CCT v2.0.0 release candidate**, including its Testing and Results tabs. Use the instructions supplied with your downloaded version. The release's wiki pages retain guidance for older releases.
+These instructions describe **CCT v2.0.0**, including its Testing and Results tabs. Use the instructions supplied with your downloaded version. The release's wiki pages retain guidance for older releases.
 
 - [Running the Card Conformance Tool](#running-the-card-conformance-tool)
 - [Viewing Test Results](#viewing-test-results)
