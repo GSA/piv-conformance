@@ -19,11 +19,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '17.0.20+101'
-          architecture: x64
       - name: Build, package and verify with the bundled runtime
         shell: pwsh
         run: .\packaging\windows\package-windows.ps1 -SmokeTest

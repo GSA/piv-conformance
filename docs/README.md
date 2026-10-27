@@ -29,19 +29,19 @@ The GUI Shadow JAR is written under `tools/85b-swing-gui/build/libs/`. A JAR alo
 
 ### Windows package with Java included
 
-Build this package on **Windows x64**, using a Java 17 JDK with `jpackage` and PowerShell. From the repository root:
+Build this package on **Windows x64** using PowerShell. The packaging script downloads and selects its pinned Java 17 JDK for this build; it does not change the system Java installation. From the repository root:
 
 ```powershell
 .\packaging\windows\package-windows.ps1 -SmokeTest
 ```
 
-The script builds and checks the three modules, downloads a pinned Temurin Java 17 JRE over HTTPS, verifies its SHA-256, and creates a native `CCT.exe` launcher with `jpackage --type app-image`. It retains the complete JRE and its license notices to preserve dynamic tests, cryptographic providers and smart-card support. The ZIP and checksum are written to a new folder under `build/releases/`. Existing output is not overwritten.
+The script downloads Amazon Corretto 17.0.21.0.11 over HTTPS and verifies its pinned SHA-256. It builds and checks the three modules, creates a runtime image with every vendor Java module, and creates a native `CCT.exe` launcher with `jpackage --type app-image`. The image omits development archives, debug information, headers and manuals while preserving module licenses and vendor notices. It checks the module inventory and security files against the vendor archive, including the roots named in [OpenJDK's CA-compromise guidance](https://openjdk.org/emudhra). The ZIP and checksum are written to a new folder under `build/releases/`. Existing output is not overwritten.
 
 The launcher and application window use the existing GSA artwork in the GUI's `icons` resources. `gsa.ico` provides Windows icon sizes from 16 to 256 pixels, derived from `exelogo.png` for small sizes and `gsa_logo.png` for larger sizes. Update it alongside those PNGs if the artwork changes.
 
 `-SmokeTest` runs the original-row regressions under both providers using the extracted package's runtime, opens all four databases and checks the native window without Java on `PATH`. A compatible card/reader run is still required. `-SkipBuild` packages an already checked build; it is intended for maintainers, not clients.
 
-The Windows workflow builds QA artifacts only. It does not create tags, publish releases or upload release assets. Record the source commit and runtime in `BUILD-INFO.txt`; keep the exact accepted ZIP for publication. Recheck the pinned runtime's security status at release freeze and update its URL/hash and the CI JDK pin together when needed. The runtime is private to CCT and is updated by distributing a new CCT package.
+The Windows workflow builds QA artifacts only. It does not create tags, publish releases or upload release assets. Record the source commit and runtime in `BUILD-INFO.txt`; keep the exact accepted ZIP for publication. Recheck the pinned runtime's security status at release freeze and update its version, URL, hash and release-file checks together when needed. The same pinned JDK supplies compilation, packaging and the private runtime. Update that runtime by distributing a new CCT package.
 
 The ZIP includes an executable launcher, not an MSI installer. Confirm supported Windows architectures, signing/allowlisting requirements and runtime maintenance ownership with the release team before publication. Keep the portable Java-required ZIP and both source archive formats available. Source archives support development; they are not a ready-to-run fallback.
 

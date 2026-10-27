@@ -8,15 +8,7 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 $RepositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$Jdk = $env:JAVA_HOME
-if (-not $Jdk -or -not (Test-Path "$Jdk\bin\jpackage.exe")) {
-    throw "Set JAVA_HOME to a Windows Java 17 JDK with jpackage. Clients do not need a JDK."
-}
-$CompilerVersion = & "$Jdk\bin\javac.exe" -version 2>&1
-if ($LASTEXITCODE -ne 0 -or "$CompilerVersion" -notmatch '^javac 17\.') {
-    throw "The build requires a Java 17 JDK."
-}
-if (-not $SkipBuild) { & "$PSScriptRoot\build-application.ps1" }
+$PreviousJavaHome = $env:JAVA_HOME
 $Version = (Get-Content "$RepositoryRoot\tools\85b-swing-gui\src\main\resources\build.version" -Raw).Trim()
 if ($Version -notmatch '^\d+\.\d+\.\d+(-rc\d+)?$') { throw "Invalid version: $Version" }
 foreach ($Module in @("cardlib", "conformancelib")) {
@@ -25,18 +17,18 @@ foreach ($Module in @("cardlib", "conformancelib")) {
     }
 }
 
-# Keep the full JRE so dynamic JUnit, crypto providers and PC/SC retain their modules.
-$RuntimeVersion = "17.0.20.1+1"
-$RuntimeUrl = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20.1%2B1/OpenJDK17U-jre_x64_windows_hotspot_17.0.20.1_1.zip"
-$RuntimeHash = "bc21a93923103cdaac93ee337b0ae4365e739fde36df823dd456bc67c8a9d352"
+# Use the same checksum-pinned, patched Java 17 build for compilation and the runtime.
+$RuntimeVersion = "17.0.21.0.11"
+$RuntimeUrl = "https://corretto.aws/downloads/resources/17.0.21.0.11/amazon-corretto-17.0.21.0.11-windows-x64-jdk.zip"
+$RuntimeHash = "59d6514305f6fab3b18955fb17185562f0a0bbf20e1466eda33a5429f3b31618"
 $Cache = Join-Path $RepositoryRoot "build\toolchains"
 New-Item -ItemType Directory -Path $Cache -Force | Out-Null
-$RuntimeArchive = Join-Path $Cache "temurin-$RuntimeVersion-windows-x64-jre.zip"
+$RuntimeArchive = Join-Path $Cache "corretto-$RuntimeVersion-windows-x64-jdk.zip"
 if (-not (Test-Path -LiteralPath $RuntimeArchive)) {
     Invoke-WebRequest -Uri $RuntimeUrl -OutFile $RuntimeArchive
 }
 if ((Get-FileHash $RuntimeArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $RuntimeHash) {
-    throw "Temurin archive checksum mismatch. Remove $RuntimeArchive and retry."
+    throw "Corretto archive checksum mismatch. Remove $RuntimeArchive and retry."
 }
 
 if (-not $OutputDirectory) {
@@ -48,17 +40,47 @@ New-Item -ItemType Directory -Path $OutputDirectory | Out-Null
 $Work = Join-Path $RepositoryRoot ("build\windows-package-" + [Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $Work | Out-Null
 try {
-    Expand-Archive -LiteralPath $RuntimeArchive -DestinationPath "$Work\jre"
-    $Runtime = @(Get-ChildItem "$Work\jre" -Directory)
-    if ($Runtime.Count -ne 1) { throw "Unexpected JRE archive layout." }
-    $Runtime = $Runtime[0].FullName
-    $Release = Get-Content "$Runtime\release" -Raw
-    if ($Release -notmatch '(?m)^JAVA_VERSION="17\.0\.20\.1"\r?$' -or
+    Expand-Archive -LiteralPath $RuntimeArchive -DestinationPath "$Work\jdk"
+    $Jdk = @(Get-ChildItem "$Work\jdk" -Directory)
+    if ($Jdk.Count -ne 1) { throw "Unexpected JDK archive layout." }
+    $Jdk = $Jdk[0].FullName
+    $Release = Get-Content "$Jdk\release" -Raw
+    if ($Release -notmatch '(?m)^JAVA_VERSION="17\.0\.21"\r?$' -or
+        $Release -notmatch '(?m)^IMPLEMENTOR_VERSION="Corretto-17\.0\.21\.0\.11"\r?$' -or
         $Release -notmatch '(?m)^OS_NAME="Windows"\r?$' -or
         $Release -notmatch '(?m)^OS_ARCH="(x86_64|amd64)"\r?$') {
-        throw "Expected Temurin $RuntimeVersion for Windows x64."
+        throw "Expected Corretto $RuntimeVersion for Windows x64."
+    }
+    $env:JAVA_HOME = $Jdk
+    if (-not $SkipBuild) { & "$PSScriptRoot\build-application.ps1" }
+
+    # Keep every module, including dynamic crypto and PC/SC providers. Omit development archives.
+    $Runtime = "$Work\runtime"
+    & "$Jdk\bin\jlink.exe" --module-path "$Jdk\jmods" --add-modules ALL-MODULE-PATH `
+        --output $Runtime --strip-debug --no-header-files --no-man-pages --compress=2
+    if ($LASTEXITCODE -ne 0) { throw "Runtime image creation failed." }
+    $ExpectedModules = @(Get-ChildItem "$Jdk\jmods\*.jmod" | ForEach-Object { $_.BaseName } | Sort-Object)
+    $ActualModules = @(& "$Runtime\bin\java.exe" --list-modules | ForEach-Object { ($_ -split '@')[0] } | Sort-Object)
+    if ($LASTEXITCODE -ne 0 -or @(Compare-Object $ExpectedModules $ActualModules).Count -ne 0) {
+        throw "The runtime must retain every module from the pinned JDK."
+    }
+    foreach ($Notice in @("LICENSE", "ADDITIONAL_LICENSE_INFO", "ASSEMBLY_EXCEPTION", "README.md")) {
+        Copy-Item "$Jdk\$Notice" $Runtime
     }
     if (-not (Test-Path "$Runtime\legal\java.base\LICENSE")) { throw "Runtime license is missing." }
+    foreach ($SecurityFile in @("cacerts", "blocked.certs")) {
+        if ((Get-FileHash "$Runtime\lib\security\$SecurityFile").Hash -ne
+            (Get-FileHash "$Jdk\lib\security\$SecurityFile").Hash) {
+            throw "Runtime security data differs from the patched vendor archive: $SecurityFile"
+        }
+    }
+    # OpenJDK's eMudhra guidance requires removal of these roots; do not modify the vendor store.
+    $TrustListing = & "$Runtime\bin\keytool.exe" -list -cacerts -storepass changeit -v 2>&1
+    if ($LASTEXITCODE -ne 0 -or ($TrustListing -join "`n") -match
+        '(?m)CN=(emSign ECC Root CA - G3|AAA Certificate Services|emSign Root CA - G1|emSign Root CA - G2)(,|\r?$)') {
+        throw "Bundled runtime trust store does not satisfy the reviewed OpenJDK CA-compromise check."
+    }
+    Write-Host "Runtime verified: Corretto $RuntimeVersion, $($ActualModules.Count) modules, patched security data."
     $InputDirectory = New-Item -ItemType Directory -Path "$Work\input"
     $Jar = "gov.gsa.pivconformance.gui-$Version-shadow.jar"
     Copy-Item "$RepositoryRoot\tools\85b-swing-gui\build\libs\$Jar" $InputDirectory
@@ -92,7 +114,8 @@ try {
         if ($LASTEXITCODE -ne 0) { throw "Set CCT_GIT_COMMIT when building a source archive." }
     }
     @("CCT $Version", "Platform: Windows x64", "Source commit: $Commit",
-      "Bundled runtime: Eclipse Temurin $RuntimeVersion", "Runtime archive: $RuntimeUrl",
+      "Bundled runtime: Amazon Corretto $RuntimeVersion", "Runtime modules: $($ActualModules.Count) (all vendor modules)",
+      "Runtime archive: $RuntimeUrl",
       "Runtime archive SHA-256: $RuntimeHash") | Set-Content "$Image\BUILD-INFO.txt" -Encoding UTF8
     $Zip = Join-Path $OutputDirectory "piv-conformance-v$Version-windows-x64.zip"
     Compress-Archive -Path "$Image\*" -DestinationPath $Zip -CompressionLevel Optimal
@@ -154,5 +177,6 @@ try {
     Write-Host "Created $Zip"
     Write-Host "SHA-256: $Hash"
 } finally {
+    $env:JAVA_HOME = $PreviousJavaHome
     Remove-Item -LiteralPath $Work -Recurse -Force
 }
