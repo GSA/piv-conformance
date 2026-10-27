@@ -316,7 +316,7 @@ INSERT INTO "TestCases" VALUES(35, NULL,'8.2.2.14','CHUID tag 0xEE is absent','C
 INSERT INTO "TestCases" VALUES(36, NULL,'8.2.2.15','No CHUID tags other than (0x30, 0x34, 0x35, 0x36, 0x3E, 0xFE) are present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(37, NULL,'8.2.2.16','The Agency Code, System Code, and Credential Number of the FASC-N are present. The credential series, individual credential issue, person identifier, organizational category, organizational identifier, and person/organization association category of the FASC-N are populated','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(38, NULL,'8.2.3','Expiration Date is formatted YYYYMMDD','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
-INSERT INTO "TestCases" VALUES(39, NULL,'8.2.4','Expiration Date is within the next 15 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
+INSERT INTO "TestCases" VALUES(39, NULL,'8.2.4','Expiration Date is within the next 6 years','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(40, NULL,'8.2.5','Optional CHUID Cardholder UUID is a 16-byte RFC 4122 version 4 value','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(41, NULL,'8.2.6','The retired key map is not present','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);
 INSERT INTO "TestCases" VALUES(42, NULL,'8.2.7','Tag 0xFE has length of 0','CARD_HOLDER_UNIQUE_IDENTIFIER_OID',NULL, 1, 1);

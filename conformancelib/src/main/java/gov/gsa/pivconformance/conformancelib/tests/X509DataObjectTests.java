@@ -2,6 +2,7 @@ package gov.gsa.pivconformance.conformancelib.tests;
 
 import gov.gsa.pivconformance.conformancelib.configuration.ResultReference;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.Arrays;
@@ -227,8 +228,11 @@ public class X509DataObjectTests {
     //@MethodSource("sp800_73_4_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_23(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
         
         
 		List<BerTag> tagList = o.getTagList();

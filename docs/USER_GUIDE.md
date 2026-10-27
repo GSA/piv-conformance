@@ -64,6 +64,8 @@ For an ordinary card evaluation, choose **PIV** or **PIV-I** on the toolbar acco
 
 Use **File → Open Database** to select another supplied or approved custom `.db` file. Profiles select different cases and parameters; use the profile intended for the card under test. A test card may contain intentional faults or older data that correctly fail a conformance check. The supplied profiles currently expect Pass for their scheduled cases; the ICAM label does not automatically make a failure an expected result.
 
+The Production profiles use a six-year CHUID expiry window; the ICAM profiles retain a 15-year test window. CCT measures this from the test date. A Pass does not establish the card's lifetime from issuance or confirm that its printed expiry matches the CHUID.
+
 ### Connect and run
 
 1. Connect the reader and insert the card.

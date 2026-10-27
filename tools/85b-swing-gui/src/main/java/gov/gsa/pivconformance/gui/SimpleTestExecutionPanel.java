@@ -195,7 +195,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 		m_testProgressBar = new JProgressBar();
 		m_testProgressBar.setAlignmentY(Component.TOP_ALIGNMENT);
 		
-		JButton btnRefreshReaders = CctUi.button("Refresh Readers", false);
+		JButton btnRefreshReaders = CctUi.button("Refresh Readers", true);
 		btnRefreshReaders.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -227,7 +227,7 @@ public class SimpleTestExecutionPanel extends JPanel {
 			label.setFont(CctUi.font(13, java.awt.Font.PLAIN));
 			label.setForeground(CctUi.INK);
 		}
-		JPanel actions = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 0));
+		JPanel actions = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 8, 0));
 		actions.setOpaque(false);
 		actions.add(m_runButton);
 		actions.add(m_viewResultsButton);

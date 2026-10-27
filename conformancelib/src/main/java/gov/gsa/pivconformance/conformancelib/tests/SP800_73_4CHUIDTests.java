@@ -367,10 +367,12 @@ public class SP800_73_4CHUIDTests {
 		Calendar cal = Calendar.getInstance();
 		Date today = cal.getTime();
 		cal.add(Calendar.YEAR, years);
-		Date todayPlus6Years = cal.getTime();
+		Date latestExpirationDate = cal.getTime();
 
-		assertTrue(expirationDate.compareTo(today) >= 0);
-		assertTrue(expirationDate.compareTo(todayPlus6Years) <= 0);
+		assertTrue(expirationDate.compareTo(today) >= 0,
+				"CHUID expiration date is before the test date");
+		assertTrue(expirationDate.compareTo(latestExpirationDate) <= 0,
+				"CHUID expiration date is more than " + years + " years after the test date");
 	}
 
 	// No tags other than (0xEE, 0x30, 0x32, 0x33, 0x34, 0x35, 0x36, 0x3E, 0xFE) are

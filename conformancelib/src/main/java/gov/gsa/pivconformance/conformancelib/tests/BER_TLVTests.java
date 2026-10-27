@@ -28,8 +28,11 @@ public class BER_TLVTests {
     //@MethodSource("bertlvTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_1(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
         	
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);
@@ -103,8 +106,11 @@ public class BER_TLVTests {
     //@MethodSource("bertlvTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_2(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
 
         byte[] bertlv = o.getBytes();
         
@@ -119,8 +125,11 @@ public class BER_TLVTests {
     //@MethodSource("bertlvTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_3(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
 		
         byte[] bertlv = o.getBytes();           
         assertNotNull(bertlv);
@@ -132,8 +141,11 @@ public class BER_TLVTests {
     //@MethodSource("bertlvTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void berTLV_Test_4(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
 		
 		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
 
         byte[] bertlv = o.getBytes();
         assertNotNull(bertlv);

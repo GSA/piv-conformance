@@ -309,73 +309,71 @@ public class SecurityObject extends SignedPIVDataObject {
 	public boolean verifyHashes() {
 		boolean rv_result = false;
 
-		if (m_dghList == null) {
-			if (m_mapOfDataElements == null) {
-				s_logger.error("Missing list of objects to hash");
-				return false;
-			}
-			CMSSignedData signedData = null;
-			LDSSecurityObject ldsso = null;
-			try {
-				signedData = new CMSSignedData(m_so);
-				ASN1Sequence seq = ASN1Sequence.getInstance(signedData.getSignedContent().getContent());
-				ldsso = LDSSecurityObject.getInstance(seq);
-			} catch (CMSException ex) {
-				s_logger.error("CMSException: " + ex.getMessage());
-			} catch (Exception ex) {
-				s_logger.error(ex.getMessage());
-			}
+		if (m_mapOfDataElements == null) {
+			s_logger.error("Missing list of objects to hash");
+			return false;
+		}
+		CMSSignedData signedData = null;
+		LDSSecurityObject ldsso = null;
+		try {
+			signedData = new CMSSignedData(m_so);
+			ASN1Sequence seq = ASN1Sequence.getInstance(signedData.getSignedContent().getContent());
+			ldsso = LDSSecurityObject.getInstance(seq);
+		} catch (CMSException ex) {
+			s_logger.error("CMSException: " + ex.getMessage());
+		} catch (Exception ex) {
+			s_logger.error(ex.getMessage());
+		}
 
-			if (ldsso != null) {
-				DataGroupHash[] dghList = ldsso.getDatagroupHash();
+		if (ldsso != null) {
+			DataGroupHash[] dghList = ldsso.getDatagroupHash();
 
-				m_dghList = new HashMap<Integer, byte[]>();
-				if (dghList != null) {
-					for (DataGroupHash entry : dghList) {
-						m_dghList.put(entry.getDataGroupNumber(), entry.getDataGroupHashValue().getOctets());
-					}
-
-					int dgIdx = 0;
-					for (Map.Entry<Integer, byte[]> entry : m_dghList.entrySet()) {
-
-						String oid = m_containerIDList.get(entry.getKey());
-						s_logger.debug("Checking digest for {} (0x{})", APDUConstants.containerOidToNameMap.get(oid), Integer.toHexString(entry.getKey()));
-
-						if (oid != null) {
-							byte[] content = m_mapOfDataElements.get(oid);
-							MessageDigest md = null;
-							try {
-								md = MessageDigest.getInstance(getDigestAlgorithmName(), "BC");
-								if (md != null) {
-									md.update(content);
-									byte[] digest = md.digest();
-									if (!Arrays.equals(entry.getValue(), digest)) {
-										s_logger.error("Container:        {}", entry.getKey());
-										s_logger.error("Content:          {}", Hex.encodeHexString(content));
-										s_logger.error("Reference digest: {}", Hex.encodeHexString(entry.getValue()));
-										s_logger.error("Computed digest:  {}", Hex.encodeHexString(digest));
-									} else {
-										s_logger.debug("Container:        {}", entry.getKey());
-										s_logger.debug("Content:          {}", Hex.encodeHexString(content));
-										s_logger.debug("Reference digest: {}", Hex.encodeHexString((byte[])entry.getValue()));
-										s_logger.debug("Computed digest:  {}", Hex.encodeHexString(digest));
-										dgIdx++;
-									}
-								}
-							} catch (NoSuchAlgorithmException | java.security.NoSuchProviderException e) {
-								s_logger.error("Error creating message digest: {}", e.getMessage());
-							}
-						} else {
-							s_logger.error("Missing object to hash for id {}: ", entry.getKey());
-						}
-					}
-					rv_result = dgIdx == m_dghList.entrySet().size();
-				} else {
-					s_logger.error("Data Group object was null");
+			m_dghList = new HashMap<Integer, byte[]>();
+			if (dghList != null) {
+				for (DataGroupHash entry : dghList) {
+					m_dghList.put(entry.getDataGroupNumber(), entry.getDataGroupHashValue().getOctets());
 				}
+
+				int dgIdx = 0;
+				for (Map.Entry<Integer, byte[]> entry : m_dghList.entrySet()) {
+
+					String oid = m_containerIDList.get(entry.getKey());
+					s_logger.debug("Checking digest for {} (0x{})", APDUConstants.containerOidToNameMap.get(oid), Integer.toHexString(entry.getKey()));
+
+					if (oid != null) {
+						byte[] content = m_mapOfDataElements.get(oid);
+						MessageDigest md = null;
+						try {
+							md = MessageDigest.getInstance(getDigestAlgorithmName(), "BC");
+							if (md != null) {
+								md.update(content);
+								byte[] digest = md.digest();
+								if (!Arrays.equals(entry.getValue(), digest)) {
+									s_logger.error("Container:        {}", entry.getKey());
+									s_logger.error("Content:          {}", Hex.encodeHexString(content));
+									s_logger.error("Reference digest: {}", Hex.encodeHexString(entry.getValue()));
+									s_logger.error("Computed digest:  {}", Hex.encodeHexString(digest));
+								} else {
+									s_logger.debug("Container:        {}", entry.getKey());
+									s_logger.debug("Content:          {}", Hex.encodeHexString(content));
+									s_logger.debug("Reference digest: {}", Hex.encodeHexString((byte[])entry.getValue()));
+									s_logger.debug("Computed digest:  {}", Hex.encodeHexString(digest));
+									dgIdx++;
+								}
+							}
+						} catch (NoSuchAlgorithmException | java.security.NoSuchProviderException e) {
+							s_logger.error("Error creating message digest: {}", e.getMessage());
+						}
+					} else {
+						s_logger.error("Missing object to hash for id {}: ", entry.getKey());
+					}
+				}
+				rv_result = dgIdx == m_dghList.entrySet().size();
 			} else {
-				s_logger.error("LDSSecurityObject was null");
+				s_logger.error("Data Group object was null");
 			}
+		} else {
+			s_logger.error("LDSSecurityObject was null");
 		}
 
 		return rv_result;
@@ -389,7 +387,7 @@ public class SecurityObject extends SignedPIVDataObject {
 	 *         container matches hashed value of the container data.
 	 */
 	public boolean verifyHash(Integer id) {
-		boolean rv_result = true;
+		boolean rv_result = false;
 
 		String oid = m_containerIDList.get(id);
 
@@ -407,10 +405,7 @@ public class SecurityObject extends SignedPIVDataObject {
 					return false;
 				}
 
-				ASN1InputStream asn1is = new ASN1InputStream(new ByteArrayInputStream(s.getEncoded()));
-				ASN1Sequence soSeq;
-				soSeq = (ASN1Sequence) asn1is.readObject();
-				asn1is.close();
+				ASN1Sequence soSeq = ASN1Sequence.getInstance(s.getSignedContent().getContent());
 				LDSSecurityObject ldsso = LDSSecurityObject.getInstance(soSeq);
 
 				DataGroupHash[] dghList = ldsso.getDatagroupHash();
@@ -435,9 +430,7 @@ public class SecurityObject extends SignedPIVDataObject {
 			md.update(bytesToHash);
 			byte[] digest = md.digest();
 
-			if (!Arrays.equals(m_dghList.get(id), digest)) {
-				rv_result = false;
-			}
+			rv_result = Arrays.equals(m_dghList.get(id), digest);
 
 		} catch (Exception ex) {
 			s_logger.error("Error verifying hash for ID: {}", id);

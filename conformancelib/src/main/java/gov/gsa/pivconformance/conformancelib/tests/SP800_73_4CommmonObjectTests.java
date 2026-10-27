@@ -63,9 +63,12 @@ public class SP800_73_4CommmonObjectTests {
     // @MethodSource("sp800_73_4CommonObjectsTestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void sp800_73_4_Test_56(String oid, TestReporter reporter) {
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
     	// TODO: Since this could be caught, longer-term, consider Throwable
 		try {
 			PIVDataObject o = AtomHelper.getDataObject(oid);
+			Assertions.assertNotNull(o, "Required container is absent: " + oid);
 			Assertions.assertTrue(o.inBounds(oid), "Tag in " + o.getFriendlyName() + " failed length check");
 			Assertions.assertTrue(o.isOrderCorrect(), "Unlisted or out-of-order tag");
 		} catch (Exception e) {

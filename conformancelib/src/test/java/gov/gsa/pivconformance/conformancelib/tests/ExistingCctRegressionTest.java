@@ -114,6 +114,13 @@ public class ExistingCctRegressionTest {
                 "cms-pss-sha384-zero", "cms-pss-sha384-max", "cms-pss-sha384-excess"))
             currentChuidObjects.put(kind, signedCurrentChuid(decoded, kind));
         keyProfileCertificates.put("rsa2048", currentCertificate(rsa(2048, RSAKeyGenParameterSpec.F4)));
+        for (boolean caIssuers : new boolean[]{false, true}) {
+            var aia = new AuthorityInformationAccess(new AccessDescription(
+                    caIssuers ? AccessDescription.id_ad_caIssuers : AccessDescription.id_ad_ocsp,
+                    new GeneralName(GeneralName.uniformResourceIdentifier, "http://example.invalid/issuer")));
+            keyProfileCertificates.put(caIssuers ? "aia-caIssuers" : "aia-ocsp",
+                    currentCertificate(sanSigningKey, "SHA256withRSA", false, aia));
+        }
         keyProfileCertificates.put("rsa3072", currentCertificate(rsa(3072, RSAKeyGenParameterSpec.F4)));
         // A fixed, self-signed weak-key certificate is the intentional negative
         // input for the key-profile cases. The separate CMS size negative uses
@@ -168,10 +175,55 @@ public class ExistingCctRegressionTest {
                     false, "CHUID expiration date must be an eight-digit valid YYYYMMDD date");
     }
 
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void expiryDescriptionMatchesTheOriginalProfileParameter(String database) throws Exception {
+        int years = database.contains("ICAM") ? 15 : 6;
+        Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro")) {
+            var row = new TestCaseModel(new ConformanceTestDatabase(c));
+            row.retrieveForId(39);
+            assertEquals("8.2.4", row.getIdentifier());
+            assertEquals(1, row.getSteps().size());
+            assertEquals("sp800_73_4_Test_16", row.getSteps().get(0).getTestMethodName());
+            assertEquals(List.of(Integer.toString(years)), row.getSteps().get(0).getParameters());
+            assertEquals("Expiration Date is within the next " + years + " years", row.getDescription());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void expiryWindowRetainsProductionAndIcamOutcomes(String database) throws Exception {
+        int years = database.contains("ICAM") ? 15 : 6;
+        var today = java.time.LocalDate.now();
+        String method = "sp800_73_4_Test_16";
+        // These controls stay away from the unchanged time-of-day boundaries.
+        run(database, 39, method, chuidExpiringOn(today.plusYears(years).minusDays(2)), true, "");
+        run(database, 39, method, chuidExpiringOn(today.minusDays(2)), false,
+                "CHUID expiration date is before the test date");
+        run(database, 39, method, chuidExpiringOn(today.plusYears(years).plusDays(2)), false,
+                "CHUID expiration date is more than " + years + " years after the test date");
+        run(database, 39, method, chuidExpiringOn(today.plusYears(10)), years == 15,
+                "CHUID expiration date is more than 6 years after the test date");
+    }
+
+    private static byte[] chuidExpiringOn(java.time.LocalDate expiration) throws Exception {
+        var base = new CardHolderUniqueIdentifier();
+        base.setOID(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID);
+        base.setBytes(currentChuidObjects.get("plain"));
+        assertTrue(base.decode());
+        String encoded = expiration.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
+        byte[] raw = signedCurrentChuid(base, "date-value-" + encoded);
+        assertArrayEquals(encoded.getBytes(java.nio.charset.StandardCharsets.US_ASCII), fixtureValue(raw, 0x35));
+        return raw;
+    }
+
     static Stream<Arguments> uuidCases() {
         return IntStream.of(369, 451).boxed().flatMap(row -> Stream.of(
                 "match", "uppercase", "mismatch", "missing", "bare", "short", "wrong-name-type",
-                "holder-before-card", "holder-after-card", "unrelated-uri-before-card")
+                "holder-before-card", "holder-after-card", "unrelated-uri-before-card", "fascn-only", "fascn-and-card")
                 .map(kind -> Arguments.of(row, kind)));
     }
 
@@ -180,8 +232,12 @@ public class ExistingCctRegressionTest {
         GeneralName match = new GeneralName(GeneralName.uniformResourceIdentifier, cardUrn);
         GeneralName holder = new GeneralName(GeneralName.uniformResourceIdentifier,
                 "urn:uuid:aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee");
+        GeneralName fascn = new GeneralName(GeneralName.otherName, new OtherName(
+                new ASN1ObjectIdentifier("2.16.840.1.101.3.6.6"), new DEROctetString(fixtureValue(chuid, 0x30))));
         GeneralName[] names = switch (kind) {
             case "match" -> new GeneralName[]{match};
+            case "fascn-only" -> new GeneralName[]{fascn};
+            case "fascn-and-card" -> new GeneralName[]{fascn, match};
             case "uppercase" -> new GeneralName[]{new GeneralName(6, cardUrn.toUpperCase(Locale.ROOT))};
             case "mismatch" -> new GeneralName[]{holder};
             case "missing" -> null;
@@ -193,12 +249,21 @@ public class ExistingCctRegressionTest {
             case "unrelated-uri-before-card" -> new GeneralName[]{new GeneralName(6, "https://example.invalid/"), match};
             default -> throw new AssertionError(kind);
         };
-        boolean pass = Set.of("match", "uppercase", "unrelated-uri-before-card").contains(kind)
+        boolean pass = Set.of("match", "uppercase", "unrelated-uri-before-card", "fascn-and-card").contains(kind)
                 || (row == 451 && Set.of("holder-before-card", "holder-after-card").contains(kind));
         String failure = row == 369 && Set.of("holder-before-card", "holder-after-card").contains(kind)
                 ? "PKIX.27 current:" : "PKIX.27:";
+        byte[] signed = signedCertificateWithSan(names);
         for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db"))
-            run(database, row, "PKIX_Test_27_current", signedCertificateWithSan(names), pass, failure);
+            run(database, row, "PKIX_Test_27_current", signed, pass, failure);
+        if (kind.startsWith("fascn-")) {
+            X509Certificate certificate = (X509Certificate) CertificateFactory.getInstance("X.509")
+                    .generateCertificate(new java.io.ByteArrayInputStream(fixtureValue(signed, 0x70)));
+            long uriCount = certificate.getSubjectAlternativeNames().stream().filter(n -> n.get(0).equals(6)).count();
+            assertEquals(kind.equals("fascn-only") ? 0 : 1, uriCount);
+            for (String database : List.of("PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"))
+                run(database, row, "PKIX_Test_27", signed, pass, "PKIX.27:");
+        }
     }
 
     static Stream<Arguments> currentSanHolderCases() {
@@ -377,6 +442,132 @@ public class ExistingCctRegressionTest {
         }
     }
 
+    static Stream<Arguments> absentContainerCases() throws Exception {
+        List<Arguments> cases = new ArrayList<>();
+        for (String database : List.of("PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+                "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db")) {
+            Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
+            try (Connection c = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro");
+                 var rows = c.createStatement().executeQuery("SELECT tc.Id, s.Method, tc.TestCaseContainer "
+                         + "FROM TestCases tc JOIN TestsToSteps ts ON tc.Id=ts.TestId "
+                         + "JOIN TestSteps s ON s.Id=ts.TestStepId WHERE tc.Id IN "
+                         + "(65,66,67,68,69,70,71,72,73,74,75,76,89,90,91,92,93,98,101,102,103,104,105,110,136,137,138,139,145,399,400,422,423) "
+                         + "ORDER BY tc.Id")) {
+                int count = 0;
+                while (rows.next()) {
+                    cases.add(Arguments.of(database, rows.getInt(1), rows.getString(2), rows.getString(3)));
+                    count++;
+                }
+                assertEquals(33, count, "Retain captured and shared optional routes, including disabled ICAM diagnostics");
+            }
+        }
+        return cases.stream();
+    }
+
+    @ParameterizedTest(name="{0} row {1}: {2}")
+    @MethodSource("absentContainerCases")
+    void absentContainerFieldsKeepAcquisitionBoundaries(String database, int row, String method,
+                                                       String container) throws Exception {
+        byte[] present = switch (container) {
+            case "PRINTED_INFORMATION_OID" -> printedContainerFixture();
+            case "DISCOVERY_OBJECT_OID" -> Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                    "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin"));
+            default -> keyProfileCertificates.get("aia-caIssuers");
+        };
+        run(database, row, method, present, true, "");
+        run(database, row, method, null, true, "");
+        run(database, row, method, present, TestExecutionResult.Status.FAILED,
+                "Failed to retrieve data object", MiddlewareStatus.PIV_CONNECTION_FAILURE);
+        var malformed = run(database, row, method, new byte[]{0x53, 1, 0},
+                TestExecutionResult.Status.FAILED, "", null, null);
+        assertTrue(malformed.getThrowable().orElseThrow().getCause() instanceof ConformanceTestException);
+        assertTrue(malformed.getThrowable().orElseThrow().getCause().getMessage()
+                .startsWith("Failed to decode object for OID "));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void sharedFieldChecksStillRejectMissingMandatoryContainers(String database) throws Exception {
+        Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
+        try (Connection c = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro");
+             var rows = c.createStatement().executeQuery("SELECT tc.Id, s.Method, tc.TestCaseContainer "
+                     + "FROM TestCases tc JOIN TestsToSteps ts ON tc.Id=ts.TestId "
+                     + "JOIN TestSteps s ON s.Id=ts.TestStepId WHERE s.Method IN "
+                     + "('berTLV_Test_1','berTLV_Test_2','berTLV_Test_3','berTLV_Test_4',"
+                     + "'sp800_73_4_Test_56','sp800_73_4_Test_23','PKIX_Test_7','PKIX_Test_22')")) {
+            int count = 0;
+            while (rows.next()) {
+                String oid = APDUConstants.getStringForFieldNamed(rows.getString(3));
+                if (!APDUConstants.isContainerMandatory(oid)) continue;
+                run(database, rows.getInt(1), rows.getString(2), null, false, "Required container is absent:");
+                count++;
+            }
+            assertEquals(48, count);
+        }
+    }
+
+    private static byte[] printedContainerFixture() throws Exception {
+        return APDUUtils.getTLV(APDUConstants.DATA,
+                fixtureFields(APDUUtils.getTLV(APDUConstants.DATA, printedFixture())).stream()
+                        .map(f -> f.isTag(new BerTag(4))
+                                ? APDUUtils.getTLV(new byte[]{4}, "2030DEC31".getBytes(java.nio.charset.StandardCharsets.US_ASCII))
+                                : APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
+                        .reduce(new byte[0], ExistingCctRegressionTest::concat));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void presentOptionalFieldsStillReachTheirAssertions(String database) throws Exception {
+        byte[] valid = printedContainerFixture();
+        var fields = fixtureFields(valid);
+        byte[] noEnd = APDUUtils.getTLV(APDUConstants.DATA, fields.stream()
+                .filter(f -> !f.isTag(new BerTag(0xfe)))
+                .map(f -> APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
+                .reduce(new byte[0], ExistingCctRegressionTest::concat));
+        run(database, 74, "sp800_73_4_Test_30", noEnd, false, "expected:");
+        run(database, 76, "sp800_73_4_Test_23", noEnd, false, "expected:");
+        byte[] body = new BerTlvParser().parse(valid).getList().get(0).getBytesValue();
+        run(database, 75, "sp800_73_4_Test_31", APDUUtils.getTLV(APDUConstants.DATA,
+                concat(new byte[]{(byte) 0xf8, 0}, body)), false, "expected:");
+        byte[] reordered = APDUUtils.getTLV(APDUConstants.DATA, Stream.concat(
+                Stream.of(fields.get(1), fields.get(0)), fields.stream().skip(2))
+                .map(f -> APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
+                .reduce(new byte[0], ExistingCctRegressionTest::concat));
+        run(database, 71, "sp800_73_4_Test_52", reordered, false, "Tag 0x02 must follow tag 0x01");
+        byte[] orgBeforeIssuer = APDUUtils.getTLV(APDUConstants.DATA, fields.stream()
+                .map(f -> f.isTag(new BerTag(6))
+                        ? concat(new byte[]{7, 1, 'A'}, APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
+                        : APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
+                .reduce(new byte[0], ExistingCctRegressionTest::concat));
+        run(database, 73, "sp800_73_4_Test_29", orgBeforeIssuer, false, "Tag 0x07 must follow tag 0x06");
+        run(database, 72, "sp800_73_4_Test_53", APDUUtils.getTLV(APDUConstants.DATA,
+                concat(body, new byte[]{7, 1, 'A'})), false, "ERROR_DETECTION_TAG must be the last tag");
+        for (int row : new int[]{399, 422}) {
+            run(database, row, "PKIX_Test_7", keyProfileCertificates.get("rsa2048"), false, "AIA extension is not present");
+            run(database, row + 1, "PKIX_Test_22", keyProfileCertificates.get("aia-ocsp"), false,
+                    "An accessMethod containing 1.3.6.1.5.5.7.48.2 is not present");
+        }
+    }
+
+    @Test void optionalContainerControlsAreIndependentlyWellFormed() throws Exception {
+        byte[] printed = printedContainerFixture();
+        assertTrue(printed.length <= 120);
+        var fields = fixtureFields(printed);
+        assertEquals(List.of(1, 2, 4, 5, 6, 0xfe), fields.stream()
+                .map(f -> Byte.toUnsignedInt(f.getTag().bytes[0])).collect(Collectors.toList()));
+        assertEquals(0, fields.get(fields.size() - 1).getBytesValue().length);
+        for (String kind : List.of("aia-caIssuers", "aia-ocsp")) {
+            var cert = fixtureCertificate(keyProfileCertificates.get(kind));
+            assertTrue(cert.isSignatureValid(new JcaContentVerifierProviderBuilder().build(sanSigningKey.getPublic())));
+            var aia = AuthorityInformationAccess.fromExtensions(cert.getExtensions());
+            assertEquals(1, aia.getAccessDescriptions().length);
+            assertEquals(kind.equals("aia-caIssuers") ? AccessDescription.id_ad_caIssuers : AccessDescription.id_ad_ocsp,
+                    aia.getAccessDescriptions()[0].getAccessMethod());
+        }
+    }
+
     @ParameterizedTest
     @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
             "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
@@ -475,6 +666,147 @@ public class ExistingCctRegressionTest {
                 if (row == 324) assertFixtureCmsValid(cms, expectedSigner);
             }
         }
+    }
+
+    @ParameterizedTest(name="Security Object Discovery hashes: {0}")
+    @ValueSource(strings={"PIV_Production_Cards.db", "PIV_ICAM_Test_Cards.db",
+            "PIV-I_Production_Cards.db", "PIV-I_ICAM_Test_Cards.db"})
+    void securityObjectDiscoveryHashesThroughExistingAtom(String database) throws Exception {
+        byte[] discovery = Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin"));
+        byte[] content = new BerTlvParser().parseConstructed(discovery).getBytesValue();
+        byte[] security = securityObjectWithDiscovery(content);
+        Map<String, byte[]> objects = new HashMap<>();
+        objects.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, APDUUtils.getTLV(APDUConstants.DATA, ccc));
+        objects.put(APDUConstants.DISCOVERY_OBJECT_OID, discovery);
+        run(database, 317, "sp800_73_4_Test_37", security, TestExecutionResult.Status.SUCCESSFUL,
+                "", null, currentChuidObjects.get("plain"), objects);
+        // The same decoded fields and exact value bytes survive a different outer BER length encoding.
+        byte[] longLength = concat(new byte[]{0x7e, (byte) 0x81, (byte) content.length}, content);
+        objects.put(APDUConstants.DISCOVERY_OBJECT_OID, longLength);
+        run(database, 317, "sp800_73_4_Test_37", security, TestExecutionResult.Status.SUCCESSFUL,
+                "", null, currentChuidObjects.get("plain"), objects);
+        byte[] changed = discovery.clone();
+        changed[changed.length - 2] ^= 0x10;
+        DiscoveryObject changedObject = new DiscoveryObject();
+        changedObject.setOID(APDUConstants.DISCOVERY_OBJECT_OID);
+        changedObject.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.DISCOVERY_OBJECT_OID));
+        changedObject.setBytes(changed);
+        assertTrue(changedObject.decode(), "The intended hash violation must remain decodable");
+        objects.put(APDUConstants.DISCOVERY_OBJECT_OID, changed);
+        run(database, 317, "sp800_73_4_Test_37", security, TestExecutionResult.Status.FAILED,
+                "Hashes in Security Object do not match", null, currentChuidObjects.get("plain"), objects);
+        objects.put(APDUConstants.DISCOVERY_OBJECT_OID, discovery);
+        byte[] changedCcc = ccc.clone(); changedCcc[4] ^= 1;
+        CardCapabilityContainer decodedCcc = new CardCapabilityContainer();
+        decodedCcc.setOID(APDUConstants.CARD_CAPABILITY_CONTAINER_OID);
+        decodedCcc.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.CARD_CAPABILITY_CONTAINER_OID));
+        decodedCcc.setBytes(APDUUtils.getTLV(APDUConstants.DATA, changedCcc));
+        assertTrue(decodedCcc.decode());
+        objects.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, APDUUtils.getTLV(APDUConstants.DATA, changedCcc));
+        run(database, 317, "sp800_73_4_Test_37", security, TestExecutionResult.Status.FAILED,
+                "Hashes in Security Object do not match", null, currentChuidObjects.get("plain"), objects);
+        objects.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, APDUUtils.getTLV(APDUConstants.DATA, ccc));
+        // Hash integrity is independent of the separate allowed-field assertion.
+        byte[] extraContent = concat(content, new byte[]{0x01, 1, 0x42});
+        byte[] extraSecurity = securityObjectWithDiscovery(extraContent);
+        objects.put(APDUConstants.DISCOVERY_OBJECT_OID, APDUUtils.getTLV(new byte[]{0x7e}, extraContent));
+        run(database, 317, "sp800_73_4_Test_37", extraSecurity, TestExecutionResult.Status.SUCCESSFUL,
+                "", null, currentChuidObjects.get("plain"), objects);
+        extraContent[extraContent.length - 1] ^= 1;
+        objects.put(APDUConstants.DISCOVERY_OBJECT_OID, APDUUtils.getTLV(new byte[]{0x7e}, extraContent));
+        run(database, 317, "sp800_73_4_Test_37", extraSecurity, TestExecutionResult.Status.FAILED,
+                "Hashes in Security Object do not match", null, currentChuidObjects.get("plain"), objects);
+        objects.remove(APDUConstants.DISCOVERY_OBJECT_OID);
+        run(database, 317, "sp800_73_4_Test_37", security, TestExecutionResult.Status.FAILED,
+                "Security object data group", null, currentChuidObjects.get("plain"), objects);
+    }
+
+    @Test void discoveryHashInputPreservesEncodedValue() throws Exception {
+        byte[] discovery = Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin"));
+        byte[] content = new BerTlvParser().parseConstructed(discovery).getBytesValue();
+        // Additional fields are outside this hash-input check's field-conformance claim.
+        for (byte[] value : List.of(content, concat(content, new byte[]{0x01, 1, 0x42}))) {
+            DiscoveryObject object = new DiscoveryObject();
+            object.setOID(APDUConstants.DISCOVERY_OBJECT_OID);
+            object.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.DISCOVERY_OBJECT_OID));
+            object.setBytes(APDUUtils.getTLV(new byte[]{0x7e}, value));
+            assertTrue(object.decode());
+            assertArrayEquals(value, object.getSignedContent(), "Hash the exact value, including any unrecognized field");
+        }
+    }
+
+    @Test void securityObjectHashVerificationCanBeRepeated() throws Exception {
+        byte[] discovery = Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin"));
+        byte[] content = new BerTlvParser().parseConstructed(discovery).getBytesValue();
+        SecurityObject object = new SecurityObject();
+        object.setOID(APDUConstants.SECURITY_OBJECT_OID);
+        object.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.SECURITY_OBJECT_OID));
+        object.setBytes(securityObjectWithDiscovery(content));
+        assertTrue(object.decode());
+        Map<String, byte[]> data = new HashMap<>();
+        data.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, ccc);
+        data.put(APDUConstants.DISCOVERY_OBJECT_OID, content);
+        object.setMapOfDataElements(new HashMap<>(data));
+        assertTrue(object.verifyHashes());
+        assertTrue(object.verifyHashes(), "A second verification must recompute, not fail because a cache is populated");
+        byte[] changed = content.clone(); changed[changed.length - 2] ^= 0x10;
+        data.put(APDUConstants.DISCOVERY_OBJECT_OID, changed);
+        object.setMapOfDataElements(new HashMap<>(data));
+        assertFalse(object.verifyHashes());
+        data.put(APDUConstants.DISCOVERY_OBJECT_OID, content);
+        object.setMapOfDataElements(new HashMap<>(data));
+        assertTrue(object.verifyHashes());
+    }
+
+    @Test void securityObjectSingleGroupHashRejectsErrors() throws Exception {
+        byte[] discovery = Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
+                "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin"));
+        byte[] content = new BerTlvParser().parseConstructed(discovery).getBytesValue();
+        SecurityObject object = new SecurityObject();
+        object.setOID(APDUConstants.SECURITY_OBJECT_OID);
+        object.setContainerName(APDUConstants.getFileNameForOid(APDUConstants.SECURITY_OBJECT_OID));
+        object.setBytes(securityObjectWithDiscovery(content));
+        assertTrue(object.decode());
+        Map<String, byte[]> data = new HashMap<>();
+        data.put(APDUConstants.CARD_CAPABILITY_CONTAINER_OID, ccc);
+        data.put(APDUConstants.DISCOVERY_OBJECT_OID, content);
+        object.setMapOfDataElements(new HashMap<>(data));
+        assertTrue(object.verifyHash(11), "The single-group helper must work before all-group verification");
+        byte[] changedGroup = content.clone(); changedGroup[changedGroup.length - 2] ^= 0x10;
+        data.put(APDUConstants.DISCOVERY_OBJECT_OID, changedGroup);
+        object.setMapOfDataElements(new HashMap<>(data));
+        assertFalse(object.verifyHash(11), "A single-group parse/error path must not falsely accept altered content");
+        data.remove(APDUConstants.DISCOVERY_OBJECT_OID);
+        object.setMapOfDataElements(new HashMap<>(data));
+        assertFalse(object.verifyHash(11), "Unavailable content must fail closed");
+        data.put(APDUConstants.DISCOVERY_OBJECT_OID, content);
+        object.setMapOfDataElements(new HashMap<>(data));
+        assertTrue(object.verifyHash(11));
+        assertTrue(object.verifyHash(1));
+        assertFalse(object.verifyHash(99), "An unmapped group cannot pass");
+    }
+
+    private static byte[] securityObjectWithDiscovery(byte[] discoveryValue) throws Exception {
+        var digestAlgorithm = fixtureChuidCms(currentChuidObjects.get("plain")).getSignerInfos()
+                .getSigners().iterator().next().getDigestAlgorithmID();
+        var hash = java.security.MessageDigest.getInstance(digestAlgorithm.getAlgorithm().getId());
+        var groups = new org.bouncycastle.asn1.icao.DataGroupHash[]{
+                new org.bouncycastle.asn1.icao.DataGroupHash(1, new DEROctetString(hash.digest(ccc))),
+                new org.bouncycastle.asn1.icao.DataGroupHash(11, new DEROctetString(hash.digest(discoveryValue)))};
+        var lds = new org.bouncycastle.asn1.icao.LDSSecurityObject(digestAlgorithm, groups);
+        byte[] raw = signedSecurityObject("plain", new byte[]{1, (byte) 0xdb, 0, 11, 0x60, 0x50}, lds);
+        byte[] encoded = fixtureValue(raw, 0xbb);
+        var cms = new CMSSignedData(encoded);
+        assertFixtureCmsValid(cms, assertFixtureCmsValid(fixtureChuidCms(currentChuidObjects.get("plain"))));
+        assertTrue(cms.getCertificates().getMatches(null).isEmpty());
+        var decoded = org.bouncycastle.asn1.icao.LDSSecurityObject.getInstance(cms.getSignedContent().getContent());
+        assertEquals(digestAlgorithm, decoded.getDigestAlgorithmIdentifier());
+        assertArrayEquals(hash.digest(ccc), decoded.getDatagroupHash()[0].getDataGroupHashValue().getOctets());
+        assertArrayEquals(hash.digest(discoveryValue), decoded.getDatagroupHash()[1].getDataGroupHashValue().getOctets());
+        return raw;
     }
 
     @ParameterizedTest(name="CMS certificate/signer counts: {0}, row {1}")
@@ -904,12 +1236,11 @@ public class ExistingCctRegressionTest {
                     new org.bouncycastle.asn1.icao.DataGroupHash[]{
                             new org.bouncycastle.asn1.icao.DataGroupHash(1, new DEROctetString(hash.digest(ccc))),
                             new org.bouncycastle.asn1.icao.DataGroupHash(2, new DEROctetString(hash.digest(printedFixture())))});
-            byte[] cms = cmsGenerator(kind, false, false).generate(new CMSProcessableByteArray(
-                    new ASN1ObjectIdentifier("2.23.136.1.1.1"), lds.getEncoded()), true).getEncoded();
-            cms = mutateFixtureCms(cms, mutation);
-            raw = APDUUtils.getTLV(APDUConstants.DATA, concat(
-                    APDUUtils.getTLV(new byte[]{(byte) 0xba}, new byte[]{1, (byte) 0xdb, 0, 2, 0x30, 1}),
-                    concat(APDUUtils.getTLV(new byte[]{(byte) 0xbb}, cms), new byte[]{(byte) 0xfe, 0})));
+            raw = signedSecurityObject(kind, new byte[]{1, (byte) 0xdb, 0, 2, 0x30, 1}, lds);
+            if (mutation != null) raw = APDUUtils.getTLV(APDUConstants.DATA, concat(
+                    APDUUtils.getTLV(new byte[]{(byte) 0xba}, fixtureValue(raw, 0xba)),
+                    concat(APDUUtils.getTLV(new byte[]{(byte) 0xbb}, mutateFixtureCms(fixtureValue(raw, 0xbb), mutation)),
+                            new byte[]{(byte) 0xfe, 0})));
         } else {
             // Reuse existing header records; iris bytes are opaque test data, not an iris image.
             byte[] record;
@@ -956,6 +1287,15 @@ public class ExistingCctRegressionTest {
         }
         cmsConsumerObjects.put(identity, raw);
         return raw;
+    }
+
+    private static byte[] signedSecurityObject(String kind, byte[] mapping,
+            org.bouncycastle.asn1.icao.LDSSecurityObject lds) throws Exception {
+        byte[] cms = cmsGenerator(kind, false, false).generate(new CMSProcessableByteArray(
+                new ASN1ObjectIdentifier("2.23.136.1.1.1"), lds.getEncoded()), true).getEncoded();
+        return APDUUtils.getTLV(APDUConstants.DATA, concat(
+                APDUUtils.getTLV(new byte[]{(byte) 0xba}, mapping),
+                concat(APDUUtils.getTLV(new byte[]{(byte) 0xbb}, cms), new byte[]{(byte) 0xfe, 0})));
     }
 
     private static CMSSignedData fixtureCms(int row, byte[] raw) throws Exception {
@@ -1279,12 +1619,7 @@ public class ExistingCctRegressionTest {
                 case 61 -> cmsConsumerObject(286, "plain");
                 case 83 -> cmsConsumerObject(306, "plain");
                 case 129 -> cmsConsumerObject(324, "plain");
-                case 69 -> APDUUtils.getTLV(APDUConstants.DATA,
-                        fixtureFields(APDUUtils.getTLV(APDUConstants.DATA, printedFixture())).stream()
-                                .map(f -> f.isTag(new BerTag(4))
-                                        ? APDUUtils.getTLV(new byte[]{4}, "2030DEC31".getBytes(java.nio.charset.StandardCharsets.US_ASCII))
-                                        : APDUUtils.getTLV(f.getTag().bytes, f.getBytesValue()))
-                                .reduce(new byte[0], ExistingCctRegressionTest::concat));
+                case 69 -> printedContainerFixture();
                 case 145 -> Files.readAllBytes(Path.of(System.getProperty("cct.repository"),
                         "cardlib/src/test/resources/gov/gsa/pivconformance/cardlib/test/synthetic/discovery.bin"));
                 default -> throw new AssertionError(row);
@@ -1547,7 +1882,7 @@ public class ExistingCctRegressionTest {
             case "date-short" -> "2032122";
             case "date-leap" -> "20320229";
             case "date-nondigit", "date-nonascii" -> "2032120A";
-            default -> "20321202";
+            default -> kind.startsWith("date-value-") ? kind.substring("date-value-".length()) : "20321202";
         };
         byte[] dateBytes = dateText.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
         if (kind.equals("date-nonascii")) dateBytes[7] = (byte) 0xb2;
@@ -1730,11 +2065,17 @@ public class ExistingCctRegressionTest {
     }
 
     private static byte[] currentCertificate(KeyPair keyPair, String signature, boolean explicitNullParameters) throws Exception {
+        return currentCertificate(keyPair, signature, explicitNullParameters, null);
+    }
+
+    private static byte[] currentCertificate(KeyPair keyPair, String signature, boolean explicitNullParameters,
+                                             AuthorityInformationAccess aia) throws Exception {
         X500Name name = new X500Name("CN=CCT SP800-78-5 regression");
         java.util.Date notBefore = new java.util.Date(1704067200000L);
         java.util.Date notAfter = new java.util.Date(1893456000000L);
         var builder = new JcaX509v3CertificateBuilder(name, BigInteger.valueOf(
                 keyProfileCertificates.size() + 1L), notBefore, notAfter, name, keyPair.getPublic());
+        if (aia != null) builder.addExtension(Extension.authorityInfoAccess, false, aia);
         var delegate = new JcaContentSignerBuilder(signature).build(keyPair.getPrivate());
         org.bouncycastle.operator.ContentSigner signer = explicitNullParameters
                 ? new org.bouncycastle.operator.ContentSigner() {
@@ -1985,6 +2326,14 @@ public class ExistingCctRegressionTest {
     private static TestExecutionResult run(String database, int id, String expectedMethod, byte[] raw,
                             TestExecutionResult.Status expectedStatus, String failurePrefix,
                             MiddlewareStatus retrievalFailure, byte[] relatedChuid) throws Exception {
+        return run(database, id, expectedMethod, raw, expectedStatus, failurePrefix,
+                retrievalFailure, relatedChuid, Map.of());
+    }
+
+    private static TestExecutionResult run(String database, int id, String expectedMethod, byte[] raw,
+                            TestExecutionResult.Status expectedStatus, String failurePrefix,
+                            MiddlewareStatus retrievalFailure, byte[] relatedChuid,
+                            Map<String, byte[]> additionalObjects) throws Exception {
         Path path = Path.of(System.getProperty("cct.repository"), "conformancelib/testdata", database);
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:file:" + path + "?mode=ro")) {
             TestCaseModel row = new TestCaseModel(new ConformanceTestDatabase(connection));
@@ -1995,7 +2344,7 @@ public class ExistingCctRegressionTest {
                     .filter(m -> m.getName().equals(step.getTestMethodName())).findFirst().orElseThrow();
             String selector = step.getTestClassName() + "#" + method.getName() + "("
                     + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")) + ")";
-            Map<String,byte[]> objects = new HashMap<>();
+            Map<String,byte[]> objects = new HashMap<>(additionalObjects);
             objects.put(APDUConstants.CARD_HOLDER_UNIQUE_IDENTIFIER_OID, relatedChuid == null ? chuid : relatedChuid);
             objects.put(APDUConstants.getStringForFieldNamed(row.getContainer()), raw);
             var result = execute(selector, row.getContainer(), step.getParameters(), objects, retrievalFailure);

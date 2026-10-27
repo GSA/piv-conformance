@@ -413,7 +413,11 @@ public class PKIX_X509DataObjectTests {
     //@MethodSource("pKIX_x509TestProvider")
     @ArgumentsSource(ParameterizedArgumentsProvider.class)
     void PKIX_Test_7(String oid, TestReporter reporter) {
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
+		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 
 		//Get authorityInformationAccess extension
@@ -813,7 +817,11 @@ public class PKIX_X509DataObjectTests {
 	//@MethodSource("pKIX_x509TestProvider")
 	@ArgumentsSource(ParameterizedArgumentsProvider.class)
 	void PKIX_Test_22(String oid, TestReporter reporter) {
-		X509Certificate cert = AtomHelper.getCertificateForContainer(AtomHelper.getDataObject(oid));
+		if (AtomHelper.isOptionalAndAbsent(oid))
+			return;
+		PIVDataObject o = AtomHelper.getDataObject(oid);
+		assertNotNull(o, "Required container is absent: " + oid);
+		X509Certificate cert = AtomHelper.getCertificateForContainer(o);
 		assertNotNull(cert, "Certificate could not be read for " + oid);
 		boolean rv = false;
 
